@@ -4,7 +4,13 @@ Validation of OpenShift Pipeline releases
 
 ## Setup
 
-Install `goconvey`
+### Install goconvey
+
+```
+go get github.com/smartystreets/goconvey
+```
+
+ref: https://github.com/smartystreets/goconvey#installation
 
 ## Running tests
 
