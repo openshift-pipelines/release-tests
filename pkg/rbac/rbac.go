@@ -9,4 +9,5 @@ import (
 func ValidateRole(t *testing.T) {
 	// dummy validation to serve as an example
 	c.SkipSo(true, c.ShouldEqual, false)
+
 }
