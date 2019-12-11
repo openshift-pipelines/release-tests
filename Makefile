@@ -12,7 +12,7 @@ ifndef TKN_VERSION
 	@exit 1
 endif
 	[[ -d "${DOWNLOAD_PATH}" ]] | mkdir -p ${DOWNLOAD_PATH}
-	curl -L -o ${BUILD_PATH}/tkn.tar.gz ${STABLE_DOWNLOAD_URL}
+	curl -L -o ${DOWNLOAD_PATH}/tkn.tar.gz ${STABLE_DOWNLOAD_URL}
 	tar xvzf ${DOWNLOAD_PATH}/tkn.tar.gz -C ${DOWNLOAD_PATH} tkn
 	rm -rf ${DOWNLOAD_PATH}/tkn.tar.gz
 
