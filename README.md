@@ -35,6 +35,7 @@ ref: http://onsi.github.io/ginkgo/#getting-ginkgo
 
 ### Run tests using `ginkgo`
 
+### Run Single Test case 
 ```
 ginkgo -v ./spec/... --timeout 20m
 ```

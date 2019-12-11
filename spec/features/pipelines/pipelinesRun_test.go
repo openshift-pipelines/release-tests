@@ -31,7 +31,6 @@ var _ = Describe("Run sample pipeline", func() {
 				pipelines.CreateSamplePipeline(flags.Clients, flags.Namespace)
 				By("I should Run pipeline " + flags.Namespace)
 				pipelines.RunSamplePipeline(flags.Clients, flags.Namespace)
-
 			})
 		})
 	})

@@ -9,7 +9,6 @@ require (
 	github.com/openshift/api v3.9.1-0.20190911180052-9f80b7806f58+incompatible
 	github.com/openshift/client-go v3.9.0+incompatible
 	github.com/smartystreets/goconvey v1.6.4
-	github.com/tektoncd/cli v0.6.0 // indirect
 	github.com/tektoncd/operator v0.0.0-20191212145541-b93217f690fe
 	github.com/tektoncd/pipeline v0.9.2
 	go.opencensus.io v0.22.1
