@@ -3,12 +3,29 @@ package pipeline
 import (
 	"testing"
 
+	"github.com/openshift-pipelines/release-tests/pkg/helper"
+	"github.com/openshift-pipelines/release-tests/pkg/operator"
+	"github.com/openshift-pipelines/release-tests/pkg/pipelines"
 	. "github.com/smartystreets/goconvey/convey"
 )
+
+var namespace string
 
 func TestPipelineRunTutorial(t *testing.T) {
 	Convey("Given that Operator is installed", t, func() {
 		Convey("I should be able to run Pipelines Tutorial as a non admin", nil)
+	})
+}
+
+func TestSamplePipelineRun(t *testing.T) {
+	operator.Clt, namespace = operator.Setup(t)
+	defer operator.DeleteOperator(t, operator.Clt)
+	defer helper.DeleteNamespace(namespace, operator.Clt.KubeClient)
+	Convey("Given that Operator is installed", t, func() {
+		Convey("I should be able to run Pipelines a non admin", func() {
+			pipelines.CreateSamplePiplines(operator.Clt, namespace)
+			pipelines.StartSamplePipelineUsingTkn(t, namespace)
+		})
 	})
 }
 

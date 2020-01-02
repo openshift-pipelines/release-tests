@@ -1,9 +1,18 @@
+# MacOS file viewer garbage.
+.DS_Store
+
+# Emacs garbage
+*~
+
 # Binaries for programs and plugins
 *.exe
 *.exe~
 *.dll
 *.so
 *.dylib
+*.out
+*.app
+*.dll
 
 # Test binary, built with `go test -c`
 *.test

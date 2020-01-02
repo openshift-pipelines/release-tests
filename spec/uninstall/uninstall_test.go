@@ -8,12 +8,17 @@ import (
 
 func TestUninstall(t *testing.T) {
 	Convey("Given a new cluster with Operator installed", t, func() {
-		Convey("Delete instance of openshift pipelines config", nil) // $ oc delete config.operator.tekton.dev cluster
-		//   config.operator.tekton.dev "cluster" deleted
-		Convey("Uninstall openshift pipeline Operator from console(UI)", func() {
-			Convey("Login as an admin user", nil)
-			Convey("Navigate to operators > operatorHub and search for 'openshift pipelines operator'", nil)
-			Convey("Then click on 'openshift pipelines operator' and click on uninstall button", nil)
+		Convey("When I logged in as admin user", func() {
+			Convey("I should Delete instance (name: cluster) of config.operator.tekton.dev", func() {
+			})
+			Convey("I should Delete Clusterserviceversion", func() {
+			})
+			Convey("I should Delete install plan", func() {
+			})
+			Convey("I should delete subscription", func() {
+			})
+			Convey("Validate cluster should not have any CRDs/api-resources which contains `tekton`", func() {
+			})
 		})
 	})
 }
