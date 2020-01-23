@@ -1,0 +1,3 @@
+# Validate installation of triggers <version>
+
+* Validate Triggers deployment into target namespace (openshift-pipelines)

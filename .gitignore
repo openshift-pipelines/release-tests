@@ -4,7 +4,9 @@
 *.dll
 *.so
 *.dylib
-
+*.sh
+*.gauge
+.*
 # Test binary, built with `go test -c`
 *.test
 
@@ -12,4 +14,11 @@
 *.out
 
 # Dependency directories (remove the comment below to include it)
-# vendor/
+vendor/
+
+
+logs/
+
+reports/
+
+build/
