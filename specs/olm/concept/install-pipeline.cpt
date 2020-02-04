@@ -1,4 +1,0 @@
-# Validate installation of pipelines <version>
-
-* Validate pipeline version <version>
-* Validate pipelines deployment into target namespace (openshift-pipelines)

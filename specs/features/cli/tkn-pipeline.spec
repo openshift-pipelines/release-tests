@@ -1,27 +1,27 @@
-Verify tkn pipeline features
-============================
+# Verify tkn pipeline sub-command
 
-* Operator should be installed
+Pre Condition:
+  * Operator should be installed
 
-Create pipeline using Tkn binary 
---------------------------------
+## Create pipeline using tkn binary
+
 Tags: e2e, integration, tkn
- Create a pipeline from file using Tkn cli
- 
-* Create pipeline from file "../testdata/pipeline.yaml"
 
-Create pipeline using Tkn binary (NEGATIVE) 
--------------------------------------------
+  * Create pipeline from "../testdata/pipeline.yaml"
+
+## Creating invalid pipeline using tkn binary fails
+
+Tags: e2e, integration, tkn, negative
+
+(Negative Scenario) validate Error creation pipeline from file using `tkn` cli
+
+  * Create pipeline from  "../testdata/pipeline.yaml" - In Non-existance namespace
+  * Create pipeline from  "../testdata/pipeline.pdf"  - with unsupported file format
+  * Create pipeline from  "../testdata/pipelinerun.yaml" - with mismatched Resource kind
+
+## Start pipeline using Tkn
 Tags: e2e, integration, tkn
- (Negative Scenario) validate Error creation pipeline from file using Tkn cli 
 
-* Create pipeline from file "../testdata/pipeline.yaml" - In Non-existance namespace
-* Create pipeline from file "../testdata/pipeline.pdf" - with unsupported file format
-* Create pipeline from file "../testdata/pipelinerun.yaml" - with mismatched Resource kind
-
-Start pipeline using Tkn
-------------------------
-Tags: e2e, integration, tkn
- Start pipeline intarcatively using Tkn binary
-* Create sample pipeline
-* Start pipleine using tkn
+Start pipeline interactively using `tkn` binary
+  * Create sample pipeline
+  * Start pipeline using tkn

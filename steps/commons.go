@@ -1,27 +1,18 @@
 package steps
 
 import (
-	"sync"
-
 	"github.com/getgauge-contrib/gauge-go/gauge"
 	"github.com/openshift-pipelines/release-tests/pkg/client"
 	"github.com/openshift-pipelines/release-tests/pkg/helper"
-	"github.com/openshift-pipelines/release-tests/pkg/operator"
 )
 
-var once sync.Once
-var _ = gauge.Step("Operator should be installed", func() {
-	once.Do(func() {
-		operator.ValidateOperatorInstall(GetOperatorClient())
-	})
-})
-
 func GetNameSpace() string {
-	return fetchFromScenarioDataStore("namespace").(string)
+	return gauge.GetScenarioStore()["namespace"].(string)
+
 }
 
 func GetClient() *client.Clients {
-	switch c := fetchFromScenarioDataStore("client").(type) {
+	switch c := gauge.GetScenarioStore()["client"].(type) {
 	case *client.Clients:
 		return c
 	default:
@@ -30,7 +21,7 @@ func GetClient() *client.Clients {
 }
 
 func GetOperatorClient() *client.Clients {
-	switch c := fetchFromSuiteDataStore("opclient").(type) {
+	switch c := gauge.GetSuiteStore()["opclient"].(type) {
 	case *client.Clients:
 		return c
 	default:
@@ -39,7 +30,7 @@ func GetOperatorClient() *client.Clients {
 }
 
 func GetTknBinaryPath() helper.TknRunner {
-	switch n := fetchFromSuiteDataStore("tknPath").(type) {
+	switch n := gauge.GetSuiteStore()["tknPath"].(type) {
 	case helper.TknRunner:
 		return n
 	default:

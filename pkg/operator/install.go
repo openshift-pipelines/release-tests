@@ -37,7 +37,7 @@ func ValidateTriggerDeployments(cs *client.Clients) {
 		config.TriggerControllerName, config.TriggerWebhookName)
 }
 
-func ValidateOperatorInstalledStatus(cs *client.Clients) {
+func ValidateInstalledStatus(cs *client.Clients) {
 	// Refresh Cluster CR
 	cr := helper.WaitForClusterCR(cs, config.ClusterCRName)
 
@@ -46,7 +46,7 @@ func ValidateOperatorInstalledStatus(cs *client.Clients) {
 	}
 }
 
-func ValidateOperatorInstall(cs *client.Clients) {
+func ValidateInstall(cs *client.Clients) {
 	log.Printf("Waiting for operator to be up and running....\n")
 
 	ValidatePipelineDeployments(cs)
@@ -64,7 +64,7 @@ func ValidateOperatorInstall(cs *client.Clients) {
 
 func InstallOperator(version string) (*client.Clients, string, func()) {
 	cs, ns, cleanup := olm.Subscribe(version)
-	ValidateOperatorInstall(cs)
+	ValidateInstall(cs)
 	helper.VerifyServiceAccountExists(cs.KubeClient, ns)
 	return cs, ns, cleanup
 }

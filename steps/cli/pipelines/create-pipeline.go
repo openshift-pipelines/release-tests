@@ -9,9 +9,12 @@ import (
 	"gotest.tools/v3/icmd"
 )
 
-var _ = gauge.Step("Create pipeline from file <path_to_pipeline_yaml>", func(path_to_pipeline_yaml string) {
+var _ = gauge.Step("Create pipeline from <path_to_pipeline_yaml>", func(path_to_pipeline_yaml string) {
 	helper.RunCmd(&helper.TknCmd{
-		Args: []string{steps.GetTknBinaryPath().Path, "pipeline", "create", "--from", filepath.Join(helper.RootDir(), path_to_pipeline_yaml), "-n", steps.GetNameSpace()},
+		Args: []string{
+			steps.GetTknBinaryPath().Path, "pipeline", "create",
+			"--from", filepath.Join(helper.RootDir(), path_to_pipeline_yaml),
+			"-n", steps.GetNameSpace()},
 		Expected: icmd.Expected{
 			ExitCode: 0,
 			Err:      icmd.None,
@@ -20,7 +23,7 @@ var _ = gauge.Step("Create pipeline from file <path_to_pipeline_yaml>", func(pat
 	})
 })
 
-var _ = gauge.Step("Create pipeline from file <path_to_pipeline_yaml> - In Non-existance namespace", func(path_to_pipeline_yaml string) {
+var _ = gauge.Step("Create pipeline file <path_to_pipeline_yaml> - In Non-existance namespace", func(path_to_pipeline_yaml string) {
 	helper.RunCmd(&helper.TknCmd{
 		Args: []string{steps.GetTknBinaryPath().Path, "pipeline", "create", "--from", filepath.Join(helper.RootDir(), path_to_pipeline_yaml), "-n", "non-existance"},
 		Expected: icmd.Expected{
@@ -30,7 +33,7 @@ var _ = gauge.Step("Create pipeline from file <path_to_pipeline_yaml> - In Non-e
 	})
 })
 
-var _ = gauge.Step("Create pipeline from file <path_to_pipeline_yaml> - with unsupported file format", func(path_to_pipeline_yaml string) {
+var _ = gauge.Step("Create pipeline file <path_to_pipeline_yaml> - with unsupported file format", func(path_to_pipeline_yaml string) {
 	helper.RunCmd(&helper.TknCmd{
 		Args: []string{steps.GetTknBinaryPath().Path, "pipeline", "create", "--from", filepath.Join(helper.RootDir(), path_to_pipeline_yaml), "-n", steps.GetNameSpace()},
 		Expected: icmd.Expected{

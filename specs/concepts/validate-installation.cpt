@@ -1,0 +1,10 @@
+# Validate installation of pipelines <version>
+
+  * Validate pipeline version <version>
+  * Validate pipelines deployment into target namespace (openshift-pipelines)
+
+# Validate installation of triggers <version>
+
+  * Validate Triggers deployment into target namespace (openshift-pipelines)
+
+
