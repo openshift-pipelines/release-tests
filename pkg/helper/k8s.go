@@ -1,9 +1,13 @@
 package helper
 
 import (
+	"bytes"
 	"context"
 	"fmt"
+	"io/ioutil"
 	"log"
+	"path/filepath"
+	"text/template"
 
 	"time"
 
@@ -237,5 +241,43 @@ func VerifyServiceAccountExists(kc *client.KubeClient, namespace string) {
 		return true, err
 	}); err != nil {
 		log.Printf("Failed to get SA %q in namespace %q for tests: %s", defaultSA, namespace, err)
+	}
+}
+
+func CreateSubscriptionYaml(channel, installPlan, csv string) {
+	// TODO: convert to Go code
+	var err error
+	var data = struct {
+		Channel     string
+		InstallPlan string
+		CSV         string
+	}{
+		Channel:     channel,
+		InstallPlan: installPlan,
+		CSV:         csv,
+	}
+
+	var tmplBytes bytes.Buffer
+
+	b, err := ioutil.ReadFile(filepath.Join(RootDir(), "../config/subscription.yaml.tmp")) // just pass the file name
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	tmpl, err := template.New("subscription").Parse(string(b))
+	if err != nil {
+		panic(err)
+	}
+
+	err = tmpl.Execute(&tmplBytes, data)
+	if err != nil {
+		panic(err)
+	}
+
+	err = ioutil.WriteFile(filepath.Join(RootDir(), "../config/subscription.yaml"), tmplBytes.Bytes(), 0777)
+	// TODO: handle this error
+	if err != nil {
+		// print it out
+		log.Fatal(err)
 	}
 }
