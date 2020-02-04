@@ -4,14 +4,15 @@ Pre condition:
   * Operator should be installed
 
 ## Run sample pipeline
-Tags: e2e, integration
+Tags: e2e, integration, focus
 
 Define a pipeline which has 2 Tasks
-  1. To create file
-  2. To read file content created by above task
+  1. create a file
+  2. read file content created by above task
+
 
 Steps:
   * Create sample pipeline
   * Run pipeline
-  * Validate pipelinerun for success status
+  * Validate pipelinerun is successfull
 

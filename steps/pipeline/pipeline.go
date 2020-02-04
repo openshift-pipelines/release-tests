@@ -14,7 +14,7 @@ var _ = gauge.Step("Run pipeline", func() {
 	pipelines.RunSamplePipeline(steps.GetClient(), steps.GetNameSpace())
 })
 
-var _ = gauge.Step("Validate pipelinerun for success status", func() {
+var _ = gauge.Step("Validate pipelinerun is successfull", func() {
 	pipelines.ValidatePipelineRunStatus(steps.GetClient(), steps.GetNameSpace())
 })
 
