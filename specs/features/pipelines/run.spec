@@ -3,7 +3,7 @@
 Pre condition:
   * Operator should be installed
 
-# Run sample pipeline
+## Run sample pipeline
 Tags: e2e, integration
 
 Define a pipeline which has 2 Tasks
@@ -14,3 +14,4 @@ Steps:
   * Create sample pipeline
   * Run pipeline
   * Validate pipelinerun for success status
+
