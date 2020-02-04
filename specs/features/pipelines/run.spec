@@ -6,13 +6,13 @@ Pre condition:
 ## Run sample pipeline
 Tags: e2e, integration, focus
 
-Define a pipeline which has 2 Tasks
+Use a sample pipeline that has 2 tasks:
   1. create a file
   2. read file content created by above task
 
 
 Steps:
   * Create sample pipeline
-  * Run pipeline
-  * Validate pipelinerun is successfull
+  * Run sample pipeline
+  * Validate sample pipelinerun is successfull
 
