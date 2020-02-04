@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/openshift-pipelines/release-tests/pkg/client"
+	"github.com/openshift-pipelines/release-tests/pkg/clients"
 	"github.com/openshift-pipelines/release-tests/pkg/config"
 	"github.com/tektoncd/pipeline/pkg/apis/pipeline/v1alpha1"
 	"go.opencensus.io/trace"
@@ -25,7 +25,7 @@ type PipelineRunStateFn func(pr *v1alpha1.PipelineRun) (bool, error)
 // interval until inState returns `true` indicating it is done, returns an
 // error or timeout. desc will be used to name the metric that is emitted to
 // track how long it took for name to get into the state checked by inState.
-func WaitForTaskRunState(c *client.Clients, name string, inState TaskRunStateFn, desc string) error {
+func WaitForTaskRunState(c *clients.Clients, name string, inState TaskRunStateFn, desc string) error {
 	metricName := fmt.Sprintf("WaitForTaskRunState/%s/%s", name, desc)
 	_, span := trace.StartSpan(context.Background(), metricName)
 	defer span.End()
@@ -43,7 +43,7 @@ func WaitForTaskRunState(c *client.Clients, name string, inState TaskRunStateFn,
 // from client every interval until inState returns `true` indicating it is done,
 // returns an  error or timeout. desc will be used to name the metric that is emitted to
 // track how long it took for name to get into the state checked by inState.
-func WaitForDeploymentState(c *client.Clients, name string, namespace string, inState func(d *appsv1.Deployment) (bool, error), desc string) error {
+func WaitForDeploymentState(c *clients.Clients, name string, namespace string, inState func(d *appsv1.Deployment) (bool, error), desc string) error {
 	metricName := fmt.Sprintf("WaitForDeploymentState/%s/%s", name, desc)
 	_, span := trace.StartSpan(context.Background(), metricName)
 	defer span.End()
@@ -61,7 +61,7 @@ func WaitForDeploymentState(c *client.Clients, name string, namespace string, in
 // interval until inState returns `true` indicating it is done, returns an
 // error or timeout. desc will be used to name the metric that is emitted to
 // track how long it took for name to get into the state checked by inState.
-func WaitForPodState(c *client.Clients, name string, namespace string, inState func(r *corev1.Pod) (bool, error), desc string) error {
+func WaitForPodState(c *clients.Clients, name string, namespace string, inState func(r *corev1.Pod) (bool, error), desc string) error {
 	metricName := fmt.Sprintf("WaitForPodState/%s/%s", name, desc)
 	_, span := trace.StartSpan(context.Background(), metricName)
 	defer span.End()
@@ -79,7 +79,7 @@ func WaitForPodState(c *client.Clients, name string, namespace string, inState f
 // interval until inState returns `true` indicating it is done, returns an
 // error or timeout. desc will be used to name the metric that is emitted to
 // track how long it took for name to get into the state checked by inState.
-func WaitForPipelineRunState(c *client.Clients, name string, inState PipelineRunStateFn, desc string) error {
+func WaitForPipelineRunState(c *clients.Clients, name string, inState PipelineRunStateFn, desc string) error {
 	metricName := fmt.Sprintf("WaitForPipelineRunState/%s/%s", name, desc)
 	_, span := trace.StartSpan(context.Background(), metricName)
 	defer span.End()

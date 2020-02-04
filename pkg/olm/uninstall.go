@@ -3,7 +3,7 @@ package olm
 import (
 	"log"
 
-	"github.com/openshift-pipelines/release-tests/pkg/client"
+	"github.com/openshift-pipelines/release-tests/pkg/clients"
 	"github.com/openshift-pipelines/release-tests/pkg/config"
 	"github.com/openshift-pipelines/release-tests/pkg/helper"
 	"gotest.tools/v3/icmd"
@@ -88,7 +88,7 @@ func DeleteSubscription() {
 }
 
 // DeleteOperator helps you to delete operator and it's traces if any from cluster
-func DeleteOperator(cs *client.Clients, version string) {
+func DeleteOperator(cs *clients.Clients, version string) {
 	cr := helper.WaitForClusterCR(cs, config.ClusterCRName)
 
 	helper.DeleteClusterCR(cs, config.ClusterCRName)

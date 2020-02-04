@@ -11,7 +11,7 @@ import (
 
 	"time"
 
-	"github.com/openshift-pipelines/release-tests/pkg/client"
+	"github.com/openshift-pipelines/release-tests/pkg/clients"
 	"github.com/openshift-pipelines/release-tests/pkg/config"
 	secv1 "github.com/openshift/api/security/v1"
 	secclient "github.com/openshift/client-go/security/clientset/versioned/typed/security/v1"
@@ -29,9 +29,9 @@ import (
 // NewClientSet is a setup function which helps you
 // 	1. to creates clientSet instance to `client`
 // 	2. creates Random namespace
-func NewClientSet() (*client.Clients, string, func()) {
+func NewClientSet() (*clients.Clients, string, func()) {
 	ns := names.SimpleNameGenerator.RestrictLengthWithRandomSuffix("releasetest")
-	cs := client.NewClients(config.Flags.Kubeconfig, config.Flags.Cluster, ns)
+	cs := clients.NewClients(config.Flags.Kubeconfig, config.Flags.Cluster, ns)
 	CreateNamespace(cs.KubeClient, ns)
 
 	return cs, ns, func() {
@@ -41,7 +41,7 @@ func NewClientSet() (*client.Clients, string, func()) {
 
 // WaitForClusterCR waits for cluster CR to be created
 // the function returns an error if Cluster CR is not created within timeout
-func WaitForClusterCR(cs *client.Clients, name string) *op.Config {
+func WaitForClusterCR(cs *clients.Clients, name string) *op.Config {
 
 	objKey := types.NamespacedName{Name: name}
 	cr := &op.Config{}
@@ -63,7 +63,7 @@ func WaitForClusterCR(cs *client.Clients, name string) *op.Config {
 
 // WaitForDeploymentDeletion checks to see if a given deployment is deleted
 // the function returns an error if the given deployment is not deleted within the timeout
-func WaitForDeploymentDeletion(cs *client.Clients, namespace, name string) error {
+func WaitForDeploymentDeletion(cs *clients.Clients, namespace, name string) error {
 	err := wait.Poll(config.APIRetry, config.APITimeout, func() (bool, error) {
 		kc := cs.KubeClient.Kube
 		_, err := kc.AppsV1().Deployments(namespace).Get(name, metav1.GetOptions{IncludeUninitialized: true})
@@ -80,7 +80,7 @@ func WaitForDeploymentDeletion(cs *client.Clients, namespace, name string) error
 	return err
 }
 
-func WaitForServiceAccount(cs *client.Clients, ns, targetSA string) *corev1.ServiceAccount {
+func WaitForServiceAccount(cs *clients.Clients, ns, targetSA string) *corev1.ServiceAccount {
 
 	ret := &corev1.ServiceAccount{}
 
@@ -98,7 +98,7 @@ func WaitForServiceAccount(cs *client.Clients, ns, targetSA string) *corev1.Serv
 	return ret
 }
 
-func DeleteClusterCR(cs *client.Clients, name string) {
+func DeleteClusterCR(cs *clients.Clients, name string) {
 	var err error
 	// ensure object exists before deletion
 	objKey := types.NamespacedName{Name: name}
@@ -120,7 +120,7 @@ func DeleteClusterCR(cs *client.Clients, name string) {
 	AssertNoError(err, fmt.Sprintf("%s cluster CR deletion failed\n", name))
 }
 
-func ValidateSCCAdded(cs *client.Clients, ns, sa string) {
+func ValidateSCCAdded(cs *clients.Clients, ns, sa string) {
 	err := wait.Poll(config.APIRetry, config.APITimeout, func() (bool, error) {
 		privileged, err := GetPrivilegedSCC(cs)
 		if err != nil {
@@ -135,7 +135,7 @@ func ValidateSCCAdded(cs *client.Clients, ns, sa string) {
 	AssertNoError(err, fmt.Sprintf("failed to Add privilaged scc: %s\n", sa))
 }
 
-func ValidateSCCRemoved(cs *client.Clients, ns, sa string) {
+func ValidateSCCRemoved(cs *clients.Clients, ns, sa string) {
 	err := wait.Poll(config.APIRetry, config.APITimeout, func() (bool, error) {
 		privileged, err := GetPrivilegedSCC(cs)
 		if err != nil {
@@ -158,7 +158,7 @@ func inList(list []string, item string) bool {
 	return false
 }
 
-func ValidateDeployments(cs *client.Clients, ns string, deployments ...string) {
+func ValidateDeployments(cs *clients.Clients, ns string, deployments ...string) {
 
 	kc := cs.KubeClient.Kube
 	for _, d := range deployments {
@@ -173,7 +173,7 @@ func ValidateDeployments(cs *client.Clients, ns string, deployments ...string) {
 
 }
 
-func GetPrivilegedSCC(cs *client.Clients) (*secv1.SecurityContextConstraints, error) {
+func GetPrivilegedSCC(cs *clients.Clients) (*secv1.SecurityContextConstraints, error) {
 	sec, err := secclient.NewForConfig(cs.KubeConfig)
 	if err != nil {
 		return nil, err
@@ -181,7 +181,7 @@ func GetPrivilegedSCC(cs *client.Clients) (*secv1.SecurityContextConstraints, er
 	return sec.SecurityContextConstraints().Get("privileged", metav1.GetOptions{})
 }
 
-func ValidateDeploymentDeletion(cs *client.Clients, ns string, deployments ...string) {
+func ValidateDeploymentDeletion(cs *clients.Clients, ns string, deployments ...string) {
 
 	for _, d := range deployments {
 		err := WaitForDeploymentDeletion(cs, ns, d)
@@ -213,7 +213,7 @@ func WaitForDeployment(kc kubernetes.Interface, namespace, name string, replicas
 	return nil
 }
 
-func CreateNamespace(kc *client.KubeClient, ns string) {
+func CreateNamespace(kc *clients.KubeClient, ns string) {
 	log.Printf("Create namespace %s ", ns)
 	_, err := kc.Kube.CoreV1().Namespaces().Create(
 		&corev1.Namespace{
@@ -222,14 +222,14 @@ func CreateNamespace(kc *client.KubeClient, ns string) {
 	AssertNoError(err, fmt.Sprintf("Failed to Created namespace: %s \n", ns))
 }
 
-func DeleteNamespace(kc *client.KubeClient, namespace string) {
+func DeleteNamespace(kc *clients.KubeClient, namespace string) {
 	log.Printf("Deleting namespace %s", namespace)
 	if err := kc.Kube.CoreV1().Namespaces().Delete(namespace, &metav1.DeleteOptions{}); err != nil {
 		log.Printf("Failed to delete namespace %s: %s", namespace, err)
 	}
 }
 
-func VerifyServiceAccountExists(kc *client.KubeClient, namespace string) {
+func VerifyServiceAccountExists(kc *clients.KubeClient, namespace string) {
 	defaultSA := "pipeline"
 	log.Printf("Verify SA %q is created in namespace %q", defaultSA, namespace)
 

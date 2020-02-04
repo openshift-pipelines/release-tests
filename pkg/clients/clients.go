@@ -1,4 +1,4 @@
-package client
+package clients
 
 import (
 	"sync"
@@ -27,9 +27,9 @@ import (
 
 var (
 	// Global framework struct
-	Global *Clients
 	// mutex for AddToFrameworkScheme
 	mutex = sync.Mutex{}
+
 	// decoder used by createFromYaml
 	//dynamicDecoder runtime.Decoder
 	// restMapper for the dynamic client

@@ -2,7 +2,7 @@ package steps
 
 import (
 	"github.com/getgauge-contrib/gauge-go/gauge"
-	"github.com/openshift-pipelines/release-tests/pkg/client"
+	"github.com/openshift-pipelines/release-tests/pkg/clients"
 	"github.com/openshift-pipelines/release-tests/pkg/helper"
 )
 
@@ -11,18 +11,18 @@ func GetNameSpace() string {
 
 }
 
-func GetClient() *client.Clients {
+func GetClient() *clients.Clients {
 	switch c := gauge.GetScenarioStore()["client"].(type) {
-	case *client.Clients:
+	case *clients.Clients:
 		return c
 	default:
 		return nil
 	}
 }
 
-func GetOperatorClient() *client.Clients {
+func GetOperatorClient() *clients.Clients {
 	switch c := gauge.GetSuiteStore()["opclient"].(type) {
-	case *client.Clients:
+	case *clients.Clients:
 		return c
 	default:
 		return nil
