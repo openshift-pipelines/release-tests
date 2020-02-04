@@ -7,7 +7,6 @@ import (
 
 	"time"
 
-	. "github.com/getgauge-contrib/gauge-go/testsuit"
 	"github.com/openshift-pipelines/release-tests/pkg/client"
 	"github.com/openshift-pipelines/release-tests/pkg/config"
 	secv1 "github.com/openshift/api/security/v1"
@@ -22,15 +21,6 @@ import (
 	"k8s.io/apimachinery/pkg/util/wait"
 	"k8s.io/client-go/kubernetes"
 )
-
-// AssertNoError confirms the error returned is null
-func AssertNoError(err error, description string) {
-	//Expect(err).ShouldNot(HaveOccurred(), description)
-
-	if err != nil {
-		T.Errorf("%s, \n err:%s", description, err)
-	}
-}
 
 // NewClientSet is a setup function which helps you
 // 	1. to creates clientSet instance to `client`
