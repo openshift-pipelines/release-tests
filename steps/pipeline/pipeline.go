@@ -7,39 +7,39 @@ import (
 )
 
 var _ = gauge.Step("Create sample pipeline", func() {
-	pipelines.CreateSamplePipeline(steps.GetClient(), steps.GetNameSpace())
+	pipelines.CreateSamplePipeline(steps.Clients(), steps.Namespace())
 })
 
 var _ = gauge.Step("Run sample pipeline", func() {
-	pipelines.RunSamplePipeline(steps.GetClient(), steps.GetNameSpace())
+	pipelines.RunSamplePipeline(steps.Clients(), steps.Namespace())
 })
 
 var _ = gauge.Step("Verify sample pipelinerun is successfull", func() {
-	pipelines.ValidatePipelineRunStatus(steps.GetClient(), steps.GetNameSpace())
+	pipelines.ValidatePipelineRunStatus(steps.Clients(), steps.Namespace())
 })
 
 var _ = gauge.Step("Create task", func() {
-	pipelines.CreateTask(steps.GetClient(), steps.GetNameSpace())
+	pipelines.CreateTask(steps.Clients(), steps.Namespace())
 })
 
-var _ = gauge.Step("Run task using <serviceAccount> SA", func(serviceAccount string) {
-	pipelines.CreateTaskRunWithSA(steps.GetClient(), steps.GetNameSpace(), serviceAccount)
+var _ = gauge.Step("Run task using <sa> ServiceAccount", func(serviceAccount string) {
+	pipelines.CreateTaskRunWithSA(steps.Clients(), steps.Namespace(), serviceAccount)
 })
 
 var _ = gauge.Step("Verify taskrun has failed", func() {
-	pipelines.ValidateTaskRunForFailedStatus(steps.GetClient(), steps.GetNameSpace())
+	pipelines.ValidateTaskRunForFailedStatus(steps.Clients(), steps.Namespace())
 })
 
 //=======================================================//
 
 var _ = gauge.Step("Create pipeline", func() {
-	pipelines.CreatePipeline(steps.GetClient(), steps.GetNameSpace())
+	pipelines.CreatePipeline(steps.Clients(), steps.Namespace())
 })
 
 var _ = gauge.Step("Run pipeline using <sa> SA", func(serviceAccount string) {
-	pipelines.CreatePipelineRunWithSA(steps.GetClient(), steps.GetNameSpace(), serviceAccount)
+	pipelines.CreatePipelineRunWithSA(steps.Clients(), steps.Namespace(), serviceAccount)
 })
 
 var _ = gauge.Step("Verify pipelinerun has failed", func() {
-	pipelines.ValidatePipelineRunForFailedStatus(steps.GetClient(), steps.GetNameSpace())
+	pipelines.ValidatePipelineRunForFailedStatus(steps.Clients(), steps.Namespace())
 })

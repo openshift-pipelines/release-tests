@@ -5,6 +5,6 @@ import (
 	"github.com/openshift-pipelines/release-tests/pkg/k8s"
 )
 
-var _ = gauge.Step("Verify Service Account <sa> does not exist", func(sa string) {
-	k8s.VerifyNoServiceAccount(GetClient(), sa, GetNameSpace())
+var _ = gauge.Step("Verify ServiceAccount <sa> does not exist", func(sa string) {
+	k8s.VerifyNoServiceAccount(Clients().KubeClient, sa, Namespace())
 })

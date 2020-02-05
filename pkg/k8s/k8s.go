@@ -24,6 +24,7 @@ import (
 // 	1. to creates clientSet instance to `client`
 // 	2. creates Random namespace
 func NewClientSet() (*clients.Clients, string, func()) {
+	// TODO: fix this; method is in k8s but returns client.Clients
 	ns := names.SimpleNameGenerator.RestrictLengthWithRandomSuffix("releasetest")
 	cs := clients.NewClients(config.Flags.Kubeconfig, config.Flags.Cluster, ns)
 	CreateNamespace(cs.KubeClient, ns)

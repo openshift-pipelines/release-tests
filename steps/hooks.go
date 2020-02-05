@@ -8,9 +8,9 @@ import (
 
 	"github.com/getgauge-contrib/gauge-go/gauge"
 	"github.com/getgauge-contrib/gauge-go/testsuit"
-	"github.com/openshift-pipelines/release-tests/pkg/clients"
 	"github.com/openshift-pipelines/release-tests/pkg/config"
 	"github.com/openshift-pipelines/release-tests/pkg/helper"
+	"github.com/openshift-pipelines/release-tests/pkg/k8s"
 	"github.com/openshift-pipelines/release-tests/pkg/operator"
 	"github.com/openshift-pipelines/release-tests/pkg/tkn"
 )
@@ -41,7 +41,7 @@ var _ = gauge.BeforeSuite(func() {
 }, []string{}, testsuit.AND)
 
 var _ = gauge.BeforeScenario(func() {
-	cs, namespace, cleanup := clients.NewClients()
+	cs, namespace, cleanup := k8s.NewClientSet()
 
 	store := gauge.GetScenarioStore()
 	store["clients"] = cs

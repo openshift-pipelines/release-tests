@@ -4,11 +4,12 @@ Pre condition:
   * Operator should be installed
 
 ## Run sample pipeline
-Tags: e2e, integration, pipelines
+Tags: e2e, integration, pipelines, focus
 
-Use a sample pipeline that has 2 tasks:
+Run  a sample pipeline that has 2 tasks:
   1. create a file
   2. read file content created by above task
+and verify that it runs succesfully
 
 
 Steps:

@@ -29,7 +29,7 @@ func OperatorClient() *clients.Clients {
 	}
 }
 
-func TknBinaryPath() tkn.Cmd {
+func Tkn() tkn.Cmd {
 	switch n := gauge.GetSuiteStore()["tkn"].(type) {
 	case tkn.Cmd:
 		return n
