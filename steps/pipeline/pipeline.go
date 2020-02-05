@@ -14,7 +14,7 @@ var _ = gauge.Step("Run sample pipeline", func() {
 	pipelines.RunSamplePipeline(steps.GetClient(), steps.GetNameSpace())
 })
 
-var _ = gauge.Step("Validate sample pipelinerun is successfull", func() {
+var _ = gauge.Step("Verify sample pipelinerun is successfull", func() {
 	pipelines.ValidatePipelineRunStatus(steps.GetClient(), steps.GetNameSpace())
 })
 
@@ -26,7 +26,7 @@ var _ = gauge.Step("Run task using <serviceAccount> SA", func(serviceAccount str
 	pipelines.CreateTaskRunWithSA(steps.GetClient(), steps.GetNameSpace(), serviceAccount)
 })
 
-var _ = gauge.Step("Validate taskrun for failed status", func() {
+var _ = gauge.Step("Verify taskrun has failed", func() {
 	pipelines.ValidateTaskRunForFailedStatus(steps.GetClient(), steps.GetNameSpace())
 })
 
@@ -40,6 +40,6 @@ var _ = gauge.Step("Run pipeline using <sa> SA", func(serviceAccount string) {
 	pipelines.CreatePipelineRunWithSA(steps.GetClient(), steps.GetNameSpace(), serviceAccount)
 })
 
-var _ = gauge.Step("Validate pipelinerun has failed", func() {
+var _ = gauge.Step("Verify pipelinerun has failed", func() {
 	pipelines.ValidatePipelineRunForFailedStatus(steps.GetClient(), steps.GetNameSpace())
 })

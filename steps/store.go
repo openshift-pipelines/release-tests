@@ -3,24 +3,24 @@ package steps
 import (
 	"github.com/getgauge-contrib/gauge-go/gauge"
 	"github.com/openshift-pipelines/release-tests/pkg/clients"
-	"github.com/openshift-pipelines/release-tests/pkg/helper"
+	"github.com/openshift-pipelines/release-tests/pkg/tkn"
 )
 
-func GetNameSpace() string {
+func Namespace() string {
 	return gauge.GetScenarioStore()["namespace"].(string)
 
 }
 
-func GetClient() *clients.Clients {
-	switch c := gauge.GetScenarioStore()["client"].(type) {
+func Clients() *clients.Clients {
+	switch cs := gauge.GetScenarioStore()["clients"].(type) {
 	case *clients.Clients:
-		return c
+		return cs
 	default:
 		return nil
 	}
 }
 
-func GetOperatorClient() *clients.Clients {
+func OperatorClient() *clients.Clients {
 	switch c := gauge.GetSuiteStore()["opclient"].(type) {
 	case *clients.Clients:
 		return c
@@ -29,9 +29,9 @@ func GetOperatorClient() *clients.Clients {
 	}
 }
 
-func GetTknBinaryPath() helper.TknRunner {
-	switch n := gauge.GetSuiteStore()["tknPath"].(type) {
-	case helper.TknRunner:
+func TknBinaryPath() tkn.Cmd {
+	switch n := gauge.GetSuiteStore()["tkn"].(type) {
+	case tkn.Cmd:
 		return n
 	default:
 		panic("Error")

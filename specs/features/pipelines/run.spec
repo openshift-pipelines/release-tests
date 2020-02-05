@@ -4,7 +4,7 @@ Pre condition:
   * Operator should be installed
 
 ## Run sample pipeline
-Tags: e2e, integration, focus
+Tags: e2e, integration, pipelines
 
 Use a sample pipeline that has 2 tasks:
   1. create a file
@@ -14,5 +14,5 @@ Use a sample pipeline that has 2 tasks:
 Steps:
   * Create sample pipeline
   * Run sample pipeline
-  * Validate sample pipelinerun is successfull
+  * Verify sample pipelinerun is successfull
 

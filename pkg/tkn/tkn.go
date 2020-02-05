@@ -1,4 +1,4 @@
-package helper
+package tkn
 
 import (
 	"bytes"
@@ -10,32 +10,32 @@ import (
 	"sync"
 
 	"github.com/Netflix/go-expect"
-	goexpect "github.com/Netflix/go-expect"
-	. "github.com/getgauge-contrib/gauge-go/testsuit"
+	"github.com/getgauge-contrib/gauge-go/testsuit"
+	"github.com/openshift-pipelines/release-tests/pkg/cmd"
 )
 
-type TknRunner struct {
+type Cmd struct {
 	// path to tkn binary
 	Path string
 }
 
-// NewTknRunner initializes new OcRunner
-func NewTknRunner(tknPath string) TknRunner {
-	return TknRunner{
+// New initializes Cmd
+func New(tknPath string) Cmd {
+	return Cmd{
 		Path: tknPath,
 	}
 }
 
 // Run tkn with given arguments
-func (tkn *TknRunner) Run(cmd *TknCmd) string {
-	output := RunCmd(cmd)
+func (tkn *Cmd) Run(c *cmd.Cmd) string {
+	output := cmd.AssertOutput(c)
 	return output.Stdout()
 }
 
 // Prompt provides test utility for prompt test.
 type Prompt struct {
 	CmdArgs   []string
-	Procedure func(*goexpect.Console) error
+	Procedure func(*expect.Console) error
 }
 
 type CapturingPassThroughWriter struct {
@@ -73,7 +73,7 @@ func testCloser(closer io.Closer) {
 }
 
 // Helps to Run Interactive Session
-func (tkn *TknRunner) RunInteractiveTests(namespace string, ops *Prompt) *expect.Console {
+func (tkn *Cmd) RunInteractiveTests(namespace string, ops *Prompt) *expect.Console {
 
 	c, err := expect.NewConsole(expect.WithStdout(os.Stdout))
 	if err != nil {
@@ -112,10 +112,10 @@ func (tkn *TknRunner) RunInteractiveTests(namespace string, ops *Prompt) *expect
 
 	err = cmd.Wait()
 	if err != nil {
-		T.Errorf("cmd.Run() failed with %s\n", err)
+		testsuit.T.Errorf("cmd.Run() failed with %s\n", err)
 	}
 	if errStdout != nil || errStderr != nil {
-		T.Errorf("failed to capture stdout or stderr\n")
+		testsuit.T.Errorf("failed to capture stdout or stderr\n")
 	}
 
 	return c

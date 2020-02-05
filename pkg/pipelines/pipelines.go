@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"log"
 
+	"github.com/openshift-pipelines/release-tests/pkg/assert"
 	"github.com/openshift-pipelines/release-tests/pkg/clients"
-	"github.com/openshift-pipelines/release-tests/pkg/helper"
 	"github.com/openshift-pipelines/release-tests/pkg/wait"
 	"github.com/tektoncd/pipeline/pkg/apis/pipeline/v1alpha1"
 	tb "github.com/tektoncd/pipeline/test/builder"
@@ -73,22 +73,22 @@ func CreateSamplePipeline(c *clients.Clients, namespace string) {
 	log.Printf("Creating Git PipelineResource %s", tePipelineGitResourceName)
 
 	_, err = c.PipelineResourceClient.Create(newGitResource(tePipelineGitResourceName, namespace))
-	helper.AssertNoError(err, fmt.Sprintf("Failed to create Pipeline Resource `%s`", tePipelineGitResourceName))
+	assert.NoError(err, fmt.Sprintf("Failed to create Pipeline Resource `%s`", tePipelineGitResourceName))
 
 	log.Printf("Creating Task  %s", createFileTaskName)
 
 	_, err = c.TaskClient.Create(newCreateFileTask(createFileTaskName, namespace))
-	helper.AssertNoError(err, fmt.Sprintf("Failed to create Task `%s`", createFileTaskName))
+	assert.NoError(err, fmt.Sprintf("Failed to create Task `%s`", createFileTaskName))
 
 	log.Printf("Creating Task  %s", readFileTaskName)
 
 	_, err = c.TaskClient.Create(newReadFileTask(readFileTaskName, namespace))
-	helper.AssertNoError(err, fmt.Sprintf("Failed to create Task `%s`", readFileTaskName))
+	assert.NoError(err, fmt.Sprintf("Failed to create Task `%s`", readFileTaskName))
 
 	log.Printf("Create Pipeline %s", tePipelineName)
 
 	_, err = c.PipelineClient.Create(newOutputPipeline(tePipelineName, namespace, createFileTaskName, readFileTaskName))
-	helper.AssertNoError(err, fmt.Sprintf("Failed to create pipeline `%s`", tePipelineName))
+	assert.NoError(err, fmt.Sprintf("Failed to create pipeline `%s`", tePipelineName))
 
 	log.Println("Created sample pipeline successfully....")
 }
@@ -100,7 +100,7 @@ func RunSamplePipeline(c *clients.Clients, namespace string) {
 		tb.PipelineRunResourceBinding("source-repo", tb.PipelineResourceBindingRef(tePipelineGitResourceName)),
 	))
 	_, err = c.PipelineRunClient.Create(pr)
-	helper.AssertNoError(err, fmt.Sprintf("Failed to create PipelineRun `%s`", tePipelineRunName))
+	assert.NoError(err, fmt.Sprintf("Failed to create PipelineRun `%s`", tePipelineRunName))
 
 }
 
@@ -108,7 +108,7 @@ func ValidatePipelineRunStatus(c *clients.Clients, namespace string) {
 	var err error
 	// Verify status of PipelineRun (wait for it)
 	err = wait.WaitForPipelineRunState(c, tePipelineRunName, wait.PipelineRunSucceed(tePipelineRunName), "PipelineRunCompleted")
-	helper.AssertNoError(err, fmt.Sprintf("Error waiting for PipelineRun %s to finish", tePipelineRunName))
+	assert.NoError(err, fmt.Sprintf("Error waiting for PipelineRun %s to finish", tePipelineRunName))
 	log.Printf("pipelineRun: %s is successfull under namespace : %s", tePipelineRunName, namespace)
 }
 
@@ -146,11 +146,11 @@ func CreatePipeline(c *clients.Clients, namespace string) {
 	var err error
 	log.Printf("Creating Task  %s", teTaskName)
 	_, err = c.TaskClient.Create(newTask(teTaskName, namespace))
-	helper.AssertNoError(err, fmt.Sprintf("Failed to create Task Resource `%s`", teTaskName))
+	assert.NoError(err, fmt.Sprintf("Failed to create Task Resource `%s`", teTaskName))
 
 	log.Printf("Create Pipeline %s", tePipelineName)
 	_, err = c.PipelineClient.Create(newPipeline(tePipelineName, namespace, teTaskName))
-	helper.AssertNoError(err, fmt.Sprintf("Failed to create pipeline `%s`", tePipelineName))
+	assert.NoError(err, fmt.Sprintf("Failed to create pipeline `%s`", tePipelineName))
 
 	log.Println("Created pipeline successfully....")
 }
@@ -159,7 +159,7 @@ func CreateTask(c *clients.Clients, namespace string) {
 	var err error
 	log.Printf("Creating Task  %s", teTaskName)
 	_, err = c.TaskClient.Create(newTask(teTaskName, namespace))
-	helper.AssertNoError(err, fmt.Sprintf("Failed to create Task Resource `%s`", teTaskName))
+	assert.NoError(err, fmt.Sprintf("Failed to create Task Resource `%s`", teTaskName))
 
 	log.Println("Created Task successfully....")
 }
@@ -168,14 +168,14 @@ func CreateTaskRunWithSA(c *clients.Clients, namespace string, sa string) {
 	var err error
 	log.Printf("Starting TaskRun with Service Account %s", sa)
 	_, err = c.TaskRunClient.Create(newTaskRunWithSA(teTaskRunName, namespace, teTaskName, sa))
-	helper.AssertNoError(err, fmt.Sprintf("Failed to create TaskRun: %s", teTaskRunName))
+	assert.NoError(err, fmt.Sprintf("Failed to create TaskRun: %s", teTaskRunName))
 }
 
 func ValidateTaskRunForFailedStatus(c *clients.Clients, namespace string) {
 	var err error
 	log.Printf("Waiting for TaskRun in namespace %s to fail", namespace)
 	err = wait.WaitForTaskRunState(c, teTaskRunName, wait.TaskRunFailed(teTaskRunName), "BuildValidationFailed")
-	helper.AssertNoError(err, fmt.Sprintf("Failed to TaskRun: %s", teTaskRunName))
+	assert.NoError(err, fmt.Sprintf("Failed to TaskRun: %s", teTaskRunName))
 
 }
 
@@ -183,13 +183,13 @@ func CreatePipelineRunWithSA(c *clients.Clients, namespace string, sa string) {
 	var err error
 	log.Printf("Starting PipelineRun : %s, with Service Account %s", tePipelineRunName, sa)
 	_, err = c.PipelineRunClient.Create(newPipelineRunWithSA(tePipelineRunName, namespace, tePipelineName, sa))
-	helper.AssertNoError(err, fmt.Sprintf("Failed to create PipelineRun `%s`", tePipelineRunName))
+	assert.NoError(err, fmt.Sprintf("Failed to create PipelineRun `%s`", tePipelineRunName))
 }
 
 func ValidatePipelineRunForFailedStatus(c *clients.Clients, namespace string) {
 	var err error
 	log.Printf("Waiting for PipelineRun in namespace %s to fail", namespace)
 	err = wait.WaitForPipelineRunState(c, tePipelineRunName, wait.PipelineRunFailed(tePipelineRunName), "BuildValidationFailed")
-	helper.AssertNoError(err, fmt.Sprintf("Failed to finish PipelineRun: %s", tePipelineRunName))
+	assert.NoError(err, fmt.Sprintf("Failed to finish PipelineRun: %s", tePipelineRunName))
 
 }

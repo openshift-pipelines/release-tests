@@ -1,27 +1,21 @@
-package helper
+package k8s
 
 import (
-	"bytes"
-	"context"
 	"fmt"
-	"io/ioutil"
 	"log"
-	"path/filepath"
-	"text/template"
 
 	"time"
 
+	"github.com/openshift-pipelines/release-tests/pkg/assert"
 	"github.com/openshift-pipelines/release-tests/pkg/clients"
 	"github.com/openshift-pipelines/release-tests/pkg/config"
 	secv1 "github.com/openshift/api/security/v1"
 	secclient "github.com/openshift/client-go/security/clientset/versioned/typed/security/v1"
-	op "github.com/tektoncd/operator/pkg/apis/operator/v1alpha1"
 	"github.com/tektoncd/pipeline/pkg/names"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/apimachinery/pkg/util/wait"
 	"k8s.io/client-go/kubernetes"
 )
@@ -39,28 +33,6 @@ func NewClientSet() (*clients.Clients, string, func()) {
 	}
 }
 
-// WaitForClusterCR waits for cluster CR to be created
-// the function returns an error if Cluster CR is not created within timeout
-func WaitForClusterCR(cs *clients.Clients, name string) *op.Config {
-
-	objKey := types.NamespacedName{Name: name}
-	cr := &op.Config{}
-
-	err := wait.Poll(config.APIRetry, config.APITimeout, func() (bool, error) {
-		err := cs.Client.Get(context.TODO(), objKey, cr)
-		if err != nil {
-			if apierrors.IsNotFound(err) {
-				log.Printf("Waiting for availability of %s cr\n", name)
-				return false, nil
-			}
-			return false, err
-		}
-		return true, nil
-	})
-	AssertNoError(err, fmt.Sprintf("CR: %s is not avaialble\n", name))
-	return cr
-}
-
 // WaitForDeploymentDeletion checks to see if a given deployment is deleted
 // the function returns an error if the given deployment is not deleted within the timeout
 func WaitForDeploymentDeletion(cs *clients.Clients, namespace, name string) error {
@@ -76,7 +48,7 @@ func WaitForDeploymentDeletion(cs *clients.Clients, namespace, name string) erro
 		log.Printf("Waiting for deletion of %s deployment\n", name)
 		return false, nil
 	})
-	AssertNoError(err, fmt.Sprintf("%s Deployment deletion failed\n", name))
+	assert.NoError(err, fmt.Sprintf("%s Deployment deletion failed\n", name))
 	return err
 }
 
@@ -94,30 +66,8 @@ func WaitForServiceAccount(cs *clients.Clients, ns, targetSA string) *corev1.Ser
 		}
 		return false, err
 	})
-	AssertNoError(err, fmt.Sprintf("ServiceAccount: %s, not found in namespace %s\n", targetSA, ns))
+	assert.NoError(err, fmt.Sprintf("ServiceAccount: %s, not found in namespace %s\n", targetSA, ns))
 	return ret
-}
-
-func DeleteClusterCR(cs *clients.Clients, name string) {
-	var err error
-	// ensure object exists before deletion
-	objKey := types.NamespacedName{Name: name}
-	cr := &op.Config{}
-	err = cs.Client.Get(context.TODO(), objKey, cr)
-
-	AssertNoError(err, fmt.Sprintf("Failed to find cluster CR: %s : %s\n", name, err))
-
-	err = wait.Poll(config.APIRetry, config.APITimeout, func() (bool, error) {
-		err := cs.Client.Delete(context.TODO(), cr)
-		if err != nil {
-			log.Printf("Deletion of CR %s failed %s \n", name, err)
-			return false, err
-		}
-
-		return true, nil
-	})
-
-	AssertNoError(err, fmt.Sprintf("%s cluster CR deletion failed\n", name))
 }
 
 func ValidateSCCAdded(cs *clients.Clients, ns, sa string) {
@@ -132,7 +82,7 @@ func ValidateSCCAdded(cs *clients.Clients, ns, sa string) {
 		ctrlSA := fmt.Sprintf("system:serviceaccount:%s:%s", ns, sa)
 		return inList(privileged.Users, ctrlSA), nil
 	})
-	AssertNoError(err, fmt.Sprintf("failed to Add privilaged scc: %s\n", sa))
+	assert.NoError(err, fmt.Sprintf("failed to Add privilaged scc: %s\n", sa))
 }
 
 func ValidateSCCRemoved(cs *clients.Clients, ns, sa string) {
@@ -146,7 +96,7 @@ func ValidateSCCRemoved(cs *clients.Clients, ns, sa string) {
 		ctrlSA := fmt.Sprintf("system:serviceaccount:%s:%s", ns, sa)
 		return !inList(privileged.Users, ctrlSA), nil
 	})
-	AssertNoError(err, fmt.Sprintf("failed to Remove privilaged scc: %s\n", sa))
+	assert.NoError(err, fmt.Sprintf("failed to Remove privilaged scc: %s\n", sa))
 }
 
 func inList(list []string, item string) bool {
@@ -168,7 +118,7 @@ func ValidateDeployments(cs *clients.Clients, ns string, deployments ...string) 
 			config.APIRetry,
 			config.APITimeout,
 		)
-		AssertNoError(err, fmt.Sprintf("Deployments: %+v, failed to create\n", deployments))
+		assert.NoError(err, fmt.Sprintf("Deployments: %+v, failed to create\n", deployments))
 	}
 
 }
@@ -185,7 +135,7 @@ func ValidateDeploymentDeletion(cs *clients.Clients, ns string, deployments ...s
 
 	for _, d := range deployments {
 		err := WaitForDeploymentDeletion(cs, ns, d)
-		AssertNoError(err, fmt.Sprintf("Deployments: %+v, failed to delete\n", deployments))
+		assert.NoError(err, fmt.Sprintf("Deployments: %+v, failed to delete\n", deployments))
 	}
 }
 
@@ -219,7 +169,7 @@ func CreateNamespace(kc *clients.KubeClient, ns string) {
 		&corev1.Namespace{
 			ObjectMeta: metav1.ObjectMeta{Name: ns},
 		})
-	AssertNoError(err, fmt.Sprintf("Failed to Created namespace: %s \n", ns))
+	assert.NoError(err, fmt.Sprintf("Failed to Created namespace: %s \n", ns))
 }
 
 func DeleteNamespace(kc *clients.KubeClient, namespace string) {
@@ -229,7 +179,22 @@ func DeleteNamespace(kc *clients.KubeClient, namespace string) {
 	}
 }
 
+func VerifyNoServiceAccount(kc *clients.KubeClient, sa, ns string) {
+	log.Printf("Verify SA %q is absent in namespace %q", sa, ns)
+
+	if err := wait.PollImmediate(config.APIRetry, config.APITimeout, func() (bool, error) {
+		_, err := kc.Kube.CoreV1().ServiceAccounts(ns).Get(sa, metav1.GetOptions{})
+		if err == nil || errors.IsNotFound(err) {
+			return false, fmt.Errorf("sa %q exists in namespace %q", sa, ns)
+		}
+		return true, nil
+	}); err != nil {
+		log.Printf("Fail: SA %q exists in namespace %q, err: %s", sa, ns, err)
+	}
+}
+
 func VerifyServiceAccountExists(kc *clients.KubeClient, namespace string) {
+	// TODO: shouldn't this recieve an arg?
 	defaultSA := "pipeline"
 	log.Printf("Verify SA %q is created in namespace %q", defaultSA, namespace)
 
@@ -241,43 +206,5 @@ func VerifyServiceAccountExists(kc *clients.KubeClient, namespace string) {
 		return true, err
 	}); err != nil {
 		log.Printf("Failed to get SA %q in namespace %q for tests: %s", defaultSA, namespace, err)
-	}
-}
-
-func CreateSubscriptionYaml(channel, installPlan, csv string) {
-	// TODO: convert to Go code
-	var err error
-	var data = struct {
-		Channel     string
-		InstallPlan string
-		CSV         string
-	}{
-		Channel:     channel,
-		InstallPlan: installPlan,
-		CSV:         csv,
-	}
-
-	var tmplBytes bytes.Buffer
-
-	b, err := ioutil.ReadFile(filepath.Join(RootDir(), "../config/subscription.yaml.tmp")) // just pass the file name
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	tmpl, err := template.New("subscription").Parse(string(b))
-	if err != nil {
-		panic(err)
-	}
-
-	err = tmpl.Execute(&tmplBytes, data)
-	if err != nil {
-		panic(err)
-	}
-
-	err = ioutil.WriteFile(filepath.Join(RootDir(), "../config/subscription.yaml"), tmplBytes.Bytes(), 0777)
-	// TODO: handle this error
-	if err != nil {
-		// print it out
-		log.Fatal(err)
 	}
 }
