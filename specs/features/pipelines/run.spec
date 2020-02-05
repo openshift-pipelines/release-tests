@@ -1,4 +1,4 @@
-# Verify pipeline features
+# Verify Pipeline Run
 
 Pre condition:
   * Operator should be installed
@@ -6,7 +6,7 @@ Pre condition:
 ## Run sample pipeline
 Tags: e2e, integration, pipelines, focus
 
-Run  a sample pipeline that has 2 tasks:
+Run a sample pipeline that has 2 tasks:
   1. create a file
   2. read file content created by above task
 and verify that it runs succesfully

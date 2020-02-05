@@ -1,4 +1,4 @@
-# Verify pipeline failure status
+# Verify Pipeline Failures
 
 Contains negative scenarios that exercises running pipeline
 
