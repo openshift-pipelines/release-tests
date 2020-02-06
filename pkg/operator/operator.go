@@ -11,6 +11,7 @@ import (
 	"github.com/openshift-pipelines/release-tests/pkg/clients"
 	"github.com/openshift-pipelines/release-tests/pkg/config"
 	"github.com/openshift-pipelines/release-tests/pkg/k8s"
+	"github.com/openshift-pipelines/release-tests/pkg/olm"
 	op "github.com/tektoncd/operator/pkg/apis/operator/v1alpha1"
 	"k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/types"
@@ -89,13 +90,6 @@ func ValidateInstall(cs *clients.Clients) {
 
 }
 
-func Install(version string) (*clients.Clients, string, func()) {
-	cs, ns, cleanup := Subscribe(version)
-	ValidateInstall(cs)
-	k8s.VerifyServiceAccountExists(cs.KubeClient, ns)
-	return cs, ns, cleanup
-}
-
 func DeleteClusterCR(cs *clients.Clients, name string) {
 	var err error
 	// ensure object exists before deletion
@@ -134,7 +128,7 @@ func Delete(cs *clients.Clients, version string) {
 	)
 
 	k8s.ValidateSCCRemoved(cs, ns, config.PipelineControllerName)
-	DeleteCSV(version)
+	olm.DeleteCSV(version)
 	DeleteInstallPlan()
 	DeleteSubscription()
 }

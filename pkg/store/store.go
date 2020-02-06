@@ -1,4 +1,4 @@
-package steps
+package store
 
 import (
 	"github.com/getgauge-contrib/gauge-go/gauge"
@@ -15,15 +15,6 @@ func Clients() *clients.Clients {
 	switch cs := gauge.GetScenarioStore()["clients"].(type) {
 	case *clients.Clients:
 		return cs
-	default:
-		return nil
-	}
-}
-
-func OperatorClient() *clients.Clients {
-	switch c := gauge.GetSuiteStore()["opclient"].(type) {
-	case *clients.Clients:
-		return c
 	default:
 		return nil
 	}

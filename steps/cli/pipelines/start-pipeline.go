@@ -5,17 +5,17 @@ import (
 
 	"github.com/getgauge-contrib/gauge-go/gauge"
 	"github.com/openshift-pipelines/release-tests/pkg/cmd"
-	"github.com/openshift-pipelines/release-tests/steps"
+	"github.com/openshift-pipelines/release-tests/pkg/store"
 	"gotest.tools/v3/icmd"
 )
 
 var _ = gauge.Step("Start pipleine using tkn", func() {
 	result := cmd.AssertOutput(&cmd.Cmd{
 		Args: []string{
-			steps.Tkn().Path, "pipeline", "start", "output-pipeline",
+			store.Tkn().Path, "pipeline", "start", "output-pipeline",
 			"-r=source-repo=skaffold-git",
 			"--showlog", "true",
-			"-n", steps.Namespace()},
+			"-n", store.Namespace()},
 		Expected: icmd.Success,
 	})
 

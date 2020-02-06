@@ -6,6 +6,7 @@ import (
 
 	"time"
 
+	"github.com/getgauge-contrib/gauge-go/testsuit"
 	"github.com/openshift-pipelines/release-tests/pkg/assert"
 	"github.com/openshift-pipelines/release-tests/pkg/clients"
 	"github.com/openshift-pipelines/release-tests/pkg/config"
@@ -185,27 +186,26 @@ func VerifyNoServiceAccount(kc *clients.KubeClient, sa, ns string) {
 
 	if err := wait.PollImmediate(config.APIRetry, config.APITimeout, func() (bool, error) {
 		_, err := kc.Kube.CoreV1().ServiceAccounts(ns).Get(sa, metav1.GetOptions{})
-		if err == nil || errors.IsNotFound(err) {
+		if err == nil || !errors.IsNotFound(err) {
 			return false, fmt.Errorf("sa %q exists in namespace %q", sa, ns)
 		}
 		return true, nil
 	}); err != nil {
-		log.Printf("Fail: SA %q exists in namespace %q, err: %s", sa, ns, err)
+		testsuit.T.Errorf("Fail: SA %q exists in namespace %q, err: %s", sa, ns, err)
 	}
 }
 
-func VerifyServiceAccountExists(kc *clients.KubeClient, namespace string) {
+func VerifyServiceAccountExists(kc *clients.KubeClient, sa, ns string) {
 	// TODO: shouldn't this recieve an arg?
-	defaultSA := "pipeline"
-	log.Printf("Verify SA %q is created in namespace %q", defaultSA, namespace)
+	log.Printf("Verify SA %q is created in namespace %q", sa, ns)
 
 	if err := wait.PollImmediate(config.APIRetry, config.APITimeout, func() (bool, error) {
-		_, err := kc.Kube.CoreV1().ServiceAccounts(namespace).Get(defaultSA, metav1.GetOptions{})
+		_, err := kc.Kube.CoreV1().ServiceAccounts(ns).Get(sa, metav1.GetOptions{})
 		if err != nil && errors.IsNotFound(err) {
 			return false, nil
 		}
 		return true, err
 	}); err != nil {
-		log.Printf("Failed to get SA %q in namespace %q for tests: %s", defaultSA, namespace, err)
+		testsuit.T.Errorf("Failed to get SA %q in namespace %q for tests: %s", sa, ns, err)
 	}
 }
