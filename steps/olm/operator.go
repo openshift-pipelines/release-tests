@@ -25,7 +25,7 @@ var _ = gauge.Step("Validate SCC", func() {
 	operator.ValidateSCC(store.Clients())
 })
 
-var _ = gauge.Step("Validate pipelines deployment into target namespace (openshift-pipelines)", func() {
+var _ = gauge.Step("Validate pipelines deployment", func() {
 	operator.ValidatePipelineDeployments(store.Clients())
 })
 

@@ -18,12 +18,17 @@ import (
 // Hooks for gauge framework
 var _ = gauge.BeforeSuite(func() {
 
+	// TODO:
+	//err := flags.Parse()
+	//err := tools.Validate()
+
 	// TODO: validate all required tools are present
 
 	// Creates subscription yaml with configured details from env/test/tes.properties
 	olm.CreateSubscriptionYaml(config.Flags.Channel, config.Flags.InstallPlan, config.Flags.CSV)
 
 	// subcribe to operator which we have created
+	// TODO: fix flags magic
 	opVersion := config.Flags.OperatorVersion
 	olm.Subscribe(opVersion)
 
@@ -36,6 +41,7 @@ var _ = gauge.BeforeSuite(func() {
 		helper.RootDir(),
 		fmt.Sprintf("../build/tkn/v%s/tkn", config.Flags.TknVersion)))
 
+	/// TODO: fix how store is used
 	store := gauge.GetSuiteStore()
 	store["suite.cleanup"] = func() { olm.Unsubscribe(opVersion) }
 	store["tkn"] = tknCmd
