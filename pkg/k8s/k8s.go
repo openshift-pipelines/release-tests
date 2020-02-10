@@ -134,7 +134,6 @@ func GetPrivilegedSCC(cs *clients.Clients) (*secv1.SecurityContextConstraints, e
 }
 
 func ValidateDeploymentDeletion(cs *clients.Clients, ns string, deployments ...string) {
-
 	for _, d := range deployments {
 		err := WaitForDeploymentDeletion(cs, ns, d)
 		assert.NoError(err, fmt.Sprintf("Deployments: %+v, failed to delete\n", deployments))
@@ -142,7 +141,6 @@ func ValidateDeploymentDeletion(cs *clients.Clients, ns string, deployments ...s
 }
 
 func WaitForDeployment(kc kubernetes.Interface, namespace, name string, replicas int, retryInterval, timeout time.Duration) error {
-
 	err := wait.Poll(retryInterval, timeout, func() (done bool, err error) {
 		deployment, err := kc.AppsV1().Deployments(namespace).Get(name, metav1.GetOptions{IncludeUninitialized: true})
 		if err != nil {
@@ -159,10 +157,7 @@ func WaitForDeployment(kc kubernetes.Interface, namespace, name string, replicas
 		log.Printf("Waiting for full availability of %s deployment (%d/%d)\n", name, deployment.Status.AvailableReplicas, replicas)
 		return false, nil
 	})
-	if err != nil {
-		return err
-	}
-	return nil
+	return err
 }
 
 func CreateNamespace(kc *clients.KubeClient, ns string) {
@@ -196,7 +191,6 @@ func VerifyNoServiceAccount(kc *clients.KubeClient, sa, ns string) {
 }
 
 func VerifyServiceAccountExists(kc *clients.KubeClient, sa, ns string) {
-	// TODO: shouldn't this recieve an arg?
 	log.Printf("Verify SA %q is created in namespace %q", sa, ns)
 
 	if err := wait.PollImmediate(config.APIRetry, config.APITimeout, func() (bool, error) {

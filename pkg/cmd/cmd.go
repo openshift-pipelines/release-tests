@@ -9,12 +9,13 @@ import (
 	"gotest.tools/v3/icmd"
 )
 
-type Cmd struct {
-	Args     []string
+type FooCmd struct {
+	Command  []string
 	Expected icmd.Expected
 }
 
-// testsuitAdaptor bridges the gap between testsuit.T and assert.TestingT
+// testsuitAdaptor bridges the gap between testsuit.T and assert.TestingT as
+// testsuit.T does not implement assert.TestingT interface
 type testsuitAdaptor struct{}
 
 // ensure testsuitAdaptor satisfies assert.TestingT interface
@@ -32,15 +33,19 @@ func (ta testsuitAdaptor) Log(args ...interface{}) {
 	testsuit.T.Fail(fmt.Errorf("%v", args))
 }
 
-func Run(cmd []string) *icmd.Result {
+func Run(cmd ...string) *icmd.Result {
 	return icmd.RunCmd(icmd.Cmd{Command: cmd, Timeout: config.Timeout})
 }
 
-// AssertOutput runs a command and verfies exit code (0)
-func AssertOutput(cmd *Cmd) *icmd.Result {
-	res := Run(cmd.Args)
+// MustSucceed asserts that the command ran with 0 exit code
+func MustSucceed(args ...string) *icmd.Result {
+	return Assert(icmd.Success, args...)
+}
 
+// Assert runs a command and verifies exit code (0)
+func Assert(exp icmd.Expected, args ...string) *icmd.Result {
+	res := Run(args...)
 	t := &testsuitAdaptor{}
-	res.Assert(t, cmd.Expected)
+	res.Assert(t, exp)
 	return res
 }

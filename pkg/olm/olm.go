@@ -53,34 +53,27 @@ func CreateSubscriptionYaml(channel, installPlan, csv string) {
 // DeleteCSV deletes cluster Service Version(v0.9.*) Resource from TargetNamespace
 func DeleteCSV(version string) {
 	log.Printf("output: %s\n",
-		cmd.AssertOutput(
-			&cmd.Cmd{
-				Args: []string{
-					"oc", "delete", "csv",
-					"openshift-pipelines-operator." + version,
-					"-n", "openshift-operators"},
-				Expected: icmd.Success,
-			}).Stdout())
+		cmd.Assert(
+			icmd.Success,
+			"oc", "delete", "csv",
+			"openshift-pipelines-operator."+version,
+			"-n", "openshift-operators",
+		).Stdout())
 }
 
 // Subscribe helps you to subscribe specific version pipelines operator from canary channel to OCP cluster
 func Subscribe(version string) {
 	path := filepath.Join(helper.RootDir(), "../config/subscription.yaml")
 	log.Printf("output: %s\n",
-		cmd.AssertOutput(
-			&cmd.Cmd{
-				Args:     []string{"oc", "apply", "-f", path},
-				Expected: icmd.Success,
-			}))
+		cmd.Assert(icmd.Success, "oc", "apply", "-f", path))
 }
 
 // Unsubscribe helps you to subscribe specific version pipelines operator from canary channel to OCP cluster
 func Unsubscribe(version string) {
 	path := filepath.Join(helper.RootDir(), "../config/subscription.yaml")
 	log.Printf("output: %s\n",
-		cmd.AssertOutput(
-			&cmd.Cmd{
-				Args:     []string{"oc", "delete", "-f", path},
-				Expected: icmd.Success,
-			}))
+		cmd.Assert(
+			icmd.Success,
+			"oc", "delete", "-f", path,
+		))
 }

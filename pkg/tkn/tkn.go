@@ -12,6 +12,7 @@ import (
 	"github.com/Netflix/go-expect"
 	"github.com/getgauge-contrib/gauge-go/testsuit"
 	"github.com/openshift-pipelines/release-tests/pkg/cmd"
+	"gotest.tools/v3/icmd"
 )
 
 type Cmd struct {
@@ -27,8 +28,14 @@ func New(tknPath string) Cmd {
 }
 
 // Run tkn with given arguments
-func (tkn *Cmd) Run(c *cmd.Cmd) string {
-	output := cmd.AssertOutput(c)
+func (tkn Cmd) MustSucceed(args ...string) string {
+	return tkn.Assert(icmd.Success, args...)
+}
+
+// Run tkn with given arguments
+func (tkn Cmd) Assert(exp icmd.Expected, args ...string) string {
+	run := append([]string{tkn.Path}, args...)
+	output := cmd.Assert(exp, run...)
 	return output.Stdout()
 }
 
