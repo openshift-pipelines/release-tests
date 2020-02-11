@@ -1,18 +1,14 @@
 package steps
 
 import (
-	"fmt"
 	"log"
 	"os"
-	"path/filepath"
 
 	"github.com/getgauge-contrib/gauge-go/gauge"
 	"github.com/getgauge-contrib/gauge-go/testsuit"
 	"github.com/openshift-pipelines/release-tests/pkg/config"
-	"github.com/openshift-pipelines/release-tests/pkg/helper"
 	"github.com/openshift-pipelines/release-tests/pkg/k8s"
 	"github.com/openshift-pipelines/release-tests/pkg/olm"
-	"github.com/openshift-pipelines/release-tests/pkg/tkn"
 )
 
 // Hooks for gauge framework
@@ -34,17 +30,21 @@ var _ = gauge.BeforeSuite(func() {
 
 	if config.Flags.TknVersion == "" {
 		log.Println("env \"TKN_VERSION\" is not set cannot proceed to run tests")
-		os.Exit(0)
+		os.Exit(1)
 	}
 
-	tknCmd := tkn.New(filepath.Join(
-		helper.RootDir(),
-		fmt.Sprintf("../build/tkn/v%s/tkn", config.Flags.TknVersion)))
+	// TODO add tkn to store
+	//tknPath := config.File("..", "build", "tkn", "v"+config.Flags.TknVersion, "tkn")
+	//if _, err := os.Stat(tknPath); os.IsNotExist(err) {
+	//log.Printf("tkn cli not found in at %q ", tknPath)
+	//os.Exit(1)
+	//}
+	//tknCmd := tkn.New(tknPath)
+	//store["tkn"] = tknCmd
 
 	/// TODO: fix how store is used
 	store := gauge.GetSuiteStore()
 	store["suite.cleanup"] = func() { olm.Unsubscribe(opVersion) }
-	store["tkn"] = tknCmd
 
 }, []string{}, testsuit.AND)
 
@@ -68,7 +68,6 @@ var _ = gauge.BeforeScenario(func() {
 }, []string{}, testsuit.AND)
 
 var _ = gauge.AfterScenario(func() {
-
 	switch c := gauge.GetScenarioStore()["scenario.cleanup"].(type) {
 	case func():
 		c()

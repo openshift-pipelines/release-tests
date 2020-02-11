@@ -50,6 +50,7 @@ require (
 	go.opencensus.io v0.22.1
 	golang.org/x/xerrors v0.0.0-20190717185122-a985d3407aa7
 	gopkg.in/check.v1 v1.0.0-20190902080502-41f04d3bba15 // indirect
+	gotest.tools v2.2.0+incompatible
 	gotest.tools/v3 v3.0.0
 	k8s.io/api v0.0.0-20191004102255-dacd7df5a50b
 	k8s.io/apiextensions-apiserver v0.0.0-20190918161926-8f644eb6e783

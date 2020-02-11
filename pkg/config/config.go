@@ -2,9 +2,12 @@ package config
 
 import (
 	"flag"
+	"io/ioutil"
 	"os"
 	"os/user"
 	"path"
+	"path/filepath"
+	"runtime"
 	"time"
 )
 
@@ -109,4 +112,19 @@ func initializeFlags() *EnvironmentFlags {
 	flag.StringVar(&f.TknVersion, "tknversion", defaultTkn,
 		"Provide tknversion to download specified cli binary you'd like to use for these tests. By default `0.6.0` will be used.")
 	return &f
+}
+
+func Dir() string {
+	_, b, _, _ := runtime.Caller(0)
+	configDir := path.Join(path.Dir(b), "..", "..", "config")
+	return configDir
+}
+
+func File(elem ...string) string {
+	path := append([]string{Dir()}, elem...)
+	return filepath.Join(path...)
+}
+
+func Read(path string) ([]byte, error) {
+	return ioutil.ReadFile(File(path))
 }

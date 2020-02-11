@@ -5,11 +5,9 @@ import (
 	"html/template"
 	"io/ioutil"
 	"log"
-	"path/filepath"
 
 	"github.com/openshift-pipelines/release-tests/pkg/cmd"
-	"github.com/openshift-pipelines/release-tests/pkg/helper"
-	"gotest.tools/v3/icmd"
+	"github.com/openshift-pipelines/release-tests/pkg/config"
 )
 
 func CreateSubscriptionYaml(channel, installPlan, csv string) {
@@ -27,7 +25,7 @@ func CreateSubscriptionYaml(channel, installPlan, csv string) {
 
 	var tmplBytes bytes.Buffer
 
-	b, err := ioutil.ReadFile(filepath.Join(helper.RootDir(), "../config/subscription.yaml.tmp")) // just pass the file name
+	b, err := config.Read("subscription.yaml.tmp")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -39,10 +37,11 @@ func CreateSubscriptionYaml(channel, installPlan, csv string) {
 
 	err = tmpl.Execute(&tmplBytes, data)
 	if err != nil {
+		// TODO fail testsuit
 		panic(err)
 	}
 
-	err = ioutil.WriteFile(filepath.Join(helper.RootDir(), "../config/subscription.yaml"), tmplBytes.Bytes(), 0666)
+	err = ioutil.WriteFile(config.File("subscription.yaml"), tmplBytes.Bytes(), 0666)
 	// TODO: handle this error
 	if err != nil {
 		// print it out
@@ -53,27 +52,20 @@ func CreateSubscriptionYaml(channel, installPlan, csv string) {
 // DeleteCSV deletes cluster Service Version(v0.9.*) Resource from TargetNamespace
 func DeleteCSV(version string) {
 	log.Printf("output: %s\n",
-		cmd.Assert(
-			icmd.Success,
-			"oc", "delete", "csv",
-			"openshift-pipelines-operator."+version,
+		cmd.MustSucceed(
+			"oc", "delete", "csv", "openshift-pipelines-operator."+version,
 			"-n", "openshift-operators",
 		).Stdout())
 }
 
 // Subscribe helps you to subscribe specific version pipelines operator from canary channel to OCP cluster
 func Subscribe(version string) {
-	path := filepath.Join(helper.RootDir(), "../config/subscription.yaml")
-	log.Printf("output: %s\n",
-		cmd.Assert(icmd.Success, "oc", "apply", "-f", path))
+	path := config.File("subscription.yaml")
+	log.Printf("output: %s\n", cmd.MustSucceed("oc", "apply", "-f", path))
 }
 
 // Unsubscribe helps you to subscribe specific version pipelines operator from canary channel to OCP cluster
 func Unsubscribe(version string) {
-	path := filepath.Join(helper.RootDir(), "../config/subscription.yaml")
-	log.Printf("output: %s\n",
-		cmd.Assert(
-			icmd.Success,
-			"oc", "delete", "-f", path,
-		))
+	path := config.File("subscription.yaml")
+	log.Printf("output: %s\n", cmd.MustSucceed("oc", "delete", "-f", path))
 }
