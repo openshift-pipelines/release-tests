@@ -30,8 +30,6 @@ var _ = gauge.Step("Verify taskrun has failed", func() {
 	pipelines.ValidateTaskRunForFailedStatus(store.Clients(), store.Namespace())
 })
 
-//=======================================================//
-
 var _ = gauge.Step("Create pipeline", func() {
 	pipelines.CreatePipeline(store.Clients(), store.Namespace())
 })

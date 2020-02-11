@@ -6,7 +6,7 @@ Precondition:
   * Operator should be installed
 
 ## Run Task with a non-existent ServiceAccount
-Tags: e2e, integration, pipelines, negative, focus
+Tags: e2e, tasks, negative, focus
 
 Running a task using a ServiceAccount that does not exist must fail
 
@@ -18,12 +18,12 @@ Steps:
 
 
 ## Run Pipeline with a non-existent ServiceAccount
-
-Tags: e2e, pipeline
+Tags: e2e, pipelines, negative, focus
 
 Running a Pipeline using a ServiceAccount that does not exist must fail
 
 Steps:
   * Create pipeline
-  * Run pipeline with "non-existance" SA
-  * Verify pipelineRun has failed
+  * Verify ServiceAccount "foobar" does not exist
+  * Run pipeline using "foobar" ServiceAccount
+  * Verify pipelinerun has failed
