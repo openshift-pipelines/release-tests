@@ -128,3 +128,18 @@ func File(elem ...string) string {
 func Read(path string) ([]byte, error) {
 	return ioutil.ReadFile(File(path))
 }
+
+func TempDir() (string, error) {
+	tmp := filepath.Join(Dir(), "..", "tmp")
+	if _, err := os.Stat(tmp); os.IsNotExist(err) {
+		err := os.Mkdir(tmp, 0755)
+		return tmp, err
+	}
+	return tmp, nil
+}
+
+func TempFile(elem ...string) string {
+	tmp, _ := TempDir()
+	path := append([]string{tmp}, elem...)
+	return filepath.Join(path...)
+}
