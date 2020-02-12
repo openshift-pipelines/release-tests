@@ -11,15 +11,27 @@ Validation of OpenShift Pipeline releases
 #### Installing `oc`
 Download `oc` latest binary executable for your operating system
 
-### Build tkn binary
-gauge tests uses tkn Binary created by using below command
-```
- make download-tkn TKN_VERSION=0.6.0
- ```
+#### Installing Gauge on Linux
 
-### Install guauge
+* *Install using DNF Package Manager*
+
+```sudo dnf install gauge```
+
+* *Install using Curl*
+
+Install Gauge to /usr/local/bin by running
+
+```curl -SsL https://downloads.gauge.org/stable | sh```
+
+Or install Gauge to a [custom path] using
+
+```curl -SsL https://downloads.gauge.org/stable | sh -s -- --location-[custom path]```
+### Alternative Gauge Installation methods
+
 * [Gauge](https://docs.gauge.org/getting_started/installing-gauge.html)
-* Gauge Go plugin
+
+
+ * Gauge Go plugin
   * can be installed using 
   ```
   gauge install go
@@ -35,15 +47,15 @@ gauge tests uses tkn Binary created by using below command
   ```
   gauge telemetry off
   ```
-## Running olm related tests 
+## Running olm install tests 
 ```
-gauge run --env "test" --log-level=debug --verbose   specs/olm
+gauge run --env "test" --log-level=debug --verbose   specs/install.spec
 ```
 
 ## Run openshift-pipeline tests
 
 ```
-gauge run --env "test" --log-level=debug  --verbose specs/features
+gauge run --env "test" --log-level=debug  --verbose specs/pipelines
 ```
 
 ## Organisation
