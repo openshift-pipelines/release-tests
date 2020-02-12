@@ -9,6 +9,7 @@ import (
 	"github.com/openshift-pipelines/release-tests/pkg/config"
 	"github.com/openshift-pipelines/release-tests/pkg/k8s"
 	"github.com/openshift-pipelines/release-tests/pkg/olm"
+	"github.com/openshift-pipelines/release-tests/pkg/operator"
 )
 
 // Hooks for gauge framework
@@ -20,13 +21,11 @@ var _ = gauge.BeforeSuite(func() {
 
 	// TODO: validate all required tools are present
 
-	// Creates subscription yaml with configured details from env/test/tes.properties
+	// Creates subscription yaml with configured details from env/test/test.properties
 	olm.CreateSubscriptionYaml(config.Flags.Channel, config.Flags.InstallPlan, config.Flags.CSV)
 
 	// subcribe to operator which we have created
-	// TODO: fix flags magic
-	opVersion := config.Flags.OperatorVersion
-	olm.Subscribe(opVersion)
+	olm.Subscribe()
 
 	if config.Flags.TknVersion == "" {
 		log.Println("env \"TKN_VERSION\" is not set cannot proceed to run tests")
@@ -42,9 +41,9 @@ var _ = gauge.BeforeSuite(func() {
 	//tknCmd := tkn.New(tknPath)
 	//store["tkn"] = tknCmd
 
-	/// TODO: fix how store is used
+	// TODO: fix how store is used
 	store := gauge.GetSuiteStore()
-	store["suite.cleanup"] = func() { olm.Unsubscribe(opVersion) }
+	store["suite.cleanup"] = func() { olm.Unsubscribe() }
 
 }, []string{}, testsuit.AND)
 
@@ -55,6 +54,10 @@ var _ = gauge.AfterSuite(func() {
 	default:
 		testsuit.T.Errorf("Error: return type is not of type func()")
 	}
+	// TODO: fix flags magic
+	//cleanup operator Traces
+	operator.Cleanup(config.Flags.OperatorVersion)
+
 }, []string{}, testsuit.AND)
 
 var _ = gauge.BeforeScenario(func() {

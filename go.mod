@@ -43,14 +43,13 @@ require (
 	github.com/shurcooL/httpfs v0.0.0-20190707220628-8d4bc4ba7749 // indirect
 	github.com/shurcooL/vfsgen v0.0.0-20181202132449-6a9ea43bcacd // indirect
 	github.com/spaolacci/murmur3 v1.1.0 // indirect
-	github.com/stretchr/testify v1.4.0 // indirect
 	github.com/tektoncd/operator v0.0.0-20200124060450-57c720be11c6
 	github.com/tektoncd/pipeline v0.9.2
 	go.mongodb.org/mongo-driver v1.0.4 // indirect
 	go.opencensus.io v0.22.1
 	golang.org/x/xerrors v0.0.0-20190717185122-a985d3407aa7
 	gopkg.in/check.v1 v1.0.0-20190902080502-41f04d3bba15 // indirect
-	gotest.tools v2.2.0+incompatible
+
 	gotest.tools/v3 v3.0.0
 	k8s.io/api v0.0.0-20191004102255-dacd7df5a50b
 	k8s.io/apiextensions-apiserver v0.0.0-20190918161926-8f644eb6e783

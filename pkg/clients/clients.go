@@ -6,7 +6,7 @@ import (
 
 	goctx "context"
 
-	. "github.com/getgauge-contrib/gauge-go/testsuit"
+	"github.com/getgauge-contrib/gauge-go/testsuit"
 	"github.com/tektoncd/operator/pkg/apis"
 	op "github.com/tektoncd/operator/pkg/apis/operator/v1alpha1"
 	"github.com/tektoncd/pipeline/pkg/client/clientset/versioned"
@@ -139,27 +139,27 @@ func NewClients(configPath, clusterName, namespace string) *Clients {
 
 	c.KubeClient, err = NewKubeClient(configPath, clusterName)
 	if err != nil {
-		T.Errorf("failed to create kubeclient from config file at %s: %s", configPath, err)
+		testsuit.T.Errorf("failed to create kubeclient from config file at %s: %s", configPath, err)
 	}
 
 	c.KubeConfig, err = BuildClientConfig(configPath, clusterName)
 	if err != nil {
-		T.Errorf("failed to create configuration obj from %s for cluster %s: %s", configPath, clusterName, err)
+		testsuit.T.Errorf("failed to create configuration obj from %s for cluster %s: %s", configPath, clusterName, err)
 	}
 
 	scheme := runtime.NewScheme()
 	if err := cgoscheme.AddToScheme(scheme); err != nil {
-		T.Errorf("failed to add cgo scheme to runtime scheme: (%v)", err)
+		testsuit.T.Errorf("failed to add cgo scheme to runtime scheme: (%v)", err)
 	}
 	if err := extscheme.AddToScheme(scheme); err != nil {
-		T.Errorf("failed to add api extensions scheme to runtime scheme: (%v)", err)
+		testsuit.T.Errorf("failed to add api extensions scheme to runtime scheme: (%v)", err)
 	}
 	cachedDiscoveryClient := cached.NewMemCacheClient(c.KubeClient.Kube.Discovery())
 	restMapper = restmapper.NewDeferredDiscoveryRESTMapper(cachedDiscoveryClient)
 	restMapper.Reset()
 	dynClient, err := dynclient.New(c.KubeConfig, dynclient.Options{Scheme: scheme, Mapper: restMapper})
 	if err != nil {
-		T.Errorf("failed to build the dynamic client: %v", err)
+		testsuit.T.Errorf("failed to build the dynamic client: %v", err)
 	}
 	serializer.NewCodecFactory(scheme).UniversalDeserializer()
 	c.Scheme = scheme
@@ -167,7 +167,7 @@ func NewClients(configPath, clusterName, namespace string) *Clients {
 
 	cs, err := versioned.NewForConfig(c.KubeConfig)
 	if err != nil {
-		T.Errorf("failed to create pipeline clientset from config file at %s: %s", configPath, err)
+		testsuit.T.Errorf("failed to create pipeline clientset from config file at %s: %s", configPath, err)
 	}
 	c.PipelineClient = cs.TektonV1alpha1().Pipelines(namespace)
 	c.TaskClient = cs.TektonV1alpha1().Tasks(namespace)

@@ -2,6 +2,7 @@ package config
 
 import (
 	"flag"
+	"fmt"
 	"io/ioutil"
 	"os"
 	"os/user"
@@ -9,6 +10,8 @@ import (
 	"path/filepath"
 	"runtime"
 	"time"
+
+	"github.com/openshift-pipelines/release-tests/pkg/assert"
 )
 
 const (
@@ -58,7 +61,8 @@ const (
 )
 
 // Flags holds the command line flags or defaults for settings in the user's environment.
-// See EnvironmentFlags for a list of supported fields.
+// See EnvironmentFlags for a list of supported fields
+// Todo: change initialization of falgs when required by parsing them or from environment variable
 var Flags = initializeFlags()
 
 // EnvironmentFlags define the flags that are needed to run the e2e tests.
@@ -142,4 +146,11 @@ func TempFile(elem ...string) string {
 	tmp, _ := TempDir()
 	path := append([]string{tmp}, elem...)
 	return filepath.Join(path...)
+}
+
+func DltTempDir() {
+	var err error
+	tmp, _ := TempDir()
+	err = os.RemoveAll(tmp)
+	assert.NoError(err, fmt.Sprintf("Error: In deleting directory: %+v ", tmp))
 }

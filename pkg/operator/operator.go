@@ -6,7 +6,7 @@ import (
 	"log"
 	"strings"
 
-	. "github.com/getgauge-contrib/gauge-go/testsuit"
+	"github.com/getgauge-contrib/gauge-go/testsuit"
 	"github.com/openshift-pipelines/release-tests/pkg/assert"
 	"github.com/openshift-pipelines/release-tests/pkg/clients"
 	"github.com/openshift-pipelines/release-tests/pkg/config"
@@ -42,11 +42,10 @@ func WaitForClusterCR(cs *clients.Clients, name string) *op.Config {
 
 func VerifyPipelineVersion(cs *clients.Clients, version string) {
 	cr := WaitForClusterCR(cs, config.ClusterCRName)
-	if strings.HasPrefix(cr.Status.Conditions[0].Version, version) {
-		log.Printf("Pipeline versions from CR %s", cr.Status.Conditions[0].Version)
-	} else {
-		T.Errorf("Error: Invalid pipeline version %s", cr.Status.Conditions[0].Version)
+	if !strings.HasPrefix(cr.Status.Conditions[0].Version, version) {
+		testsuit.T.Errorf("Error: Invalid pipeline version \n Expected: %s , Got: %s", version, cr.Status.Conditions[0].Version)
 	}
+	log.Printf("Pipeline versions from CR %s", cr.Status.Conditions[0].Version)
 }
 
 func ValidateSCC(cs *clients.Clients) {
@@ -70,7 +69,7 @@ func ValidateInstalledStatus(cs *clients.Clients) {
 	cr := WaitForClusterCR(cs, config.ClusterCRName)
 
 	if code := cr.Status.Conditions[0].Code; code != op.InstalledStatus {
-		T.Errorf("Expected code to be %s but got %s", op.InstalledStatus, code)
+		testsuit.T.Errorf("Expected code to be %s but got %s", op.InstalledStatus, code)
 	}
 }
 
@@ -84,7 +83,7 @@ func ValidateInstall(cs *clients.Clients) {
 	cr := WaitForClusterCR(cs, config.ClusterCRName)
 
 	if code := cr.Status.Conditions[0].Code; code != op.InstalledStatus {
-		T.Errorf("Expected code to be %s but got %s", op.InstalledStatus, code)
+		testsuit.T.Errorf("Expected code to be %s but got %s", op.InstalledStatus, code)
 	}
 	log.Printf("Operator is up\n")
 
@@ -112,8 +111,10 @@ func DeleteClusterCR(cs *clients.Clients, name string) {
 	assert.NoError(err, fmt.Sprintf("%s cluster CR deletion failed\n", name))
 }
 
-// Delete helps you to delete operator and it's traces if any from cluster
-func Delete(cs *clients.Clients, version string) {
+// DeleteOperatorTraces helps you to delete operator and it's traces if any from cluster
+func Cleanup(version string) {
+	cs, _, cleanup := k8s.NewClientSet()
+	defer cleanup()
 	cr := WaitForClusterCR(cs, config.ClusterCRName)
 
 	DeleteClusterCR(cs, config.ClusterCRName)
@@ -129,6 +130,6 @@ func Delete(cs *clients.Clients, version string) {
 
 	k8s.ValidateSCCRemoved(cs, ns, config.PipelineControllerName)
 	olm.DeleteCSV(version)
-	DeleteInstallPlan()
-	DeleteSubscription()
+	//cleanup tmp directory
+	config.DltTempDir()
 }

@@ -14,13 +14,11 @@ import (
 func CreateSubscriptionYaml(channel, installPlan, csv string) {
 	// TODO: convert to Go code
 	var data = struct {
-		Channel     string
-		InstallPlan string
-		CSV         string
+		Channel string
+		CSV     string
 	}{
-		Channel:     channel,
-		InstallPlan: installPlan,
-		CSV:         csv,
+		Channel: channel,
+		CSV:     csv,
 	}
 
 	if _, err := config.TempDir(); err != nil {
@@ -44,8 +42,8 @@ func CreateSubscriptionYaml(channel, installPlan, csv string) {
 
 	if err = ioutil.WriteFile(config.TempFile("subscription.yaml"), buffer.Bytes(), 0666); err != nil {
 		testsuit.T.Fail(err)
-
 	}
+
 }
 
 // DeleteCSV deletes cluster Service Version(v0.9.*) Resource from TargetNamespace
@@ -58,13 +56,13 @@ func DeleteCSV(version string) {
 }
 
 // Subscribe helps you to subscribe specific version pipelines operator from canary channel to OCP cluster
-func Subscribe(version string) {
+func Subscribe() {
 	path := config.TempFile("subscription.yaml")
-	log.Printf("output: %s\n", cmd.MustSucceed("oc", "apply", "-f", path))
+	log.Printf("output: %s\n", cmd.MustSucceed("oc", "apply", "-f", path).Stdout())
 }
 
 // Unsubscribe helps you to subscribe specific version pipelines operator from canary channel to OCP cluster
-func Unsubscribe(version string) {
+func Unsubscribe() {
 	path := config.TempFile("subscription.yaml")
-	log.Printf("output: %s\n", cmd.MustSucceed("oc", "delete", "-f", path))
+	log.Printf("output: %s\n", cmd.MustSucceed("oc", "delete", "-f", path).Stdout())
 }

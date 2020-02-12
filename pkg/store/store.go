@@ -25,6 +25,6 @@ func Tkn() tkn.Cmd {
 	case tkn.Cmd:
 		return n
 	default:
-		panic("Error")
+		panic("Error: type for tkn is not as expected")
 	}
 }

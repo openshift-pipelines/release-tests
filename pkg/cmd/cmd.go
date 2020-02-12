@@ -5,7 +5,7 @@ import (
 
 	"github.com/getgauge-contrib/gauge-go/testsuit"
 	"github.com/openshift-pipelines/release-tests/pkg/config"
-	"gotest.tools/assert"
+	"gotest.tools/v3/assert"
 	"gotest.tools/v3/icmd"
 )
 
