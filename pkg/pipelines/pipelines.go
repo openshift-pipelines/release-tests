@@ -34,8 +34,8 @@ func newCreateFileTask(taskname string, namespace string) *v1alpha1.Task {
 	taskSpecOps := []tb.TaskSpecOp{
 		tb.TaskInputs(tb.InputsResource("workspace", v1alpha1.PipelineResourceTypeGit, tb.ResourceTargetPath("damnworkspace"))),
 		tb.TaskOutputs(tb.OutputsResource("workspace", v1alpha1.PipelineResourceTypeGit)),
-		tb.Step("read-docs-old", "ubuntu", tb.StepCommand("/bin/bash"), tb.StepArgs("-c", "ls -la /workspace/damnworkspace/docs/README.md")),
-		tb.Step("write-new-stuff", "ubuntu", tb.StepCommand("bash"), tb.StepArgs("-c", "ln -s /workspace/damnworkspace /workspace/output/workspace && echo some stuff > /workspace/output/workspace/stuff")),
+		tb.Step("ubuntu", tb.StepName("read-docs-old"), tb.StepCommand("/bin/bash"), tb.StepArgs("-c", "ls -la /workspace/damnworkspace/docs/README.md")),
+		tb.Step("ubuntu", tb.StepName("write-new-stuff"), tb.StepCommand("bash"), tb.StepArgs("-c", "ln -s /workspace/damnworkspace /workspace/output/workspace && echo some stuff > /workspace/output/workspace/stuff")),
 	}
 
 	return tb.Task(taskname, namespace, tb.TaskSpec(taskSpecOps...))
@@ -45,7 +45,7 @@ func newReadFileTask(taskname string, namespace string) *v1alpha1.Task {
 
 	taskSpecOps := []tb.TaskSpecOp{
 		tb.TaskInputs(tb.InputsResource("workspace", v1alpha1.PipelineResourceTypeGit, tb.ResourceTargetPath("newworkspace"))),
-		tb.Step("read", "ubuntu", tb.StepCommand("/bin/bash"), tb.StepArgs("-c", "cat /workspace/newworkspace/stuff")),
+		tb.Step("ubuntu", tb.StepName("read"), tb.StepCommand("/bin/bash"), tb.StepArgs("-c", "cat /workspace/newworkspace/stuff")),
 	}
 
 	return tb.Task(taskname, namespace, tb.TaskSpec(taskSpecOps...))
@@ -115,7 +115,7 @@ func ValidatePipelineRunStatus(c *clients.Clients, namespace string) {
 func newTask(taskname string, namespace string) *v1alpha1.Task {
 
 	taskSpecOps := []tb.TaskSpecOp{
-		tb.Step("foo", "busybox", tb.StepCommand("ls", "-la")),
+		tb.Step("busybox", tb.StepName("foo"), tb.StepCommand("ls", "-la")),
 	}
 
 	return tb.Task(taskname, namespace, tb.TaskSpec(taskSpecOps...))
