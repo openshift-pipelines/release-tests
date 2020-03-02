@@ -6,7 +6,7 @@ Precondition:
   * Operator should be installed
 
 ## Run Task with a non-existent ServiceAccount
-Tags: e2e, tasks, negative, focus
+Tags: e2e, tasks, negative
 
 Running a task using a ServiceAccount that does not exist must fail
 
@@ -18,7 +18,7 @@ Steps:
 
 
 ## Run Pipeline with a non-existent ServiceAccount
-Tags: e2e, pipelines, negative, focus
+Tags: e2e, pipelines, negative
 
 Running a Pipeline using a ServiceAccount that does not exist must fail
 
