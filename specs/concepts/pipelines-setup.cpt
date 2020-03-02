@@ -1,0 +1,5 @@
+# Setup openshift-pipeline resources to create vote-app
+
+* Create "./testdata/triggers/tutorial/task/oc-deployment-patch.yaml"
+* Create "./testdata/triggers/tutorial/pipeline-resources/resources.yaml"
+* Create "./testdata/triggers/tutorial/pipeline/vote-app-pipeline.yaml"

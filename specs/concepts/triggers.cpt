@@ -8,8 +8,9 @@
  * Create "./testdata/triggers/pipeline-triggers/triggertemplate.yaml"
  * Create "./testdata/triggers/pipeline-triggers/triggerbindings.yaml" 
 
-# Create Cron Job that triggers eventlistener, every 1 minute
+# Create Cron Job to trigger eventlistener, every 1 minute
  * Create "./testdata/triggers/eventlisteners/cron/cron.yaml"
+
 # Add Event listener
  * Create "./testdata/triggers/eventlisteners/eventlistener.yaml"
 

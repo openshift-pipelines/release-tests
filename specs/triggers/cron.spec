@@ -14,7 +14,7 @@ Steps:
   * Create "./testdata/triggers/eventlisteners/role-resources/rbac.yaml"
   * Add Event listener
   * Expose event listener service
-  * Create Cron Job that triggers eventlistener, every 1 minute
+  * Create Cron Job to trigger eventlistener, every 1 minute
   * Verify creation of openshift-pipeline-resources
   * Verify resources are created with labels & event-id
   * Verify pipelinerun is "successfull"

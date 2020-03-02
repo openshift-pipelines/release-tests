@@ -9,5 +9,5 @@
 
 # Verify conditional pipelinerun is <status>
   * Verify conditional Task run labels
-  * Verify conditional Task run status is "successfull"
+  * Verify conditional Task run status is <status>
   * Verify pipelinerun is <status>
