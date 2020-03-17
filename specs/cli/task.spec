@@ -70,3 +70,19 @@ Steps:
   * Run "tkn task delete non-existing-task"
   * Verify the error message
 
+
+## Delete task with taskrun (--all)
+
+Steps:  
+  * Run "tkn task create -f ../../testdata/tasks/shell-script-task.yaml"
+  * Verify taks creation status is "successfull"
+  * Start the task using command "tkn task start shell-script-task
+  * Run "tkn task delete shell-script-task --all -f"
+  * Verify deletion of both task and taskrun
+
+
+## Delete help
+
+Steps:
+  * Run "tkn task delete --help"
+  * Help to use tkn task delete should be shown
