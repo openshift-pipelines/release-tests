@@ -1,0 +1,10 @@
+apiVersion: tekton.dev/v1alpha1
+kind: Task
+metadata:
+  name: shell-script-task
+spec:
+  steps:
+    - name: shell-example
+      image: ubuntu
+      script: |
+        echo "Hello from Bash!"
