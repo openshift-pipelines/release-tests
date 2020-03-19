@@ -3,37 +3,36 @@
 Pre condition:
   * Operator should be installed
 
-## Create task
+## Create task using cli
 Tags: tasks
 
 Steps:
-  * Run "tkn task create -f ../../testdata/tasks/shell-script-task.yaml"
-  * Verify taks creation status is "successfull"
+  * Cretae task from tkn "../../testdata/tasks/shell-script-task.yaml"
+  * Verify taks creation status "successfull"
 
 
-## Create duplicate task
+## Create duplicate task using cli
 Tags: tasks
 
 Steps:
-  * Run "tkn task create -f ../../testdata/tasks/shell-script-task.yaml"
-  * Verify taks creation status is "successfull"
-  * Create same task one more time with command "tkn task create -f ../../testdata/tasks/shell-script-task.yaml"
-  * Verify failure message
+  * Create task from tkn "../../testdata/tasks/shell-script-task.yaml"
+  * Verify taks creation status "successfull"
+  * Create task from tkn "../../testdata/tasks/shell-script-task.yaml"
+  * Verify task creation status "unsuccessfull"
 
 
 ## Create task using invalid syntax yaml file
 Tags: tasks
 
 Steps:
-  * Run "tkn task create -f ../../testdata/tasks/invalid-task.yaml"
-  * Verify failure message
-
+  * create task from tkn "../../testdata/tasks/invalid-task.yaml"
+  * Verify task creation status "successfull"
 
 ## Delete task interactive
 Tags: tasks
 
 Steps:
-  * Run "tkn task create -f ../../testdata/tasks/shell-script-task.yaml"
+  * Create task from tkn "../../testdata/tasks/shell-script-task.yaml"
   * Verify taks creation status is "successfull"
   * Run "tkn task delete shell-script-task"
   * Verify whether it asks permission whether to delete the task or not
