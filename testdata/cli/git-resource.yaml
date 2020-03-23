@@ -1,0 +1,9 @@
+apiVersion: tekton.dev/v1alpha1
+kind: PipelineResource
+metadata:
+  name: ui-repo
+spec:
+  type: git
+  params:
+  - name: url
+    value: http://github.com/openshift-pipelines/vote-ui.git

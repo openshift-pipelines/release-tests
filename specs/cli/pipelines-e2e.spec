@@ -7,15 +7,15 @@ Pre condition:
 Tags: pipelines, e2e
 
 Steps:
-  * Create task from tkn "../../testdata/cli/shell-script-task.yaml"
+  * tkn create task "../../testdata/cli/shell-script-task.yaml"
   * Verify taks creation status "successfull"
-  * Create task from tkn "../../testdata/cli/python-script-task.yaml"
+  * tkn create task "../../testdata/cli/python-script-task.yaml"
   * Verify task creation status "successfull"
-  * Create pipeline from tkn "../../testdata/cli/pipeline-script.yaml"
-  * Start the pipeline from tkn "pipeline-test"
-  * List the pipeline
+  * tkn pipeline create "../../testdata/cli/pipeline-script.yaml"
+  * tkn pipeline start "pipeline-test"
+  * tkn pipeline list
   * Verify the status of pipeline "running"
-  * List the taskruns from tkn
+  * tkn taskrun list
   * Verify the status of taskrun "running"
   * Wait for the pipelinerun to complete
   * Verify the pipelinerun status "successfull"
@@ -25,13 +25,12 @@ Steps:
 Tags: pipelines, e2e
 
 Steps:
-  * Create resource from tkn ""
-  * Create resource from tkn ""
-  * Create task from tkn ""
-  * Create task from tkn ""
-  * Create pipeline from tkn ""
-  * Start the pipeline manually by providing the inputs manually
-  * List the pipeline from tkn
+  * tkn resource create "../../testdata/cli/git-resource.yaml"
+  * oc apply "../../testdata/cli/resource-condition.yaml"
+  * tkn create task "../../testdata/cli/resource-task.yaml"
+  * tkn pipeline create "../../testdata/cli/pipeline-condition.yaml"
+  * Start the pipeline manually by selecting the resource manually
+  * tkn pipeline list
   * Verify the status of pipeline "running"
   * Wait for pipelinerun to complete 
   * Verify the pipelinerun status "successfull"
@@ -41,13 +40,12 @@ Steps:
 Tags: pipelines, e2e
 
 Steps:
-  * Create resource from tkn ""
-  * Create resource from tkn ""
-  * Create task from tkn ""
-  * Create task from tkn ""
-  * Create pipeline from tkn ""
-  * Start the pipeline from tkn ""
-  * List the pipeline from tkn
+  * tkn resource create "../../testdata/cli/git-resource.yaml"
+  * oc apply "../../testdata/cli/resource-condition.yaml"
+  * tkn create task "../../testdata/cli/resource-task.yaml"
+  * tkn pipeline create "../../testdata/cli/pipeline-condition.yaml"
+  * tkn pipeline start "pipeline-to-list-files" "pipeline-git=ui-repo"
+  * tkn list pipeline
   * Verify the status of pipeline "running"
   * Wait for pipelinerun to complete 
   * Verify the pipelinerun status "successfull"
@@ -57,15 +55,15 @@ Steps:
 Tags: Pipelines, e2e
 
 Steps:
-  * Create task from tkn "../../testdata/tasks/shell-script-task.yaml"
+  * tkn create task "../../testdata/tasks/shell-script-task.yaml"
   * Verify taks creation status "successfull"
-  * Create task from tkn "../../testdata/tasks/python-script-task.yaml"
+  * tkn create task "../../testdata/tasks/python-script-task.yaml"
   * Verify task creation status "successfull"
-  * Create pipeline from tkn "../../testdata/cli/pipeline-script.yaml"
-  * Start the pipeline from tkn
-  * List the pipeline
+  * tkn pipeline create "../../testdata/cli/pipeline-script.yaml"
+  * tkn pipeline start
+  * tkn pipeline list
   * Verify the status of pipeline "running"
-  * List the taskruns from tkn
+  * tkn taskrun list
   * Verify the status of taskrun "running"
   * Wait for the pipelinerun to complete
   * Verify the pipelinerun status "successfull"
@@ -76,15 +74,15 @@ Steps:
 Tags: pipelines, e2e
 
 Steps:
-  * Create task from tkn "../../testdata/tasks/shell-script-task.yaml"
+  * tkn create task "../../testdata/tasks/shell-script-task.yaml"
   * Verify taks creation status "successfull"
-  * Create task from tkn "../../testdata/tasks/python-script-task.yaml"
+  * tkn create task "../../testdata/tasks/python-script-task.yaml"
   * Verify task creation status "successfull"
-  * Create pipeline from tkn "../../testdata/cli/pipeline-script.yaml"
-  * Start the pipeline from tkn 
-  * List the pipeline
+  * tkn pipeline create "../../testdata/cli/pipeline-script.yaml"
+  * tkn pipeline start 
+  * tkn pipeline list
   * Verify the status of pipeline "running"
-  * List the taskruns from tkn
+  * tkn taskrun list
   * Verify the status of taskrun "running"
   * Verify the pipeline running logs
   * Wait for the pipelinerun to complete
@@ -95,19 +93,19 @@ Steps:
 Tags: pipelines, e2e
 
 Steps:
-  * Create task from tkn "../../testdata/tasks/shell-script-task.yaml"
+  * tkn create task "../../testdata/tasks/shell-script-task.yaml"
   * Verify taks creation status "successfull"
-  * Create task from tkn "../../testdata/tasks/python-script-task.yaml"
+  * tkn create task "../../testdata/tasks/python-script-task.yaml"
   * Verify task creation status "successfull"
-  * Create pipeline from tkn "../../testdata/cli/pipeline-script.yaml"
-  * Start the pipeline from tkn
-  * List the pipeline
+  * tkn pipeline create "../../testdata/cli/pipeline-script.yaml"
+  * tkn pipeline start
+  * tkn pipeline list
   * Verify the status of pipeline "running"
-  * List the taskruns from tkn
+  * tkn taskrun list
   * Verify the status of taskrun "running"
   * Verify the pipeline running logs
   * Wait for the pipelinerun to complete
-  * Delete pipelinerun
+  * tkn pipelinerun delete
   * Verify pipelinerun is deleted
   * Verfiy all taskruns of pipelinerun is deleted
 
@@ -116,15 +114,15 @@ Steps:
 Tags: pipelines, e2e
 
 Steps:
-  * Create task from tkn "../../testdata/tasks/shell-script-task.yaml"
+  * tkn create task "../../testdata/tasks/shell-script-task.yaml"
   * Verify taks creation status "successfull"
-  * Create task from tkn "../../testdata/tasks/python-script-task.yaml"
+  * tkn create task "../../testdata/tasks/python-script-task.yaml"
   * Verify task creation status "successfull"
-  * Create pipeline from tkn "../../testdata/cli/pipeline-script.yaml"
-  * Start the pipeline from tkn
-  * List the pipeline
+  * tkn pipeline create "../../testdata/cli/pipeline-script.yaml"
+  * tkn pipeline start
+  * tkn pipeline list
   * Verify the status of pipeline "running"
-  * Cancel the pipelinerun from tkn""
+  * tkn pipelinerun cancel
   * Verify pipeline run status "Cancelled"
   * Verify the taskrun status "Cancelled"
 
@@ -133,13 +131,13 @@ Steps:
 Tags: Pipelines, e2e
 
 Steps:
-  * Create task from tkn "../../testdata/tasks/shell-script-task.yaml"
+  * tkn create task "../../testdata/tasks/shell-script-task.yaml"
   * Verify taks creation status "successfull"
-  * Create task from tkn "../../testdata/tasks/python-script-task.yaml"
+  * tkn create task "../../testdata/tasks/python-script-task.yaml"
   * Verify task creation status "successfull"
-  * Create pipeline from tkn "../../testdata/cli/pipeline-script.yaml"
-  * Start the pipeline from tkn
-  * Describe the pipeline from tkn  
+  * tkn pipeline create "../../testdata/cli/pipeline-script.yaml"
+  * tkn pipeline start
+  * tkn pipeline describe 
   * Verify the taskrun description
 
 
