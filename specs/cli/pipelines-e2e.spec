@@ -1,5 +1,14 @@
 # Verify Pipelines
 
+    |pipeline-with-resource| resource           |    pipeline-with-resource-location       |
+    |----------------------|--------------------|------------------------------------------|
+    |pipeline-to-list-files|pipeline-git=ui-repo|../../testdata/cli/pipeline-condition.yaml|
+
+
+    |pipeline-name|      pipeline-location                |
+    |-------------|---------------------------------------|
+    |pipeline-test|../../testdata/cli/pipeline-script.yaml|
+
 Pre condition:
   * Operator should be installed
 
@@ -11,8 +20,8 @@ Steps:
   * Verify taks creation status "successfull"
   * tkn create task "../../testdata/cli/python-script-task.yaml"
   * Verify task creation status "successfull"
-  * tkn pipeline create "../../testdata/cli/pipeline-script.yaml"
-  * tkn pipeline start "pipeline-test"
+  * tkn pipeline create <pipeline-location>
+  * tkn pipeline start <pipeline-name>
   * tkn pipeline list
   * Verify the status of pipeline "running"
   * tkn taskrun list
@@ -28,7 +37,7 @@ Steps:
   * tkn resource create "../../testdata/cli/git-resource.yaml"
   * oc apply "../../testdata/cli/resource-condition.yaml"
   * tkn create task "../../testdata/cli/resource-task.yaml"
-  * tkn pipeline create "../../testdata/cli/pipeline-condition.yaml"
+  * tkn pipeline create <pipeline-with-resourc-location"
   * Start the pipeline interactively by selecting the resource manually
   * tkn pipeline list
   * Verify the status of pipeline "running"
@@ -43,8 +52,8 @@ Steps:
   * tkn resource create "../../testdata/cli/git-resource.yaml"
   * oc apply "../../testdata/cli/resource-condition.yaml"
   * tkn create task "../../testdata/cli/resource-task.yaml"
-  * tkn pipeline create "../../testdata/cli/pipeline-condition.yaml"
-  * tkn pipeline start "pipeline-to-list-files" "pipeline-git=ui-repo"
+  * tkn pipeline create <pipeline-with-resourc-location"
+  * tkn pipeline start <pipeline-with-resource> <resource>
   * tkn pipeline list
   * Verify the status of pipeline "running"
   * Wait for pipelinerun to complete 
@@ -59,8 +68,8 @@ Steps:
   * Verify taks creation status "successfull"
   * tkn create task "../../testdata/tasks/python-script-task.yaml"
   * Verify task creation status "successfull"
-  * tkn pipeline create "../../testdata/cli/pipeline-script.yaml"
-  * tkn pipeline start "pipeline-test"
+  * tkn pipeline create <pipeline-location>
+  * tkn pipeline start <pipeline-name>
   * tkn pipeline list
   * Verify the status of pipeline "running"
   * tkn taskrun list
@@ -78,8 +87,8 @@ Steps:
   * Verify taks creation status "successfull"
   * tkn create task "../../testdata/tasks/python-script-task.yaml"
   * Verify task creation status "successfull"
-  * tkn pipeline create "../../testdata/cli/pipeline-script.yaml"
-  * tkn pipeline start "pipeline-test"
+  * tkn pipeline create <pipeline-location>
+  * tkn pipeline start <pipeline-name>
   * tkn pipeline list
   * Verify the status of pipeline "running"
   * tkn taskrun list
@@ -97,8 +106,8 @@ Steps:
   * Verify taks creation status "successfull"
   * tkn create task "../../testdata/tasks/python-script-task.yaml"
   * Verify task creation status "successfull"
-  * tkn pipeline create "../../testdata/cli/pipeline-script.yaml"
-  * tkn pipeline start "pipeline-test"
+  * tkn pipeline create <pipeline-location>
+  * tkn pipeline start <pipeline-name>
   * tkn pipeline list
   * Verify the status of pipeline "running"
   * tkn taskrun list
@@ -118,8 +127,8 @@ Steps:
   * Verify taks creation status "successfull"
   * tkn create task "../../testdata/tasks/python-script-task.yaml"
   * Verify task creation status "successfull"
-  * tkn pipeline create "../../testdata/cli/pipeline-script.yaml"
-  * tkn pipeline start "pipeline-test"
+  * tkn pipeline create <pipeline-location>
+  * tkn pipeline start <pipeline-name>
   * tkn pipeline list
   * Verify the status of pipeline "running"
   * tkn pipelinerun cancel
@@ -135,8 +144,8 @@ Steps:
   * Verify taks creation status "successfull"
   * tkn create task "../../testdata/tasks/python-script-task.yaml"
   * Verify task creation status "successfull"
-  * tkn pipeline create "../../testdata/cli/pipeline-script.yaml"
-  * tkn pipeline start "pipeline-test"
+  * tkn pipeline create <pipeline-location>
+  * tkn pipeline start <pipeline-name>
   * tkn pipeline describe 
   * Verify the taskrun description
 
