@@ -6,7 +6,7 @@ Validation of OpenShift Pipeline releases
 
 ### ***Prerequisite*** 
 
-#### OCP cluster (4.2.*)
+#### OCP cluster (4.3.*)
 
 #### Installing `oc`
 Download `oc` latest binary executable for your operating system
@@ -47,6 +47,7 @@ Or install Gauge to a [custom path] using
   ```
   gauge telemetry off
   ```
+
 ## Running olm install tests 
 ```
 gauge run --env "test" --log-level=debug --verbose   specs/install.spec
@@ -55,7 +56,7 @@ gauge run --env "test" --log-level=debug --verbose   specs/install.spec
 ## Run openshift-pipeline tests
 
 ```
-gauge run --env "test" --log-level=debug  --verbose specs/pipelines
+gauge run --env "test" --log-level=debug  --verbose specs/
 ```
 
 ## Organisation
@@ -68,7 +69,7 @@ gauge run --env "test" --log-level=debug  --verbose specs/pipelines
 
 
 `specs` directory is divided into the following
-  -  features :  contains specs related to the features tekton offers like (pipelines, cli, triggers, catalog, operator)
+  -  features :  contains specs related to the features tekton offers like (pipelines, cli, triggers, catalog, operator)git 
   -  olm : containse sepcs related to olm
        *  install: contains specs related to olm install operator
        *  uninstall: contains specs related to olm uninstall operator

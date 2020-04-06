@@ -1,0 +1,33 @@
+# Setup custom github webhook tasks
+ * Create "./testdata/triggers/github-webhook/create-webhook-user.yaml"
+ * Create "./testdata/triggers/github-webhook/webhook-secrets.yaml"
+ * Create "./testdata/triggers/github-webhook/create-webhook-task.yaml"
+
+# Setup pipeline triggers
+ * Create "./testdata/triggers/pipeline-triggers/triggers-rbac.yaml"
+ * Create "./testdata/triggers/pipeline-triggers/triggertemplate.yaml"
+ * Create "./testdata/triggers/pipeline-triggers/triggerbindings.yaml" 
+
+# Create Cron Job to trigger eventlistener, every 1 minute
+ * Create "./testdata/triggers/eventlisteners/cron/cron.yaml"
+
+# Add Event listener
+ * Create "./testdata/triggers/eventlisteners/eventlistener.yaml"
+
+# Add Event listener with github interceptor
+ * Create "./testdata/triggers/eventlisteners/github-event-listener.yaml"
+
+# Add Event listener with gitlab interceptor
+ * Create "./testdata/triggers/gitlab/gitlab-push-eventlistener.yaml"
+
+# Add Event listener with custom interceptor
+ * Create "./testdata/triggers/eventlisteners/el-gh-validator.yaml"
+
+# Add Event listener with CEL interceptor with filter
+ * Create "./testdata/triggers/eventlisteners/el-cel-inerceptor-with-filter.yaml"
+
+# Add Event listener with CEL interceptor without filter
+ * Create "./testdata/triggers/eventlisteners/el-cel-inerceptor-without-filter.yaml" 
+
+# Add Event listener with multiple interceptors
+ * Create "./testdata/triggers/eventlisteners/el-with-multiple-interceptors.yaml"
