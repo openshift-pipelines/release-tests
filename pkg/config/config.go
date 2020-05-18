@@ -154,3 +154,19 @@ func DltTempDir() {
 	err = os.RemoveAll(tmp)
 	assert.NoError(err, fmt.Sprintf("Error: In deleting directory: %+v ", tmp))
 }
+
+func Path(elem ...string) string {
+	td := filepath.Join(Dir(), "..")
+	if _, err := os.Stat(td); os.IsNotExist(err) {
+		assert.NoError(err, fmt.Sprintf("Error: in identifying test data path %+v ", td))
+	}
+	return filepath.Join(append([]string{td}, elem...)...)
+}
+
+func ReadBytes(elem string) ([]byte, error) {
+	bytes, err := ioutil.ReadFile(Path(elem))
+	if err != nil {
+		return nil, fmt.Errorf("couldn't load test data example PullRequest event data: %v", err)
+	}
+	return bytes, nil
+}

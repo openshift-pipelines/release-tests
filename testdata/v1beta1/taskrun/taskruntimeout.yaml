@@ -1,0 +1,22 @@
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: success
+spec:
+  steps:
+    - args:
+        - 3000s
+      command:
+        - sleep
+      image: busybox
+      name: ''
+      resources: {}
+---
+apiVersion: tekton.dev/v1beta1
+kind: TaskRun
+metadata:
+  name: trimeout
+spec:
+  taskRef:
+    name: success
+  timeout: 30s

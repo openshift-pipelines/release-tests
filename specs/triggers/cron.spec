@@ -1,20 +1,24 @@
-# Verify Triggers with cronJob 
+# Verify Triggers with cronjob
 
 Pre condition:
   * Operator should be installed
 
 ## Create Triggers using k8s cronJob
-Tags: triggers, focus, ignore
+Tags: e2e,triggers
 
 This scenario helps you to Trigger pipelineRun, using a k8s CronJob, to implement a basic cron trigger that runs every minute
 
 Steps:
-  * Create "./testdata/triggers/eventlisteners/cron/template.yaml"
-  * Create "./testdata/triggers/eventlisteners/cron/trigger-binding.yaml"
-  * Create "./testdata/triggers/eventlisteners/role-resources/rbac.yaml"
-  * Add Event listener
-  * Expose event listener service
-  * Create Cron Job to trigger eventlistener, every 1 minute
-  * Verify creation of openshift-pipeline-resources
-  * Verify resources are created with labels & event-id
-  * Verify pipelinerun is "successfull"
+  * Create
+    |S.NO|resource_dir                                 |
+    |----|---------------------------------------------|
+    |1   |testdata/triggers/cron/example-pipeline.yaml |
+    |2   |testdata/triggers/cron/tiggerbinding.yaml    |
+    |3   |testdata/triggers/cron/triggertemplate.yaml  |
+    |4   |testdata/triggers/cron/eventlistener.yaml    |
+  * Expose Event listener "cron-listener"
+  * Create cron job with schedule "*/1 * * * *"
+  * Wait for cron job to be active
+  * Watch for pipelinerun resources
+  * Delete cron job
+  * Assert no new pipelineruns created

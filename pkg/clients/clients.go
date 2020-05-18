@@ -11,14 +11,17 @@ import (
 	op "github.com/tektoncd/operator/pkg/apis/operator/v1alpha1"
 	"github.com/tektoncd/pipeline/pkg/client/clientset/versioned"
 	"github.com/tektoncd/pipeline/pkg/client/clientset/versioned/typed/pipeline/v1alpha1"
+	"github.com/tektoncd/pipeline/pkg/client/clientset/versioned/typed/pipeline/v1beta1"
 	resourceversioned "github.com/tektoncd/pipeline/pkg/client/resource/clientset/versioned"
 	resourcev1alpha1 "github.com/tektoncd/pipeline/pkg/client/resource/clientset/versioned/typed/resource/v1alpha1"
+	triggersclientset "github.com/tektoncd/triggers/pkg/client/clientset/versioned"
 	extscheme "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset/scheme"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/serializer"
 	"k8s.io/apimachinery/pkg/util/wait"
-	"k8s.io/client-go/discovery/cached"
+	cached "k8s.io/client-go/discovery/cached/memory"
+	"k8s.io/client-go/dynamic"
 	"k8s.io/client-go/kubernetes"
 	cgoscheme "k8s.io/client-go/kubernetes/scheme"
 	"k8s.io/client-go/rest"
@@ -48,7 +51,7 @@ type FrameworkClient interface {
 	Get(gCtx goctx.Context, key dynclient.ObjectKey, obj runtime.Object) error
 	List(gCtx goctx.Context, opts *dynclient.ListOptions, list runtime.Object) error
 	Create(gCtx goctx.Context, obj runtime.Object) error
-	Delete(gCtx goctx.Context, obj runtime.Object, opts ...dynclient.DeleteOptionFunc) error
+	Delete(gCtx goctx.Context, obj runtime.Object, opts ...dynclient.DeleteOption) error
 	Update(gCtx goctx.Context, obj runtime.Object) error
 }
 
@@ -74,10 +77,10 @@ func (f *frameworkClient) Get(gCtx goctx.Context, key dynclient.ObjectKey, obj r
 }
 
 func (f *frameworkClient) List(gCtx goctx.Context, opts *dynclient.ListOptions, list runtime.Object) error {
-	return f.Client.List(gCtx, opts, list)
+	return f.Client.List(gCtx, list, opts)
 }
 
-func (f *frameworkClient) Delete(gCtx goctx.Context, obj runtime.Object, opts ...dynclient.DeleteOptionFunc) error {
+func (f *frameworkClient) Delete(gCtx goctx.Context, obj runtime.Object, opts ...dynclient.DeleteOption) error {
 	return f.Client.Delete(gCtx, obj, opts...)
 }
 
@@ -96,12 +99,15 @@ type Clients struct {
 	KubeClient             *KubeClient
 	KubeConfig             *rest.Config
 	Scheme                 *runtime.Scheme
-	PipelineClient         v1alpha1.PipelineInterface
-	TaskClient             v1alpha1.TaskInterface
-	TaskRunClient          v1alpha1.TaskRunInterface
-	PipelineRunClient      v1alpha1.PipelineRunInterface
+	Dynamic                dynamic.Interface
+	Tekton                 versioned.Interface
+	PipelineClient         v1beta1.PipelineInterface
+	TaskClient             v1beta1.TaskInterface
+	TaskRunClient          v1beta1.TaskRunInterface
+	PipelineRunClient      v1beta1.PipelineRunInterface
 	PipelineResourceClient resourcev1alpha1.PipelineResourceInterface
 	ConditionClient        v1alpha1.ConditionInterface
+	TriggersClient         triggersclientset.Interface
 }
 
 // NewKubeClient instantiates and returns several clientsets required for making request to the
@@ -171,15 +177,28 @@ func NewClients(configPath, clusterName, namespace string) *Clients {
 	if err != nil {
 		testsuit.T.Errorf("failed to create pipeline clientset from config file at %s: %s", configPath, err)
 	}
+	c.Tekton = cs
 
 	rcs, err := resourceversioned.NewForConfig(c.KubeConfig)
 	if err != nil {
-		testsuit.T.Errorf("failed to create pipeline clientset from config file at %s: %s", configPath, err)
+		testsuit.T.Errorf("Failed to create resource clientset from config file at %s: %s", configPath, err)
 	}
-	c.PipelineClient = cs.TektonV1alpha1().Pipelines(namespace)
-	c.TaskClient = cs.TektonV1alpha1().Tasks(namespace)
-	c.TaskRunClient = cs.TektonV1alpha1().TaskRuns(namespace)
-	c.PipelineRunClient = cs.TektonV1alpha1().PipelineRuns(namespace)
+
+	c.TriggersClient, err = triggersclientset.NewForConfig(c.KubeConfig)
+	if err != nil {
+		testsuit.T.Errorf("Failed to create triggers clientset from config file at %s: %s", configPath, err)
+	}
+
+	c.Dynamic, err = dynamic.NewForConfig(c.KubeConfig)
+	if err != nil {
+		testsuit.T.Errorf("Failed to create dynamic clients from config file at %s: %s", configPath, err)
+
+	}
+
+	c.PipelineClient = cs.TektonV1beta1().Pipelines(namespace)
+	c.TaskClient = cs.TektonV1beta1().Tasks(namespace)
+	c.TaskRunClient = cs.TektonV1beta1().TaskRuns(namespace)
+	c.PipelineRunClient = cs.TektonV1beta1().PipelineRuns(namespace)
 	c.PipelineResourceClient = rcs.TektonV1alpha1().PipelineResources(namespace)
 	c.ConditionClient = cs.TektonV1alpha1().Conditions(namespace)
 	c = initTestingFramework(c)
@@ -210,7 +229,7 @@ func AddToFrameworkScheme(addToScheme addToSchemeFunc, obj runtime.Object, c *Cl
 		return nil
 	}
 	err = wait.PollImmediate(time.Second, time.Second*10, func() (done bool, err error) {
-		err = dynClient.List(goctx.TODO(), &dynclient.ListOptions{Namespace: "default"}, obj)
+		err = dynClient.List(goctx.TODO(), obj, &dynclient.ListOptions{Namespace: "default"})
 		if err != nil {
 			restMapper.Reset()
 			return false, nil
