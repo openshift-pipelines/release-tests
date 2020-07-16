@@ -1,195 +1,262 @@
 package pipelines
 
 import (
+	"encoding/json"
 	"fmt"
 	"log"
+	"strings"
+	"sync"
+	"time"
 
+	"github.com/getgauge-contrib/gauge-go/gauge"
+	"github.com/getgauge-contrib/gauge-go/testsuit"
 	"github.com/openshift-pipelines/release-tests/pkg/assert"
 	"github.com/openshift-pipelines/release-tests/pkg/clients"
+	"github.com/openshift-pipelines/release-tests/pkg/k8s"
 	"github.com/openshift-pipelines/release-tests/pkg/wait"
-	"github.com/tektoncd/pipeline/pkg/apis/pipeline/v1alpha1"
-	tb "github.com/tektoncd/pipeline/test/builder"
+	"github.com/tektoncd/pipeline/pkg/apis/pipeline/v1beta1"
+	"github.com/tektoncd/pipeline/pkg/reconciler/pipelinerun/resources"
+	"gomodules.xyz/jsonpatch/v2"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/apimachinery/pkg/runtime/schema"
+	"k8s.io/apimachinery/pkg/types"
+	"k8s.io/apimachinery/pkg/watch"
 )
 
-var (
-	createFileTaskName        = "create-file"
-	readFileTaskName          = "check-stuff-file-exists"
-	tePipelineName            = "output-pipeline"
-	tePipelineGitResourceName = "skaffold-git"
-	teTaskName                = "output-task"
-	teTaskRunName             = "output-task-run"
-	tePipelineRunName         = "output-pipeline-run"
-)
+var prGroupResource = schema.GroupVersionResource{Group: "tekton.dev", Resource: "pipelineruns"}
 
-func newGitResource(rname string, namespace string) *v1alpha1.PipelineResource {
-	return tb.PipelineResource(rname, namespace, tb.PipelineResourceSpec(
-		v1alpha1.PipelineResourceTypeGit,
-		tb.PipelineResourceSpecParam("url", "https://github.com/GoogleContainerTools/skaffold"),
-		tb.PipelineResourceSpecParam("revision", "master"),
-	))
-}
-
-func newCreateFileTask(taskname string, namespace string) *v1alpha1.Task {
-
-	taskSpecOps := []tb.TaskSpecOp{
-		tb.TaskInputs(tb.InputsResource("workspace", v1alpha1.PipelineResourceTypeGit, tb.ResourceTargetPath("damnworkspace"))),
-		tb.TaskOutputs(tb.OutputsResource("workspace", v1alpha1.PipelineResourceTypeGit)),
-		tb.Step("ubuntu", tb.StepName("read-docs-old"), tb.StepCommand("/bin/bash"), tb.StepArgs("-c", "ls -la /workspace/damnworkspace/docs/README.md")),
-		tb.Step("ubuntu", tb.StepName("write-new-stuff"), tb.StepCommand("bash"), tb.StepArgs("-c", "ln -s /workspace/damnworkspace /workspace/output/workspace && echo some stuff > /workspace/output/workspace/stuff")),
-	}
-
-	return tb.Task(taskname, namespace, tb.TaskSpec(taskSpecOps...))
-}
-
-func newReadFileTask(taskname string, namespace string) *v1alpha1.Task {
-
-	taskSpecOps := []tb.TaskSpecOp{
-		tb.TaskInputs(tb.InputsResource("workspace", v1alpha1.PipelineResourceTypeGit, tb.ResourceTargetPath("newworkspace"))),
-		tb.Step("ubuntu", tb.StepName("read"), tb.StepCommand("/bin/bash"), tb.StepArgs("-c", "cat /workspace/newworkspace/stuff")),
-	}
-
-	return tb.Task(taskname, namespace, tb.TaskSpec(taskSpecOps...))
-}
-
-func newOutputPipeline(pipelineName string, namespace string, createFiletaskName string, readFileTaskName string) *v1alpha1.Pipeline {
-
-	pipelineSpec := []tb.PipelineSpecOp{
-		tb.PipelineDeclaredResource("source-repo", "git"),
-		tb.PipelineTask("first-create-file", createFiletaskName,
-			tb.PipelineTaskInputResource("workspace", "source-repo"),
-			tb.PipelineTaskOutputResource("workspace", "source-repo"),
-		),
-		tb.PipelineTask("then-check", readFileTaskName,
-			tb.PipelineTaskInputResource("workspace", "source-repo", tb.From("first-create-file")),
-		),
-	}
-
-	return tb.Pipeline(pipelineName, namespace, tb.PipelineSpec(pipelineSpec...))
-}
-
-func CreateSamplePipeline(c *clients.Clients, namespace string) {
-	var err error
-
-	log.Printf("Creating Git PipelineResource %s", tePipelineGitResourceName)
-
-	_, err = c.PipelineResourceClient.Create(newGitResource(tePipelineGitResourceName, namespace))
-	assert.NoError(err, fmt.Sprintf("Failed to create Pipeline Resource `%s`", tePipelineGitResourceName))
-
-	log.Printf("Creating Task  %s", createFileTaskName)
-
-	_, err = c.TaskClient.Create(newCreateFileTask(createFileTaskName, namespace))
-	assert.NoError(err, fmt.Sprintf("Failed to create Task `%s`", createFileTaskName))
-
-	log.Printf("Creating Task  %s", readFileTaskName)
-
-	_, err = c.TaskClient.Create(newReadFileTask(readFileTaskName, namespace))
-	assert.NoError(err, fmt.Sprintf("Failed to create Task `%s`", readFileTaskName))
-
-	log.Printf("Create Pipeline %s", tePipelineName)
-
-	_, err = c.PipelineClient.Create(newOutputPipeline(tePipelineName, namespace, createFileTaskName, readFileTaskName))
-	assert.NoError(err, fmt.Sprintf("Failed to create pipeline `%s`", tePipelineName))
-
-	log.Println("Created sample pipeline successfully....")
-}
-
-func RunSamplePipeline(c *clients.Clients, namespace string) {
-	var err error
-	pr := tb.PipelineRun(tePipelineRunName, namespace, tb.PipelineRunSpec(
-		tePipelineName,
-		tb.PipelineRunResourceBinding("source-repo", tb.PipelineResourceBindingRef(tePipelineGitResourceName)),
-	))
-	_, err = c.PipelineRunClient.Create(pr)
-	assert.NoError(err, fmt.Sprintf("Failed to create PipelineRun `%s`", tePipelineRunName))
-
-}
-
-func ValidatePipelineRunStatus(c *clients.Clients, namespace string) {
+func validatePipelineRunForSuccessStatus(c *clients.Clients, prname, labelCheck, namespace string) {
 	var err error
 	// Verify status of PipelineRun (wait for it)
-	err = wait.WaitForPipelineRunState(c, tePipelineRunName, wait.PipelineRunSucceed(tePipelineRunName), "PipelineRunCompleted")
-	assert.NoError(err, fmt.Sprintf("Error waiting for PipelineRun %s to finish", tePipelineRunName))
-	log.Printf("pipelineRun: %s is successfull under namespace : %s", tePipelineRunName, namespace)
-}
+	err = wait.WaitForPipelineRunState(c, prname, wait.PipelineRunSucceed(prname), "PipelineRunCompleted")
+	assert.NoError(err, fmt.Sprintf("Error waiting for PipelineRun %s to finish", prname))
+	log.Printf("pipelineRun: %s is successfull under namespace : %s", prname, namespace)
 
-func newTask(taskname string, namespace string) *v1alpha1.Task {
+	if strings.ToLower(labelCheck) == "yes" || strings.ToLower(labelCheck) == "y" {
+		log.Println("Check for events, labels & annotations")
+		actualTaskrunList, err := c.TaskRunClient.List(metav1.ListOptions{LabelSelector: fmt.Sprintf("tekton.dev/pipelineRun=%s", prname)})
+		assert.NoError(err, fmt.Sprintf("Error listing TaskRuns for PipelineRun %s: %s", prname, err))
+		actualTaskRunNames := []string{}
+		for _, tr := range actualTaskrunList.Items {
+			actualTaskRunNames = append(actualTaskRunNames, tr.GetName())
+			log.Printf("Checking that labels were propagated correctly for TaskRun %s", tr.Name)
+			checkLabelPropagation(c, namespace, prname, &tr)
+			log.Printf("Checking that annotations were propagated correctly for TaskRun %s", tr.Name)
+			checkAnnotationPropagation(c, namespace, prname, &tr)
+		}
 
-	taskSpecOps := []tb.TaskSpecOp{
-		tb.Step("busybox", tb.StepName("foo"), tb.StepCommand("ls", "-la")),
+		matchKinds := map[string][]string{"PipelineRun": {prname}, "TaskRun": actualTaskRunNames}
+
+		log.Printf("Making sure %d events were created from taskrun and pipelinerun with kinds %v", len(actualTaskRunNames)+1, matchKinds)
+
+		events, err := collectMatchingEvents(c, namespace, matchKinds, "Succeeded")
+
+		assert.NoError(err, fmt.Sprintf("Failed to collect matching events: %q", err))
+		if len(events) != len(actualTaskRunNames)+1 {
+			testsuit.T.Errorf(fmt.Sprintf("Expected %d number of successful events from pipelinerun and taskrun but got %d; list of receieved events : %#v", len(actualTaskRunNames)+1, len(events), events))
+		}
 	}
-
-	return tb.Task(taskname, namespace, tb.TaskSpec(taskSpecOps...))
 }
 
-func newTaskRunWithSA(taskrunname string, namespace string, taskname string, sa string) *v1alpha1.TaskRun {
-
-	return tb.TaskRun(taskrunname, namespace, tb.TaskRunSpec(
-		tb.TaskRunTaskRef(taskname), tb.TaskRunServiceAccountName(sa),
-	))
-}
-
-func newPipeline(pipelineName string, namespace string, taskname string) *v1alpha1.Pipeline {
-
-	pipelineSpec := []tb.PipelineSpecOp{
-		tb.PipelineTask("foo", taskname),
-	}
-	return tb.Pipeline(pipelineName, namespace, tb.PipelineSpec(pipelineSpec...))
-}
-
-func newPipelineRunWithSA(pipelineRunName string, namespace string, pipelineName string, sa string) *v1alpha1.PipelineRun {
-	return tb.PipelineRun(pipelineRunName, namespace, tb.PipelineRunSpec(
-		pipelineName, tb.PipelineRunServiceAccountName(sa),
-	))
-}
-
-func CreatePipeline(c *clients.Clients, namespace string) {
-	var err error
-	log.Printf("Creating Task  %s", teTaskName)
-	_, err = c.TaskClient.Create(newTask(teTaskName, namespace))
-	assert.NoError(err, fmt.Sprintf("Failed to create Task Resource `%s`", teTaskName))
-
-	log.Printf("Create Pipeline %s", tePipelineName)
-	_, err = c.PipelineClient.Create(newPipeline(tePipelineName, namespace, teTaskName))
-	assert.NoError(err, fmt.Sprintf("Failed to create pipeline `%s`", tePipelineName))
-
-	log.Println("Created pipeline successfully....")
-}
-
-func CreateTask(c *clients.Clients, namespace string) {
-	var err error
-	log.Printf("Creating Task  %s", teTaskName)
-	_, err = c.TaskClient.Create(newTask(teTaskName, namespace))
-	assert.NoError(err, fmt.Sprintf("Failed to create Task Resource `%s`", teTaskName))
-
-	log.Println("Created Task successfully....")
-}
-
-func CreateTaskRunWithSA(c *clients.Clients, namespace string, sa string) {
-	var err error
-	log.Printf("Starting TaskRun with Service Account %s", sa)
-	_, err = c.TaskRunClient.Create(newTaskRunWithSA(teTaskRunName, namespace, teTaskName, sa))
-	assert.NoError(err, fmt.Sprintf("Failed to create TaskRun: %s", teTaskRunName))
-}
-
-func ValidateTaskRunForFailedStatus(c *clients.Clients, namespace string) {
-	var err error
-	log.Printf("Waiting for TaskRun in namespace %s to fail", namespace)
-	err = wait.WaitForTaskRunState(c, teTaskRunName, wait.TaskRunFailed(teTaskRunName), "BuildValidationFailed")
-	assert.NoError(err, fmt.Sprintf("Failed to TaskRun: %s", teTaskRunName))
-
-}
-
-func CreatePipelineRunWithSA(c *clients.Clients, namespace string, sa string) {
-	var err error
-	log.Printf("Starting PipelineRun : %s, with Service Account %s", tePipelineRunName, sa)
-	_, err = c.PipelineRunClient.Create(newPipelineRunWithSA(tePipelineRunName, namespace, tePipelineName, sa))
-	assert.NoError(err, fmt.Sprintf("Failed to create PipelineRun `%s`", tePipelineRunName))
-}
-
-func ValidatePipelineRunForFailedStatus(c *clients.Clients, namespace string) {
+func validatePipelineRunForFailedStatus(c *clients.Clients, prname, namespace string) {
 	var err error
 	log.Printf("Waiting for PipelineRun in namespace %s to fail", namespace)
-	err = wait.WaitForPipelineRunState(c, tePipelineRunName, wait.PipelineRunFailed(tePipelineRunName), "BuildValidationFailed")
-	assert.NoError(err, fmt.Sprintf("Failed to finish PipelineRun: %s", tePipelineRunName))
+	err = wait.WaitForPipelineRunState(c, prname, wait.PipelineRunFailed(prname), "BuildValidationFailed")
+	assert.NoError(err, fmt.Sprintf("Failed to finish PipelineRun: %s", prname))
+}
 
+func validatePipelineRunTimeoutFailure(c *clients.Clients, prname, namespace string) {
+	var err error
+	pipelineRun, err := c.PipelineRunClient.Get(prname, metav1.GetOptions{})
+	assert.NoError(err, fmt.Sprintf("Error Getting PipelineRun %s under namespace %s ", prname, namespace))
+
+	log.Printf("Waiting for Pipelinerun %s in namespace %s to be started", pipelineRun.Name, namespace)
+	if err := wait.WaitForPipelineRunState(c, pipelineRun.Name, wait.Running(pipelineRun.Name), "PipelineRunRunning"); err != nil {
+		testsuit.T.Errorf(fmt.Sprintf("Error waiting for PipelineRun %s to be running: %s", pipelineRun.Name, err))
+	}
+
+	taskrunList, err := c.TaskRunClient.List(metav1.ListOptions{LabelSelector: fmt.Sprintf("tekton.dev/pipelineRun=%s", pipelineRun.Name)})
+	if err != nil {
+		testsuit.T.Errorf(fmt.Sprintf("Error listing TaskRuns for PipelineRun %s: %v", pipelineRun.Name, err))
+	}
+
+	log.Printf("Waiting for TaskRuns from PipelineRun %s in namespace %s to be running", pipelineRun.Name, namespace)
+	errChan := make(chan error, len(taskrunList.Items))
+	defer close(errChan)
+
+	for _, taskrunItem := range taskrunList.Items {
+		go func(name string) {
+			err := wait.WaitForTaskRunState(c, name, wait.Running(name), "TaskRunRunning")
+			errChan <- err
+		}(taskrunItem.Name)
+	}
+
+	for i := 1; i <= len(taskrunList.Items); i++ {
+		if <-errChan != nil {
+			testsuit.T.Errorf(fmt.Sprintf("Error waiting for TaskRun %s to be running: %v", taskrunList.Items[i-1].Name, err))
+		}
+	}
+
+	if _, err := c.PipelineRunClient.Get(pipelineRun.Name, metav1.GetOptions{}); err != nil {
+		testsuit.T.Errorf(fmt.Sprintf("Failed to get PipelineRun `%s`: %s", pipelineRun.Name, err))
+	}
+
+	log.Printf("Waiting for PipelineRun %s in namespace %s to be timed out", pipelineRun.Name, namespace)
+	if err := wait.WaitForPipelineRunState(c, pipelineRun.Name, wait.FailedWithReason(resources.ReasonTimedOut, pipelineRun.Name), "PipelineRunTimedOut"); err != nil {
+		testsuit.T.Errorf(fmt.Sprintf("Error waiting for PipelineRun %s to finish: %s", pipelineRun.Name, err))
+	}
+
+	log.Printf("Waiting for TaskRuns from PipelineRun %s in namespace %s to be cancelled", pipelineRun.Name, namespace)
+	var wg sync.WaitGroup
+	for _, taskrunItem := range taskrunList.Items {
+		wg.Add(1)
+		go func(name string) {
+			defer wg.Done()
+			err := wait.WaitForTaskRunState(c, name, wait.FailedWithReason("TaskRunTimeout", name), "TaskRunTimeout")
+			assert.NoError(err, fmt.Sprintf("Error waiting for TaskRun %s to timeout: %s", name, err))
+		}(taskrunItem.Name)
+	}
+	wg.Wait()
+
+	if _, err := c.PipelineRunClient.Get(pipelineRun.Name, metav1.GetOptions{}); err != nil {
+		testsuit.T.Errorf(fmt.Sprintf("Failed to get PipelineRun `%s`: %s", pipelineRun.Name, err))
+	}
+}
+
+func validatePipelineRunCancel(c *clients.Clients, prname, namespace string) {
+	var err error
+
+	log.Printf("Waiting for Pipelinerun %s in namespace %s to be started", prname, namespace)
+	if err := wait.WaitForPipelineRunState(c, prname, wait.Running(prname), "PipelineRunRunning"); err != nil {
+		testsuit.T.Errorf(fmt.Sprintf("Error waiting for PipelineRun %s to be running: %s", prname, err))
+	}
+
+	taskrunList, err := c.TaskRunClient.List(metav1.ListOptions{LabelSelector: fmt.Sprintf("tekton.dev/pipelineRun=%s", prname)})
+	if err != nil {
+		testsuit.T.Errorf(fmt.Sprintf("Error listing TaskRuns for PipelineRun %s: %s", prname, err))
+	}
+
+	var wg sync.WaitGroup
+	var trName []string
+	log.Printf("Waiting for TaskRuns from PipelineRun %s in namespace %s to be running", prname, namespace)
+	for _, taskrunItem := range taskrunList.Items {
+		trName = append(trName, taskrunItem.Name)
+		wg.Add(1)
+		go func(name string) {
+			defer wg.Done()
+			err := wait.WaitForTaskRunState(c, name, wait.Running(name), "TaskRunRunning")
+			assert.NoError(err, fmt.Sprintf("Error waiting for TaskRun %s to be running", name))
+		}(taskrunItem.Name)
+	}
+	wg.Wait()
+
+	pr, err := c.PipelineRunClient.Get(prname, metav1.GetOptions{})
+	assert.NoError(err, fmt.Sprintf("Error Getting PipelineRun %s under namespace %s ", prname, namespace))
+
+	patches := []jsonpatch.JsonPatchOperation{{
+		Operation: "add",
+		Path:      "/spec/status",
+		Value:     v1beta1.PipelineRunSpecStatusCancelled,
+	}}
+	patchBytes, err := json.Marshal(patches)
+	assert.NoError(err, fmt.Sprintf("failed to marshal patch bytes in order to cancel"))
+
+	if _, err := c.PipelineRunClient.Patch(pr.Name, types.JSONPatchType, patchBytes, ""); err != nil {
+		testsuit.T.Errorf(fmt.Sprintf("Failed to patch PipelineRun `%s` with cancellation", prname))
+	}
+
+	log.Printf("Waiting for PipelineRun %s in namespace %s to be cancelled", prname, namespace)
+	if err := wait.WaitForPipelineRunState(c, prname, wait.FailedWithReason("PipelineRunCancelled", prname), "PipelineRunCancelled"); err != nil {
+		testsuit.T.Errorf(fmt.Sprintf("Error waiting for PipelineRun `pear` to finished: %s", err))
+	}
+
+	log.Printf("Waiting for TaskRuns in PipelineRun %s in namespace %s to be cancelled", prname, namespace)
+	for _, taskrunItem := range taskrunList.Items {
+		wg.Add(1)
+		go func(name string) {
+			defer wg.Done()
+			err := wait.WaitForTaskRunState(c, name, wait.FailedWithReason("TaskRunCancelled", name), "TaskRunCancelled")
+			assert.NoError(err, fmt.Sprintf("Error waiting for TaskRun %s to be finished: %v", name, err))
+		}(taskrunItem.Name)
+	}
+	wg.Wait()
+}
+
+func ValidatePipelineRun(c *clients.Clients, prname, status, labelCheck, namespace string) {
+	var err error
+	pr, err := c.PipelineRunClient.Get(prname, metav1.GetOptions{})
+	assert.NoError(err, fmt.Sprintf("Error Getting PipelineRun %s under namespace %s ", prname, namespace))
+
+	// Verify status of PipelineRun (wait for it)
+	switch {
+	case strings.Contains(strings.ToLower(status), "success"):
+		log.Printf("validating pipeline run for success state...")
+		validatePipelineRunForSuccessStatus(c, pr.GetName(), labelCheck, namespace)
+	case strings.Contains(strings.ToLower(status), "fail"):
+		log.Printf("validating pipeline run for failure state...")
+		validatePipelineRunForFailedStatus(c, pr.GetName(), namespace)
+	case strings.Contains(strings.ToLower(status), "timeout"):
+		log.Printf("validating pipeline run timeout...")
+		validatePipelineRunTimeoutFailure(c, pr.GetName(), namespace)
+	case strings.Contains(strings.ToLower(status), "cancel"):
+		log.Printf("validating pipeline run timeout...")
+		validatePipelineRunCancel(c, pr.GetName(), namespace)
+	default:
+		testsuit.T.Errorf("Error: %s ", "Not valid input")
+	}
+}
+
+func WatchForPipelineRun(c *clients.Clients, namespace string) {
+	var prnames = []string{}
+	watchRun, err := k8s.Watch(prGroupResource, c, namespace, metav1.ListOptions{})
+	assert.NoError(err, fmt.Sprintf("failed to pipelineruns on a namespace %s", namespace))
+	ch := watchRun.ResultChan()
+	go func() {
+		for event := range ch {
+			run, err := cast2pipelinerun(event.Object)
+			assert.NoError(err, fmt.Sprintf("failed to convert to v1beta1 pipelinerun on a namespace %s", namespace))
+			switch event.Type {
+			case watch.Added:
+				log.Printf("pipeline run : %s", run.Name)
+				prnames = append(prnames, run.Name)
+			}
+
+		}
+	}()
+	time.Sleep(5 * time.Minute)
+	gauge.GetScenarioStore()["prcount"] = len(prnames)
+	gauge.WriteMessage("%+v", prnames)
+}
+
+func cast2pipelinerun(obj runtime.Object) (*v1beta1.PipelineRun, error) {
+	var run *v1beta1.PipelineRun
+	unstruct, err := runtime.DefaultUnstructuredConverter.ToUnstructured(obj)
+	if err != nil {
+		return nil, err
+	}
+	if err := runtime.DefaultUnstructuredConverter.FromUnstructured(unstruct, &run); err != nil {
+		return nil, err
+	}
+	return run, nil
+}
+
+func AssertForNoNewPipelineRunCreation(c *clients.Clients, namespace string) {
+	count := 0
+	expectedCount := gauge.GetScenarioStore()["prcount"].(int)
+	watchRun, err := k8s.Watch(prGroupResource, c, namespace, metav1.ListOptions{})
+	assert.NoError(err, fmt.Sprintf("failed to get tekton resources on a namespace %s", namespace))
+	ch := watchRun.ResultChan()
+	go func() {
+		for event := range ch {
+			switch event.Type {
+			case watch.Added:
+				count++
+			}
+		}
+	}()
+	time.Sleep(1 * time.Minute)
+	if count != expectedCount {
+		testsuit.T.Errorf("Error:  Expected: %+v (tekton resources add newly in namespace %s), \n Actual: %+v ", expectedCount, namespace, count)
+	}
 }

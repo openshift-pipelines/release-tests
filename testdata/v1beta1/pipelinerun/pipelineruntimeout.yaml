@@ -1,0 +1,34 @@
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: banana
+spec:
+  steps:
+    - args:
+        - '-c'
+        - sleep 100
+      command:
+        - /bin/sh
+      image: busybox
+      name: ''
+      resources: {}
+---
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  name: tomatoes
+spec:
+  tasks:
+    - name: foo
+      taskRef:
+        kind: Task
+        name: banana
+---
+apiVersion: tekton.dev/v1beta1
+kind: PipelineRun
+metadata:
+  name: pear
+spec:
+  pipelineRef:
+    name: tomatoes
+  timeout: 10s

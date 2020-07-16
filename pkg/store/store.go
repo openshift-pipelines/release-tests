@@ -28,3 +28,11 @@ func Tkn() tkn.Cmd {
 		panic("Error: type for tkn is not as expected")
 	}
 }
+
+func PutScenarioData(key, value string) {
+	gauge.GetScenarioStore()[key] = value
+}
+
+func GetScenarioData(key string) string {
+	return gauge.GetScenarioStore()[key].(string)
+}

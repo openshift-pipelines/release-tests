@@ -1,43 +1,38 @@
+//
 package pipeline
 
 import (
 	"github.com/getgauge-contrib/gauge-go/gauge"
+	m "github.com/getgauge-contrib/gauge-go/models"
 	"github.com/openshift-pipelines/release-tests/pkg/pipelines"
 	"github.com/openshift-pipelines/release-tests/pkg/store"
 )
 
-var _ = gauge.Step("Create sample pipeline", func() {
-	pipelines.CreateSamplePipeline(store.Clients(), store.Namespace())
+var _ = gauge.Step("Verify taskrun <table>", func(table *m.Table) {
+	for _, row := range table.Rows {
+		trname := row.Cells[1]
+		status := row.Cells[2]
+		pipelines.ValidateTaskRun(store.Clients(), trname, status, store.Namespace())
+	}
 })
 
-var _ = gauge.Step("Run sample pipeline", func() {
-	pipelines.RunSamplePipeline(store.Clients(), store.Namespace())
+var _ = gauge.Step("Verify pipelinerun <table>", func(table *m.Table) {
+	for _, row := range table.Rows {
+		prname := row.Cells[1]
+		status := row.Cells[2]
+		labelCheck := row.Cells[3]
+		pipelines.ValidatePipelineRun(store.Clients(), prname, status, labelCheck, store.Namespace())
+	}
 })
 
-var _ = gauge.Step("Verify sample pipelinerun is successfull", func() {
-	pipelines.ValidatePipelineRunStatus(store.Clients(), store.Namespace())
+var _ = gauge.Step("Watch for pipelinerun resources", func() {
+	pipelines.WatchForPipelineRun(store.Clients(), store.Namespace())
 })
 
-var _ = gauge.Step("Create task", func() {
-	pipelines.CreateTask(store.Clients(), store.Namespace())
+var _ = gauge.Step("Verify taskrun <trname> label propagation", func(trname string) {
+	pipelines.ValidateTaskRunLabelPropogation(store.Clients(), trname, store.Namespace())
 })
 
-var _ = gauge.Step("Run task using <sa> ServiceAccount", func(serviceAccount string) {
-	pipelines.CreateTaskRunWithSA(store.Clients(), store.Namespace(), serviceAccount)
-})
-
-var _ = gauge.Step("Verify taskrun has failed", func() {
-	pipelines.ValidateTaskRunForFailedStatus(store.Clients(), store.Namespace())
-})
-
-var _ = gauge.Step("Create pipeline", func() {
-	pipelines.CreatePipeline(store.Clients(), store.Namespace())
-})
-
-var _ = gauge.Step("Run pipeline using <sa> ServiceAccount", func(sa string) {
-	pipelines.CreatePipelineRunWithSA(store.Clients(), store.Namespace(), sa)
-})
-
-var _ = gauge.Step("Verify pipelinerun has failed", func() {
-	pipelines.ValidatePipelineRunForFailedStatus(store.Clients(), store.Namespace())
+var _ = gauge.Step("Assert no new pipelineruns created", func() {
+	pipelines.AssertForNoNewPipelineRunCreation(store.Clients(), store.Namespace())
 })
