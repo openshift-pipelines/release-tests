@@ -20,7 +20,7 @@ var _ = gauge.Step("Operator should be installed", func() {
 
 var _ = gauge.Step("Subscribe to operator", func() {
 	// Creates subscription yaml with configured details from env/test/test.properties
-	olm.CreateSubscriptionYaml(config.Flags.Channel, config.Flags.InstallPlan, config.Flags.CSV)
+	olm.CreateSubscriptionYaml(config.Flags.Channel)
 
 	// subcribe to operator which we have created
 	olm.Subscribe()

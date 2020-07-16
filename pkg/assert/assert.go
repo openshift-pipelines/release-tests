@@ -10,3 +10,10 @@ func NoError(err error, description string) {
 		testsuit.T.Errorf("%s, \n err: %v", description, err)
 	}
 }
+
+// FailOnError Fails execution when error returned is not null
+func FailOnError(err error) {
+	if err != nil {
+		testsuit.T.Fail(err)
+	}
+}

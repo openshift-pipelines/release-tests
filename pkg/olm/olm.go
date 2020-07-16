@@ -6,19 +6,19 @@ import (
 	"io/ioutil"
 	"log"
 
+	"github.com/openshift-pipelines/release-tests/pkg/assert"
+
 	"github.com/getgauge-contrib/gauge-go/testsuit"
 	"github.com/openshift-pipelines/release-tests/pkg/cmd"
 	"github.com/openshift-pipelines/release-tests/pkg/config"
 )
 
-func CreateSubscriptionYaml(channel, installPlan, csv string) {
+func CreateSubscriptionYaml(channel string) {
 	// TODO: convert to Go code
 	var data = struct {
 		Channel string
-		CSV     string
 	}{
 		Channel: channel,
-		CSV:     csv,
 	}
 
 	if _, err := config.TempDir(); err != nil {
@@ -39,8 +39,9 @@ func CreateSubscriptionYaml(channel, installPlan, csv string) {
 	if err = tmpl.Execute(&buffer, data); err != nil {
 		testsuit.T.Fail(err)
 	}
-
-	if err = ioutil.WriteFile(config.TempFile("subscription.yaml"), buffer.Bytes(), 0666); err != nil {
+	file, err := config.TempFile("subscription.yaml")
+	assert.FailOnError(err)
+	if err = ioutil.WriteFile(file, buffer.Bytes(), 0666); err != nil {
 		testsuit.T.Fail(err)
 	}
 
@@ -57,12 +58,17 @@ func DeleteCSV(version string) {
 
 // Subscribe helps you to subscribe specific version pipelines operator from canary channel to OCP cluster
 func Subscribe() {
-	path := config.TempFile("subscription.yaml")
+	path, err := config.TempFile("subscription.yaml")
+	assert.FailOnError(err)
 	log.Printf("output: %s\n", cmd.MustSucceed("oc", "apply", "-f", path).Stdout())
 }
 
 // Unsubscribe helps you to subscribe specific version pipelines operator from canary channel to OCP cluster
 func Unsubscribe() {
-	path := config.TempFile("subscription.yaml")
-	log.Printf("output: %s\n", cmd.MustSucceed("oc", "delete", "-f", path).Stdout())
+	path, err := config.TempFile("subscription.yaml")
+	if err != nil {
+		log.Printf("output: %s\n", cmd.MustSucceed("oc", "delete", "subscription", "openshift-pipelines-operator", "-n", "openshift-operators").Stdout())
+	} else {
+		log.Printf("output: %s\n", cmd.MustSucceed("oc", "delete", "-f", path).Stdout())
+	}
 }

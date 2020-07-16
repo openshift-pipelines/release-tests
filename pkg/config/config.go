@@ -104,7 +104,7 @@ func initializeFlags() *EnvironmentFlags {
 	flag.StringVar(&f.InstallPlan, "installplan", defaultPlan,
 		"Provide Install Approval plan for your operator you'd like to use for these tests. By default `Automatic` will be used.")
 
-	defaultOpVersion := os.Getenv("OPERATOR_VERSION")
+	defaultOpVersion := os.Getenv("CSV_VERSION")
 	flag.StringVar(&f.OperatorVersion, "opversion", defaultOpVersion,
 		"Provide Operator version for your operator you'd like to use for these tests. By default `v0.9.1` ")
 
@@ -142,10 +142,13 @@ func TempDir() (string, error) {
 	return tmp, nil
 }
 
-func TempFile(elem ...string) string {
-	tmp, _ := TempDir()
+func TempFile(elem ...string) (string, error) {
+	tmp, err := TempDir()
+	if err != nil {
+		return "", err
+	}
 	path := append([]string{tmp}, elem...)
-	return filepath.Join(path...)
+	return filepath.Join(path...), nil
 }
 
 func DltTempDir() {

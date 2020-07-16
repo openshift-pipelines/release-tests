@@ -1,12 +1,15 @@
 package clients
 
 import (
+	"fmt"
+	"log"
+	"os"
+	"strings"
 	"sync"
 	"time"
 
 	goctx "context"
 
-	"github.com/getgauge-contrib/gauge-go/testsuit"
 	"github.com/tektoncd/operator/pkg/apis"
 	op "github.com/tektoncd/operator/pkg/apis/operator/v1alpha1"
 	"github.com/tektoncd/pipeline/pkg/client/clientset/versioned"
@@ -140,34 +143,34 @@ func BuildClientConfig(kubeConfigPath string, clusterName string) (*rest.Config,
 // NewClients instantiates and returns several clientsets required for making requests to the
 // Pipeline cluster specified by the combination of clusterName and configPath. Clients can
 // make requests within namespace.
-func NewClients(configPath, clusterName, namespace string) *Clients {
+func NewClients(configPath, clusterName, namespace string) (*Clients, error) {
 
 	var err error
 	c := &Clients{}
 
 	c.KubeClient, err = NewKubeClient(configPath, clusterName)
 	if err != nil {
-		testsuit.T.Errorf("failed to create kubeclient from config file at %s: %s", configPath, err)
+		return nil, fmt.Errorf("failed to create kubeclient from config file at %s: %s", configPath, err)
 	}
 
 	c.KubeConfig, err = BuildClientConfig(configPath, clusterName)
 	if err != nil {
-		testsuit.T.Errorf("failed to create configuration obj from %s for cluster %s: %s", configPath, clusterName, err)
+		return nil, fmt.Errorf("failed to create configuration obj from %s for cluster %s: %s", configPath, clusterName, err)
 	}
 
 	scheme := runtime.NewScheme()
 	if err := cgoscheme.AddToScheme(scheme); err != nil {
-		testsuit.T.Errorf("failed to add cgo scheme to runtime scheme: (%v)", err)
+		return nil, fmt.Errorf("failed to add cgo scheme to runtime scheme: (%v)", err)
 	}
 	if err := extscheme.AddToScheme(scheme); err != nil {
-		testsuit.T.Errorf("failed to add api extensions scheme to runtime scheme: (%v)", err)
+		return nil, fmt.Errorf("failed to add api extensions scheme to runtime scheme: (%v)", err)
 	}
 	cachedDiscoveryClient := cached.NewMemCacheClient(c.KubeClient.Kube.Discovery())
 	restMapper = restmapper.NewDeferredDiscoveryRESTMapper(cachedDiscoveryClient)
 	restMapper.Reset()
 	dynClient, err := dynclient.New(c.KubeConfig, dynclient.Options{Scheme: scheme, Mapper: restMapper})
 	if err != nil {
-		testsuit.T.Errorf("failed to build the dynamic client: %v", err)
+		return nil, fmt.Errorf("failed to build the dynamic client: %v", err)
 	}
 	serializer.NewCodecFactory(scheme).UniversalDeserializer()
 	c.Scheme = scheme
@@ -175,24 +178,23 @@ func NewClients(configPath, clusterName, namespace string) *Clients {
 
 	cs, err := versioned.NewForConfig(c.KubeConfig)
 	if err != nil {
-		testsuit.T.Errorf("failed to create pipeline clientset from config file at %s: %s", configPath, err)
+		return nil, fmt.Errorf("failed to create pipeline clientset from config file at %s: %s", configPath, err)
 	}
 	c.Tekton = cs
 
 	rcs, err := resourceversioned.NewForConfig(c.KubeConfig)
 	if err != nil {
-		testsuit.T.Errorf("Failed to create resource clientset from config file at %s: %s", configPath, err)
+		return nil, fmt.Errorf("Failed to create resource clientset from config file at %s: %s", configPath, err)
 	}
 
 	c.TriggersClient, err = triggersclientset.NewForConfig(c.KubeConfig)
 	if err != nil {
-		testsuit.T.Errorf("Failed to create triggers clientset from config file at %s: %s", configPath, err)
+		return nil, fmt.Errorf("Failed to create triggers clientset from config file at %s: %s", configPath, err)
 	}
 
 	c.Dynamic, err = dynamic.NewForConfig(c.KubeConfig)
 	if err != nil {
-		testsuit.T.Errorf("Failed to create dynamic clients from config file at %s: %s", configPath, err)
-
+		return nil, fmt.Errorf("Failed to create dynamic clients from config file at %s: %s", configPath, err)
 	}
 
 	c.PipelineClient = cs.TektonV1beta1().Pipelines(namespace)
@@ -201,8 +203,17 @@ func NewClients(configPath, clusterName, namespace string) *Clients {
 	c.PipelineRunClient = cs.TektonV1beta1().PipelineRuns(namespace)
 	c.PipelineResourceClient = rcs.TektonV1alpha1().PipelineResources(namespace)
 	c.ConditionClient = cs.TektonV1alpha1().Conditions(namespace)
-	c = initTestingFramework(c)
-	return c
+	c, err = initTestingFramework(c)
+
+	// When we don't subscribe to Operator initTestFramework will throw error [waiting for the condition]
+	if err != nil {
+		if strings.ToLower(os.Getenv("INSTALL_OPERATOR")) == "yes" {
+			log.Printf("WARNING: Pipelines not available: %+v, Run tests at your own risk(Assuming tests has to handle Operator installation)", err)
+		} else {
+			return nil, fmt.Errorf("Error: [%+v] \n Cannot proceed with your tests (no pipelines available), retry running after installing operator", err)
+		}
+	}
+	return c, nil
 }
 
 type addToSchemeFunc func(*runtime.Scheme) error
@@ -216,17 +227,17 @@ type addToSchemeFunc func(*runtime.Scheme) error
 // The List object is needed because the CRD has not always been fully registered
 // by the time this function is called. If the CRD takes more than 5 seconds to
 // become ready, this function throws an error
-func AddToFrameworkScheme(addToScheme addToSchemeFunc, obj runtime.Object, c *Clients) *Clients {
+func AddToFrameworkScheme(addToScheme addToSchemeFunc, obj runtime.Object, c *Clients) (*Clients, error) {
 	mutex.Lock()
 	defer mutex.Unlock()
 	err := addToScheme(c.Scheme)
 	if err != nil {
-		return nil
+		return c, err
 	}
 	restMapper.Reset()
 	dynClient, err := dynclient.New(c.KubeConfig, dynclient.Options{Scheme: c.Scheme, Mapper: restMapper})
 	if err != nil {
-		return nil
+		return c, fmt.Errorf("failed to initialize new dynamic client: (%v)", err)
 	}
 	err = wait.PollImmediate(time.Second, time.Second*10, func() (done bool, err error) {
 		err = dynClient.List(goctx.TODO(), obj, &dynclient.ListOptions{Namespace: "default"})
@@ -238,13 +249,13 @@ func AddToFrameworkScheme(addToScheme addToSchemeFunc, obj runtime.Object, c *Cl
 		return true, nil
 	})
 	if err != nil {
-		return nil
+		return c, fmt.Errorf("failed to build the dynamic client: %v", err)
 	}
 	serializer.NewCodecFactory(c.Scheme).UniversalDeserializer()
-	return c
+	return c, nil
 }
 
-func initTestingFramework(c *Clients) *Clients {
+func initTestingFramework(c *Clients) (*Clients, error) {
 	apiVersion := "operator.tekton.dev/v1alpha1"
 	kind := "Config"
 
