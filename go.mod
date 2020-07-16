@@ -9,16 +9,16 @@ require (
 	github.com/openshift/api v3.9.1-0.20190924102528-32369d4db2ad+incompatible
 	github.com/openshift/client-go v0.0.0-20190923180330-3b6373338c9b
 	github.com/tektoncd/operator v0.0.0-20200505103736-ab3f9da795f4
-	github.com/tektoncd/pipeline v0.12.1
-	github.com/tektoncd/triggers v0.5.0
-	go.opencensus.io v0.22.2
+	github.com/tektoncd/pipeline v0.14.2
+	github.com/tektoncd/triggers v0.6.1
+	go.opencensus.io v0.22.3
 	gomodules.xyz/jsonpatch/v2 v2.1.0
 	gotest.tools/v3 v3.0.2
 	k8s.io/api v0.18.2
 	k8s.io/apiextensions-apiserver v0.18.2
 	k8s.io/apimachinery v0.18.2
 	k8s.io/client-go v12.0.0+incompatible
-	knative.dev/pkg v0.0.0-20200306230727-a56a6ea3fa56
+	knative.dev/pkg v0.0.0-20200528142800-1c6815d7e4c9
 	sigs.k8s.io/controller-runtime v0.5.2
 )
 

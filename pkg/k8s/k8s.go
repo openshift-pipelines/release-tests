@@ -36,7 +36,8 @@ import (
 func NewClientSet() (*clients.Clients, string, func()) {
 	// TODO: fix this; method is in k8s but returns client.Clients
 	ns := names.SimpleNameGenerator.RestrictLengthWithRandomSuffix("releasetest")
-	cs := clients.NewClients(config.Flags.Kubeconfig, config.Flags.Cluster, ns)
+	cs, err := clients.NewClients(config.Flags.Kubeconfig, config.Flags.Cluster, ns)
+	assert.FailOnError(err)
 	CreateNamespace(cs.KubeClient, ns)
 
 	return cs, ns, func() {
@@ -63,6 +64,7 @@ func WaitForDeploymentDeletion(cs *clients.Clients, namespace, name string) erro
 	return err
 }
 
+// WaitForServiceAccount checks if service account created
 func WaitForServiceAccount(cs *clients.Clients, ns, targetSA string) *corev1.ServiceAccount {
 
 	ret := &corev1.ServiceAccount{}
@@ -286,6 +288,7 @@ func Get(gr schema.GroupVersionResource, clients *clients.Clients, objname, ns s
 	return obj, nil
 }
 
+// Watch func helps you to watch on dynamic resources
 func Watch(gr schema.GroupVersionResource, clients *clients.Clients, ns string, op metav1.ListOptions) (watch.Interface, error) {
 	gvr, err := GetGroupVersionResource(gr, clients.Tekton.Discovery())
 	if err != nil {

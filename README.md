@@ -129,15 +129,25 @@ Tag\|TagB                    |have either TagA or TagB.
 ## Run openshift-pipeline tests
 
 ```
-> gauge run --env "test" --log-level=debug  --verbose specs/
+> gauge run --env "default, test" --log-level=debug  --verbose specs/pipelines specs/triggers
 ```
 
 ## Run pipelines tests only
 
 ```
-> gauge run --env "test" --log-level=debug  --verbose specs/pipelines/
+> gauge run --env "default, test" --log-level=debug  --verbose specs/pipelines/
 ```
 
+## Run olm tests only
+```
+> INSTALL_OPERATOR=yes gauge run --env "default, test" --log-level=debug  --verbose specs/olm.spec
+```
+> Note:  
+> - `INSTALL_OPERATOR` env value if it is set to `yes`, expected cluster fresh and no pipelines/operator installed to it, so it will still proceed tests on assumption tests should install openshift operator
+> - By default `INSTALL_OPERATOR` is `no` it should fail your tests if `pipelines/operator` not istalled to cluster
+
+
+ 
 ## Package structures
 
 - `specs` directory contains only specification written `Markdown` syntax.

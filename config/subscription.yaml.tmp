@@ -1,8 +1,7 @@
 apiVersion: operators.coreos.com/v1alpha1
 kind: Subscription
 metadata:
-  generation: 1
-  name: openshift-pipelines-operator-rh
+  name: openshift-pipelines-operator
   namespace: openshift-operators
 spec:
   channel: {{.Channel}}
@@ -10,4 +9,3 @@ spec:
   name: openshift-pipelines-operator-rh
   source: redhat-operators
   sourceNamespace: openshift-marketplace
-  startingCSV: {{.CSV}}
