@@ -1,8 +1,13 @@
 package triggers
 
 import (
+	"crypto/hmac"
+	"crypto/sha1"
+	"encoding/base64"
 	"net/http"
 	"time"
+
+	"github.com/openshift-pipelines/release-tests/pkg/assert"
 )
 
 const (
@@ -20,4 +25,13 @@ func CreateHTTPClient() *http.Client {
 	}
 
 	return client
+}
+
+// GetSignature is a HMAC sha1 generator
+func GetSignature(input []byte, key string) string {
+	keyForSign := []byte(key)
+	h := hmac.New(sha1.New, keyForSign)
+	_, err := h.Write(input)
+	assert.NoError(err, "Couldn't generate signature")
+	return base64.StdEncoding.EncodeToString(h.Sum(nil))
 }

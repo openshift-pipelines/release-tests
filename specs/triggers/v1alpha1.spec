@@ -13,6 +13,7 @@ Steps:
     |1   |testdata/triggers/v1alpha1-task-listener.yaml|
   * Expose Event listener "v1alpha1-task-listener"
   * Mock get event
+  * Assert eventlistener "v1alpha1-task-listener" response
   * Verify taskrun
        |S.NO|task_run_name    |status |
        |----|-----------------|-------|

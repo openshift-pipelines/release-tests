@@ -6,6 +6,7 @@ require (
 	github.com/Netflix/go-expect v0.0.0-20190729225929-0e00d9168667
 	github.com/getgauge-contrib/gauge-go v0.1.4
 	github.com/getgauge/common v0.0.0-20200429105102-5b0a7c1a1bd6 // indirect
+	github.com/google/go-cmp v0.5.0
 	github.com/openshift/api v3.9.1-0.20190924102528-32369d4db2ad+incompatible
 	github.com/openshift/client-go v0.0.0-20190923180330-3b6373338c9b
 	github.com/tektoncd/operator v0.0.0-20200505103736-ab3f9da795f4

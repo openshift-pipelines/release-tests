@@ -1,0 +1,41 @@
+apiVersion: triggers.tekton.dev/v1alpha1
+kind: TriggerTemplate
+metadata:
+  name: pipeline-template
+spec:
+  params:
+    - name: gitrevision
+    - name: gitrepositoryurl
+    - name: MESSAGE
+  resourcetemplates:
+    - apiVersion: tekton.dev/v1beta1
+      kind: PipelineRun
+      metadata:
+        name: pipelinerun-with-taskspec-to-echo-message
+      spec:
+        pipelineSpec:
+          params:
+            - name: MESSAGE
+              description: "Message, default is Hello World!"
+              type: string
+              default: "Hello World!"
+          tasks:
+            - name: echo-message
+              taskSpec:
+                params:
+                - name: MESSAGE
+                  type: string
+                  default: "Hello World!"
+                steps:
+                  - name: echo
+                    image: ubuntu
+                    script: |
+                      #!/usr/bin/env bash
+                      echo "$(tt.params.MESSAGE)"
+                      echo "$(tt.params.gitrevision)"
+              params:
+                - name: MESSAGE
+                  value: $(params.MESSAGE)
+        params:
+          - name: MESSAGE
+            value: $(tt.params.gitrepositoryurl)

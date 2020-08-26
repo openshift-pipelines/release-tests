@@ -12,5 +12,17 @@ var _ = gauge.Step("Expose Event listener <elname>", func(elname string) {
 })
 
 var _ = gauge.Step("Mock get event", func() {
-	triggers.MockGetEvent(store.GetScenarioData("route"))
+	gauge.GetScenarioStore()["response"] = triggers.MockGetEvent(store.GetScenarioData("route"))
+})
+
+var _ = gauge.Step("Mock push event <payload>", func(payload string) {
+	gauge.GetScenarioStore()["response"] = triggers.MockPushEvent(store.GetScenarioData("route"), payload)
+})
+
+var _ = gauge.Step("Mock push event <payload> to gitlab interceptor", func(payload string) {
+	gauge.GetScenarioStore()["response"] = triggers.MockPushEventToGitlabInterceptor(store.GetScenarioData("route"), payload)
+})
+
+var _ = gauge.Step("Assert eventlistener <elname> response", func(elname string) {
+	triggers.AssertElResponse(store.HttpResponse(), elname, store.Namespace())
 })

@@ -26,3 +26,7 @@ func CreateNewProject(ns string) {
 func DeleteProject(ns string) {
 	log.Printf("output: %s\n", cmd.MustSucceed("oc", "delete", "project", ns).Stdout())
 }
+
+func LinkSecretToPipelinesSA(secretname, namespace string) {
+	log.Printf("output: %s\n", cmd.MustSucceed("oc", "secret", "link", "serviceaccount/pipeline", "secrets/"+secretname, "-n", namespace).Stdout())
+}
