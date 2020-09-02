@@ -10,6 +10,7 @@ import (
 	"github.com/openshift-pipelines/release-tests/pkg/assert"
 	"github.com/openshift-pipelines/release-tests/pkg/clients"
 	"github.com/openshift-pipelines/release-tests/pkg/config"
+	"github.com/openshift-pipelines/release-tests/pkg/oc"
 	"github.com/openshift-pipelines/release-tests/pkg/store"
 	w "github.com/openshift-pipelines/release-tests/pkg/wait"
 	secv1 "github.com/openshift/api/security/v1"
@@ -38,10 +39,9 @@ func NewClientSet() (*clients.Clients, string, func()) {
 	ns := names.SimpleNameGenerator.RestrictLengthWithRandomSuffix("releasetest")
 	cs, err := clients.NewClients(config.Flags.Kubeconfig, config.Flags.Cluster, ns)
 	assert.FailOnError(err)
-	CreateNamespace(cs.KubeClient, ns)
-
+	oc.CreateNewProject(ns)
 	return cs, ns, func() {
-		DeleteNamespace(cs.KubeClient, ns)
+		oc.DeleteProject(ns)
 	}
 }
 
@@ -169,22 +169,6 @@ func WaitForDeployment(kc kubernetes.Interface, namespace, name string, replicas
 		return false, nil
 	})
 	return err
-}
-
-func CreateNamespace(kc *clients.KubeClient, ns string) {
-	log.Printf("Create namespace %s ", ns)
-	_, err := kc.Kube.CoreV1().Namespaces().Create(
-		&corev1.Namespace{
-			ObjectMeta: metav1.ObjectMeta{Name: ns},
-		})
-	assert.NoError(err, fmt.Sprintf("Failed to Created namespace: %s \n", ns))
-}
-
-func DeleteNamespace(kc *clients.KubeClient, namespace string) {
-	log.Printf("Deleting namespace %s", namespace)
-	if err := kc.Kube.CoreV1().Namespaces().Delete(namespace, &metav1.DeleteOptions{}); err != nil {
-		log.Printf("Failed to delete namespace %s: %s", namespace, err)
-	}
 }
 
 func VerifyNoServiceAccount(kc *clients.KubeClient, sa, ns string) {

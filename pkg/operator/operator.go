@@ -75,18 +75,11 @@ func ValidateInstalledStatus(cs *clients.Clients) {
 
 func ValidateInstall(cs *clients.Clients) {
 	log.Printf("Waiting for operator to be up and running....\n")
-
 	ValidatePipelineDeployments(cs)
 	ValidateTriggerDeployments(cs)
 
-	// Refresh Cluster CR
-	cr := WaitForClusterCR(cs, config.ClusterCRName)
-
-	if code := cr.Status.Conditions[0].Code; code != op.InstalledStatus {
-		testsuit.T.Errorf("Expected code to be %s but got %s", op.InstalledStatus, code)
-	}
+	ValidateInstalledStatus(cs)
 	log.Printf("Operator is up\n")
-
 }
 
 func DeleteClusterCR(cs *clients.Clients, name string) {

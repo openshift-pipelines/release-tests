@@ -16,3 +16,13 @@ func Create(path_dir, namespace string) {
 func Delete(path_dir, namespace string) {
 	log.Printf("output: %s\n", cmd.MustSucceed("oc", "delete", "-f", resource.Path(path_dir), "-n", namespace).Stdout())
 }
+
+//CreateNewProject Helps you to create new project
+func CreateNewProject(ns string) {
+	log.Printf("output: %s\n", cmd.MustSucceed("oc", "new-project", ns).Stdout())
+}
+
+//DeleteProject Helps you to delete new project
+func DeleteProject(ns string) {
+	log.Printf("output: %s\n", cmd.MustSucceed("oc", "delete", "project", ns).Stdout())
+}
