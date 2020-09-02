@@ -6,6 +6,10 @@ import (
 	"github.com/openshift-pipelines/release-tests/pkg/store"
 )
 
+var _ = gauge.Step("Verify ServiceAccount <sa> does not exist", func(sa string) {
+	k8s.VerifyNoServiceAccount(store.Clients().KubeClient, sa, store.Namespace())
+})
+
 var _ = gauge.Step("Create cron job with schedule <schedule>", func(schedule string) {
 	args := []string{"wget", "--spider", store.GetScenarioData("route")}
 	k8s.CreateCronJob(store.Clients(), args, schedule, store.Namespace())

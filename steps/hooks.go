@@ -18,9 +18,9 @@ var _ = gauge.BeforeScenario(func() {
 	store["clients"] = cs
 	store["namespace"] = namespace
 	store["scenario.cleanup"] = cleanup
-	if strings.Contains(strings.ToLower(os.Getenv("OPERATOR_ENV")), "stag") {
+	if strings.Contains(strings.ToLower(os.Getenv("OPERATOR_ENV")), "stage") {
 		log.Printf("Running on (stage) environment : %s", os.Getenv("OPERATOR_ENV"))
-		cmd.MustSucceed("oc", "adm", "policy", "add-cluster-role-to-user", "system:image-puller", "-z", "pipeline", "-n", namespace)
+		cmd.MustSucceed("oc", "policy", "add-role-to-user", "system:image-puller", "-z", "pipeline", "-n", namespace)
 	}
 }, []string{}, testsuit.AND)
 
