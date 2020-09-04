@@ -9,6 +9,7 @@ import (
 var _ = gauge.Step("Expose Event listener <elname>", func(elname string) {
 	routeurl := triggers.ExposeEventListner(store.Clients(), elname, store.Namespace())
 	store.PutScenarioData("route", routeurl)
+	store.PutScenarioData("elname", elname)
 })
 
 var _ = gauge.Step("Mock get event", func() {
@@ -23,6 +24,10 @@ var _ = gauge.Step("Mock push event <payload> to gitlab interceptor", func(paylo
 	gauge.GetScenarioStore()["response"] = triggers.MockPushEventToGitlabInterceptor(store.GetScenarioData("route"), payload)
 })
 
-var _ = gauge.Step("Assert eventlistener <elname> response", func(elname string) {
-	triggers.AssertElResponse(store.HttpResponse(), elname, store.Namespace())
+var _ = gauge.Step("Assert eventlistener response", func() {
+	triggers.AssertElResponse(store.HttpResponse(), store.GetScenarioData("elname"), store.Namespace())
+})
+
+var _ = gauge.Step("Cleanup Triggers", func() {
+	triggers.CleanupTriggers(store.Clients(), store.GetScenarioData("elname"), store.Namespace())
 })

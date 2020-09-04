@@ -126,11 +126,12 @@ Steps:
     |4   |testdata/triggers/eventlisteners/eventlistener-embeded-binding.yaml |
   * Expose Event listener "listener-embed-binding"
   * Mock push event "testdata/push.json"
-  * Assert eventlistener "listener-embed-binding" response
+  * Assert eventlistener response
   * Verify pipelinerun
     |S.NO|pipeline_run_name  |status     |check_lable_propagation|
     |----|-------------------|-----------|-----------------------|
     |1   |simple-pipeline-run|successfull|no                     |
+  * Cleanup Triggers  
 
 ## Create embedded TriggersTemplate
 Tags: e2e, triggers
@@ -147,11 +148,12 @@ Steps:
     |3   |testdata/triggers/eventlisteners/eventlistener-embeded-binding.yaml|
   * Expose Event listener "listener-embed-binding"
   * Mock push event "testdata/push.json"
-  * Assert eventlistener "listener-embed-binding" response
+  * Assert eventlistener response
   * Verify pipelinerun
     |S.NO|pipeline_run_name                        |status     |check_lable_propagation|
     |----|-----------------------------------------|-----------|-----------------------|
     |1   |pipelinerun-with-taskspec-to-echo-message|successfull|no                     |
+  * Cleanup Triggers  
 
 ## Create Eventlistener with gitlab interceptor
 Tags: e2e, triggers
@@ -168,8 +170,9 @@ Steps:
   * Link secret "gitlab-secret" to service account pipeline  
   * Expose Event listener "gitlab-listener"
   * Mock push event "testdata/triggers/gitlab/gitlab-push-event.json" to gitlab interceptor
-  * Assert eventlistener "gitlab-listener" response
+  * Assert eventlistener response
   * Verify taskrun
     |S.NO|task_run_name |status     |
     |----|--------------|-----------|
     |1   |gitlab-run    |successfull|
+  * Cleanup Triggers  

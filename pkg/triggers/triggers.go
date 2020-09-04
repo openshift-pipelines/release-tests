@@ -123,3 +123,23 @@ func AssertElResponse(resp *http.Response, elname, namespace string) {
 		testsuit.T.Errorf("sink response no eventID")
 	}
 }
+
+func CleanupTriggers(c *clients.Clients, elName, namespace string) {
+	// Delete EventListener
+	err := c.TriggersClient.TriggersV1alpha1().EventListeners(namespace).Delete(elName, &metav1.DeleteOptions{})
+	assert.FailOnError(err)
+
+	log.Println("Deleted EventListener")
+
+	// Verify the EventListener's Deployment is deleted
+	err = wait.WaitFor(wait.DeploymentNotExist(c, namespace, fmt.Sprintf("%s-%s", eventReconciler.GeneratedResourcePrefix, elName)))
+	assert.FailOnError(err)
+
+	log.Println("EventListener's Deployment was deleted")
+
+	// Verify the EventListener's Service is deleted
+	err = wait.WaitFor(wait.ServiceNotExist(c, namespace, fmt.Sprintf("%s-%s", eventReconciler.GeneratedResourcePrefix, elName)))
+	assert.FailOnError(err)
+
+	log.Println("EventListener's Service was deleted")
+}
