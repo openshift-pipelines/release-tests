@@ -3,7 +3,7 @@ package triggers
 import (
 	"crypto/hmac"
 	"crypto/sha1"
-	"encoding/base64"
+	"encoding/hex"
 	"net/http"
 	"time"
 
@@ -33,5 +33,5 @@ func GetSignature(input []byte, key string) string {
 	h := hmac.New(sha1.New, keyForSign)
 	_, err := h.Write(input)
 	assert.NoError(err, "Couldn't generate signature")
-	return base64.StdEncoding.EncodeToString(h.Sum(nil))
+	return hex.EncodeToString(h.Sum(nil))
 }

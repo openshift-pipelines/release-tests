@@ -84,6 +84,24 @@ func MockPushEvent(routeurl, payload string) *http.Response {
 	return resp
 }
 
+func MockEventToBitbucketInterceptor(routeurl, payload string) *http.Response {
+	eventBodyJSON, err := ioutil.ReadFile(resource.Path(payload))
+	assert.NoError(err, fmt.Sprintf("Couldn't load test data"))
+
+	// Send POST request to EventListener sink
+	req, err := http.NewRequest("POST", routeurl, bytes.NewBuffer(eventBodyJSON))
+	req.Header.Add("X-Event-Key", "repo:refs_changed")
+	req.Header.Add("X-Hub-Signature", "sha1="+GetSignature(eventBodyJSON, secretKey))
+	assert.NoError(err, fmt.Sprintf("Error creating POST request for trigger "))
+
+	resp, err := CreateHTTPClient().Do(req)
+	assert.NoError(err, fmt.Sprintf("Error Sending POST request for trigger "))
+	if resp.StatusCode > http.StatusAccepted {
+		testsuit.T.Errorf(fmt.Sprintf("sink did not return 2xx response. Got status code: %d", resp.StatusCode))
+	}
+	return resp
+}
+
 func MockPushEventToGitlabInterceptor(routeurl, payload string) *http.Response {
 	eventBodyJSON, err := ioutil.ReadFile(resource.Path(payload))
 	assert.NoError(err, fmt.Sprintf("Couldn't load test data"))

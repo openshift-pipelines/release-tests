@@ -175,4 +175,26 @@ Steps:
     |S.NO|task_run_name |status     |
     |----|--------------|-----------|
     |1   |gitlab-run    |successfull|
-  * Cleanup Triggers  
+  * Cleanup Triggers
+
+## Create Eventlistener with bitbucket interceptor
+Tags: e2e, triggers
+
+This scenario helps you to create eventlistner with bitbucket interceptor, listens to bitbucket events, on each event it creates/triggers
+openshift-pipeline Resources defined under triggers-template
+
+Steps:
+  * Create
+    |S.NO|resource_dir                                                        |
+    |----|--------------------------------------------------------------------|
+    |1   |testdata/triggers/bitbucket/bitbucket-eventlistener-interceptor.yaml|
+    |2   |testdata/triggers/bitbucket/secret.yaml                             |
+  * Link secret "bitbucket-secret" to service account pipeline  
+  * Expose Event listener "bitbucket-listener"
+  * Mock "testdata/triggers/bitbucket/refs-change-event.json" event to bitbucket interceptor
+  * Assert eventlistener response
+  * Verify taskrun
+    |S.NO|task_run_name    |status |
+    |----|-----------------|-------|
+    |1   |bitbucket-run    |Failure|
+  * Cleanup Triggers

@@ -1,0 +1,68 @@
+---
+apiVersion: triggers.tekton.dev/v1alpha1
+kind: TriggerBinding
+metadata:
+ name: bitbucket-binding
+spec:
+  params:
+  - name: gitrevision
+    value: $(body.changes[0].ref.displayId)
+  - name: gitrepositoryurl
+    value: $(body.repository.links.clone[0].href)
+---
+apiVersion: triggers.tekton.dev/v1alpha1
+kind: TriggerTemplate
+metadata:
+  name: bitbucket-template
+spec:
+  params:
+    - name: gitrevision
+    - name: gitrepositoryurl
+  resourcetemplates:
+    - apiVersion: tekton.dev/v1alpha1
+      kind: TaskRun
+      metadata:
+        name: bitbucket-run
+      spec:
+        taskSpec:
+          inputs:
+            resources:
+              - name: source
+                type: git
+          steps:
+            - image: ubuntu
+              script: |
+                #! /bin/bash
+                echo "git revision: $(params.gitrevision)"
+                echo "git repositroyurl: $(params.gitrepositoryurl)"
+                ls -al $(inputs.resources.source.path)
+        inputs:
+          resources:
+            - name: source
+              resourceSpec:
+                type: git
+                params:
+                  - name: revision
+                    value: $(params.gitrevision)
+                  - name: url
+                    value: $(params.gitrepositoryurl)   
+---    
+apiVersion: triggers.tekton.dev/v1alpha1
+kind: EventListener
+metadata:
+    name: bitbucket-listener
+spec:
+    serviceAccountName: pipeline
+    triggers:
+    - name: bitbucket-triggers
+      interceptors:
+        - bitbucket:
+            secretRef:
+                secretName: bitbucket-secret
+                secretKey: secretToken
+            eventTypes:
+                - repo:refs_changed
+      bindings:
+        - ref: bitbucket-binding
+      template:
+        name: bitbucket-template

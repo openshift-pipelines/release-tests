@@ -24,6 +24,10 @@ var _ = gauge.Step("Mock push event <payload> to gitlab interceptor", func(paylo
 	gauge.GetScenarioStore()["response"] = triggers.MockPushEventToGitlabInterceptor(store.GetScenarioData("route"), payload)
 })
 
+var _ = gauge.Step("Mock <payload> event to bitbucket interceptor", func(payload string) {
+	gauge.GetScenarioStore()["response"] = triggers.MockEventToBitbucketInterceptor(store.GetScenarioData("route"), payload)
+})
+
 var _ = gauge.Step("Assert eventlistener response", func() {
 	triggers.AssertElResponse(store.HttpResponse(), store.GetScenarioData("elname"), store.Namespace())
 })
