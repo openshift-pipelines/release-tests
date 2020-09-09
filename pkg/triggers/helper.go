@@ -4,10 +4,13 @@ import (
 	"crypto/hmac"
 	"crypto/sha1"
 	"encoding/hex"
+	"encoding/json"
 	"net/http"
+	"os"
 	"time"
 
 	"github.com/openshift-pipelines/release-tests/pkg/assert"
+	"github.com/openshift-pipelines/release-tests/pkg/store"
 )
 
 const (
@@ -34,4 +37,20 @@ func GetSignature(input []byte, key string) string {
 	_, err := h.Write(input)
 	assert.NoError(err, "Couldn't generate signature")
 	return hex.EncodeToString(h.Sum(nil))
+}
+
+func buildRequestHeaders(req *http.Request, payload string) *http.Request {
+	var result map[string]interface{}
+	err := json.Unmarshal([]byte(payload), &result)
+	assert.FailOnError(err)
+	for key, value := range result {
+		if key == "X-GitLab-Token" {
+			req.Header.Add(key, os.Getenv("SECRET_TOKEN"))
+		} else if key == "X-Hub-Signature" {
+			req.Header.Add(key, "sha1="+GetSignature(store.GetPayload(), os.Getenv("SECRET_TOKEN")))
+		} else {
+			req.Header.Add(key, value.(string))
+		}
+	}
+	return req
 }

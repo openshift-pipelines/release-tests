@@ -113,7 +113,7 @@ Steps:
 ## Create Eventlistener embedded TriggersBindings specs
 Tags: e2e, triggers
 
-This scenario helps you to create eventlistner with embedded triggerbinding spec, listens to events forwards request to validator service -> parsed response to other validators and so on, on each event it creates/triggers
+This scenario helps you to test eventlistner with embedded triggerbinding spec, listens to events forwards request to validator service -> parsed response to other validators and so on, on each event it creates/triggers
 openshift-pipeline Resources defined under triggers-template, which helps you to deploy example app
 
 Steps:
@@ -125,7 +125,10 @@ Steps:
     |3   |testdata/triggers/triggertemplate/triggertemplate.yaml              |
     |4   |testdata/triggers/eventlisteners/eventlistener-embeded-binding.yaml |
   * Expose Event listener "listener-embed-binding"
-  * Mock push event "testdata/push.json"
+  * Mock post event
+    |S.NO|payload_dir       |headers                                                     |
+    |----|------------------|------------------------------------------------------------|
+    |1   |testdata/push.json|{"Accept":"application/json","Content-Type":"application/json","X-Hub-Signature":"sha1"}|
   * Assert eventlistener response
   * Verify pipelinerun
     |S.NO|pipeline_run_name  |status     |check_lable_propagation|
@@ -136,7 +139,7 @@ Steps:
 ## Create embedded TriggersTemplate
 Tags: e2e, triggers
 
-This scenario helps you to create embedded triggertemplate spec, listens to events forwards request to validator service -> parsed response to other validators and so on, on each event it creates/triggers
+This scenario helps you to test embedded triggertemplate spec, listens to events forwards request to validator service -> parsed response to other validators and so on, on each event it creates/triggers
 openshift-pipeline Resources defined under triggers-template, which helps you to deploy example app
 
 Steps:
@@ -147,7 +150,10 @@ Steps:
     |2   |testdata/triggers/triggertemplate/embed-triggertemplate.yaml       |
     |3   |testdata/triggers/eventlisteners/eventlistener-embeded-binding.yaml|
   * Expose Event listener "listener-embed-binding"
-  * Mock push event "testdata/push.json"
+  * Mock post event
+    |S.NO|payload_dir       |headers                                                     |
+    |----|------------------|------------------------------------------------------------|
+    |1   |testdata/push.json|{"Accept":"application/json","Content-Type":"application/json","X-Hub-Signature":"sha1"}|
   * Assert eventlistener response
   * Verify pipelinerun
     |S.NO|pipeline_run_name                        |status     |check_lable_propagation|
@@ -158,7 +164,7 @@ Steps:
 ## Create Eventlistener with gitlab interceptor
 Tags: e2e, triggers
 
-This scenario helps you to create eventlistner with gitlab interceptor, listens to gitlab events, on each event it creates/triggers
+This scenario helps you to test eventlistner with gitlab interceptor, listens to gitlab events, on each event it creates/triggers
 openshift-pipeline Resources defined under triggers-template, to deploy example app
 
 Steps:
@@ -169,7 +175,10 @@ Steps:
     |2   |testdata/triggers/gitlab/secret.yaml              |
   * Link secret "gitlab-secret" to service account pipeline  
   * Expose Event listener "gitlab-listener"
-  * Mock push event "testdata/triggers/gitlab/gitlab-push-event.json" to gitlab interceptor
+  * Mock post event
+    |S.NO|payload_dir       |headers                                                     |
+    |----|------------------|------------------------------------------------------------|
+    |1   |testdata/triggers/gitlab/gitlab-push-event.json|{"Accept":"application/json","Content-Type":"application/json","X-GitLab-Token":"xxxxx","X-Gitlab-Event":"Push Hook"}|
   * Assert eventlistener response
   * Verify taskrun
     |S.NO|task_run_name |status     |
@@ -180,7 +189,7 @@ Steps:
 ## Create Eventlistener with bitbucket interceptor
 Tags: e2e, triggers
 
-This scenario helps you to create eventlistner with bitbucket interceptor, listens to bitbucket events, on each event it creates/triggers
+This scenario helps you to test eventlistner with bitbucket interceptor, listens to bitbucket events, on each event it creates/triggers
 openshift-pipeline Resources defined under triggers-template
 
 Steps:
@@ -191,7 +200,10 @@ Steps:
     |2   |testdata/triggers/bitbucket/secret.yaml                             |
   * Link secret "bitbucket-secret" to service account pipeline  
   * Expose Event listener "bitbucket-listener"
-  * Mock "testdata/triggers/bitbucket/refs-change-event.json" event to bitbucket interceptor
+  * Mock post event
+    |S.NO|payload_dir                                       |headers                                                     |
+    |----|--------------------------------------------------|------------------------------------------------------------|
+    |1   |testdata/triggers/bitbucket/refs-change-event.json|{"X-Event-Key":"repo:refs_changed","X-Hub-Signature":"sha1"}|
   * Assert eventlistener response
   * Verify taskrun
     |S.NO|task_run_name    |status |

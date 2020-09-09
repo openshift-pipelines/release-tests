@@ -10,6 +10,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/getgauge-contrib/gauge-go/gauge"
+
 	"github.com/getgauge-contrib/gauge-go/testsuit"
 	"github.com/google/go-cmp/cmp"
 	"github.com/google/go-cmp/cmp/cmpopts"
@@ -23,8 +25,6 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/fields"
 )
-
-const secretKey = "1234567"
 
 func ExposeEventListner(c *clients.Clients, elname, namespace string) string {
 	// Verify the EventListener to be ready
@@ -65,16 +65,15 @@ func MockGetEvent(routeurl string) *http.Response {
 	return resp
 }
 
-func MockPushEvent(routeurl, payload string) *http.Response {
+func MockPostEvent(routeurl, headers, payload string) *http.Response {
 	eventBodyJSON, err := ioutil.ReadFile(resource.Path(payload))
 	assert.NoError(err, fmt.Sprintf("Couldn't load test data"))
+	gauge.GetScenarioStore()["payload"] = eventBodyJSON
 
 	// Send POST request to EventListener sink
 	req, err := http.NewRequest("POST", routeurl, bytes.NewBuffer(eventBodyJSON))
-	req.Header.Add("Accept", "application/json")
-	req.Header.Add("Content-Type", "application/json")
-	req.Header.Add("X-Hub-Signature", "sha1="+GetSignature(eventBodyJSON, secretKey))
 	assert.NoError(err, fmt.Sprintf("Error creating POST request for trigger "))
+	req = buildRequestHeaders(req, headers)
 
 	resp, err := CreateHTTPClient().Do(req)
 	assert.NoError(err, fmt.Sprintf("Error Sending POST request for trigger "))
@@ -84,45 +83,7 @@ func MockPushEvent(routeurl, payload string) *http.Response {
 	return resp
 }
 
-func MockEventToBitbucketInterceptor(routeurl, payload string) *http.Response {
-	eventBodyJSON, err := ioutil.ReadFile(resource.Path(payload))
-	assert.NoError(err, fmt.Sprintf("Couldn't load test data"))
-
-	// Send POST request to EventListener sink
-	req, err := http.NewRequest("POST", routeurl, bytes.NewBuffer(eventBodyJSON))
-	req.Header.Add("X-Event-Key", "repo:refs_changed")
-	req.Header.Add("X-Hub-Signature", "sha1="+GetSignature(eventBodyJSON, secretKey))
-	assert.NoError(err, fmt.Sprintf("Error creating POST request for trigger "))
-
-	resp, err := CreateHTTPClient().Do(req)
-	assert.NoError(err, fmt.Sprintf("Error Sending POST request for trigger "))
-	if resp.StatusCode > http.StatusAccepted {
-		testsuit.T.Errorf(fmt.Sprintf("sink did not return 2xx response. Got status code: %d", resp.StatusCode))
-	}
-	return resp
-}
-
-func MockPushEventToGitlabInterceptor(routeurl, payload string) *http.Response {
-	eventBodyJSON, err := ioutil.ReadFile(resource.Path(payload))
-	assert.NoError(err, fmt.Sprintf("Couldn't load test data"))
-
-	// Send POST request to EventListener sink
-	req, err := http.NewRequest("POST", routeurl, bytes.NewBuffer(eventBodyJSON))
-	req.Header.Add("Accept", "application/json")
-	req.Header.Add("Content-Type", "application/json")
-	req.Header.Add("X-GitLab-Token", secretKey)
-	req.Header.Add("X-Gitlab-Event", "Push Hook")
-	assert.NoError(err, fmt.Sprintf("Error creating POST request for trigger "))
-
-	resp, err := CreateHTTPClient().Do(req)
-	assert.NoError(err, fmt.Sprintf("Error Sending POST request for trigger "))
-	if resp.StatusCode > http.StatusAccepted {
-		testsuit.T.Errorf(fmt.Sprintf("sink did not return 2xx response. Got status code: %d", resp.StatusCode))
-	}
-	return resp
-}
-
-func AssertElResponse(resp *http.Response, elname, namespace string) {
+func AssertElResponse(c *clients.Clients, resp *http.Response, elname, namespace string) {
 	wantBody := sink.Response{
 		EventListener: elname,
 		Namespace:     namespace,
@@ -139,6 +100,16 @@ func AssertElResponse(resp *http.Response, elname, namespace string) {
 
 	if gotBody.EventID == "" {
 		testsuit.T.Errorf("sink response no eventID")
+	}
+
+	labelSelector := fields.SelectorFromSet(eventReconciler.GenerateResourceLabels(elname)).String()
+	// Grab EventListener sink pods
+	sinkPods, err := c.KubeClient.Kube.CoreV1().Pods(namespace).List(metav1.ListOptions{LabelSelector: labelSelector})
+	assert.NoError(err, fmt.Sprintf("Error listing EventListener sink pods"))
+	logs := cmd.MustSucceed("oc", "-n", namespace, "logs", "pods/"+sinkPods.Items[0].Name, "--all-containers", "--tail=2").Stdout()
+	if strings.Contains(logs, "error") {
+		log.Printf("sink logs: \n %s", logs)
+		gauge.WriteMessage(fmt.Sprintf("sink logs: \n %s", logs))
 	}
 }
 

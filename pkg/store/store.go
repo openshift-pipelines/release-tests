@@ -31,6 +31,15 @@ func HttpResponse() *http.Response {
 	}
 }
 
+func GetPayload() []byte {
+	switch cs := gauge.GetScenarioStore()["payload"].(type) {
+	case []byte:
+		return cs
+	default:
+		return nil
+	}
+}
+
 func Tkn() tkn.Cmd {
 	switch n := gauge.GetSuiteStore()["tkn"].(type) {
 	case tkn.Cmd:
