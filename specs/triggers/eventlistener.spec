@@ -113,7 +113,7 @@ Steps:
 ## Create Eventlistener embedded TriggersBindings specs
 Tags: e2e, triggers
 
-This scenario helps you to test eventlistner with embedded triggerbinding spec, listens to events forwards request to validator service -> parsed response to other validators and so on, on each event it creates/triggers
+This scenario tests the creation of eventLister with embedded triggerbinding spec, listens to events forwards request to validator service -> parsed response to other validators and so on, on each event it creates/triggers
 openshift-pipeline Resources defined under triggers-template, which helps you to deploy example app
 
 Steps:
@@ -139,7 +139,7 @@ Steps:
 ## Create embedded TriggersTemplate
 Tags: e2e, triggers
 
-This scenario helps you to test embedded triggertemplate spec, listens to events forwards request to validator service -> parsed response to other validators and so on, on each event it creates/triggers
+This scenario tests the creation of embedded triggertemplate spec, listens to events forwards request to validator service -> parsed response to other validators and so on, on each event it creates/triggers
 openshift-pipeline Resources defined under triggers-template, which helps you to deploy example app
 
 Steps:
@@ -164,7 +164,7 @@ Steps:
 ## Create Eventlistener with gitlab interceptor
 Tags: e2e, triggers
 
-This scenario helps you to test eventlistner with gitlab interceptor, listens to gitlab events, on each event it creates/triggers
+This scenario tests the creation of eventLister with gitlab interceptor, listens to gitlab events, on each event it creates/triggers
 openshift-pipeline Resources defined under triggers-template, to deploy example app
 
 Steps:
@@ -189,7 +189,7 @@ Steps:
 ## Create Eventlistener with bitbucket interceptor
 Tags: e2e, triggers
 
-This scenario helps you to test eventlistner with bitbucket interceptor, listens to bitbucket events, on each event it creates/triggers
+This scenario tests the creation of eventLister with bitbucket interceptor, listens to bitbucket events, on each event it creates/triggers
 openshift-pipeline Resources defined under triggers-template
 
 Steps:
