@@ -7,23 +7,25 @@ spec:
     - name: gitrevision
     - name: gitrepositoryurl
   resourcetemplates:
-    - apiVersion: tekton.dev/v1alpha1
+    - apiVersion: tekton.dev/v1beta1
       kind: TaskRun
       metadata:
-        name: gitlab-run
+        generateName: gitlab-run-
       spec:
         taskSpec:
-          inputs:
-            resources:
-              - name: source
-                type: git
+          resources:
+            inputs:
+            - name: source
+              type: git
           steps:
             - image: ubuntu
               script: |
                 #! /bin/bash
-                ls -al $(inputs.resources.source.path)
-        inputs:
-          resources:
+                echo "git revision: $(params.gitrevision)"
+                echo "git repositroyurl: $(params.gitrepositoryurl)"
+                ls -al $(resources.inputs.source.path)
+        resources:        
+            inputs:
             - name: source
               resourceSpec:
                 type: git
