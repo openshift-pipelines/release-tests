@@ -39,7 +39,7 @@ func GetSignature(input []byte, key string) string {
 	return hex.EncodeToString(h.Sum(nil))
 }
 
-func buildRequestHeaders(req *http.Request, payload string) *http.Request {
+func buildHeaders(req *http.Request, payload string) *http.Request {
 	var result map[string]interface{}
 	err := json.Unmarshal([]byte(payload), &result)
 	assert.FailOnError(err)

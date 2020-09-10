@@ -55,10 +55,10 @@ func MockGetEvent(routeurl string) *http.Response {
 	// Send GET request to EventListener sink
 	req, err := http.NewRequest("GET", routeurl, nil)
 	req.Header.Add("Accept", "application/json")
-	assert.NoError(err, fmt.Sprintf("Error creating GET request for trigger "))
+	assert.FailOnError(err)
 
 	resp, err := CreateHTTPClient().Do(req)
-	assert.NoError(err, fmt.Sprintf("Error Sending GET request for trigger "))
+	assert.FailOnError(err)
 	if resp.StatusCode == http.StatusUnauthorized || resp.StatusCode == http.StatusForbidden {
 		testsuit.T.Errorf(fmt.Sprintf("sink returned 401/403 response: %d", resp.StatusCode))
 	}
@@ -72,11 +72,11 @@ func MockPostEvent(routeurl, headers, payload string) *http.Response {
 
 	// Send POST request to EventListener sink
 	req, err := http.NewRequest("POST", routeurl, bytes.NewBuffer(eventBodyJSON))
-	assert.NoError(err, fmt.Sprintf("Error creating POST request for trigger "))
-	req = buildRequestHeaders(req, headers)
+	assert.FailOnError(err)
+	req = buildHeaders(req, headers)
 
 	resp, err := CreateHTTPClient().Do(req)
-	assert.NoError(err, fmt.Sprintf("Error Sending POST request for trigger "))
+	assert.FailOnError(err)
 	if resp.StatusCode > http.StatusAccepted {
 		testsuit.T.Errorf(fmt.Sprintf("sink did not return 2xx response. Got status code: %d", resp.StatusCode))
 	}
@@ -108,7 +108,7 @@ func AssertElResponse(c *clients.Clients, resp *http.Response, elname, namespace
 	assert.NoError(err, fmt.Sprintf("Error listing EventListener sink pods"))
 	logs := cmd.MustSucceed("oc", "-n", namespace, "logs", "pods/"+sinkPods.Items[0].Name, "--all-containers", "--tail=2").Stdout()
 	if strings.Contains(logs, "error") {
-		log.Printf("sink logs: \n %s", logs)
+		testsuit.T.Errorf("Error: sink logs: \n %s", logs)
 		gauge.WriteMessage(fmt.Sprintf("sink logs: \n %s", logs))
 	}
 }
