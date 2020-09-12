@@ -4,11 +4,13 @@ import (
 	"crypto/hmac"
 	"crypto/sha1"
 	"encoding/hex"
-	"encoding/json"
+	"log"
 	"net/http"
 	"os"
+	"strings"
 	"time"
 
+	"github.com/getgauge-contrib/gauge-go/testsuit"
 	"github.com/openshift-pipelines/release-tests/pkg/assert"
 	"github.com/openshift-pipelines/release-tests/pkg/store"
 )
@@ -39,18 +41,28 @@ func GetSignature(input []byte, key string) string {
 	return hex.EncodeToString(h.Sum(nil))
 }
 
-func buildHeaders(req *http.Request, payload string) *http.Request {
-	var result map[string]interface{}
-	err := json.Unmarshal([]byte(payload), &result)
-	assert.FailOnError(err)
-	for key, value := range result {
-		if key == "X-GitLab-Token" {
-			req.Header.Add(key, os.Getenv("SECRET_TOKEN"))
-		} else if key == "X-Hub-Signature" {
-			req.Header.Add(key, "sha1="+GetSignature(store.GetPayload(), os.Getenv("SECRET_TOKEN")))
-		} else {
-			req.Header.Add(key, value.(string))
-		}
+func buildHeaders(req *http.Request, interceptor, eventType string) *http.Request {
+	switch strings.ToLower(interceptor) {
+	case "github":
+		log.Printf("Building headers for github interceptor..")
+		req.Header.Add("Accept", "application/json")
+		req.Header.Add("Content-Type", "application/json")
+		req.Header.Add("X-Hub-Signature", "sha1="+GetSignature(store.GetPayload(), os.Getenv("SECRET_TOKEN")))
+		req.Header.Add("X-GitHub-Event", eventType)
+	case "gitlab":
+		log.Printf("Building headers for gitlab interceptor..")
+		req.Header.Add("Accept", "application/json")
+		req.Header.Add("Content-Type", "application/json")
+		req.Header.Add("X-GitLab-Token", os.Getenv("SECRET_TOKEN"))
+		req.Header.Add("X-Gitlab-Event", eventType)
+	case "bitbucket":
+		log.Printf("Building headers for bitbucket interceptor..")
+		req.Header.Add("Accept", "application/json")
+		req.Header.Add("Content-Type", "application/json")
+		req.Header.Add("X-Hub-Signature", "sha1="+GetSignature(store.GetPayload(), os.Getenv("SECRET_TOKEN")))
+		req.Header.Add("X-Event-Key", "repo:"+eventType)
+	default:
+		testsuit.T.Errorf("Error: %s ", "Please provide valid event_listener type eg: (github, gitlab, bitbucket)")
 	}
 	return req
 }

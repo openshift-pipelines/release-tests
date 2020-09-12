@@ -125,10 +125,7 @@ Steps:
     |3   |testdata/triggers/triggertemplate/triggertemplate.yaml              |
     |4   |testdata/triggers/eventlisteners/eventlistener-embeded-binding.yaml |
   * Expose Event listener "listener-embed-binding"
-  * Mock post event
-    |S.NO|payload_dir       |headers                                                     |
-    |----|------------------|------------------------------------------------------------|
-    |1   |testdata/push.json|{"Accept":"application/json","Content-Type":"application/json","X-Hub-Signature":"sha1"}|
+  * Mock post event to "github" interceptor with event-type "push", payload "testdata/push.json"
   * Assert eventlistener response
   * Verify pipelinerun
     |S.NO|pipeline_run_name  |status     |check_lable_propagation|
@@ -150,10 +147,7 @@ Steps:
     |2   |testdata/triggers/triggertemplate/embed-triggertemplate.yaml       |
     |3   |testdata/triggers/eventlisteners/eventlistener-embeded-binding.yaml|
   * Expose Event listener "listener-embed-binding"
-  * Mock post event
-    |S.NO|payload_dir       |headers                                                     |
-    |----|------------------|------------------------------------------------------------|
-    |1   |testdata/push.json|{"Accept":"application/json","Content-Type":"application/json","X-Hub-Signature":"sha1"}|
+  * Mock post event to "github" interceptor with event-type "push", payload "testdata/push.json"
   * Assert eventlistener response
   * Verify pipelinerun
     |S.NO|pipeline_run_name                        |status     |check_lable_propagation|
@@ -172,13 +166,9 @@ Steps:
     |S.NO|resource_dir                                      |
     |----|--------------------------------------------------|
     |1   |testdata/triggers/gitlab/gitlab-push-listener.yaml|
-    |2   |testdata/triggers/gitlab/secret.yaml              |
-  * Link secret "gitlab-secret" to service account pipeline  
+  * Create & Link secret "gitlab-secret" to service account "pipeline"  
   * Expose Event listener "gitlab-listener"
-  * Mock post event
-    |S.NO|payload_dir       |headers                                                     |
-    |----|------------------|------------------------------------------------------------|
-    |1   |testdata/triggers/gitlab/gitlab-push-event.json|{"Accept":"application/json","Content-Type":"application/json","X-GitLab-Token":"xxxxx","X-Gitlab-Event":"Push Hook"}|
+  * Mock post event to "gitlab" interceptor with event-type "Push Hook", payload "testdata/triggers/gitlab/gitlab-push-event.json"
   * Assert eventlistener response
   * Verify taskrun
     |S.NO|task_run_name |status     |
@@ -197,13 +187,9 @@ Steps:
     |S.NO|resource_dir                                                        |
     |----|--------------------------------------------------------------------|
     |1   |testdata/triggers/bitbucket/bitbucket-eventlistener-interceptor.yaml|
-    |2   |testdata/triggers/bitbucket/secret.yaml                             |
-  * Link secret "bitbucket-secret" to service account pipeline  
+  * Create & Link secret "bitbucket-secret" to service account "pipeline"  
   * Expose Event listener "bitbucket-listener"
-  * Mock post event
-    |S.NO|payload_dir                                       |headers                                                     |
-    |----|--------------------------------------------------|------------------------------------------------------------|
-    |1   |testdata/triggers/bitbucket/refs-change-event.json|{"X-Event-Key":"repo:refs_changed","X-Hub-Signature":"sha1"}|
+  * Mock post event to "bitbucket" interceptor with event-type "refs_changed", payload "testdata/triggers/bitbucket/refs-change-event.json"
   * Assert eventlistener response
   * Verify taskrun
     |S.NO|task_run_name    |status |
