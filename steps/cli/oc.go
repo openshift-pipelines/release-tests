@@ -21,6 +21,7 @@ var _ = gauge.Step("Delete <table>", func(table *m.Table) {
 	}
 })
 
-var _ = gauge.Step("Link secret <secret> to service account pipeline", func(secret string) {
-	oc.LinkSecretToPipelinesSA(secret, store.Namespace())
+var _ = gauge.Step("Create & Link secret <secret> to service account <sa>", func(secret, sa string) {
+	oc.CreateSecretWithSecretToken(secret, store.Namespace())
+	oc.LinkSecretToSA(secret, sa, store.Namespace())
 })
