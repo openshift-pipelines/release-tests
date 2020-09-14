@@ -20,3 +20,8 @@ var _ = gauge.Step("Delete <table>", func(table *m.Table) {
 		oc.Delete(resource, store.Namespace())
 	}
 })
+
+var _ = gauge.Step("Create & Link secret <secret> to service account <sa>", func(secret, sa string) {
+	oc.CreateSecretWithSecretToken(secret, store.Namespace())
+	oc.LinkSecretToSA(secret, sa, store.Namespace())
+})

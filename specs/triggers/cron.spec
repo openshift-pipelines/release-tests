@@ -22,3 +22,4 @@ Steps:
   * Watch for pipelinerun resources
   * Delete cron job
   * Assert no new pipelineruns created
+  * Cleanup Triggers

@@ -2,6 +2,7 @@ package oc
 
 import (
 	"log"
+	"os"
 
 	"github.com/openshift-pipelines/release-tests/pkg/cmd"
 	resource "github.com/openshift-pipelines/release-tests/pkg/config"
@@ -25,4 +26,12 @@ func CreateNewProject(ns string) {
 //DeleteProject Helps you to delete new project
 func DeleteProject(ns string) {
 	log.Printf("output: %s\n", cmd.MustSucceed("oc", "delete", "project", ns).Stdout())
+}
+
+func LinkSecretToSA(secretname, sa, namespace string) {
+	log.Printf("output: %s\n", cmd.MustSucceed("oc", "secret", "link", "serviceaccount/"+sa, "secrets/"+secretname, "-n", namespace).Stdout())
+}
+
+func CreateSecretWithSecretToken(secretname, namespace string) {
+	log.Printf("output: %s\n", cmd.MustSucceed("oc", "create", "secret", "generic", secretname, "--from-literal=secretToken="+os.Getenv("SECRET_TOKEN"), "-n", namespace).Stdout())
 }

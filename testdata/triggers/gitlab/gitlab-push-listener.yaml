@@ -1,0 +1,67 @@
+apiVersion: triggers.tekton.dev/v1alpha1
+kind: TriggerTemplate
+metadata:
+  name: gitlab-echo-template
+spec:
+  params:
+    - name: gitrevision
+    - name: gitrepositoryurl
+  resourcetemplates:
+    - apiVersion: tekton.dev/v1beta1
+      kind: TaskRun
+      metadata:
+        generateName: gitlab-run-
+      spec:
+        taskSpec:
+          resources:
+            inputs:
+            - name: source
+              type: git
+          steps:
+            - image: ubuntu
+              script: |
+                #! /bin/bash
+                echo "git revision: $(params.gitrevision)"
+                echo "git repositroyurl: $(params.gitrepositoryurl)"
+                ls -al $(resources.inputs.source.path)
+        resources:        
+            inputs:
+            - name: source
+              resourceSpec:
+                type: git
+                params:
+                  - name: revision
+                    value: $(params.gitrevision)
+                  - name: url
+                    value: $(params.gitrepositoryurl)
+---
+apiVersion: triggers.tekton.dev/v1alpha1
+kind: TriggerBinding
+metadata:
+  name: gitlab-push-binding
+spec:
+  params:
+    - name: gitrevision
+      value: $(body.checkout_sha)
+    - name: gitrepositoryurl
+      value: $(body.repository.git_http_url)
+---
+apiVersion: triggers.tekton.dev/v1alpha1
+kind: EventListener
+metadata:
+  name: gitlab-listener
+spec:
+  serviceAccountName: pipeline
+  triggers:
+    - name: gitlab-push-events-trigger
+      interceptors:
+        - gitlab:
+            secretRef:
+              secretName: gitlab-secret
+              secretKey: secretToken
+            eventTypes:
+              - Push Hook  # Only push events
+      bindings:
+        - ref: gitlab-push-binding
+      template:
+        name: gitlab-echo-template
