@@ -65,24 +65,6 @@ func MockGetEvent(routeurl string) *http.Response {
 	return resp
 }
 
-// func MockPostEvent(routeurl, headers, payload string) *http.Response {
-// 	eventBodyJSON, err := ioutil.ReadFile(resource.Path(payload))
-// 	assert.NoError(err, fmt.Sprintf("Couldn't load test data"))
-// 	gauge.GetScenarioStore()["payload"] = eventBodyJSON
-
-// 	// Send POST request to EventListener sink
-// 	req, err := http.NewRequest("POST", routeurl, bytes.NewBuffer(eventBodyJSON))
-// 	assert.FailOnError(err)
-// 	req = buildHeaders(req, headers)
-
-// 	resp, err := CreateHTTPClient().Do(req)
-// 	assert.FailOnError(err)
-// 	if resp.StatusCode > http.StatusAccepted {
-// 		testsuit.T.Errorf(fmt.Sprintf("sink did not return 2xx response. Got status code: %d", resp.StatusCode))
-// 	}
-// 	return resp
-// }
-
 func MockPostEvent(routeurl, interceptor, eventType, payload string) *http.Response {
 	eventBodyJSON, err := ioutil.ReadFile(resource.Path(payload))
 	assert.NoError(err, fmt.Sprintf("Couldn't load test data"))
