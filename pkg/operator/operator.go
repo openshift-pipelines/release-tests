@@ -65,18 +65,20 @@ func ValidateTriggerDeployments(cs *clients.Clients) {
 }
 
 func ValidateInstalledStatus(cs *clients.Clients) {
-	// Refresh Cluster CR
-	cr := WaitForClusterCR(cs, config.ClusterCRName)
-
-	if code := cr.Status.Conditions[0].Code; code != op.InstalledStatus {
-		testsuit.T.Errorf("Expected code to be %s but got %s", op.InstalledStatus, code)
-	}
+	err := wait.PollImmediate(config.Interval, config.Timeout, func() (bool, error) {
+		// Refresh Cluster CR
+		cr := WaitForClusterCR(cs, config.ClusterCRName)
+		if cr.Status.Conditions[0].Code != op.InstalledStatus {
+			log.Printf("config.operator.tekton.dev status [%s] \n", cr.Status.Conditions[0].Code)
+			return false, nil
+		}
+		return true, nil
+	})
+	assert.FailOnError(err)
 }
 
 func ValidateInstall(cs *clients.Clients) {
 	log.Printf("Waiting for operator to be up and running....\n")
-	ValidatePipelineDeployments(cs)
-	ValidateTriggerDeployments(cs)
 
 	ValidateInstalledStatus(cs)
 	log.Printf("Operator is up\n")
