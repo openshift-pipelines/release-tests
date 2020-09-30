@@ -10,32 +10,22 @@ spec:
     - name: contenttype
     - name: truncatedsha
   resourcetemplates:
-    - apiVersion: tekton.dev/v1alpha1
-      kind: TaskRun
-      metadata:
-        generateName: github-run-
-      spec:
-        taskSpec:
-          inputs:
-            resources:
-              - name: source
-                type: git
-          steps:
-            - image: ubuntu
-              script: |
-                #! /bin/bash
-                echo "gitrepositoryurl: $(tt.params.gitrepositoryurl)"
-                echo "gitrevision: $(tt.params.gitrevision)"
-                echo "contenttype: $(tt.params.contenttype)"
-                echo "truncatedsha: $(tt.params.truncatedsha)"
-                ls -al $(inputs.resources.source.path)
-        inputs:
-          resources:
-            - name: source
-              resourceSpec:
-                type: git
-                params:
-                  - name: revision
-                    value: $(tt.params.gitrevision)
-                  - name: url
-                    value: $(tt.params.gitrepositoryurl)
+  - apiVersion: tekton.dev/v1beta1
+    kind: PipelineRun
+    metadata:
+      name: parallel-pipelinerun
+    spec:
+      params:
+      - name: message
+        value: $(tt.params.truncatedsha)
+      pipelineRef:
+        name: parallel-pipeline
+      workspaces:
+        - name: ws
+          volumeClaimTemplate:
+            spec:
+              accessModes:
+               - ReadWriteOnce
+              resources:
+                requests:
+                  storage: 1Gi

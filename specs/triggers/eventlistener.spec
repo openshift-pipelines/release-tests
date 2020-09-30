@@ -277,12 +277,13 @@ Steps:
     |2   |testdata/triggers/triggersCRD/trigger.yaml                 |
     |3   |testdata/triggers/triggersCRD/triggerbindings.yaml         |
     |4   |testdata/triggers/triggersCRD/triggertemplate.yaml         |
+    |5   |testdata/triggers/triggersCRD/pipeline.yaml                |
   * Create & Link secret "github-secret" to service account "pipeline"  
   * Expose Event listener "listener-triggerref"
   * Mock post event to "github" interceptor with event-type "pull_request", payload "testdata/triggers/triggersCRD/pull-request.json"
   * Assert eventlistener response
-  * Verify taskrun
-    |S.NO|task_run_name    |status     |
-    |----|-----------------|-----------|
-    |1   |github-run       |successfull|
+  * Verify pipelinerun
+    |S.NO|pipeline_run_name       |status     |check_lable_propagation|
+    |----|------------------------|-----------|-----------------------|
+    |1   |parallel-pipelinerun    |successfull|no                     |
   * Cleanup Triggers
