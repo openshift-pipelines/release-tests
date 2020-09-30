@@ -1,0 +1,44 @@
+apiVersion: triggers.tekton.dev/v1alpha1
+kind: TriggerTemplate
+metadata:
+  name: pipeline-template-git-pr-review
+spec:
+  params:
+    - name: comment
+    - name: comment-user-login
+    - name: merge-commit-sha
+    - name: MESSAGE
+  resourcetemplates:
+    - apiVersion: tekton.dev/v1beta1
+      kind: PipelineRun
+      metadata:
+        name: pipelinerun-git-pr-review-ctb
+      spec:
+        pipelineSpec:
+          params:
+            - name: MESSAGE
+              description: "Message, default is Hello World!"
+              type: string
+              default: "Hello World!"
+          tasks:
+            - name: echo-message
+              taskSpec:
+                params:
+                - name: MESSAGE
+                  type: string
+                  default: "Hello World!"
+                steps:
+                  - name: echo
+                    image: ubuntu
+                    script: |
+                      #!/usr/bin/env bash    
+                      echo "$(tt.params.MESSAGE)"         
+                      echo "$(tt.params.comment)"
+                      echo "$(tt.params.comment-user-login)"
+                      echo "$(tt.params.merge-commit-sha)"
+              params:
+                - name: MESSAGE
+                  value: $(tt.params.MESSAGE)
+        params:
+          - name: MESSAGE 
+            value: $(tt.params.MESSAGE)

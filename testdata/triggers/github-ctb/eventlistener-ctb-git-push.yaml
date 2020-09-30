@@ -1,0 +1,19 @@
+---
+apiVersion: triggers.tekton.dev/v1alpha1
+kind: EventListener
+metadata:
+  name: listener-clustertriggerbinding-github-push
+spec:
+  serviceAccountName: pipeline
+  triggers:
+    - name: foo-trig
+      bindings:
+        - ref: github-push
+          kind: ClusterTriggerBinding
+        - name: message-binding
+          spec:
+            params:
+              - name: MESSAGE
+                value: Hello from the Triggers, you are triggering (github CTB) of event-type push!
+      template:
+        name: pipeline-template-git-push

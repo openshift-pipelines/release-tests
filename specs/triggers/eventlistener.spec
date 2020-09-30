@@ -196,3 +196,69 @@ Steps:
     |----|-----------------|-------|
     |1   |bitbucket-run    |Failure|
   * Cleanup Triggers
+
+## Verify Github push event with Embbeded TriggerTemplate using Github-CTB
+Tags: e2e, triggers
+
+This scenario tests Github `push` event via CTB, on each event it creates/triggers
+openshift-pipeline Resources defined under triggers-template
+
+Steps:
+  * Create
+    |S.NO|resource_dir                                                      |
+    |----|------------------------------------------------------------------|
+    |1   |testdata/triggers/github-ctb/Embeddedtriggertemplate-git-push.yaml|
+    |2   |testdata/triggers/github-ctb/eventlistener-ctb-git-push.yaml      |
+  * Create & Link secret "github-secret" to service account "pipeline"  
+  * Expose Event listener "listener-clustertriggerbinding-github-push"
+  * Mock post event to "github" interceptor with event-type "push", payload "testdata/triggers/github-ctb/push.json"
+  * Assert eventlistener response
+  * Verify pipelinerun
+    |S.NO|pipeline_run_name       |status     |check_lable_propagation|
+    |----|------------------------|-----------|-----------------------|
+    |1   |pipelinerun-git-push-ctb|successfull|no                     |
+  * Cleanup Triggers
+
+## Verify Github pull_request event with Embbeded TriggerTemplate using Github-CTB
+Tags: e2e, triggers
+
+This scenario tests Github `pull_request` event via CTB, on each event it creates/triggers
+openshift-pipeline Resources defined under triggers-template
+
+Steps:
+  * Create
+    |S.NO|resource_dir                                                    |
+    |----|----------------------------------------------------------------|
+    |1   |testdata/triggers/github-ctb/Embeddedtriggertemplate-git-pr.yaml|
+    |2   |testdata/triggers/github-ctb/eventlistener-ctb-git-pr.yaml      |
+  * Create & Link secret "github-secret" to service account "pipeline"  
+  * Expose Event listener "listener-clustertriggerbinding-github-pr"
+  * Mock post event to "github" interceptor with event-type "pull_request", payload "testdata/triggers/github-ctb/pr.json"
+  * Assert eventlistener response
+  * Verify pipelinerun
+    |S.NO|pipeline_run_name       |status     |check_lable_propagation|
+    |----|------------------------|-----------|-----------------------|
+    |1   |pipelinerun-git-pr-ctb  |successfull|no                     |
+  * Cleanup Triggers
+
+## Verify Github pr_review event with Embbeded TriggerTemplate using Github-CTB
+Tags: e2e, triggers
+
+This scenario tests Github `issue_comment` event via CTB, on each event it creates/triggers
+openshift-pipeline Resources defined under triggers-template
+
+Steps:
+  * Create
+    |S.NO|resource_dir                                                           |
+    |----|-----------------------------------------------------------------------|
+    |1   |testdata/triggers/github-ctb/Embeddedtriggertemplate-git-pr-review.yaml|
+    |2   |testdata/triggers/github-ctb/eventlistener-ctb-git-pr-review.yaml      |
+  * Create & Link secret "github-secret" to service account "pipeline"  
+  * Expose Event listener "listener-ctb-github-pr-review"
+  * Mock post event to "github" interceptor with event-type "issue_comment", payload "testdata/triggers/github-ctb/issue-comment.json"
+  * Assert eventlistener response
+  * Verify pipelinerun
+    |S.NO|pipeline_run_name                |status     |check_lable_propagation|
+    |----|---------------------------------|-----------|-----------------------|
+    |1   |pipelinerun-git-pr-review-ctb    |successfull|no                     |
+  * Cleanup Triggers

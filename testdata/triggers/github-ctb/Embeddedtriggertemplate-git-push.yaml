@@ -1,0 +1,50 @@
+apiVersion: triggers.tekton.dev/v1alpha1
+kind: TriggerTemplate
+metadata:
+  name: pipeline-template-git-push
+spec:
+  params:
+    - name: git-revision
+    - name: git-repo-url
+    - name: git-commit-message
+    - name: git-repo-name
+    - name: content-type
+    - name: pusher-name
+    - name: MESSAGE
+  resourcetemplates:
+    - apiVersion: tekton.dev/v1beta1
+      kind: PipelineRun
+      metadata:
+        name: pipelinerun-git-push-ctb
+      spec:
+        pipelineSpec:
+          params:
+            - name: MESSAGE
+              description: "Message, default is Hello World!"
+              type: string
+              default: "Hello World!"
+          tasks:
+            - name: echo-message
+              taskSpec:
+                params:
+                - name: MESSAGE
+                  type: string
+                  default: "Hello World!"
+                steps:
+                  - name: echo
+                    image: ubuntu
+                    script: |
+                      #!/usr/bin/env bash
+                      echo "$(tt.params.MESSAGE)"
+                      echo "$(tt.params.git-repo-url)"
+                      echo "$(tt.params.git-revision)"
+                      echo "$(tt.params.git-commit-message)"
+                      echo "$(tt.params.git-repo-name)"
+                      echo "$(tt.params.content-type)"
+                      echo "$(tt.params.pusher-name)"
+              params:
+                - name: MESSAGE
+                  value: $(tt.params.MESSAGE)
+        params:
+          - name: MESSAGE 
+            value: $(tt.params.MESSAGE)

@@ -1,0 +1,58 @@
+apiVersion: triggers.tekton.dev/v1alpha1
+kind: TriggerTemplate
+metadata:
+  name: pipeline-template-git-pr
+spec:
+  params:
+    - name: git-repo-url
+    - name: pullreq-sha
+    - name: pullreq-action
+    - name: pullreq-number
+    - name: pullreq-repo-full_name
+    - name: pullreq-html-url
+    - name: pullreq-title
+    - name: pullreq-issue-url
+    - name: organisations-url
+    - name: user-type
+    - name: MESSAGE
+  resourcetemplates:
+    - apiVersion: tekton.dev/v1beta1
+      kind: PipelineRun
+      metadata:
+        name: pipelinerun-git-pr-ctb
+      spec:
+        pipelineSpec:
+          params:
+            - name: MESSAGE
+              description: "Message, default is Hello World!"
+              type: string
+              default: "Hello World!"
+          tasks:
+            - name: echo-message
+              taskSpec:
+                params:
+                - name: MESSAGE
+                  type: string
+                  default: "Hello World!"
+                steps:
+                  - name: echo
+                    image: ubuntu
+                    script: |
+                      #!/usr/bin/env bash
+                      echo "$(tt.params.MESSAGE)"
+                      echo "$(tt.params.git-repo-url)"
+                      echo "$(tt.params.pullreq-sha)"
+                      echo "$(tt.params.pullreq-action)"
+                      echo "$(tt.params.pullreq-number)"
+                      echo "$(tt.params.pullreq-repo-full_name)"
+                      echo "$(tt.params.pullreq-html-url)"
+                      echo "$(tt.params.pullreq-title)"
+                      echo "$(tt.params.pullreq-issue-url)"
+                      echo "$(tt.params.organisations-url)"
+                      echo "$(tt.params.user-type)"
+              params:
+                - name: MESSAGE
+                  value: $(tt.params.MESSAGE)
+        params:
+          - name: MESSAGE 
+            value: $(tt.params.MESSAGE)
