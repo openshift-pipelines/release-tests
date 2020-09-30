@@ -262,3 +262,27 @@ Steps:
     |----|---------------------------------|-----------|-----------------------|
     |1   |pipelinerun-git-pr-review-ctb    |successfull|no                     |
   * Cleanup Triggers
+  
+## Create TriggersCRD resource with CEL interceptors (overlays)
+Tags: e2e, triggers
+
+This scenario tests the creation of Trigger resource which is combination of TriggerTemplate, TriggerBindings and interceptors. The Trigger is processed by EventListener, and listens to events, on each event it creates/triggers
+openshift-pipeline Resources defined under triggers-template  
+
+Steps:
+  * Create
+    |S.NO|resource_dir                                               |
+    |----|-----------------------------------------------------------|
+    |1   |testdata/triggers/triggersCRD/eventlistener-triggerref.yaml|
+    |2   |testdata/triggers/triggersCRD/trigger.yaml                 |
+    |3   |testdata/triggers/triggersCRD/triggerbindings.yaml         |
+    |4   |testdata/triggers/triggersCRD/triggertemplate.yaml         |
+  * Create & Link secret "github-secret" to service account "pipeline"  
+  * Expose Event listener "listener-triggerref"
+  * Mock post event to "github" interceptor with event-type "pull_request", payload "testdata/triggers/triggersCRD/pull-request.json"
+  * Assert eventlistener response
+  * Verify taskrun
+    |S.NO|task_run_name    |status     |
+    |----|-----------------|-----------|
+    |1   |github-run       |successfull|
+  * Cleanup Triggers
