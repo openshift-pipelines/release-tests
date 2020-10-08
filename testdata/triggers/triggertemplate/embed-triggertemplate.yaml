@@ -35,7 +35,7 @@ spec:
                       echo "$(tt.params.gitrevision)"
               params:
                 - name: MESSAGE
-                  value: $(params.MESSAGE)
+                  value: $(tt.params.MESSAGE)
         params:
           - name: MESSAGE
             value: $(tt.params.gitrepositoryurl)

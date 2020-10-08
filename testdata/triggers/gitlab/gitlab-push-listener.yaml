@@ -21,8 +21,8 @@ spec:
             - image: ubuntu
               script: |
                 #! /bin/bash
-                echo "git revision: $(params.gitrevision)"
-                echo "git repositroyurl: $(params.gitrepositoryurl)"
+                echo "git revision: $(tt.params.gitrevision)"
+                echo "git repositoryurl: $(tt.params.gitrepositoryurl)"
                 ls -al $(resources.inputs.source.path)
         resources:        
             inputs:
@@ -31,9 +31,9 @@ spec:
                 type: git
                 params:
                   - name: revision
-                    value: $(params.gitrevision)
+                    value: $(tt.params.gitrevision)
                   - name: url
-                    value: $(params.gitrepositoryurl)
+                    value: $(tt.params.gitrepositoryurl)
 ---
 apiVersion: triggers.tekton.dev/v1alpha1
 kind: TriggerBinding

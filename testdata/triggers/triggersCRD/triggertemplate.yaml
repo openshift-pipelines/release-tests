@@ -1,0 +1,31 @@
+---
+apiVersion: triggers.tekton.dev/v1alpha1
+kind: TriggerTemplate
+metadata:
+  name: github-template
+spec:
+  params:
+    - name: gitrevision
+    - name: gitrepositoryurl
+    - name: contenttype
+    - name: truncatedsha
+  resourcetemplates:
+  - apiVersion: tekton.dev/v1beta1
+    kind: PipelineRun
+    metadata:
+      name: parallel-pipelinerun
+    spec:
+      params:
+      - name: message
+        value: $(tt.params.truncatedsha)
+      pipelineRef:
+        name: parallel-pipeline
+      workspaces:
+        - name: ws
+          volumeClaimTemplate:
+            spec:
+              accessModes:
+               - ReadWriteOnce
+              resources:
+                requests:
+                  storage: 1Gi
