@@ -77,19 +77,6 @@ Steps:
       |----|------------------|-----------|-----------------------|
       |1   |task-level-results|successfull|no                     |
 
-## Cancel pipelinerun Test
-Tags: e2e, integration, pipelines
-
-Steps:
-  * Create
-      |S.NO|resource_dir                                 |
-      |----|---------------------------------------------|
-      |1   |testdata/v1beta1/pipelinerun/pipelinerun.yaml|
-  * Verify pipelinerun
-      |S.NO|pipeline_run_name     |status   |check_lable_propagation|
-      |----|----------------------|---------|-----------------------|
-      |1   |output-pipeline-run-vb|cancelled|no                     |
-
 ## Pipelinerun with pipelinespec and taskspec(embedded pipelinerun tests)
 Tags: e2e, integration, pipelines
 
