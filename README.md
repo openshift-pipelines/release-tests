@@ -140,11 +140,12 @@ Tag\|TagB                    |have either TagA or TagB.
 
 ## Run olm tests only
 ```
-> INSTALL_OPERATOR=yes gauge run --env "default, test" --log-level=debug  --verbose specs/olm.spec
+> CHANNEL=$CHANNEL gauge run --env "default, test" --tags "olm & install" --log-level=debug --verbose   specs/olm.spec
 ```
 > Note:  
-> - `INSTALL_OPERATOR` env value if it is set to `yes`, expected cluster fresh and no pipelines/operator installed to it, so it will still proceed tests on assumption tests should install openshift operator
-> - By default `INSTALL_OPERATOR` is `no` it should fail your tests if `pipelines/operator` not istalled to cluster
+> - `CHANNEL` Env value to be set to Eg: `ocp-4.6`, 
+>1. Assume on fresh cluster it helps you to install operator by subscribing to provided channel.
+>2. Assume operator already installed it will help you to update your subscription channel with `CHANNEL` Env value
 
 
  
