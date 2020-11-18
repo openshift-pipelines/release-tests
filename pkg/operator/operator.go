@@ -57,13 +57,11 @@ func ValidateSCC(cs *clients.Clients) {
 
 func ValidatePipelineDeployments(cs *clients.Clients) {
 	cr := WaitForClusterCR(cs, config.ClusterCRName)
-	ValidateInstalledStatus(cs)
 	k8s.ValidateDeployments(cs, cr.Spec.TargetNamespace,
 		config.PipelineControllerName, config.PipelineWebhookName)
 }
 func ValidateTriggerDeployments(cs *clients.Clients) {
 	cr := WaitForClusterCR(cs, config.ClusterCRName)
-	ValidateInstalledStatus(cs)
 	k8s.ValidateDeployments(cs, cr.Spec.TargetNamespace,
 		config.TriggerControllerName, config.TriggerWebhookName)
 }

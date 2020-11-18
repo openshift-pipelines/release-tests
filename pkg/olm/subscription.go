@@ -63,6 +63,26 @@ func SubscribeAndWaitForOperatorToBeReady(cs *clients.Clients, subscriptionName,
 	return subs, nil
 }
 
+func UptadeSubscriptionAndWaitForOperatorToBeReady(cs *clients.Clients, subscriptionName, channel string) (*v1alpha1.Subscription, error) {
+	if _, err := UpdateSubscription(cs, subscriptionName, channel); err != nil {
+		return nil, err
+	}
+
+	subs, err := WaitForSubscriptionState(cs, subscriptionName, OperatorsNamespace, IsSubscriptionInstalledCSVPresent)
+	if err != nil {
+		return nil, err
+	}
+
+	csvName := subs.Status.InstalledCSV
+
+	_, err = WaitForClusterServiceVersionState(cs, csvName, OperatorsNamespace, IsCSVSucceeded)
+	if err != nil {
+		return nil, err
+	}
+
+	return subs, nil
+}
+
 func getSubcription(cs *clients.Clients, name, channel string) *v1alpha1.Subscription {
 	subscription, err := cs.OLM.OperatorsV1alpha1().Subscriptions(OperatorsNamespace).Get(name, metav1.GetOptions{})
 	assert.NoError(err, fmt.Sprintf("Unable to retrive Subscription: [%s] from namespace [%s]\n", name, OperatorsNamespace))
@@ -72,12 +92,16 @@ func getSubcription(cs *clients.Clients, name, channel string) *v1alpha1.Subscri
 func CreateSubscription(cs *clients.Clients, name, channel string) (*v1alpha1.Subscription, error) {
 	subs, err := cs.OLM.OperatorsV1alpha1().Subscriptions(OperatorsNamespace).Create(Subscription(name, channel))
 	if err != nil {
-		subscription := getSubcription(cs, name, channel)
-		subscription.Spec.Channel = channel
-		subs, err = cs.OLM.OperatorsV1alpha1().Subscriptions(OperatorsNamespace).Update(subscription)
-		if err != nil {
-			return nil, err
-		}
+		return nil, err
+	}
+	return subs, nil
+}
+
+func UpdateSubscription(cs *clients.Clients, name, channel string) (*v1alpha1.Subscription, error) {
+	subscription := getSubcription(cs, name, channel)
+	subscription.Spec.Channel = channel
+	subs, err := cs.OLM.OperatorsV1alpha1().Subscriptions(OperatorsNamespace).Update(subscription)
+	if err != nil {
 		return nil, err
 	}
 	return subs, nil

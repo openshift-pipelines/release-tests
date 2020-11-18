@@ -26,6 +26,16 @@ var _ = gauge.Step("Subscribe to operator", func() {
 	assert.NoError(err, fmt.Sprintf("failed to Subscribe :%s", err))
 })
 
+var _ = gauge.Step("Wait for Cluster CR availability", func() {
+	operator.WaitForClusterCR(store.Clients(), config.ClusterCRName)
+})
+
+var _ = gauge.Step("Upgrade operator subscription", func() {
+	// Creates subscription yaml with configured details from env/test/test.properties
+	_, err := olm.UptadeSubscriptionAndWaitForOperatorToBeReady(store.Clients(), "openshift-pipelines-operator-rh", config.Flags.Channel)
+	assert.NoError(err, fmt.Sprintf("failed to Subscribe :%s", err))
+})
+
 var _ = gauge.Step("Validate SCC", func() {
 	operator.ValidateSCC(store.Clients())
 })
