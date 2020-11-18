@@ -1,7 +1,7 @@
 # Verify eventlisteners spec
 
 Pre condition:
-  * Operator should be installed
+  * Validate Operator should be installed
 
 ## Create Eventlistener
 Tags: triggers

@@ -1,7 +1,7 @@
 # Verify Pipeline E2E spec
 
 Pre condition:
-  * Operator should be installed
+  * Validate Operator should be installed
 
 ## Run sample pipeline
 Tags: e2e, integration, pipelines

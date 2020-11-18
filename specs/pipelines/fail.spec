@@ -3,7 +3,7 @@
 Contains negative scenarios that exercises running pipeline
 
 Precondition:
-  * Operator should be installed
+  * Validate Operator should be installed
 
 ## Run Pipeline with a non-existent ServiceAccount
 Tags: e2e, pipeline, negative

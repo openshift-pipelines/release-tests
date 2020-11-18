@@ -12,6 +12,7 @@ import (
 	"github.com/openshift-pipelines/release-tests/pkg/config"
 	"github.com/openshift-pipelines/release-tests/pkg/k8s"
 	"github.com/openshift-pipelines/release-tests/pkg/olm"
+	"github.com/openshift-pipelines/release-tests/pkg/store"
 	op "github.com/tektoncd/operator/pkg/apis/operator/v1alpha1"
 	"k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/types"
@@ -21,11 +22,12 @@ import (
 // WaitForClusterCR waits for cluster CR to be created
 // the function returns an error if Cluster CR is not created within timeout
 func WaitForClusterCR(cs *clients.Clients, name string) *op.Config {
-
+	cs, err := clients.InitTestingFramework(store.Clients())
+	assert.NoError(err, fmt.Sprintf("Error :%s", err))
 	objKey := types.NamespacedName{Name: name}
 	cr := &op.Config{}
 
-	err := wait.Poll(config.APIRetry, config.APITimeout, func() (bool, error) {
+	err = wait.Poll(config.APIRetry, config.APITimeout, func() (bool, error) {
 		err := cs.Client.Get(context.TODO(), objKey, cr)
 		if err != nil {
 			if errors.IsNotFound(err) {
@@ -55,11 +57,13 @@ func ValidateSCC(cs *clients.Clients) {
 
 func ValidatePipelineDeployments(cs *clients.Clients) {
 	cr := WaitForClusterCR(cs, config.ClusterCRName)
+	ValidateInstalledStatus(cs)
 	k8s.ValidateDeployments(cs, cr.Spec.TargetNamespace,
 		config.PipelineControllerName, config.PipelineWebhookName)
 }
 func ValidateTriggerDeployments(cs *clients.Clients) {
 	cr := WaitForClusterCR(cs, config.ClusterCRName)
+	ValidateInstalledStatus(cs)
 	k8s.ValidateDeployments(cs, cr.Spec.TargetNamespace,
 		config.TriggerControllerName, config.TriggerWebhookName)
 }
@@ -79,7 +83,6 @@ func ValidateInstalledStatus(cs *clients.Clients) {
 
 func ValidateInstall(cs *clients.Clients) {
 	log.Printf("Waiting for operator to be up and running....\n")
-
 	ValidateInstalledStatus(cs)
 	log.Printf("Operator is up\n")
 }
@@ -106,10 +109,8 @@ func DeleteClusterCR(cs *clients.Clients, name string) {
 	assert.NoError(err, fmt.Sprintf("%s cluster CR deletion failed\n", name))
 }
 
-// DeleteOperatorTraces helps you to delete operator and it's traces if any from cluster
-func Cleanup(version string) {
-	cs, _, cleanup := k8s.NewClientSet()
-	defer cleanup()
+// Unistall  helps you to delete operator and it's traces if any from cluster
+func Uninstall(cs *clients.Clients) {
 	cr := WaitForClusterCR(cs, config.ClusterCRName)
 
 	DeleteClusterCR(cs, config.ClusterCRName)
@@ -122,9 +123,9 @@ func Cleanup(version string) {
 		config.TriggerControllerName,
 		config.TriggerWebhookName,
 	)
-
 	k8s.ValidateSCCRemoved(cs, ns, config.PipelineControllerName)
-	olm.DeleteCSV(version)
-	//cleanup tmp directory
-	config.DltTempDir()
+
+	olm.DeleteCSV()
+	olm.DeleteInstallPlan()
+	olm.Unsubscribe()
 }

@@ -1,7 +1,7 @@
 # Verify Triggers with cronjob
 
 Pre condition:
-  * Operator should be installed
+  * Validate Operator should be installed
 
 ## Create Triggers using k8s cronJob
 Tags: e2e,triggers
