@@ -1,7 +1,7 @@
 # Verify Triggers
 
 Pre condition:
-  * Operator should be installed
+  * Validate Operator should be installed
 
 ## v1alpha1 resources creation Test
 Tags: e2e, triggers

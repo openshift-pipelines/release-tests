@@ -1,22 +1,19 @@
-# Olm Openshift Pipelines spec
+# Olm Openshift Pipelines operator specs
 
-## Install openshift-pipelines
+## Install openshift-pipelines operator
 Tags: olm, install
-
 Installs `openshift-pipelines` operator using olm
 
 Steps:
   * Subscribe to operator
-  * Wait for Cluster CR availability
-  * Validate installation of pipelines "v0.11.3"
-  * Validate installation of triggers
-  * Validate operator setup status
+  * Validate Operator should be installed
+  * Validate pipelines deployment
+  * Validate triggers deployment
 
-
-## Uninstall openshift-pipelines
+## Uninstall openshift-pipelines operator
 Tags: olm, uninstall
 
 Uninstalls `openshift-pipelines` operator using olm
 Steps:
-  * Operator should be installed
+  * Validate Operator should be installed
   * Uninstall Operator

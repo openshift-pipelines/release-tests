@@ -2,14 +2,12 @@ package clients
 
 import (
 	"fmt"
-	"log"
-	"os"
-	"strings"
 	"sync"
 	"time"
 
 	goctx "context"
 
+	olmversioned "github.com/operator-framework/operator-lifecycle-manager/pkg/api/client/clientset/versioned"
 	"github.com/tektoncd/operator/pkg/apis"
 	op "github.com/tektoncd/operator/pkg/apis/operator/v1alpha1"
 	"github.com/tektoncd/pipeline/pkg/client/clientset/versioned"
@@ -102,6 +100,7 @@ type Clients struct {
 	KubeClient             *KubeClient
 	KubeConfig             *rest.Config
 	Scheme                 *runtime.Scheme
+	OLM                    olmversioned.Interface
 	Dynamic                dynamic.Interface
 	Tekton                 versioned.Interface
 	PipelineClient         v1beta1.PipelineInterface
@@ -197,22 +196,17 @@ func NewClients(configPath, clusterName, namespace string) (*Clients, error) {
 		return nil, fmt.Errorf("Failed to create dynamic clients from config file at %s: %s", configPath, err)
 	}
 
+	c.OLM, err = olmversioned.NewForConfig(c.KubeConfig)
+	if err != nil {
+		return nil, fmt.Errorf("Failed to create olm clients from config file at %s: %s", configPath, err)
+	}
+
 	c.PipelineClient = cs.TektonV1beta1().Pipelines(namespace)
 	c.TaskClient = cs.TektonV1beta1().Tasks(namespace)
 	c.TaskRunClient = cs.TektonV1beta1().TaskRuns(namespace)
 	c.PipelineRunClient = cs.TektonV1beta1().PipelineRuns(namespace)
 	c.PipelineResourceClient = rcs.TektonV1alpha1().PipelineResources(namespace)
 	c.ConditionClient = cs.TektonV1alpha1().Conditions(namespace)
-	c, err = initTestingFramework(c)
-
-	// When we don't subscribe to Operator initTestFramework will throw error [waiting for the condition]
-	if err != nil {
-		if strings.ToLower(os.Getenv("INSTALL_OPERATOR")) == "yes" {
-			log.Printf("WARNING: Pipelines not available: %+v, Run tests at your own risk(Assuming tests has to handle Operator installation)", err)
-		} else {
-			return nil, fmt.Errorf("Error: [%+v] \n Cannot proceed with your tests (no pipelines available), retry running after installing operator", err)
-		}
-	}
 	return c, nil
 }
 
@@ -255,7 +249,7 @@ func AddToFrameworkScheme(addToScheme addToSchemeFunc, obj runtime.Object, c *Cl
 	return c, nil
 }
 
-func initTestingFramework(c *Clients) (*Clients, error) {
+func InitTestingFramework(c *Clients) (*Clients, error) {
 	apiVersion := "operator.tekton.dev/v1alpha1"
 	kind := "Config"
 

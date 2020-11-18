@@ -1,7 +1,7 @@
 # Verify triggers tutorial
 
 Pre condition:
-  * Operator should be installed
+  * Validate Operator should be installed
 
 ## Run Triggers tutorial (by Automatically configuring users webhook to git repo)
 Tags: e2e, integration, triggers
