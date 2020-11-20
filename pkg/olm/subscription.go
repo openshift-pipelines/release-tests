@@ -21,6 +21,11 @@ const (
 	OLMNamespace       = "openshift-marketplace"
 )
 
+var (
+	immediate             = int64(0)
+	immediateDeleteOption = &metav1.DeleteOptions{GracePeriodSeconds: &immediate}
+)
+
 // Subscription helps you to subscribe openshift-pipelines-operator-rh
 func Subscription(subscriptionName, channel string) *v1alpha1.Subscription {
 	//namespace, name, catalogSourceName, packageName, channel string, approval v1alpha1.Approval
@@ -44,7 +49,7 @@ func Subscription(subscriptionName, channel string) *v1alpha1.Subscription {
 }
 
 func SubscribeAndWaitForOperatorToBeReady(cs *clients.Clients, subscriptionName, channel string) (*v1alpha1.Subscription, error) {
-	if _, err := CreateSubscription(cs, subscriptionName, channel); err != nil {
+	if _, err := createSubscription(cs, subscriptionName, channel); err != nil {
 		return nil, err
 	}
 
@@ -83,13 +88,13 @@ func UptadeSubscriptionAndWaitForOperatorToBeReady(cs *clients.Clients, subscrip
 	return subs, nil
 }
 
-func getSubcription(cs *clients.Clients, name, channel string) *v1alpha1.Subscription {
+func getSubcription(cs *clients.Clients, name string) *v1alpha1.Subscription {
 	subscription, err := cs.OLM.OperatorsV1alpha1().Subscriptions(OperatorsNamespace).Get(name, metav1.GetOptions{})
 	assert.NoError(err, fmt.Sprintf("Unable to retrive Subscription: [%s] from namespace [%s]\n", name, OperatorsNamespace))
 	return subscription
 }
 
-func CreateSubscription(cs *clients.Clients, name, channel string) (*v1alpha1.Subscription, error) {
+func createSubscription(cs *clients.Clients, name, channel string) (*v1alpha1.Subscription, error) {
 	subs, err := cs.OLM.OperatorsV1alpha1().Subscriptions(OperatorsNamespace).Create(Subscription(name, channel))
 	if err != nil {
 		return nil, err
@@ -97,8 +102,31 @@ func CreateSubscription(cs *clients.Clients, name, channel string) (*v1alpha1.Su
 	return subs, nil
 }
 
+// OperatorCleanup deletes All related CSVs, subscription & installplan
+func OperatorCleanup(cs *clients.Clients, name string) {
+	sub := getSubcription(cs, name)
+	// Delete CSV
+	err := cs.OLM.OperatorsV1alpha1().ClusterServiceVersions(OperatorsNamespace).DeleteCollection(immediateDeleteOption,
+		metav1.ListOptions{})
+	if err != nil {
+		assert.NoError(err, fmt.Sprintf("failed deleting CSVs in Namespace: %s, %v", OperatorsNamespace, err))
+	}
+
+	// DeleteInstallPlan
+	err = cs.OLM.OperatorsV1alpha1().InstallPlans(OperatorsNamespace).Delete(sub.Status.Install.Name, immediateDeleteOption)
+	if err != nil {
+		assert.NoError(err, fmt.Sprintf("failed deleting InstallPlan [%s] in Namespace: %s, %v", sub.Status.Install.Name, OperatorsNamespace, err))
+	}
+
+	// Unsubscribe
+	err = cs.OLM.OperatorsV1alpha1().Subscriptions(OperatorsNamespace).DeleteCollection(immediateDeleteOption, metav1.ListOptions{})
+	if err != nil {
+		assert.NoError(err, fmt.Sprintf("failed to clean all Subscriptions in %s, %v", OperatorsNamespace, err))
+	}
+}
+
 func UpdateSubscription(cs *clients.Clients, name, channel string) (*v1alpha1.Subscription, error) {
-	subscription := getSubcription(cs, name, channel)
+	subscription := getSubcription(cs, name)
 	subscription.Spec.Channel = channel
 	subs, err := cs.OLM.OperatorsV1alpha1().Subscriptions(OperatorsNamespace).Update(subscription)
 	if err != nil {

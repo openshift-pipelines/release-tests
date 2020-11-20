@@ -123,7 +123,5 @@ func Uninstall(cs *clients.Clients) {
 	)
 	k8s.ValidateSCCRemoved(cs, ns, config.PipelineControllerName)
 
-	olm.DeleteCSV()
-	olm.DeleteInstallPlan()
-	olm.Unsubscribe()
+	olm.OperatorCleanup(cs, "openshift-pipelines-operator-rh")
 }
