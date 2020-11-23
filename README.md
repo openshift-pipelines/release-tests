@@ -132,22 +132,34 @@ Tag\|TagB                    |have either TagA or TagB.
 > gauge run --env "default, test" --log-level=debug  --verbose specs/pipelines specs/triggers
 ```
 
-## Run pipelines tests only
+## Run pipelines tests
 
 ```
 > gauge run --env "default, test" --log-level=debug  --verbose specs/pipelines/
 ```
 
-## Run olm tests only
-```
-> CHANNEL=$CHANNEL gauge run --env "default, test" --tags "olm & install" --log-level=debug --verbose   specs/olm.spec
-```
-> Note:  
-> - `CHANNEL` Env value to be set to Eg: `ocp-4.6`, 
->1. Assume on fresh cluster it helps you to install operator by subscribing to provided channel.
->2. Assume operator already installed it will help you to update your subscription channel with `CHANNEL` Env value
+## Run olm tests
 
+### Fresh installation
+```
+> CHANNEL=$CHANNEL gauge run --env "default, test" --tags "install" --log-level=debug --verbose   specs/olm.spec
+```
 
+> Notes:  
+> - set `CHANNEL` env variable Eg: `ocp-4.6`, 
+> - helps user to install operator by subscribing to `CHANNEL` (Assumption: pipelines operator shouldn't be installed)
+
+### Upgrade operator
+```
+> CHANNEL=$CHANNEL gauge run --env "default, test" --tags "upgrade" --log-level=debug --verbose   specs/olm.spec
+```
+> Notes:
+> - helps user to upgrade operator by updating subscription to latest `CHANNEL` (Assumption: cluster should have pipelines operator installed)
+
+### Uninstall Operator
+```
+> gauge run --env "default, test" --tags "uninstall" --log-level=debug --verbose   specs/olm.spec
+```
  
 ## Package structures
 
