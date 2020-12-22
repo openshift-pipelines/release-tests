@@ -41,7 +41,7 @@ spec:
         type: git
     steps:
     - name: config
-      image: ubuntu
+      image: registry.redhat.io/ubi8/ubi-minimal
       script: |
         #!/usr/bin/env bash
         cat /workspace/gitssh/README.md

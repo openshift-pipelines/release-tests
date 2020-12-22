@@ -9,7 +9,7 @@ spec:
         - sleep 100
       command:
         - /bin/sh
-      image: busybox
+      image: registry.redhat.io/ubi8/ubi-minimal
       name: ''
       resources: {}
 ---

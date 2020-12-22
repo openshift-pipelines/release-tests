@@ -8,7 +8,7 @@ spec:
         - 3000s
       command:
         - sleep
-      image: busybox
+      image: registry.redhat.io/ubi8/ubi-minimal
       name: ''
       resources: {}
 ---
