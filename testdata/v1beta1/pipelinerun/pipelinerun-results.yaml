@@ -13,7 +13,7 @@ spec:
       description: the sum of the first and second operand
   steps:
     - name: add
-      image: alpine
+      image: registry.redhat.io/ubi8/ubi-minimal
       env:
         - name: OP1
           value: $(params.first)

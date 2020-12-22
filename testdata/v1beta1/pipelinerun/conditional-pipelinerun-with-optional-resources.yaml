@@ -10,7 +10,7 @@ spec:
       type: git
       optional: true
   check:
-    image: alpine
+    image: registry.redhat.io/ubi8/ubi-minimal
     script: 'test ! -f $(resources.optional-workspace.path)/$(params.path)'
 ---
 apiVersion: tekton.dev/v1alpha1
@@ -37,7 +37,7 @@ spec:
         optional: true
   steps:
     - name: run-ls
-      image: ubuntu
+      image: registry.redhat.io/ubi8/ubi-minimal
       script: 'ls -al $(inputs.resources.optional-workspace.path)'
 ---
 apiVersion: tekton.dev/v1beta1

@@ -13,7 +13,7 @@ spec:
       taskSpec:
         steps:
         - name: "hellothere"
-          image: ubuntu
+          image: registry.redhat.io/ubi8/ubi-minimal
           script: echo "hello there"
 ---
 apiVersion: triggers.tekton.dev/v1alpha1

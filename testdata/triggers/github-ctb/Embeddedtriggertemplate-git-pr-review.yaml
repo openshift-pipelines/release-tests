@@ -29,7 +29,7 @@ spec:
                   default: "Hello World!"
                 steps:
                   - name: echo
-                    image: ubuntu
+                    image: registry.redhat.io/ubi8/ubi-minimal
                     script: |
                       #!/usr/bin/env bash    
                       echo "$(tt.params.MESSAGE)"         
