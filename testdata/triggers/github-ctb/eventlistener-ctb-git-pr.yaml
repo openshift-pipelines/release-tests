@@ -16,4 +16,4 @@ spec:
               - name: MESSAGE
                 value: Hello from the Triggers, you are triggering (github CTB) of event-type pull-request!
       template:
-        name: pipeline-template-git-pr
+        ref: pipeline-template-git-pr

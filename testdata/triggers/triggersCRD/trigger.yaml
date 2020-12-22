@@ -7,9 +7,9 @@ spec:
     - cel:
         filter: "header.match('X-GitHub-Event', 'pull_request')"
         overlays:
-        - key: extensions.truncated_sha
+        - key: "truncated_sha"
           expression: "body.pull_request.head.sha.truncate(7)"
   bindings:
   - ref: github-pr-binding
   template:
-    name: github-template
+    ref: github-template

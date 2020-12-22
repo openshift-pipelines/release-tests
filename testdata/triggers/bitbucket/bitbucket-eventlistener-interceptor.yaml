@@ -65,4 +65,4 @@ spec:
       bindings:
         - ref: bitbucket-binding
       template:
-        name: bitbucket-template
+        ref: bitbucket-template
