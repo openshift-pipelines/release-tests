@@ -64,4 +64,4 @@ spec:
       bindings:
         - ref: gitlab-push-binding
       template:
-        name: gitlab-echo-template
+        ref: gitlab-echo-template

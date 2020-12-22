@@ -16,4 +16,4 @@ spec:
               - name: MESSAGE
                 value: Hello from the Triggers, you are triggering (github CTB) of event-type push!
       template:
-        name: pipeline-template-git-push
+        ref: pipeline-template-git-push
