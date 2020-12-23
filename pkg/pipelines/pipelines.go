@@ -34,7 +34,7 @@ func validatePipelineRunForSuccessStatus(c *clients.Clients, prname, labelCheck,
 
 	if strings.ToLower(labelCheck) == "yes" || strings.ToLower(labelCheck) == "y" {
 		log.Println("Check for events, labels & annotations")
-		actualTaskrunList, err := c.TaskRunClient.List(metav1.ListOptions{LabelSelector: fmt.Sprintf("tekton.dev/pipelineRun=%s", prname)})
+		actualTaskrunList, err := c.TaskRunClient.List(c.Ctx, metav1.ListOptions{LabelSelector: fmt.Sprintf("tekton.dev/pipelineRun=%s", prname)})
 		assert.NoError(err, fmt.Sprintf("Error listing TaskRuns for PipelineRun %s: %s", prname, err))
 		actualTaskRunNames := []string{}
 		for _, tr := range actualTaskrunList.Items {
@@ -46,7 +46,6 @@ func validatePipelineRunForSuccessStatus(c *clients.Clients, prname, labelCheck,
 		}
 
 		matchKinds := map[string][]string{"PipelineRun": {prname}, "TaskRun": actualTaskRunNames}
-
 		log.Printf("Making sure %d events were created from taskrun and pipelinerun with kinds %v", len(actualTaskRunNames)+1, matchKinds)
 
 		// To-do fix: collect matching events
@@ -62,7 +61,7 @@ func validatePipelineRunForFailedStatus(c *clients.Clients, prname, namespace st
 
 func validatePipelineRunTimeoutFailure(c *clients.Clients, prname, namespace string) {
 	var err error
-	pipelineRun, err := c.PipelineRunClient.Get(prname, metav1.GetOptions{})
+	pipelineRun, err := c.PipelineRunClient.Get(c.Ctx, prname, metav1.GetOptions{})
 	assert.NoError(err, fmt.Sprintf("Error Getting PipelineRun %s under namespace %s ", prname, namespace))
 
 	log.Printf("Waiting for Pipelinerun %s in namespace %s to be started", pipelineRun.Name, namespace)
@@ -70,7 +69,7 @@ func validatePipelineRunTimeoutFailure(c *clients.Clients, prname, namespace str
 		testsuit.T.Errorf(fmt.Sprintf("Error waiting for PipelineRun %s to be running: %s", pipelineRun.Name, err))
 	}
 
-	taskrunList, err := c.TaskRunClient.List(metav1.ListOptions{LabelSelector: fmt.Sprintf("tekton.dev/pipelineRun=%s", pipelineRun.Name)})
+	taskrunList, err := c.TaskRunClient.List(c.Ctx, metav1.ListOptions{LabelSelector: fmt.Sprintf("tekton.dev/pipelineRun=%s", pipelineRun.Name)})
 	if err != nil {
 		testsuit.T.Errorf(fmt.Sprintf("Error listing TaskRuns for PipelineRun %s: %v", pipelineRun.Name, err))
 	}
@@ -92,7 +91,7 @@ func validatePipelineRunTimeoutFailure(c *clients.Clients, prname, namespace str
 		}
 	}
 
-	if _, err := c.PipelineRunClient.Get(pipelineRun.Name, metav1.GetOptions{}); err != nil {
+	if _, err := c.PipelineRunClient.Get(c.Ctx, pipelineRun.Name, metav1.GetOptions{}); err != nil {
 		testsuit.T.Errorf(fmt.Sprintf("Failed to get PipelineRun `%s`: %s", pipelineRun.Name, err))
 	}
 
@@ -113,7 +112,7 @@ func validatePipelineRunTimeoutFailure(c *clients.Clients, prname, namespace str
 	}
 	wg.Wait()
 
-	if _, err := c.PipelineRunClient.Get(pipelineRun.Name, metav1.GetOptions{}); err != nil {
+	if _, err := c.PipelineRunClient.Get(c.Ctx, pipelineRun.Name, metav1.GetOptions{}); err != nil {
 		testsuit.T.Errorf(fmt.Sprintf("Failed to get PipelineRun `%s`: %s", pipelineRun.Name, err))
 	}
 }
@@ -126,7 +125,7 @@ func validatePipelineRunCancel(c *clients.Clients, prname, namespace string) {
 		testsuit.T.Errorf(fmt.Sprintf("Error waiting for PipelineRun %s to be running: %s", prname, err))
 	}
 
-	taskrunList, err := c.TaskRunClient.List(metav1.ListOptions{LabelSelector: fmt.Sprintf("tekton.dev/pipelineRun=%s", prname)})
+	taskrunList, err := c.TaskRunClient.List(c.Ctx, metav1.ListOptions{LabelSelector: fmt.Sprintf("tekton.dev/pipelineRun=%s", prname)})
 	if err != nil {
 		testsuit.T.Errorf(fmt.Sprintf("Error listing TaskRuns for PipelineRun %s: %s", prname, err))
 	}
@@ -145,7 +144,7 @@ func validatePipelineRunCancel(c *clients.Clients, prname, namespace string) {
 	}
 	wg.Wait()
 
-	pr, err := c.PipelineRunClient.Get(prname, metav1.GetOptions{})
+	pr, err := c.PipelineRunClient.Get(c.Ctx, prname, metav1.GetOptions{})
 	assert.NoError(err, fmt.Sprintf("Error Getting PipelineRun %s under namespace %s ", prname, namespace))
 
 	patches := []jsonpatch.JsonPatchOperation{{
@@ -156,7 +155,7 @@ func validatePipelineRunCancel(c *clients.Clients, prname, namespace string) {
 	patchBytes, err := json.Marshal(patches)
 	assert.NoError(err, fmt.Sprintf("failed to marshal patch bytes in order to cancel"))
 
-	if _, err := c.PipelineRunClient.Patch(pr.Name, types.JSONPatchType, patchBytes, ""); err != nil {
+	if _, err := c.PipelineRunClient.Patch(c.Ctx, pr.Name, types.JSONPatchType, patchBytes, metav1.PatchOptions{}, ""); err != nil {
 		testsuit.T.Errorf(fmt.Sprintf("Failed to patch PipelineRun `%s` with cancellation", prname))
 	}
 
@@ -179,7 +178,7 @@ func validatePipelineRunCancel(c *clients.Clients, prname, namespace string) {
 
 func ValidatePipelineRun(c *clients.Clients, prname, status, labelCheck, namespace string) {
 	var err error
-	pr, err := c.PipelineRunClient.Get(prname, metav1.GetOptions{})
+	pr, err := c.PipelineRunClient.Get(c.Ctx, prname, metav1.GetOptions{})
 	assert.NoError(err, fmt.Sprintf("Error Getting PipelineRun %s under namespace %s ", prname, namespace))
 
 	// Verify status of PipelineRun (wait for it)
@@ -203,7 +202,7 @@ func ValidatePipelineRun(c *clients.Clients, prname, status, labelCheck, namespa
 
 func WatchForPipelineRun(c *clients.Clients, namespace string) {
 	var prnames = []string{}
-	watchRun, err := k8s.Watch(prGroupResource, c, namespace, metav1.ListOptions{})
+	watchRun, err := k8s.Watch(c.Ctx, prGroupResource, c, namespace, metav1.ListOptions{})
 	assert.NoError(err, fmt.Sprintf("failed to pipelineruns on a namespace %s", namespace))
 	ch := watchRun.ResultChan()
 	go func() {
@@ -238,7 +237,7 @@ func cast2pipelinerun(obj runtime.Object) (*v1beta1.PipelineRun, error) {
 func AssertForNoNewPipelineRunCreation(c *clients.Clients, namespace string) {
 	count := 0
 	expectedCount := gauge.GetScenarioStore()["prcount"].(int)
-	watchRun, err := k8s.Watch(prGroupResource, c, namespace, metav1.ListOptions{})
+	watchRun, err := k8s.Watch(c.Ctx, prGroupResource, c, namespace, metav1.ListOptions{})
 	assert.NoError(err, fmt.Sprintf("failed to get tekton resources on a namespace %s", namespace))
 	ch := watchRun.ResultChan()
 	go func() {

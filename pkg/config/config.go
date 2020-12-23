@@ -22,21 +22,17 @@ const (
 	// APITimeout defines the amount of time we should spend querying the k8s api
 	// when waiting for a specific condition to be true.
 	APITimeout = time.Minute * 20
+	// Timeout httpClient
+	Timeout = time.Second * 10
 
-	// CleanupRetry is the interval at which test framework attempts cleanup
-	CleanupRetry = time.Second * 10
+	// ConsistentlyDuration sets  the default duration for Consistently. Consistently will verify that your condition is satisfied for this long.
+	ConsistentlyDuration = 30 * time.Second
 
-	// CleanupTimeout is the wait time for test framework cleanup
-	CleanupTimeout = time.Second * 180
+	//TektonConfigName specify the name of tekton config
+	TektonConfigName = "config"
 
-	// TestOperatorName specifies the name of the operator being tested
-	TestOperatorName = "openshift-pipelines-operator"
-
-	DefaultSA            = "pipeline"
-	DefaultIgnorePattern = "^(openshift|kube)-"
-
-	ClusterCRName   = "cluster"
-	DefaultTargetNs = "openshift-pipelines"
+	//TargetNamespace specify the name of Target namespace
+	TargetNamespace = "openshift-pipelines"
 
 	// Name of the pipeline controller deployment
 	PipelineControllerName = "tekton-pipelines-controller"
@@ -49,15 +45,6 @@ const (
 	// Name of the trigger deployment
 	TriggerControllerName = "tekton-triggers-controller"
 	TriggerWebhookName    = "tekton-triggers-webhook"
-
-	//Interval time defines, frequency at which it checks for resources
-	Interval = 1 * time.Second
-
-	//Timeout defines the amount of time we should spend waiting for the resource when condition is true
-	Timeout = 10 * time.Minute
-
-	// ConsistentlyDuration sets  the default duration for Consistently. Consistently will verify that your condition is satisfied for this long.
-	ConsistentlyDuration = 30 * time.Second
 )
 
 // Flags holds the command line flags or defaults for settings in the user's environment.
@@ -67,15 +54,16 @@ var Flags = initializeFlags()
 
 // EnvironmentFlags define the flags that are needed to run the e2e tests.
 type EnvironmentFlags struct {
-	Cluster         string // K8s cluster (defaults to cluster in kubeconfig)
-	Kubeconfig      string // Path to kubeconfig (defaults to ./kube/config)
-	DockerRepo      string // Docker repo (defaults to $KO_DOCKER_REPO)
-	CSV             string // Default csv openshift-pipelines-operator.v0.9.1
-	Channel         string // Default channel canary
-	CatalogSource   string
-	InstallPlan     string // Default Installationplan Automatic
-	OperatorVersion string
-	TknVersion      string
+	Cluster          string // K8s cluster (defaults to cluster in kubeconfig)
+	Kubeconfig       string // Path to kubeconfig (defaults to ./kube/config)
+	DockerRepo       string // Docker repo (defaults to $KO_DOCKER_REPO)
+	CSV              string // Default csv openshift-pipelines-operator.v0.9.1
+	Channel          string // Default channel canary
+	CatalogSource    string
+	SubscriptionName string
+	InstallPlan      string // Default Installationplan Automatic
+	OperatorVersion  string
+	TknVersion       string
 }
 
 func initializeFlags() *EnvironmentFlags {
@@ -105,6 +93,10 @@ func initializeFlags() *EnvironmentFlags {
 	flag.StringVar(&f.CatalogSource, "catalogsource", defaultCatalogSource,
 		"Provide defaultCatalogSource to subscribe operator from. By default `pre-stage-operators` will be used.")
 
+	defaultSubscriptionName := os.Getenv("SUBSCRIPTION_NAME")
+	flag.StringVar(&f.SubscriptionName, "subscriptionName", defaultSubscriptionName,
+		"Provide defaultSubscriptionName to operator, By default `openshift-pipelines-operator-rh` will be used.")
+
 	defaultPlan := os.Getenv("INSTALL_PLAN")
 	flag.StringVar(&f.InstallPlan, "installplan", defaultPlan,
 		"Provide Install Approval plan for your operator you'd like to use for these tests. By default `Automatic` will be used.")
@@ -120,12 +112,13 @@ func initializeFlags() *EnvironmentFlags {
 	defaultTkn := os.Getenv("TKN_VERSION")
 	flag.StringVar(&f.TknVersion, "tknversion", defaultTkn,
 		"Provide tknversion to download specified cli binary you'd like to use for these tests. By default `0.6.0` will be used.")
+
 	return &f
 }
 
 func Dir() string {
 	_, b, _, _ := runtime.Caller(0)
-	configDir := path.Join(path.Dir(b), "..", "..", "config")
+	configDir := path.Join(path.Dir(b), "..", "..", "template")
 	return configDir
 }
 
@@ -156,7 +149,7 @@ func TempFile(elem ...string) (string, error) {
 	return filepath.Join(path...), nil
 }
 
-func DltTempDir() {
+func RemoveTempDir() {
 	var err error
 	tmp, _ := TempDir()
 	err = os.RemoveAll(tmp)
@@ -177,4 +170,15 @@ func ReadBytes(elem string) ([]byte, error) {
 		return nil, fmt.Errorf("couldn't load test data example PullRequest event data: %v", err)
 	}
 	return bytes, nil
+}
+
+// ResourceNames holds names of various resources.
+type ResourceNames struct {
+	TektonPipeline  string
+	TektonTrigger   string
+	TektonDashboard string
+	TektonAddon     string
+	TektonConfig    string
+	Namespace       string
+	TargetNamespace string
 }
