@@ -27,7 +27,7 @@ var (
 )
 
 // Subscription helps you to subscribe openshift-pipelines-operator-rh
-func Subscription(subscriptionName, channel string) *v1alpha1.Subscription {
+func Subscription(subscriptionName, channel, catalogsource string) *v1alpha1.Subscription {
 	//namespace, name, catalogSourceName, packageName, channel string, approval v1alpha1.Approval
 	return &v1alpha1.Subscription{
 		TypeMeta: metav1.TypeMeta{
@@ -39,7 +39,7 @@ func Subscription(subscriptionName, channel string) *v1alpha1.Subscription {
 			Name:      subscriptionName,
 		},
 		Spec: &v1alpha1.SubscriptionSpec{
-			CatalogSource:          "redhat-operators",
+			CatalogSource:          catalogsource,
 			CatalogSourceNamespace: OLMNamespace,
 			Package:                subscriptionName,
 			Channel:                channel,
@@ -48,8 +48,8 @@ func Subscription(subscriptionName, channel string) *v1alpha1.Subscription {
 	}
 }
 
-func SubscribeAndWaitForOperatorToBeReady(cs *clients.Clients, subscriptionName, channel string) (*v1alpha1.Subscription, error) {
-	if _, err := createSubscription(cs, subscriptionName, channel); err != nil {
+func SubscribeAndWaitForOperatorToBeReady(cs *clients.Clients, subscriptionName, channel, catalogsource string) (*v1alpha1.Subscription, error) {
+	if _, err := createSubscription(cs, subscriptionName, channel, catalogsource); err != nil {
 		return nil, err
 	}
 
@@ -94,8 +94,8 @@ func getSubcription(cs *clients.Clients, name string) *v1alpha1.Subscription {
 	return subscription
 }
 
-func createSubscription(cs *clients.Clients, name, channel string) (*v1alpha1.Subscription, error) {
-	subs, err := cs.OLM.OperatorsV1alpha1().Subscriptions(OperatorsNamespace).Create(Subscription(name, channel))
+func createSubscription(cs *clients.Clients, name, channel, catalogsource string) (*v1alpha1.Subscription, error) {
+	subs, err := cs.OLM.OperatorsV1alpha1().Subscriptions(OperatorsNamespace).Create(Subscription(name, channel, catalogsource))
 	if err != nil {
 		return nil, err
 	}

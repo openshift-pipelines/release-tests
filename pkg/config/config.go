@@ -72,6 +72,7 @@ type EnvironmentFlags struct {
 	DockerRepo      string // Docker repo (defaults to $KO_DOCKER_REPO)
 	CSV             string // Default csv openshift-pipelines-operator.v0.9.1
 	Channel         string // Default channel canary
+	CatalogSource   string
 	InstallPlan     string // Default Installationplan Automatic
 	OperatorVersion string
 	TknVersion      string
@@ -99,6 +100,10 @@ func initializeFlags() *EnvironmentFlags {
 	defaultChannel := os.Getenv("CHANNEL")
 	flag.StringVar(&f.Channel, "channel", defaultChannel,
 		"Provide channel to subcribe your operator you'd like to use for these tests. By default `canary` will be used.")
+
+	defaultCatalogSource := os.Getenv("CATALOG_SOURCE")
+	flag.StringVar(&f.CatalogSource, "catalogsource", defaultCatalogSource,
+		"Provide defaultCatalogSource to subscribe operator from. By default `redhat-operators` will be used.")
 
 	defaultPlan := os.Getenv("INSTALL_PLAN")
 	flag.StringVar(&f.InstallPlan, "installplan", defaultPlan,

@@ -22,7 +22,7 @@ var _ = gauge.Step("Validate Operator should be installed", func() {
 
 var _ = gauge.Step("Subscribe to operator", func() {
 	// Creates subscription yaml with configured details from env/test/test.properties
-	_, err := olm.SubscribeAndWaitForOperatorToBeReady(store.Clients(), "openshift-pipelines-operator-rh", config.Flags.Channel)
+	_, err := olm.SubscribeAndWaitForOperatorToBeReady(store.Clients(), "openshift-pipelines-operator-rh", config.Flags.Channel, config.Flags.CatalogSource)
 	assert.NoError(err, fmt.Sprintf("failed to Subscribe :%s", err))
 })
 
