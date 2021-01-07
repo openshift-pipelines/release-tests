@@ -103,7 +103,7 @@ func initializeFlags() *EnvironmentFlags {
 
 	defaultCatalogSource := os.Getenv("CATALOG_SOURCE")
 	flag.StringVar(&f.CatalogSource, "catalogsource", defaultCatalogSource,
-		"Provide defaultCatalogSource to subscribe operator from. By default `redhat-operators` will be used.")
+		"Provide defaultCatalogSource to subscribe operator from. By default `pre-stage-operators` will be used.")
 
 	defaultPlan := os.Getenv("INSTALL_PLAN")
 	flag.StringVar(&f.InstallPlan, "installplan", defaultPlan,
