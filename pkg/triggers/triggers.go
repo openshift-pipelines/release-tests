@@ -28,16 +28,16 @@ import (
 
 func ExposeEventListner(c *clients.Clients, elname, namespace string) string {
 	// Verify the EventListener to be ready
-	err := wait.WaitFor(wait.EventListenerReady(c, namespace, elname))
+	err := wait.WaitFor(c.Ctx, wait.EventListenerReady(c, namespace, elname))
 	assert.NoError(err, fmt.Sprintf("EventListener not %s ready", elname))
 
 	labelSelector := fields.SelectorFromSet(eventReconciler.GenerateResourceLabels(elname)).String()
 	// Grab EventListener sink pods
-	sinkPods, err := c.KubeClient.Kube.CoreV1().Pods(namespace).List(metav1.ListOptions{LabelSelector: labelSelector})
+	sinkPods, err := c.KubeClient.Kube.CoreV1().Pods(namespace).List(c.Ctx, metav1.ListOptions{LabelSelector: labelSelector})
 	assert.NoError(err, fmt.Sprintf("Error listing EventListener sink pods"))
 	log.Printf("sinkpod name: %s", sinkPods.Items[0].Name)
 
-	serviceList, err := c.KubeClient.Kube.CoreV1().Services(namespace).List(metav1.ListOptions{LabelSelector: labelSelector})
+	serviceList, err := c.KubeClient.Kube.CoreV1().Services(namespace).List(c.Ctx, metav1.ListOptions{LabelSelector: labelSelector})
 	assert.NoError(err, fmt.Sprintf("Error listing services"))
 
 	cmd.MustSucceed("oc", "expose", "service", serviceList.Items[0].Name, "-n", namespace)
@@ -105,7 +105,7 @@ func AssertElResponse(c *clients.Clients, resp *http.Response, elname, namespace
 
 	labelSelector := fields.SelectorFromSet(eventReconciler.GenerateResourceLabels(elname)).String()
 	// Grab EventListener sink pods
-	sinkPods, err := c.KubeClient.Kube.CoreV1().Pods(namespace).List(metav1.ListOptions{LabelSelector: labelSelector})
+	sinkPods, err := c.KubeClient.Kube.CoreV1().Pods(namespace).List(c.Ctx, metav1.ListOptions{LabelSelector: labelSelector})
 	assert.NoError(err, fmt.Sprintf("Error listing EventListener sink pods"))
 	logs := cmd.MustSucceed("oc", "-n", namespace, "logs", "pods/"+sinkPods.Items[0].Name, "--all-containers", "--tail=2").Stdout()
 	if strings.Contains(logs, "error") {
@@ -116,19 +116,19 @@ func AssertElResponse(c *clients.Clients, resp *http.Response, elname, namespace
 
 func CleanupTriggers(c *clients.Clients, elName, namespace string) {
 	// Delete EventListener
-	err := c.TriggersClient.TriggersV1alpha1().EventListeners(namespace).Delete(elName, &metav1.DeleteOptions{})
+	err := c.TriggersClient.TriggersV1alpha1().EventListeners(namespace).Delete(c.Ctx, elName, metav1.DeleteOptions{})
 	assert.FailOnError(err)
 
 	log.Println("Deleted EventListener")
 
 	// Verify the EventListener's Deployment is deleted
-	err = wait.WaitFor(wait.DeploymentNotExist(c, namespace, fmt.Sprintf("%s-%s", eventReconciler.GeneratedResourcePrefix, elName)))
+	err = wait.WaitFor(c.Ctx, wait.DeploymentNotExist(c, namespace, fmt.Sprintf("%s-%s", eventReconciler.GeneratedResourcePrefix, elName)))
 	assert.FailOnError(err)
 
 	log.Println("EventListener's Deployment was deleted")
 
 	// Verify the EventListener's Service is deleted
-	err = wait.WaitFor(wait.ServiceNotExist(c, namespace, fmt.Sprintf("%s-%s", eventReconciler.GeneratedResourcePrefix, elName)))
+	err = wait.WaitFor(c.Ctx, wait.ServiceNotExist(c, namespace, fmt.Sprintf("%s-%s", eventReconciler.GeneratedResourcePrefix, elName)))
 	assert.FailOnError(err)
 
 	log.Println("EventListener's Service was deleted")
