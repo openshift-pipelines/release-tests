@@ -1,41 +1,108 @@
 package clients
 
 import (
-	"context"
 	"fmt"
+	"sync"
+	"time"
 
-	"k8s.io/apimachinery/pkg/runtime"
-	"k8s.io/client-go/dynamic"
-	"k8s.io/client-go/kubernetes"
-	"k8s.io/client-go/rest"
-	"k8s.io/client-go/tools/clientcmd"
+	goctx "context"
 
 	olmversioned "github.com/operator-framework/operator-lifecycle-manager/pkg/api/client/clientset/versioned"
-	"github.com/tektoncd/operator/pkg/client/clientset/versioned"
-	operatorv1alpha1 "github.com/tektoncd/operator/pkg/client/clientset/versioned/typed/operator/v1alpha1"
-	pversioned "github.com/tektoncd/pipeline/pkg/client/clientset/versioned"
+	"github.com/tektoncd/operator/pkg/apis"
+	op "github.com/tektoncd/operator/pkg/apis/operator/v1alpha1"
+	"github.com/tektoncd/pipeline/pkg/client/clientset/versioned"
 	"github.com/tektoncd/pipeline/pkg/client/clientset/versioned/typed/pipeline/v1alpha1"
 	"github.com/tektoncd/pipeline/pkg/client/clientset/versioned/typed/pipeline/v1beta1"
 	resourceversioned "github.com/tektoncd/pipeline/pkg/client/resource/clientset/versioned"
 	resourcev1alpha1 "github.com/tektoncd/pipeline/pkg/client/resource/clientset/versioned/typed/resource/v1alpha1"
 	triggersclientset "github.com/tektoncd/triggers/pkg/client/clientset/versioned"
+	extscheme "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset/scheme"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/apimachinery/pkg/runtime/serializer"
+	"k8s.io/apimachinery/pkg/util/wait"
+	cached "k8s.io/client-go/discovery/cached/memory"
+	"k8s.io/client-go/dynamic"
+	"k8s.io/client-go/kubernetes"
+	cgoscheme "k8s.io/client-go/kubernetes/scheme"
+	"k8s.io/client-go/rest"
+	"k8s.io/client-go/restmapper"
+	"k8s.io/client-go/tools/clientcmd"
+	dynclient "sigs.k8s.io/controller-runtime/pkg/client"
 )
+
+var (
+	// Global framework struct
+	// mutex for AddToFrameworkScheme
+	mutex = sync.Mutex{}
+
+	// decoder used by createFromYaml
+	//dynamicDecoder runtime.Decoder
+	// restMapper for the dynamic client
+	restMapper *restmapper.DeferredDiscoveryRESTMapper
+)
+
+type frameworkClient struct {
+	dynclient.Client
+}
+
+var _ FrameworkClient = &frameworkClient{}
+
+type FrameworkClient interface {
+	Get(gCtx goctx.Context, key dynclient.ObjectKey, obj runtime.Object) error
+	List(gCtx goctx.Context, opts *dynclient.ListOptions, list runtime.Object) error
+	Create(gCtx goctx.Context, obj runtime.Object) error
+	Delete(gCtx goctx.Context, obj runtime.Object, opts ...dynclient.DeleteOption) error
+	Update(gCtx goctx.Context, obj runtime.Object) error
+}
+
+// Create uses the dynamic client to create an object and then adds a
+// cleanup function to delete it when Cleanup is called. In addition to
+// the standard controller-runtime client options
+func (f *frameworkClient) Create(gCtx goctx.Context, obj runtime.Object) error {
+	objCopy := obj.DeepCopyObject()
+	err := f.Client.Create(gCtx, obj)
+	if err != nil {
+		return err
+	}
+
+	_, err1 := dynclient.ObjectKeyFromObject(objCopy)
+	if err1 != nil {
+		return err1
+	}
+	return nil
+}
+
+func (f *frameworkClient) Get(gCtx goctx.Context, key dynclient.ObjectKey, obj runtime.Object) error {
+	return f.Client.Get(gCtx, key, obj)
+}
+
+func (f *frameworkClient) List(gCtx goctx.Context, opts *dynclient.ListOptions, list runtime.Object) error {
+	return f.Client.List(gCtx, list, opts)
+}
+
+func (f *frameworkClient) Delete(gCtx goctx.Context, obj runtime.Object, opts ...dynclient.DeleteOption) error {
+	return f.Client.Delete(gCtx, obj, opts...)
+}
+
+func (f *frameworkClient) Update(gCtx goctx.Context, obj runtime.Object) error {
+	return f.Client.Update(gCtx, obj)
+}
 
 // KubeClient holds instances of interfaces for making requests to kubernetes client.
 type KubeClient struct {
 	Kube *kubernetes.Clientset
 }
 
-// Clients holds instances of interfaces for making requests to Tekton Pipelines.
+// Clients holds instances of interfaces for making requests to the Pipeline controllers.
 type Clients struct {
+	Client                 *frameworkClient
 	KubeClient             *KubeClient
-	Ctx                    context.Context
-	Dynamic                dynamic.Interface
-	Operator               operatorv1alpha1.OperatorV1alpha1Interface
 	KubeConfig             *rest.Config
 	Scheme                 *runtime.Scheme
 	OLM                    olmversioned.Interface
-	Tekton                 pversioned.Interface
+	Dynamic                dynamic.Interface
+	Tekton                 versioned.Interface
 	PipelineClient         v1beta1.PipelineInterface
 	TaskClient             v1beta1.TaskInterface
 	TaskRunClient          v1beta1.TaskRunInterface
@@ -45,79 +112,19 @@ type Clients struct {
 	TriggersClient         triggersclientset.Interface
 }
 
-// NewClients instantiates and returns several clientsets required for making request to the
-// TektonPipeline cluster specified by the combination of clusterName and configPath.
-func NewClients(configPath string, clusterName, namespace string) (*Clients, error) {
-	var err error
-	clients := &Clients{}
-
-	clients.KubeClient, clients.KubeConfig, err = NewKubeClient(configPath, clusterName)
-	if err != nil {
-		return nil, fmt.Errorf("failed to create kubeclient from config file at %s: %s", configPath, err)
-	}
-
-	// We poll, so set our limits high.
-	clients.KubeConfig.QPS = 100
-	clients.KubeConfig.Burst = 200
-
-	ctx := context.Background()
-	// ctx, cancel := context.WithCancel(ctx)
-	// defer cancel()
-	clients.Ctx = ctx
-
-	clients.Dynamic, err = dynamic.NewForConfig(clients.KubeConfig)
-	if err != nil {
-		return nil, fmt.Errorf("Failed to create dynamic clients from config file at %s: %s", configPath, err)
-	}
-
-	clients.Operator, err = newTektonOperatorAlphaClients(clients.KubeConfig)
-	if err != nil {
-		return nil, fmt.Errorf("Failed to create Operator v1alpha1 clients from config file at %s: %s", configPath, err)
-	}
-
-	clients.OLM, err = olmversioned.NewForConfig(clients.KubeConfig)
-	if err != nil {
-		return nil, fmt.Errorf("Failed to create olm clients from config file at %s: %s", configPath, err)
-	}
-
-	clients.Tekton, err = pversioned.NewForConfig(clients.KubeConfig)
-	if err != nil {
-		return nil, fmt.Errorf("failed to create pipeline clientset from config file at %s: %s", configPath, err)
-	}
-
-	rcs, err := resourceversioned.NewForConfig(clients.KubeConfig)
-	if err != nil {
-		return nil, fmt.Errorf("Failed to create resource clientset from config file at %s: %s", configPath, err)
-	}
-
-	clients.TriggersClient, err = triggersclientset.NewForConfig(clients.KubeConfig)
-	if err != nil {
-		return nil, fmt.Errorf("Failed to create triggers clientset from config file at %s: %s", configPath, err)
-	}
-
-	clients.PipelineClient = clients.Tekton.TektonV1beta1().Pipelines(namespace)
-	clients.TaskClient = clients.Tekton.TektonV1beta1().Tasks(namespace)
-	clients.TaskRunClient = clients.Tekton.TektonV1beta1().TaskRuns(namespace)
-	clients.PipelineRunClient = clients.Tekton.TektonV1beta1().PipelineRuns(namespace)
-	clients.PipelineResourceClient = rcs.TektonV1alpha1().PipelineResources(namespace)
-	clients.ConditionClient = clients.Tekton.TektonV1alpha1().Conditions(namespace)
-
-	return clients, nil
-}
-
 // NewKubeClient instantiates and returns several clientsets required for making request to the
 // kube client specified by the combination of clusterName and configPath. Clients can make requests within namespace.
-func NewKubeClient(configPath string, clusterName string) (*KubeClient, *rest.Config, error) {
+func NewKubeClient(configPath string, clusterName string) (*KubeClient, error) {
 	cfg, err := BuildClientConfig(configPath, clusterName)
 	if err != nil {
-		return nil, nil, err
+		return nil, err
 	}
 
 	k, err := kubernetes.NewForConfig(cfg)
 	if err != nil {
-		return nil, nil, err
+		return nil, err
 	}
-	return &KubeClient{Kube: k}, cfg, nil
+	return &KubeClient{Kube: k}, nil
 }
 
 // BuildClientConfig builds the client config specified by the config path and the cluster name
@@ -132,30 +139,126 @@ func BuildClientConfig(kubeConfigPath string, clusterName string) (*rest.Config,
 		&overrides).ClientConfig()
 }
 
-func newTektonOperatorAlphaClients(cfg *rest.Config) (operatorv1alpha1.OperatorV1alpha1Interface, error) {
-	cs, err := versioned.NewForConfig(cfg)
+// NewClients instantiates and returns several clientsets required for making requests to the
+// Pipeline cluster specified by the combination of clusterName and configPath. Clients can
+// make requests within namespace.
+func NewClients(configPath, clusterName, namespace string) (*Clients, error) {
+
+	var err error
+	c := &Clients{}
+
+	c.KubeClient, err = NewKubeClient(configPath, clusterName)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to create kubeclient from config file at %s: %s", configPath, err)
 	}
-	return cs.OperatorV1alpha1(), nil
+
+	c.KubeConfig, err = BuildClientConfig(configPath, clusterName)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create configuration obj from %s for cluster %s: %s", configPath, clusterName, err)
+	}
+
+	scheme := runtime.NewScheme()
+	if err := cgoscheme.AddToScheme(scheme); err != nil {
+		return nil, fmt.Errorf("failed to add cgo scheme to runtime scheme: (%v)", err)
+	}
+	if err := extscheme.AddToScheme(scheme); err != nil {
+		return nil, fmt.Errorf("failed to add api extensions scheme to runtime scheme: (%v)", err)
+	}
+	cachedDiscoveryClient := cached.NewMemCacheClient(c.KubeClient.Kube.Discovery())
+	restMapper = restmapper.NewDeferredDiscoveryRESTMapper(cachedDiscoveryClient)
+	restMapper.Reset()
+	dynClient, err := dynclient.New(c.KubeConfig, dynclient.Options{Scheme: scheme, Mapper: restMapper})
+	if err != nil {
+		return nil, fmt.Errorf("failed to build the dynamic client: %v", err)
+	}
+	serializer.NewCodecFactory(scheme).UniversalDeserializer()
+	c.Scheme = scheme
+	c.Client = &frameworkClient{Client: dynClient}
+
+	cs, err := versioned.NewForConfig(c.KubeConfig)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create pipeline clientset from config file at %s: %s", configPath, err)
+	}
+	c.Tekton = cs
+
+	rcs, err := resourceversioned.NewForConfig(c.KubeConfig)
+	if err != nil {
+		return nil, fmt.Errorf("Failed to create resource clientset from config file at %s: %s", configPath, err)
+	}
+
+	c.TriggersClient, err = triggersclientset.NewForConfig(c.KubeConfig)
+	if err != nil {
+		return nil, fmt.Errorf("Failed to create triggers clientset from config file at %s: %s", configPath, err)
+	}
+
+	c.Dynamic, err = dynamic.NewForConfig(c.KubeConfig)
+	if err != nil {
+		return nil, fmt.Errorf("Failed to create dynamic clients from config file at %s: %s", configPath, err)
+	}
+
+	c.OLM, err = olmversioned.NewForConfig(c.KubeConfig)
+	if err != nil {
+		return nil, fmt.Errorf("Failed to create olm clients from config file at %s: %s", configPath, err)
+	}
+
+	c.PipelineClient = cs.TektonV1beta1().Pipelines(namespace)
+	c.TaskClient = cs.TektonV1beta1().Tasks(namespace)
+	c.TaskRunClient = cs.TektonV1beta1().TaskRuns(namespace)
+	c.PipelineRunClient = cs.TektonV1beta1().PipelineRuns(namespace)
+	c.PipelineResourceClient = rcs.TektonV1alpha1().PipelineResources(namespace)
+	c.ConditionClient = cs.TektonV1alpha1().Conditions(namespace)
+	return c, nil
 }
 
-func (c *Clients) TektonPipeline() operatorv1alpha1.TektonPipelineInterface {
-	return c.Operator.TektonPipelines()
+type addToSchemeFunc func(*runtime.Scheme) error
+
+// AddToFrameworkScheme allows users to add the scheme for their custom resources
+// to the framework's scheme for use with the dynamic client. The user provides
+// the addToScheme function (located in the register.go file of their operator
+// project) and the List struct for their custom resource. For example, for a
+// memcached operator, the list stuct may look like:
+// &MemcachedList{}
+// The List object is needed because the CRD has not always been fully registered
+// by the time this function is called. If the CRD takes more than 5 seconds to
+// become ready, this function throws an error
+func AddToFrameworkScheme(addToScheme addToSchemeFunc, obj runtime.Object, c *Clients) (*Clients, error) {
+	mutex.Lock()
+	defer mutex.Unlock()
+	err := addToScheme(c.Scheme)
+	if err != nil {
+		return c, err
+	}
+	restMapper.Reset()
+	dynClient, err := dynclient.New(c.KubeConfig, dynclient.Options{Scheme: c.Scheme, Mapper: restMapper})
+	if err != nil {
+		return c, fmt.Errorf("failed to initialize new dynamic client: (%v)", err)
+	}
+	err = wait.PollImmediate(time.Second, time.Second*10, func() (done bool, err error) {
+		err = dynClient.List(goctx.TODO(), obj, &dynclient.ListOptions{Namespace: "default"})
+		if err != nil {
+			restMapper.Reset()
+			return false, nil
+		}
+		c.Client = &frameworkClient{Client: dynClient}
+		return true, nil
+	})
+	if err != nil {
+		return c, fmt.Errorf("failed to build the dynamic client: %v", err)
+	}
+	serializer.NewCodecFactory(c.Scheme).UniversalDeserializer()
+	return c, nil
 }
 
-func (c *Clients) TektonTrigger() operatorv1alpha1.TektonTriggerInterface {
-	return c.Operator.TektonTriggers()
-}
+func InitTestingFramework(c *Clients) (*Clients, error) {
+	apiVersion := "operator.tekton.dev/v1alpha1"
+	kind := "Config"
 
-func (c *Clients) TektonDashboard() operatorv1alpha1.TektonDashboardInterface {
-	return c.Operator.TektonDashboards()
-}
+	configList := &op.ConfigList{
+		TypeMeta: metav1.TypeMeta{
+			Kind:       kind,
+			APIVersion: apiVersion,
+		},
+	}
 
-func (c *Clients) TektonAddon() operatorv1alpha1.TektonAddonInterface {
-	return c.Operator.TektonAddons()
-}
-
-func (c *Clients) TektonConfig() operatorv1alpha1.TektonConfigInterface {
-	return c.Operator.TektonConfigs()
+	return AddToFrameworkScheme(apis.AddToScheme, configList, c)
 }

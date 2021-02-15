@@ -1,29 +1,27 @@
 package steps
 
 import (
+	"log"
+	"os"
+	"strings"
+
 	"github.com/getgauge-contrib/gauge-go/gauge"
 	"github.com/getgauge-contrib/gauge-go/testsuit"
-	"github.com/openshift-pipelines/release-tests/pkg/config"
+	"github.com/openshift-pipelines/release-tests/pkg/cmd"
 	"github.com/openshift-pipelines/release-tests/pkg/k8s"
 )
 
 // Runs Before every Secenario
 var _ = gauge.BeforeScenario(func() {
 	cs, namespace, cleanup := k8s.NewClientSet()
-	crNames := config.ResourceNames{
-		TektonPipeline:  "pipeline",
-		TektonTrigger:   "trigger",
-		TektonAddon:     "addon",
-		TektonConfig:    config.TektonConfigName,
-		Namespace:       "",
-		TargetNamespace: config.TargetNamespace,
-	}
-
 	store := gauge.GetScenarioStore()
-	store["crnames"] = crNames
 	store["clients"] = cs
 	store["namespace"] = namespace
 	store["scenario.cleanup"] = cleanup
+	if strings.Contains(strings.ToLower(os.Getenv("OPERATOR_ENV")), "stage") {
+		log.Printf("Running on (stage) environment : %s", os.Getenv("OPERATOR_ENV"))
+		cmd.MustSucceed("oc", "policy", "add-role-to-user", "system:image-puller", "-z", "pipeline", "-n", namespace)
+	}
 }, []string{}, testsuit.AND)
 
 // Runs After every Secenario

@@ -1,39 +1,33 @@
 module github.com/openshift-pipelines/release-tests
 
-go 1.14
+go 1.13
 
 require (
-	github.com/Netflix/go-expect v0.0.0-20201125194554-85d881c3777e
+	github.com/Netflix/go-expect v0.0.0-20190729225929-0e00d9168667
+	github.com/docker/docker v1.13.1
 	github.com/getgauge-contrib/gauge-go v0.1.4
-	github.com/getgauge/common v0.0.0-20200824023809-24587c106922 // indirect
-	github.com/google/go-cmp v0.5.4
-	github.com/manifestival/client-go-client v0.4.0
-	github.com/manifestival/controller-runtime-client v0.3.0 // indirect
-	github.com/manifestival/manifestival v0.6.1
-	github.com/openshift/api v0.0.0-20200331152225-585af27e34fd
-	github.com/openshift/client-go v0.0.0-20200326155132-2a6cd50aedd0
-	github.com/operator-framework/api v0.3.20
-	github.com/operator-framework/operator-lifecycle-manager v0.17.0
-	github.com/operator-framework/operator-sdk v0.17.0 // indirect
+	github.com/getgauge/common v0.0.0-20200429105102-5b0a7c1a1bd6 // indirect
+	github.com/google/go-cmp v0.5.0
+	github.com/openshift/api v3.9.1-0.20190924102528-32369d4db2ad+incompatible
+	github.com/openshift/client-go v0.0.0-20190923180330-3b6373338c9b
+	github.com/operator-framework/operator-lifecycle-manager v0.0.0-20200321030439-57b580e57e88
 	github.com/pkg/errors v0.9.1
-	github.com/tektoncd/operator v0.15.2-1.0.20201218101805-8934fc40c87c
-	github.com/tektoncd/pipeline v0.19.0
-	github.com/tektoncd/triggers v0.10.2
-	go.opencensus.io v0.22.5
+	github.com/tektoncd/operator v0.0.0-20200505103736-ab3f9da795f4
+	github.com/tektoncd/pipeline v0.14.2
+	github.com/tektoncd/triggers v0.6.1
+	go.opencensus.io v0.22.3
 	gomodules.xyz/jsonpatch/v2 v2.1.0
-	gotest.tools/v3 v3.0.3
-	k8s.io/api v0.18.12
-	k8s.io/apiextensions-apiserver v0.18.12
-	k8s.io/apimachinery v0.19.0
+	gotest.tools/v3 v3.0.2
+	k8s.io/api v0.18.2
+	k8s.io/apiextensions-apiserver v0.18.2
+	k8s.io/apimachinery v0.19.3
 	k8s.io/client-go v12.0.0+incompatible
-	knative.dev/pkg v0.0.0-20201218185703-e41409af6cff
-	sigs.k8s.io/controller-runtime v0.6.2
+	knative.dev/pkg v0.0.0-20200528142800-1c6815d7e4c9
+	sigs.k8s.io/controller-runtime v0.5.2
 )
 
-// Pin k8s deps to 0.18.8
 replace (
-	k8s.io/api => k8s.io/api v0.18.8
-	k8s.io/apimachinery => k8s.io/apimachinery v0.18.8
-	k8s.io/client-go => k8s.io/client-go v0.18.8
-	k8s.io/code-generator => k8s.io/code-generator v0.18.8
+	k8s.io/api => k8s.io/api v0.16.5
+	k8s.io/apimachinery => k8s.io/apimachinery v0.16.5
+	k8s.io/client-go => k8s.io/client-go v0.16.5
 )

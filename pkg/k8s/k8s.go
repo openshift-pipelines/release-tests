@@ -1,7 +1,6 @@
 package k8s
 
 import (
-	"context"
 	"fmt"
 	"log"
 
@@ -51,7 +50,7 @@ func NewClientSet() (*clients.Clients, string, func()) {
 func WaitForDeploymentDeletion(cs *clients.Clients, namespace, name string) error {
 	err := wait.Poll(config.APIRetry, config.APITimeout, func() (bool, error) {
 		kc := cs.KubeClient.Kube
-		_, err := kc.AppsV1().Deployments(namespace).Get(cs.Ctx, name, metav1.GetOptions{})
+		_, err := kc.AppsV1().Deployments(namespace).Get(name, metav1.GetOptions{})
 		if err != nil {
 			if apierrors.IsGone(err) || apierrors.IsNotFound(err) {
 				return true, nil
@@ -67,9 +66,11 @@ func WaitForDeploymentDeletion(cs *clients.Clients, namespace, name string) erro
 
 // WaitForServiceAccount checks if service account created
 func WaitForServiceAccount(cs *clients.Clients, ns, targetSA string) *corev1.ServiceAccount {
+
 	ret := &corev1.ServiceAccount{}
+
 	err := wait.Poll(config.APIRetry, config.APITimeout, func() (bool, error) {
-		saList, err := cs.KubeClient.Kube.CoreV1().ServiceAccounts(ns).List(cs.Ctx, metav1.ListOptions{})
+		saList, err := cs.KubeClient.Kube.CoreV1().ServiceAccounts(ns).List(metav1.ListOptions{})
 		for _, sa := range saList.Items {
 			if sa.Name == targetSA {
 				ret = &sa
@@ -104,6 +105,7 @@ func ValidateSCCRemoved(cs *clients.Clients, ns, sa string) {
 			log.Printf("failed to get privileged scc: %s \n", err)
 			return false, err
 		}
+
 		ctrlSA := fmt.Sprintf("system:serviceaccount:%s:%s", ns, sa)
 		return !inList(privileged.Users, ctrlSA), nil
 	})
@@ -120,9 +122,10 @@ func inList(list []string, item string) bool {
 }
 
 func ValidateDeployments(cs *clients.Clients, ns string, deployments ...string) {
+
 	kc := cs.KubeClient.Kube
 	for _, d := range deployments {
-		err := WaitForDeployment(cs.Ctx, kc, ns,
+		err := WaitForDeployment(kc, ns,
 			d,
 			1,
 			config.APIRetry,
@@ -130,6 +133,7 @@ func ValidateDeployments(cs *clients.Clients, ns string, deployments ...string) 
 		)
 		assert.NoError(err, fmt.Sprintf("Deployments: %+v, failed to create\n", deployments))
 	}
+
 }
 
 func GetPrivilegedSCC(cs *clients.Clients) (*secv1.SecurityContextConstraints, error) {
@@ -137,7 +141,7 @@ func GetPrivilegedSCC(cs *clients.Clients) (*secv1.SecurityContextConstraints, e
 	if err != nil {
 		return nil, err
 	}
-	return sec.SecurityContextConstraints().Get(cs.Ctx, "privileged", metav1.GetOptions{})
+	return sec.SecurityContextConstraints().Get("privileged", metav1.GetOptions{})
 }
 
 func ValidateDeploymentDeletion(cs *clients.Clients, ns string, deployments ...string) {
@@ -147,9 +151,9 @@ func ValidateDeploymentDeletion(cs *clients.Clients, ns string, deployments ...s
 	}
 }
 
-func WaitForDeployment(ctx context.Context, kc kubernetes.Interface, namespace, name string, replicas int, retryInterval, timeout time.Duration) error {
+func WaitForDeployment(kc kubernetes.Interface, namespace, name string, replicas int, retryInterval, timeout time.Duration) error {
 	err := wait.Poll(retryInterval, timeout, func() (done bool, err error) {
-		deployment, err := kc.AppsV1().Deployments(namespace).Get(ctx, name, metav1.GetOptions{})
+		deployment, err := kc.AppsV1().Deployments(namespace).Get(name, metav1.GetOptions{})
 		if err != nil {
 			if apierrors.IsNotFound(err) {
 				log.Printf("Waiting for availability of %s deployment\n", name)
@@ -167,10 +171,11 @@ func WaitForDeployment(ctx context.Context, kc kubernetes.Interface, namespace, 
 	return err
 }
 
-func VerifyNoServiceAccount(ctx context.Context, kc *clients.KubeClient, sa, ns string) {
+func VerifyNoServiceAccount(kc *clients.KubeClient, sa, ns string) {
 	log.Printf("Verify SA %q is absent in namespace %q", sa, ns)
+
 	if err := wait.PollImmediate(config.APIRetry, config.APITimeout, func() (bool, error) {
-		_, err := kc.Kube.CoreV1().ServiceAccounts(ns).Get(ctx, sa, metav1.GetOptions{})
+		_, err := kc.Kube.CoreV1().ServiceAccounts(ns).Get(sa, metav1.GetOptions{})
 		if err == nil || !errors.IsNotFound(err) {
 			return false, fmt.Errorf("sa %q exists in namespace %q", sa, ns)
 		}
@@ -180,11 +185,11 @@ func VerifyNoServiceAccount(ctx context.Context, kc *clients.KubeClient, sa, ns 
 	}
 }
 
-func VerifyServiceAccountExists(ctx context.Context, kc *clients.KubeClient, sa, ns string) {
+func VerifyServiceAccountExists(kc *clients.KubeClient, sa, ns string) {
 	log.Printf("Verify SA %q is created in namespace %q", sa, ns)
 
 	if err := wait.PollImmediate(config.APIRetry, config.APITimeout, func() (bool, error) {
-		_, err := kc.Kube.CoreV1().ServiceAccounts(ns).Get(ctx, sa, metav1.GetOptions{})
+		_, err := kc.Kube.CoreV1().ServiceAccounts(ns).Get(sa, metav1.GetOptions{})
 		if err != nil && errors.IsNotFound(err) {
 			return false, nil
 		}
@@ -223,7 +228,7 @@ func CreateCronJob(c *clients.Clients, args []string, schedule, namespace string
 			},
 		},
 	}
-	cj, err := c.KubeClient.Kube.BatchV1beta1().CronJobs(namespace).Create(c.Ctx, cronjob, metav1.CreateOptions{})
+	cj, err := c.KubeClient.Kube.BatchV1beta1().CronJobs(namespace).Create(cronjob)
 	assert.NoError(err, fmt.Sprintf("CronJob: %+s, failed to create\n", cj.Name))
 	log.Printf("Cronjob: %s created in namespace: %s", cj.Name, namespace)
 	store.PutScenarioData("cronjob", cj.Name)
@@ -240,26 +245,26 @@ func WaitForActiveCronJobs(c *clients.Clients, active int, cronJobName, ns strin
 }
 
 func WaitForCronJobToBeSceduled(c *clients.Clients, activejobs int, job, namespace string) {
-	err := w.WaitFor(c.Ctx, WaitForActiveCronJobs(c, activejobs, job, namespace))
+	err := w.WaitFor(WaitForActiveCronJobs(c, activejobs, job, namespace))
 	assert.NoError(err, fmt.Sprintf("Error: Waiting for cron job %s to be scheduled on namespace %s ", job, namespace))
 }
 
 func GetCronJob(c *clients.Clients, ns, name string) (*batchv1beta1.CronJob, error) {
-	return c.KubeClient.Kube.BatchV1beta1().CronJobs(ns).Get(c.Ctx, name, metav1.GetOptions{})
+	return c.KubeClient.Kube.BatchV1beta1().CronJobs(ns).Get(name, metav1.GetOptions{})
 }
 
 func DeleteCronJob(c *clients.Clients, name, ns string) error {
 	propagationPolicy := metav1.DeletePropagationBackground // Also delete jobs and pods related to cronjob
-	return c.KubeClient.Kube.BatchV1beta1().CronJobs(ns).Delete(c.Ctx, name, metav1.DeleteOptions{PropagationPolicy: &propagationPolicy})
+	return c.KubeClient.Kube.BatchV1beta1().CronJobs(ns).Delete(name, &metav1.DeleteOptions{PropagationPolicy: &propagationPolicy})
 }
 
-func Get(ctx context.Context, gr schema.GroupVersionResource, clients *clients.Clients, objname, ns string, op metav1.GetOptions) (*unstructured.Unstructured, error) {
+func Get(gr schema.GroupVersionResource, clients *clients.Clients, objname, ns string, op metav1.GetOptions) (*unstructured.Unstructured, error) {
 	gvr, err := GetGroupVersionResource(gr, clients.Tekton.Discovery())
 	if err != nil {
 		return nil, err
 	}
 
-	obj, err := clients.Dynamic.Resource(*gvr).Namespace(ns).Get(ctx, objname, op)
+	obj, err := clients.Dynamic.Resource(*gvr).Namespace(ns).Get(objname, op)
 	if err != nil {
 		return nil, err
 	}
@@ -268,15 +273,17 @@ func Get(ctx context.Context, gr schema.GroupVersionResource, clients *clients.C
 }
 
 // Watch func helps you to watch on dynamic resources
-func Watch(ctx context.Context, gr schema.GroupVersionResource, clients *clients.Clients, ns string, op metav1.ListOptions) (watch.Interface, error) {
+func Watch(gr schema.GroupVersionResource, clients *clients.Clients, ns string, op metav1.ListOptions) (watch.Interface, error) {
 	gvr, err := GetGroupVersionResource(gr, clients.Tekton.Discovery())
 	if err != nil {
 		return nil, err
 	}
-	watch, err := clients.Dynamic.Resource(*gvr).Namespace(ns).Watch(ctx, op)
+
+	watch, err := clients.Dynamic.Resource(*gvr).Namespace(ns).Watch(op)
 	if err != nil {
 		return nil, err
 	}
+
 	return watch, nil
 }
 
@@ -285,10 +292,12 @@ func GetGroupVersionResource(gr schema.GroupVersionResource, discovery discovery
 	if err != nil {
 		return nil, err
 	}
+
 	rm := restmapper.NewDiscoveryRESTMapper(apiGroupRes)
 	gvr, err := rm.ResourceFor(gr)
 	if err != nil {
 		return nil, err
 	}
+
 	return &gvr, nil
 }
