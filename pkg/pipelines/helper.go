@@ -21,7 +21,7 @@ import (
 func collectMatchingEvents(c *clients.Clients, namespace string, kinds map[string][]string, reason string) ([]*corev1.Event, error) {
 	var events []*corev1.Event
 
-	watchEvents, err := c.KubeClient.Kube.CoreV1().Events(namespace).Watch(c.Ctx, metav1.ListOptions{})
+	watchEvents, err := c.KubeClient.Kube.CoreV1().Events(namespace).Watch(metav1.ListOptions{})
 	// close watchEvents channel
 	defer watchEvents.Stop()
 	if err != nil {
@@ -56,10 +56,10 @@ func checkLabelPropagation(c *clients.Clients, namespace string, pipelineRunName
 	labels := make(map[string]string, 4)
 
 	// Check label propagation to PipelineRuns.
-	pr, err := c.PipelineRunClient.Get(c.Ctx, pipelineRunName, metav1.GetOptions{})
+	pr, err := c.PipelineRunClient.Get(pipelineRunName, metav1.GetOptions{})
 	assert.NoError(err, fmt.Sprintf("Couldn't get expected PipelineRun for %s: %s", tr.Name, err))
 
-	p, err := c.PipelineClient.Get(c.Ctx, pr.Spec.PipelineRef.Name, metav1.GetOptions{})
+	p, err := c.PipelineClient.Get(pr.Spec.PipelineRef.Name, metav1.GetOptions{})
 	assert.NoError(err, fmt.Sprintf("Couldn't get expected Pipeline for %s: %s", pr.Name, err))
 
 	for key, val := range p.ObjectMeta.Labels {
@@ -76,7 +76,7 @@ func checkLabelPropagation(c *clients.Clients, namespace string, pipelineRunName
 	// This label is added to every TaskRun by the PipelineRun controller
 	labels[pipeline.GroupName+pipeline.PipelineRunLabelKey] = pr.Name
 	if tr.Spec.TaskRef != nil {
-		task, err := c.TaskClient.Get(c.Ctx, tr.Spec.TaskRef.Name, metav1.GetOptions{})
+		task, err := c.TaskClient.Get(tr.Spec.TaskRef.Name, metav1.GetOptions{})
 		assert.NoError(err, fmt.Sprintf("Couldn't get expected Task for %s: %s", tr.Name, err))
 		for key, val := range task.ObjectMeta.Labels {
 			labels[key] = val
@@ -103,9 +103,9 @@ func checkAnnotationPropagation(c *clients.Clients, namespace string, pipelineRu
 	annotations := make(map[string]string)
 
 	// Check annotation propagation to PipelineRuns.
-	pr, err := c.PipelineRunClient.Get(c.Ctx, pipelineRunName, metav1.GetOptions{})
+	pr, err := c.PipelineRunClient.Get(pipelineRunName, metav1.GetOptions{})
 	assert.NoError(err, fmt.Sprintf("Couldn't get expected PipelineRun for %s: %s", tr.Name, err))
-	p, err := c.PipelineClient.Get(c.Ctx, pr.Spec.PipelineRef.Name, metav1.GetOptions{})
+	p, err := c.PipelineClient.Get(pr.Spec.PipelineRef.Name, metav1.GetOptions{})
 	assert.NoError(err, fmt.Sprintf("Couldn't get expected Pipeline for %s: %s", pr.Name, err))
 	for key, val := range p.ObjectMeta.Annotations {
 		annotations[key] = val
@@ -117,7 +117,7 @@ func checkAnnotationPropagation(c *clients.Clients, namespace string, pipelineRu
 		annotations[key] = val
 	}
 	if tr.Spec.TaskRef != nil {
-		task, err := c.TaskClient.Get(c.Ctx, tr.Spec.TaskRef.Name, metav1.GetOptions{})
+		task, err := c.TaskClient.Get(tr.Spec.TaskRef.Name, metav1.GetOptions{})
 		assert.NoError(err, fmt.Sprintf("Couldn't get expected Task for %s: %s", tr.Name, err))
 		for key, val := range task.ObjectMeta.Annotations {
 			annotations[key] = val
@@ -132,7 +132,7 @@ func checkAnnotationPropagation(c *clients.Clients, namespace string, pipelineRu
 
 func GetPodForTaskRun(c *clients.Clients, namespace string, tr *v1beta1.TaskRun) *corev1.Pod {
 	// The Pod name has a random suffix, so we filter by label to find the one we care about.
-	pods, err := c.KubeClient.Kube.CoreV1().Pods(namespace).List(c.Ctx, metav1.ListOptions{
+	pods, err := c.KubeClient.Kube.CoreV1().Pods(namespace).List(metav1.ListOptions{
 		LabelSelector: pipeline.GroupName + pipeline.TaskRunLabelKey + " = " + tr.Name,
 	})
 	assert.NoError(err, fmt.Sprintf("Couldn't get expected Pod for %s: %s", tr.Name, err))

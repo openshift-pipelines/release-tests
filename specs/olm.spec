@@ -6,11 +6,10 @@ Installs `openshift-pipelines` operator using olm
 
 Steps:
   * Subscribe to operator
-  * Wait for TektonConfig CR availability
+  * Wait for Cluster CR availability
+  * Validate Operator should be installed
   * Validate pipelines deployment
   * Validate triggers deployment
-  * Verify TektonAddons Install status
-  * Validate RBAC
 
 ## Upgrade openshift-pipelines operator
 Tags: upgrade
@@ -18,9 +17,10 @@ Installs `openshift-pipelines` operator using olm
 
 Steps:
   * Upgrade operator subscription
-  * Wait for TektonConfig CR availability
+  * Wait for Cluster CR availability
   * Validate Operator should be installed
-  * Validate RBAC
+  * Validate pipelines deployment
+  * Validate triggers deployment
 
 ## Uninstall openshift-pipelines operator
 Tags: uninstall
