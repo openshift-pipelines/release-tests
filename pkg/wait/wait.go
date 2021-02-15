@@ -20,6 +20,17 @@ import (
 // ConditionAccessorFn is a condition function used polling functions
 type ConditionAccessorFn func(ca apis.ConditionAccessor) (bool, error)
 
+func pollImmediateWithContext(ctx context.Context, fn func() (bool, error)) error {
+	return wait.PollImmediate(config.APIRetry, config.APITimeout, func() (bool, error) {
+		select {
+		case <-ctx.Done():
+			return true, ctx.Err()
+		default:
+		}
+		return fn()
+	})
+}
+
 // WaitForTaskRunState polls the status of the TaskRun called name from client every
 // interval until inState returns `true` indicating it is done, returns an
 // error or timeout. desc will be used to name the metric that is emitted to
@@ -29,8 +40,8 @@ func WaitForTaskRunState(c *clients.Clients, name string, inState ConditionAcces
 	_, span := trace.StartSpan(context.Background(), metricName)
 	defer span.End()
 
-	return wait.PollImmediate(config.Interval, config.Timeout, func() (bool, error) {
-		r, err := c.TaskRunClient.Get(name, metav1.GetOptions{})
+	return pollImmediateWithContext(c.Ctx, func() (bool, error) {
+		r, err := c.TaskRunClient.Get(c.Ctx, name, metav1.GetOptions{})
 		if err != nil {
 			return true, err
 		}
@@ -47,8 +58,8 @@ func WaitForDeploymentState(c *clients.Clients, name string, namespace string, i
 	_, span := trace.StartSpan(context.Background(), metricName)
 	defer span.End()
 
-	return wait.PollImmediate(config.Interval, config.Timeout, func() (bool, error) {
-		d, err := c.KubeClient.Kube.AppsV1().Deployments(namespace).Get(name, metav1.GetOptions{})
+	return pollImmediateWithContext(c.Ctx, func() (bool, error) {
+		d, err := c.KubeClient.Kube.AppsV1().Deployments(namespace).Get(c.Ctx, name, metav1.GetOptions{})
 		if err != nil {
 			return true, err
 		}
@@ -65,8 +76,8 @@ func WaitForPodState(c *clients.Clients, name string, namespace string, inState 
 	_, span := trace.StartSpan(context.Background(), metricName)
 	defer span.End()
 
-	return wait.PollImmediate(config.Interval, config.Timeout, func() (bool, error) {
-		r, err := c.KubeClient.Kube.CoreV1().Pods(namespace).Get(name, metav1.GetOptions{})
+	return pollImmediateWithContext(c.Ctx, func() (bool, error) {
+		r, err := c.KubeClient.Kube.CoreV1().Pods(namespace).Get(c.Ctx, name, metav1.GetOptions{})
 		if err != nil {
 			return true, err
 		}
@@ -83,8 +94,8 @@ func WaitForPipelineRunState(c *clients.Clients, name string, inState ConditionA
 	_, span := trace.StartSpan(context.Background(), metricName)
 	defer span.End()
 
-	return wait.PollImmediate(config.Interval, config.Timeout, func() (bool, error) {
-		r, err := c.PipelineRunClient.Get(name, metav1.GetOptions{})
+	return pollImmediateWithContext(c.Ctx, func() (bool, error) {
+		r, err := c.PipelineRunClient.Get(c.Ctx, name, metav1.GetOptions{})
 		if err != nil {
 			return true, err
 		}
@@ -101,8 +112,8 @@ func WaitForServiceExternalIPState(c *clients.Clients, namespace, name string, i
 	_, span := trace.StartSpan(context.Background(), metricName)
 	defer span.End()
 
-	return wait.PollImmediate(config.Interval, config.Timeout, func() (bool, error) {
-		r, err := c.KubeClient.Kube.CoreV1().Services(namespace).Get(name, metav1.GetOptions{})
+	return pollImmediateWithContext(c.Ctx, func() (bool, error) {
+		r, err := c.KubeClient.Kube.CoreV1().Services(namespace).Get(c.Ctx, name, metav1.GetOptions{})
 		if err != nil {
 			return true, err
 		}
@@ -223,8 +234,8 @@ func PipelineRunFailed(name string) ConditionAccessorFn {
 // ============================== Triggers Wait ==============================================
 
 // WaitFor waits for the specified ConditionFunc every internal until the timeout.
-func WaitFor(waitFunc wait.ConditionFunc) error {
-	return wait.PollImmediate(config.Interval, config.Timeout, waitFunc)
+func WaitFor(ctx context.Context, waitFunc wait.ConditionFunc) error {
+	return pollImmediateWithContext(ctx, waitFunc)
 }
 
 // EventListenerReady returns a function that checks if all conditions on the
@@ -232,7 +243,7 @@ func WaitFor(waitFunc wait.ConditionFunc) error {
 // is within this set
 func EventListenerReady(c *clients.Clients, namespace, name string) wait.ConditionFunc {
 	return func() (bool, error) {
-		el, err := c.TriggersClient.TriggersV1alpha1().EventListeners(namespace).Get(name, metav1.GetOptions{})
+		el, err := c.TriggersClient.TriggersV1alpha1().EventListeners(namespace).Get(c.Ctx, name, metav1.GetOptions{})
 		if err != nil && errors.IsNotFound(err) {
 			log.Printf("EventListener not found")
 			return false, nil
@@ -258,7 +269,7 @@ func WaitForPodsWithLabels(c *clients.Clients, namespace, labels string) wait.Co
 	lastKnownPodNumber := -1
 	return func() (bool, error) {
 		listOpts := metav1.ListOptions{LabelSelector: labels}
-		pods, err := c.KubeClient.Kube.CoreV1().Pods(namespace).List(listOpts)
+		pods, err := c.KubeClient.Kube.CoreV1().Pods(namespace).List(c.Ctx, listOpts)
 		if err != nil {
 			log.Printf("[apiclient] Error getting Pods with label selector %q [%v]\n", labels, err)
 			return false, nil
@@ -286,7 +297,7 @@ func WaitForPodsWithLabels(c *clients.Clients, namespace, labels string) wait.Co
 // DeploymentNotExist returns a function that checks if the specified Deployment does not exist
 func DeploymentNotExist(c *clients.Clients, namespace, name string) wait.ConditionFunc {
 	return func() (bool, error) {
-		_, err := c.KubeClient.Kube.AppsV1().Deployments(namespace).Get(name, metav1.GetOptions{})
+		_, err := c.KubeClient.Kube.AppsV1().Deployments(namespace).Get(c.Ctx, name, metav1.GetOptions{})
 		if err != nil && errors.IsNotFound(err) {
 			return true, nil
 		}
@@ -297,7 +308,7 @@ func DeploymentNotExist(c *clients.Clients, namespace, name string) wait.Conditi
 // ServiceNotExist returns a function that checks if the specified Service does not exist
 func ServiceNotExist(c *clients.Clients, namespace, name string) wait.ConditionFunc {
 	return func() (bool, error) {
-		_, err := c.KubeClient.Kube.CoreV1().Services(namespace).Get(name, metav1.GetOptions{})
+		_, err := c.KubeClient.Kube.CoreV1().Services(namespace).Get(c.Ctx, name, metav1.GetOptions{})
 		if err != nil && errors.IsNotFound(err) {
 			return true, nil
 		}
@@ -308,7 +319,7 @@ func ServiceNotExist(c *clients.Clients, namespace, name string) wait.ConditionF
 // PipelineResourceExist returns a function that checks if the specified PipelineResource exists
 func PipelineResourceExist(c *clients.Clients, name string) wait.ConditionFunc {
 	return func() (bool, error) {
-		_, err := c.PipelineResourceClient.Get(name, metav1.GetOptions{})
+		_, err := c.PipelineResourceClient.Get(c.Ctx, name, metav1.GetOptions{})
 		if err != nil && errors.IsNotFound(err) {
 			return false, nil
 		}
@@ -319,7 +330,7 @@ func PipelineResourceExist(c *clients.Clients, name string) wait.ConditionFunc {
 // PipelineRunExist returns a function that checks if the specified PipelineRun exists
 func PipelineRunExist(c *clients.Clients, name string) wait.ConditionFunc {
 	return func() (bool, error) {
-		_, err := c.PipelineRunClient.Get(name, metav1.GetOptions{})
+		_, err := c.PipelineRunClient.Get(c.Ctx, name, metav1.GetOptions{})
 		if err != nil && errors.IsNotFound(err) {
 			return false, nil
 		}

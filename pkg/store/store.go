@@ -5,12 +5,12 @@ import (
 
 	"github.com/getgauge-contrib/gauge-go/gauge"
 	"github.com/openshift-pipelines/release-tests/pkg/clients"
+	"github.com/openshift-pipelines/release-tests/pkg/config"
 	"github.com/openshift-pipelines/release-tests/pkg/tkn"
 )
 
 func Namespace() string {
 	return gauge.GetScenarioStore()["namespace"].(string)
-
 }
 
 func Clients() *clients.Clients {
@@ -19,6 +19,15 @@ func Clients() *clients.Clients {
 		return cs
 	default:
 		return nil
+	}
+}
+
+func GetCRNames() config.ResourceNames {
+	switch names := gauge.GetScenarioStore()["crnames"].(type) {
+	case config.ResourceNames:
+		return names
+	default:
+		return config.ResourceNames{}
 	}
 }
 
