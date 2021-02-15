@@ -7,7 +7,7 @@ import (
 )
 
 var _ = gauge.Step("Verify ServiceAccount <sa> does not exist", func(sa string) {
-	k8s.VerifyNoServiceAccount(store.Clients().KubeClient, sa, store.Namespace())
+	k8s.VerifyNoServiceAccount(store.Clients().Ctx, store.Clients().KubeClient, sa, store.Namespace())
 })
 
 var _ = gauge.Step("Create cron job with schedule <schedule>", func(schedule string) {

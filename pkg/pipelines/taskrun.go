@@ -55,7 +55,7 @@ func validateTaskRunTimeOutFailure(c *clients.Clients, trname, namespace string)
 }
 
 func getTaskRunNameMatches(c *clients.Clients, trname, namespace string) string {
-	trlist, err := c.TaskRunClient.List(metav1.ListOptions{})
+	trlist, err := c.TaskRunClient.List(c.Ctx, metav1.ListOptions{})
 	assert.NoError(err, fmt.Sprintf("Error Getting TaskRun list under namespace %s ", namespace))
 	var matched_tr string
 	match, _ := regexp.Compile(trname + ".*?")
@@ -69,7 +69,7 @@ func getTaskRunNameMatches(c *clients.Clients, trname, namespace string) string 
 }
 
 func ValidateTaskRunLabelPropogation(c *clients.Clients, trname, namespace string) {
-	trlist, err := c.TaskRunClient.List(metav1.ListOptions{})
+	trlist, err := c.TaskRunClient.List(c.Ctx, metav1.ListOptions{})
 	assert.NoError(err, fmt.Sprintf("Error Getting TaskRun list under namespace %s ", namespace))
 	var matched_tr string
 	match, _ := regexp.Compile(trname + ".*?")
@@ -81,7 +81,7 @@ func ValidateTaskRunLabelPropogation(c *clients.Clients, trname, namespace strin
 	}
 	labels := make(map[string]string)
 
-	tr, err := c.TaskRunClient.Get(matched_tr, metav1.GetOptions{})
+	tr, err := c.TaskRunClient.Get(c.Ctx, matched_tr, metav1.GetOptions{})
 	assert.NoError(err, fmt.Sprintf("Error Getting TaskRun %s under namespace %s ", matched_tr, namespace))
 
 	for key, val := range tr.ObjectMeta.Labels {
