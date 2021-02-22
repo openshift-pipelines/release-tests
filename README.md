@@ -138,16 +138,23 @@ Tag\|TagB                    |have either TagA or TagB.
 > gauge run --env "default, test" --log-level=debug  --verbose specs/pipelines/
 ```
 
+## Run openshift-pipelines monitoring acceptance tests
+
+```
+> gauge run --env "default, test" --log-level=debug --tags "e2e" --verbose specs/metrics/
+```
+
 ## Run olm tests
 
 ### Fresh installation
 ```
-> CHANNEL=$CHANNEL gauge run --env "default, test" --tags "install" --log-level=debug --verbose   specs/olm.spec
+> CATALOG_SOURCE=pre-stage-operators CHANNEL=preview gauge run --env "default, test" --tags "install" --log-level=debug --verbose   specs/olm.spec
 ```
 
-> Notes:  
+> Notes: 
+> - set `CATALOG_SOURCE` eg: `pre-stage-operators`
 > - set `CHANNEL` env variable Eg: `ocp-4.6`, 
-> - helps user to install operator by subscribing to `CHANNEL` (Assumption: pipelines operator shouldn't be installed)
+> - helps user to install operator by subscribing to `CHANNEL` (Assumption: pipelines operator shouldn't be installed) for `redhat-operators` or user defined catalog sources
 
 ### Upgrade operator
 ```
@@ -176,6 +183,7 @@ Tag\|TagB                    |have either TagA or TagB.
 - `specs` directory is divided into the following
   -  `pipelines` :  contains specs related to the component pipeline
   -  `triggers` :  contains specs related to the component triggers
+  - `metrics` : contains specs related to the openshift-pipelines metrics
 
   -  `olm` : containse sepcs related to olm
        *  install: contains specs related to olm install operator
