@@ -11,6 +11,10 @@ import (
 	"k8s.io/client-go/tools/clientcmd"
 
 	olmversioned "github.com/operator-framework/operator-lifecycle-manager/pkg/api/client/clientset/versioned"
+	consolev1 "github.com/openshift/client-go/console/clientset/versioned/typed/console/v1"
+	routev1 "github.com/openshift/client-go/route/clientset/versioned/typed/route/v1"
+	configV1 "github.com/openshift/client-go/config/clientset/versioned/typed/config/v1"
+	monclientv1 "github.com/prometheus-operator/prometheus-operator/pkg/client/versioned/typed/monitoring/v1"
 	"github.com/tektoncd/operator/pkg/client/clientset/versioned"
 	operatorv1alpha1 "github.com/tektoncd/operator/pkg/client/clientset/versioned/typed/operator/v1alpha1"
 	pversioned "github.com/tektoncd/pipeline/pkg/client/clientset/versioned"
@@ -35,6 +39,10 @@ type Clients struct {
 	KubeConfig             *rest.Config
 	Scheme                 *runtime.Scheme
 	OLM                    olmversioned.Interface
+	Route              routev1.RouteV1Interface
+	ProxyConfig        configV1.ConfigV1Interface
+	ConsoleCLIDownload consolev1.ConsoleCLIDownloadInterface
+	MonitoringClient   monclientv1.MonitoringV1Interface
 	Tekton                 pversioned.Interface
 	PipelineClient         v1beta1.PipelineInterface
 	TaskClient             v1beta1.TaskInterface
@@ -101,6 +109,13 @@ func NewClients(configPath string, clusterName, namespace string) (*Clients, err
 	clients.PipelineRunClient = clients.Tekton.TektonV1beta1().PipelineRuns(namespace)
 	clients.PipelineResourceClient = rcs.TektonV1alpha1().PipelineResources(namespace)
 	clients.ConditionClient = clients.Tekton.TektonV1alpha1().Conditions(namespace)
+	clients.Route = routev1.NewForConfigOrDie(clients.KubeConfig)
+	clients.ProxyConfig = configV1.NewForConfigOrDie(clients.KubeConfig)
+	clients.ConsoleCLIDownload = consolev1.NewForConfigOrDie(clients.KubeConfig).ConsoleCLIDownloads()
+	if err != nil {
+		return nil, err
+	}
+	clients.MonitoringClient = monclientv1.NewForConfigOrDie(clients.KubeConfig)
 
 	return clients, nil
 }
