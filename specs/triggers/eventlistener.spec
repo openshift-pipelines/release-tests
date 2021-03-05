@@ -117,6 +117,7 @@ This scenario tests the creation of eventLister with embedded triggerbinding spe
 openshift-pipeline Resources defined under triggers-template, which helps you to deploy example app
 
 Steps:
+  * Disable default TLS config for eventlisteners
   * Create
     |S.NO|resource_dir                                                        |
     |----|--------------------------------------------------------------------|
@@ -140,6 +141,7 @@ This scenario tests the creation of embedded triggertemplate spec, listens to ev
 openshift-pipeline Resources defined under triggers-template, which helps you to deploy example app
 
 Steps:
+  * Disable default TLS config for eventlisteners
   * Create
     |S.NO|resource_dir                                                       |
     |----|-------------------------------------------------------------------|
@@ -162,6 +164,7 @@ This scenario tests the creation of eventLister with gitlab interceptor, listens
 openshift-pipeline Resources defined under triggers-template, to deploy example app
 
 Steps:
+  * Disable default TLS config for eventlisteners
   * Create
     |S.NO|resource_dir                                      |
     |----|--------------------------------------------------|
@@ -183,6 +186,7 @@ This scenario tests the creation of eventLister with bitbucket interceptor, list
 openshift-pipeline Resources defined under triggers-template
 
 Steps:
+  * Disable default TLS config for eventlisteners
   * Create
     |S.NO|resource_dir                                                        |
     |----|--------------------------------------------------------------------|
@@ -204,6 +208,7 @@ This scenario tests Github `push` event via CTB, on each event it creates/trigge
 openshift-pipeline Resources defined under triggers-template
 
 Steps:
+  * Disable default TLS config for eventlisteners
   * Create
     |S.NO|resource_dir                                                      |
     |----|------------------------------------------------------------------|
@@ -226,6 +231,7 @@ This scenario tests Github `pull_request` event via CTB, on each event it create
 openshift-pipeline Resources defined under triggers-template
 
 Steps:
+  * Disable default TLS config for eventlisteners
   * Create
     |S.NO|resource_dir                                                    |
     |----|----------------------------------------------------------------|
@@ -248,6 +254,7 @@ This scenario tests Github `issue_comment` event via CTB, on each event it creat
 openshift-pipeline Resources defined under triggers-template
 
 Steps:
+  * Disable default TLS config for eventlisteners
   * Create
     |S.NO|resource_dir                                                           |
     |----|-----------------------------------------------------------------------|
@@ -270,6 +277,7 @@ This scenario tests the creation of Trigger resource which is combination of Tri
 openshift-pipeline Resources defined under triggers-template  
 
 Steps:
+  * Disable default TLS config for eventlisteners
   * Create
     |S.NO|resource_dir                                               |
     |----|-----------------------------------------------------------|

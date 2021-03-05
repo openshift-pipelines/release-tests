@@ -7,6 +7,7 @@ Pre condition:
 Tags: e2e, triggers
 
 Steps:
+  * Disable default TLS config for eventlisteners
   * Create
     |S.NO|resource_dir                                 |
     |----|---------------------------------------------|

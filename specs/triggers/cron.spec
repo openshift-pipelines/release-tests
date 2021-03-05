@@ -9,6 +9,7 @@ Tags: e2e,triggers
 This scenario helps you to Trigger pipelineRun, using a k8s CronJob, to implement a basic cron trigger that runs every minute
 
 Steps:
+  * Disable default TLS config for eventlisteners
   * Create
     |S.NO|resource_dir                                 |
     |----|---------------------------------------------|

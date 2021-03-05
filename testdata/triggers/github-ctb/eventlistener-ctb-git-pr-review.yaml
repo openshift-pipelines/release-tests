@@ -10,10 +10,7 @@ spec:
       bindings:
         - ref: github-pullreq-review-comment
           kind: ClusterTriggerBinding
-        - name: message-binding
-          spec:
-            params:
-              - name: MESSAGE
-                value: Hello from the Triggers, you are triggering (github CTB) of event-type pull-request-review-comment!
+        - name: MESSAGE
+          value: Hello from the Triggers, you are triggering (github CTB) of event-type pull-request-review-comment!
       template:
         ref: pipeline-template-git-pr-review
