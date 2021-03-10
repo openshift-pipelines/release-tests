@@ -17,9 +17,9 @@ import (
 
 const (
 	//MaxIdleConnections specifies max connection to the http client
-	MaxIdleConnections int = 20
+	MaxIdleConnections int = 30
 	//RequestTimeout specifies request timeout with http client
-	RequestTimeout int = 10
+	RequestTimeout int = 15
 )
 
 // CreateHTTPClient for connection re-use

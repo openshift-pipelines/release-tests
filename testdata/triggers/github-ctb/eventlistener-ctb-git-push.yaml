@@ -10,10 +10,7 @@ spec:
       bindings:
         - ref: github-push
           kind: ClusterTriggerBinding
-        - name: message-binding
-          spec:
-            params:
-              - name: MESSAGE
-                value: Hello from the Triggers, you are triggering (github CTB) of event-type push!
+        - name: MESSAGE
+          value: Hello from the Triggers, you are triggering (github CTB) of event-type push!
       template:
         ref: pipeline-template-git-push
