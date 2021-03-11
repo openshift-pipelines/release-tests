@@ -23,6 +23,11 @@ func CreateNewProject(ns string) {
 	log.Printf("output: %s\n", cmd.MustSucceed("oc", "new-project", ns).Stdout())
 }
 
+//LabelProject Helps you to label project with provided info
+func AddLabelToProject(ns string) {
+	log.Printf("output: %s\n", cmd.MustSucceed("oc", "label", "ns", ns, "operator.tekton.dev/disable-annotation=disabled").Stdout())
+}
+
 //DeleteProject Helps you to delete new project
 func DeleteProject(ns string) {
 	log.Printf("output: %s\n", cmd.MustSucceed("oc", "delete", "project", ns).Stdout())

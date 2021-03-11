@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"strings"
 	"time"
+	"os"
 
 	"github.com/getgauge-contrib/gauge-go/gauge"
 
@@ -26,7 +27,7 @@ import (
 	"k8s.io/apimachinery/pkg/fields"
 )
 
-func ExposeEventListner(c *clients.Clients, elname, namespace string) string {
+func getServiceList(c *clients.Clients, elname, namespace string) string {
 	// Verify the EventListener to be ready
 	err := wait.WaitFor(c.Ctx, wait.EventListenerReady(c, namespace, elname))
 	assert.NoError(err, fmt.Sprintf("EventListener not %s ready", elname))
@@ -39,8 +40,11 @@ func ExposeEventListner(c *clients.Clients, elname, namespace string) string {
 
 	serviceList, err := c.KubeClient.Kube.CoreV1().Services(namespace).List(c.Ctx, metav1.ListOptions{LabelSelector: labelSelector})
 	assert.NoError(err, fmt.Sprintf("Error listing services"))
+	return serviceList.Items[0].Name
+}
 
-	cmd.MustSucceed("oc", "expose", "service", serviceList.Items[0].Name, "-n", namespace)
+func ExposeEventListner(c *clients.Clients, elname, namespace string) string {
+	cmd.MustSucceed("oc", "expose", "service", getServiceList(c, elname, namespace), "-n", namespace)
 
 	route := cmd.MustSucceed("oc", "-n", namespace, "get", "route", "--selector=eventlistener="+elname, "-o", "jsonpath='{range .items[*]}{.metadata.name}'").Stdout()
 
@@ -49,6 +53,76 @@ func ExposeEventListner(c *clients.Clients, elname, namespace string) string {
 
 	time.Sleep(5 * time.Second)
 	return strings.Trim(route_url, "'")
+}
+
+func ExposeEventListnerForTLS(c *clients.Clients, elname, namespace string) string {
+	svcName := getServiceList(c, elname, namespace)
+	domain := getDomain(svcName, namespace)
+	fmt.Println("domain values are", domain)
+	gopath := os.Getenv("GOPATH")
+	fmt.Println("gopathgopathgopathgopath", gopath)
+	rootcaKey := gopath+"/src/github.com/openshift-pipelines/release-tests/testdata/triggers/certs/rootCA.key"
+	rootcaCert := gopath+"/src/github.com/openshift-pipelines/release-tests/testdata/triggers/certs/rootCA.crt"
+	tlsKey := gopath+"/src/github.com/openshift-pipelines/release-tests/testdata/triggers/certs/tls.key"
+	tlsCert := gopath+"/src/github.com/openshift-pipelines/release-tests/testdata/triggers/certs/tls.crt"
+	tlsCsr := gopath+"/src/github.com/openshift-pipelines/release-tests/testdata/triggers/certs/tls.csr"
+
+	cmd.MustSucceed("openssl", "genrsa", "-out", rootcaKey, "4096").Stdout()
+
+	cmd.MustSucceed("openssl", "req", "-x509", "-new", "-nodes", "-key", rootcaKey,
+		"-sha256", "-days", "1024", "-out", rootcaCert, "-subj",
+		"/C=IN/ST=Kar/L=Blr/O=RedHat/CN=client").Stdout()
+
+	//cmd.MustSucceed("openssl", "req", "-new", "-x509", "-key", rootcaKey,
+	//	"-days", "1024", "-out", rootcaCert, "-config",
+	//	gopath+"/src/github.com/openshift-pipelines/release-tests/testdata/triggers/certs/csr_ca.txt").Stdout()
+
+	cmd.MustSucceed("openssl", "genrsa", "-out", tlsKey, "4096").Stdout()
+
+	cmd.MustSucceed("openssl", "req", "-new", "-key", tlsKey,
+		"-subj", "/C=IN/ST=Kar/L=Blr/O=RedHat/CN=tls.test.apps.savita47new.tekton.codereadyqe.com",
+		"-addext", "subjectAltName=DNS:apps.savita47new.tekton.codereadyqe.com",
+		//"-config", gopath+"/src/github.com/openshift-pipelines/release-tests/testdata/triggers/certs/tls_answer.txt",
+		"-out", tlsCsr).Stdout()
+		//"-subj", "/C=IN/ST=Kar/L=Blr/O=RedHat/CN=tls.test.apps.savita47new.tekton.codereadyqe.com").Stdout()
+		//"-subj", fmt.Sprintf("/C=IN/ST=Kar/L=Blr/O=RedHat/CN=%s",domain)).Stdout()
+
+
+	cmd.MustSucceed("openssl", "x509", "-req", "-in", tlsCsr,
+		"-CA", rootcaCert, "-CAkey",
+		rootcaKey, "-CAcreateserial", "-out",
+		tlsCert,
+		"-days", "1024").Stdout()
+		//"-days", "1024", "-extensions", "req_ext", "-extfile", gopath+"/src/github.com/openshift-pipelines/release-tests/testdata/triggers/certs/tls_answer.txt").Stdout()
+		//"-days", "1024", "-sha256", "-extensions", "req_ext").Stdout()
+
+	routeName := cmd.MustSucceed("oc", "create", "route", "reencrypt", "--ca-cert="+rootcaCert,
+		"--cert="+tlsCert, "--key="+tlsKey,
+		"--service="+svcName, "--hostname=tls.test.apps.savita47new.tekton.codereadyqe.com", "--port=listener", "-n", namespace).Stdout()
+		//"--service="+svcName, "--hostname="+domain, "--port=listener", "-n", namespace).Stdout()
+
+	fmt.Println("routename is", routeName)
+	r := strings.Split(routeName, " ")
+	fmt.Println("r", r, "*********", r[0])
+	//route_url := cmd.MustSucceed("oc", "-n", namespace, "get", strings.Trim(routeName, " "), "--template='http://{{.spec.host}}'").Stdout()
+	route_url := cmd.MustSucceed("oc", "-n", namespace, "get", r[0], "--template='http://{{.spec.host}}'").Stdout()
+	log.Printf("Route url: %s", route_url)
+
+	time.Sleep(5 * time.Second)
+	return strings.Trim(route_url, "'")
+}
+
+func getDomain(svcName, namespace string) string {
+	currentContext := cmd.MustSucceed("oc", "config", "current-context").Stdout()
+	splittedValue := strings.Split(currentContext, "/")
+	splittedValue = strings.Split(splittedValue[1], ":")
+	splittedValue = strings.SplitAfter(splittedValue[0], "api-")
+	fmt.Println("splittedValuesplittedValue", splittedValue, splittedValue[0], splittedValue[1])
+	splittedValue = strings.Split(splittedValue[1], "-")
+	joinedString := strings.Join(splittedValue, ".")
+	routeDomainName := "apps."+joinedString
+	return "tls.test."+routeDomainName
+	//return "tls."+namespace+"."+routeDomainName
 }
 
 func MockGetEvent(routeurl string) *http.Response {
@@ -65,13 +139,21 @@ func MockGetEvent(routeurl string) *http.Response {
 	return resp
 }
 
-func MockPostEvent(routeurl, interceptor, eventType, payload string) *http.Response {
+func MockPostEvent(routeurl, interceptor, eventType, payload string, isTLS bool) *http.Response {
+	var (
+		req *http.Request
+		err error
+	)
 	eventBodyJSON, err := ioutil.ReadFile(resource.Path(payload))
 	assert.NoError(err, fmt.Sprintf("Couldn't load test data"))
 	gauge.GetScenarioStore()["payload"] = eventBodyJSON
 
 	// Send POST request to EventListener sink
-	req, err := http.NewRequest("POST", routeurl, bytes.NewBuffer(eventBodyJSON))
+	if isTLS {
+		req, err = http.NewRequest("POST", "https://"+strings.Split(routeurl, "//")[1], bytes.NewBuffer(eventBodyJSON))
+	} else {
+		req, err = http.NewRequest("POST", routeurl, bytes.NewBuffer(eventBodyJSON))
+	}
 	assert.FailOnError(err)
 
 	req = buildHeaders(req, interceptor, eventType)

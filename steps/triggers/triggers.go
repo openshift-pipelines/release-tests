@@ -12,6 +12,12 @@ var _ = gauge.Step("Expose Event listener <elname>", func(elname string) {
 	store.PutScenarioData("elname", elname)
 })
 
+var _ = gauge.Step("Expose Event listener for TLS <elname>", func(elname string) {
+	routeurl := triggers.ExposeEventListnerForTLS(store.Clients(), elname, store.Namespace())
+	store.PutScenarioData("route", routeurl)
+	store.PutScenarioData("elname", elname)
+})
+
 var _ = gauge.Step("Mock get event", func() {
 	gauge.GetScenarioStore()["response"] = triggers.MockGetEvent(store.GetScenarioData("route"))
 })
@@ -25,5 +31,9 @@ var _ = gauge.Step("Cleanup Triggers", func() {
 })
 
 var _ = gauge.Step("Mock post event to <interceptor> interceptor with event-type <eventType>, payload <payload>", func(interceptor, eventType, payload string) {
-	gauge.GetScenarioStore()["response"] = triggers.MockPostEvent(store.GetScenarioData("route"), interceptor, eventType, payload)
+	gauge.GetScenarioStore()["response"] = triggers.MockPostEvent(store.GetScenarioData("route"), interceptor, eventType, payload, false)
+})
+
+var _ = gauge.Step("Mock TLS post event to <interceptor> interceptor with event-type <eventType>, payload <payload>", func(interceptor, eventType, payload string) {
+	gauge.GetScenarioStore()["response"] = triggers.MockPostEvent(store.GetScenarioData("route"), interceptor, eventType, payload, true)
 })

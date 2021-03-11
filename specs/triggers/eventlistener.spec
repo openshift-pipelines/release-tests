@@ -110,8 +110,30 @@ Steps:
   * Verify resources are created with labels & event-id
   * Verify pipelinerun is "successfull"
 
+## Create Eventlistener with TLS enabled
+Tags: tls
+
+This scenario tests the creation of eventLister with TLS enabled, listens to events forwards request to validator service -> parsed response to other validators and so on, on each event it creates/triggers
+openshift-pipeline Resources defined under triggers-template, which helps you to deploy example app
+
+Steps:
+  * Create
+    |S.NO|resource_dir                                                        |
+    |----|--------------------------------------------------------------------|
+    |1   |testdata/triggers/sample-pipeline.yaml                              |
+    |2   |testdata/triggers/triggerbindings/triggerbinding.yaml               |
+    |3   |testdata/triggers/triggertemplate/triggertemplate.yaml              |
+    |4   |testdata/triggers/eventlisteners/eventlistener-embeded-binding.yaml |
+  * Expose Event listener for TLS "listener-embed-binding"
+  * Mock TLS post event to "github" interceptor with event-type "push", payload "testdata/push.json"
+  * Assert eventlistener response
+  * Verify pipelinerun
+    |S.NO|pipeline_run_name  |status     |check_lable_propagation|
+    |----|-------------------|-----------|-----------------------|
+    |1   |simple-pipeline-run|successfull|no                     |
+
 ## Create Eventlistener embedded TriggersBindings specs
-Tags: e2e, triggers
+Tags: sav
 
 This scenario tests the creation of eventLister with embedded triggerbinding spec, listens to events forwards request to validator service -> parsed response to other validators and so on, on each event it creates/triggers
 openshift-pipeline Resources defined under triggers-template, which helps you to deploy example app

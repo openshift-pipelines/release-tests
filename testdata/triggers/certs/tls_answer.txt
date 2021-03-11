@@ -1,0 +1,23 @@
+[req]
+default_bits = 4096
+prompt = no
+default_md = sha256
+x509_extensions = req_ext
+req_extensions = req_ext
+distinguished_name = dn
+
+[ dn ]
+C=US
+ST=New York
+L=New York
+O=MyOrg
+OU=MyOrgUnit
+emailAddress=me@working.me
+CN = tls.test.apps.savita47new.tekton.codereadyqe.com
+
+[ req_ext ]
+subjectAltName = @alt_names
+
+[ alt_names ]
+DNS.1 = tls.test
+DNS.2 = tls.test.apps.savita47new.tekton.codereadyqe.com

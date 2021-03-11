@@ -41,6 +41,7 @@ func NewClientSet() (*clients.Clients, string, func()) {
 	cs, err := clients.NewClients(config.Flags.Kubeconfig, config.Flags.Cluster, ns)
 	assert.FailOnError(err)
 	oc.CreateNewProject(ns)
+	//oc.AddLabelToProject(ns)
 	return cs, ns, func() {
 		oc.DeleteProject(ns)
 	}

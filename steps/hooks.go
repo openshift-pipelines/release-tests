@@ -28,10 +28,10 @@ var _ = gauge.BeforeScenario(func() {
 
 // Runs After every Secenario
 var _ = gauge.AfterScenario(func() {
-	switch c := gauge.GetScenarioStore()["scenario.cleanup"].(type) {
-	case func():
-		c()
-	default:
-		testsuit.T.Errorf("Error: return type is not of type func()")
-	}
+	//switch c := gauge.GetScenarioStore()["scenario.cleanup"].(type) {
+	//case func():
+	//	c()
+	//default:
+	//	testsuit.T.Errorf("Error: return type is not of type func()")
+	//}
 }, []string{}, testsuit.AND)

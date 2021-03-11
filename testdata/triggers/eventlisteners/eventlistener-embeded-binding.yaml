@@ -8,10 +8,10 @@ spec:
     - name: embed-trig
       bindings:
         - ref: pipeline-binding
-        - name: message-binding
-          spec:
-            params:
-              - name: message
-                value: Hello from the Triggers EventListener(listener-embed-binding)!
+#        - name: message-binding
+#          spec:
+#            params:
+#              - name: message
+#                value: Hello from the Triggers EventListener(listener-embed-binding)!
       template:
         ref: pipeline-template

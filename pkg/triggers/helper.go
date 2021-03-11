@@ -3,12 +3,16 @@ package triggers
 import (
 	"crypto/hmac"
 	"crypto/sha1"
+	"crypto/tls"
+	"crypto/x509"
 	"encoding/hex"
+	"fmt"
 	"log"
 	"net/http"
 	"os"
 	"strings"
 	"time"
+	"io/ioutil"
 
 	"github.com/getgauge-contrib/gauge-go/testsuit"
 	"github.com/openshift-pipelines/release-tests/pkg/assert"
@@ -24,9 +28,35 @@ const (
 
 // CreateHTTPClient for connection re-use
 func CreateHTTPClient() *http.Client {
+	//e1 := os.Setenv("GODEBUG", "x509ignoreCN=0")
+	//fmt.Println("set env error", e1)
+	//confFile, e1 := ioutil.ReadFile("/etc/pki/tls/openssl.cnf")
+	//fmt.Println("openssl configuration", string(confFile), "***********e1", e1)
+	//fmt.Println("gogdebug valuesrae", os.Getenv("GODEBUG"))
+	gopath := os.Getenv("GOPATH")
+	// Load client cert
+	cert, err := tls.LoadX509KeyPair(gopath+"/src/github.com/openshift-pipelines/release-tests/testdata/triggers/certs/tls.crt",
+		gopath+"/src/github.com/openshift-pipelines/release-tests/testdata/triggers/certs/tls.key")
+	if err != nil {
+		log.Fatal(err)
+	}
+	d, e := ioutil.ReadFile(gopath+"/src/github.com/openshift-pipelines/release-tests/testdata/triggers/certs/rootCA.crt")
+	fmt.Println("the read file is", string(d), "**********************", e)
+	caCert, err := ioutil.ReadFile(gopath+"/src/github.com/openshift-pipelines/release-tests/testdata/triggers/certs/rootCA.crt")
+	if err != nil {
+		log.Fatal(err)
+	}
+	caCertPool := x509.NewCertPool()
+	caCertPool.AppendCertsFromPEM(caCert)
 	client := &http.Client{
 		Transport: &http.Transport{
 			MaxIdleConnsPerHost: MaxIdleConnections,
+			TLSClientConfig: &tls.Config{
+				//InsecureSkipVerify:          true,
+				//ServerName: "tls.test.apps.savita47new.tekton.codereadyqe.com",
+				Certificates: []tls.Certificate{cert},
+				RootCAs:      caCertPool,
+			},
 		},
 		Timeout: time.Duration(RequestTimeout) * time.Second,
 	}
