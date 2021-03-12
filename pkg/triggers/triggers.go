@@ -51,16 +51,17 @@ func ExposeEventListner(c *clients.Clients, elname, namespace string) string {
 	return strings.Trim(route_url, "'")
 }
 
-func MockGetEvent(routeurl string) *http.Response {
-	// Send GET request to EventListener sink
-	req, err := http.NewRequest("GET", routeurl, nil)
+func MockPostEventWithEmptyPayload(routeurl string) *http.Response {
+	// Send empty POST request to EventListener sink
+	req, err := http.NewRequest("POST", routeurl, bytes.NewBuffer([]byte("{}")))
+	assert.FailOnError(err)
 	req.Header.Add("Accept", "application/json")
 	assert.FailOnError(err)
 
 	resp, err := CreateHTTPClient().Do(req)
 	assert.FailOnError(err)
-	if resp.StatusCode == http.StatusUnauthorized || resp.StatusCode == http.StatusForbidden {
-		testsuit.T.Errorf(fmt.Sprintf("sink returned 401/403 response: %d", resp.StatusCode))
+	if resp.StatusCode > http.StatusAccepted {
+		testsuit.T.Errorf(fmt.Sprintf("sink did not return 2xx response. Got status code: %d", resp.StatusCode))
 	}
 	return resp
 }
