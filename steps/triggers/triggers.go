@@ -12,8 +12,8 @@ var _ = gauge.Step("Expose Event listener <elname>", func(elname string) {
 	store.PutScenarioData("elname", elname)
 })
 
-var _ = gauge.Step("Mock get event", func() {
-	gauge.GetScenarioStore()["response"] = triggers.MockGetEvent(store.GetScenarioData("route"))
+var _ = gauge.Step("Mock post event with empty payload", func() {
+	gauge.GetScenarioStore()["response"] = triggers.MockPostEventWithEmptyPayload(store.GetScenarioData("route"))
 })
 
 var _ = gauge.Step("Assert eventlistener response", func() {
