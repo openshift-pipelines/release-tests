@@ -3,7 +3,10 @@ package triggers
 import (
 	"crypto/hmac"
 	"crypto/sha1"
+	"crypto/tls"
+	"crypto/x509"
 	"encoding/hex"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
@@ -12,6 +15,7 @@ import (
 
 	"github.com/getgauge-contrib/gauge-go/testsuit"
 	"github.com/openshift-pipelines/release-tests/pkg/assert"
+	resource "github.com/openshift-pipelines/release-tests/pkg/config"
 	"github.com/openshift-pipelines/release-tests/pkg/store"
 )
 
@@ -27,6 +31,33 @@ func CreateHTTPClient() *http.Client {
 	client := &http.Client{
 		Transport: &http.Transport{
 			MaxIdleConnsPerHost: MaxIdleConnections,
+		},
+		Timeout: time.Duration(RequestTimeout) * time.Second,
+	}
+
+	return client
+}
+
+// CreateHTTPSClient for connection re-use
+func CreateHTTPSClient() *http.Client {
+	// Load client cert
+	cert, err := tls.LoadX509KeyPair(resource.Path("testdata/triggers/certs/server.crt"), resource.Path("testdata/triggers/certs/server.key"))
+	if err != nil {
+		log.Fatal(err)
+	}
+	caCert, err := ioutil.ReadFile(resource.Path("testdata/triggers/certs/ca.crt"))
+	if err != nil {
+		log.Fatal(err)
+	}
+	caCertPool := x509.NewCertPool()
+	caCertPool.AppendCertsFromPEM(caCert)
+	client := &http.Client{
+		Transport: &http.Transport{
+			MaxIdleConnsPerHost: MaxIdleConnections,
+			TLSClientConfig: &tls.Config{
+				Certificates: []tls.Certificate{cert},
+				RootCAs:      caCertPool,
+			},
 		},
 		Timeout: time.Duration(RequestTimeout) * time.Second,
 	}
