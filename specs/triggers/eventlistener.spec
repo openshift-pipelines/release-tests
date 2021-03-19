@@ -110,6 +110,29 @@ Steps:
   * Verify resources are created with labels & event-id
   * Verify pipelinerun is "successfull"
 
+## Create Eventlistener with TLS enabled
+Tags: tls
+
+This scenario tests the creation of eventLister with TLS enabled, listens to events forwards request to validator service -> parsed response to other validators and so on, on each event it creates/triggers
+openshift-pipeline Resources defined under triggers-template, which helps you to deploy example app
+
+Steps:
+  * Create
+    |S.NO|resource_dir                                                        |
+    |----|--------------------------------------------------------------------|
+    |1   |testdata/triggers/sample-pipeline.yaml                              |
+    |2   |testdata/triggers/triggerbindings/triggerbinding.yaml               |
+    |3   |testdata/triggers/triggertemplate/triggertemplate.yaml              |
+    |4   |testdata/triggers/eventlisteners/eventlistener-embeded-binding.yaml |
+  * Expose Event listener for TLS "listener-embed-binding"
+  * Mock post event to "github" interceptor with event-type "push", payload "testdata/push.json", with TLS "true"
+  * Assert eventlistener response
+  * Verify pipelinerun
+    |S.NO|pipeline_run_name  |status     |check_lable_propagation|
+    |----|-------------------|-----------|-----------------------|
+    |1   |simple-pipeline-run|successfull|no                     |
+  * Cleanup Triggers
+
 ## Create Eventlistener embedded TriggersBindings specs
 Tags: e2e, triggers
 
@@ -126,7 +149,7 @@ Steps:
     |3   |testdata/triggers/triggertemplate/triggertemplate.yaml              |
     |4   |testdata/triggers/eventlisteners/eventlistener-embeded-binding.yaml |
   * Expose Event listener "listener-embed-binding"
-  * Mock post event to "github" interceptor with event-type "push", payload "testdata/push.json"
+  * Mock post event to "github" interceptor with event-type "push", payload "testdata/push.json", with TLS "false"
   * Assert eventlistener response
   * Verify pipelinerun
     |S.NO|pipeline_run_name  |status     |check_lable_propagation|
@@ -149,7 +172,7 @@ Steps:
     |2   |testdata/triggers/triggertemplate/embed-triggertemplate.yaml       |
     |3   |testdata/triggers/eventlisteners/eventlistener-embeded-binding.yaml|
   * Expose Event listener "listener-embed-binding"
-  * Mock post event to "github" interceptor with event-type "push", payload "testdata/push.json"
+  * Mock post event to "github" interceptor with event-type "push", payload "testdata/push.json", with TLS "false"
   * Assert eventlistener response
   * Verify pipelinerun
     |S.NO|pipeline_run_name                        |status     |check_lable_propagation|
@@ -171,7 +194,7 @@ Steps:
     |1   |testdata/triggers/gitlab/gitlab-push-listener.yaml|
   * Create & Link secret "gitlab-secret" to service account "pipeline"  
   * Expose Event listener "gitlab-listener"
-  * Mock post event to "gitlab" interceptor with event-type "Push Hook", payload "testdata/triggers/gitlab/gitlab-push-event.json"
+  * Mock post event to "gitlab" interceptor with event-type "Push Hook", payload "testdata/triggers/gitlab/gitlab-push-event.json", with TLS "false"
   * Assert eventlistener response
   * Verify taskrun
     |S.NO|task_run_name |status     |
@@ -193,7 +216,7 @@ Steps:
     |1   |testdata/triggers/bitbucket/bitbucket-eventlistener-interceptor.yaml|
   * Create & Link secret "bitbucket-secret" to service account "pipeline"  
   * Expose Event listener "bitbucket-listener"
-  * Mock post event to "bitbucket" interceptor with event-type "refs_changed", payload "testdata/triggers/bitbucket/refs-change-event.json"
+  * Mock post event to "bitbucket" interceptor with event-type "refs_changed", payload "testdata/triggers/bitbucket/refs-change-event.json", with TLS "false"
   * Assert eventlistener response
   * Verify taskrun
     |S.NO|task_run_name    |status |
@@ -216,7 +239,7 @@ Steps:
     |2   |testdata/triggers/github-ctb/eventlistener-ctb-git-push.yaml      |
   * Create & Link secret "github-secret" to service account "pipeline"  
   * Expose Event listener "listener-clustertriggerbinding-github-push"
-  * Mock post event to "github" interceptor with event-type "push", payload "testdata/triggers/github-ctb/push.json"
+  * Mock post event to "github" interceptor with event-type "push", payload "testdata/triggers/github-ctb/push.json", with TLS "false"
   * Assert eventlistener response
   * Verify pipelinerun
     |S.NO|pipeline_run_name       |status     |check_lable_propagation|
@@ -239,7 +262,7 @@ Steps:
     |2   |testdata/triggers/github-ctb/eventlistener-ctb-git-pr.yaml      |
   * Create & Link secret "github-secret" to service account "pipeline"  
   * Expose Event listener "listener-clustertriggerbinding-github-pr"
-  * Mock post event to "github" interceptor with event-type "pull_request", payload "testdata/triggers/github-ctb/pr.json"
+  * Mock post event to "github" interceptor with event-type "pull_request", payload "testdata/triggers/github-ctb/pr.json", with TLS "false"
   * Assert eventlistener response
   * Verify pipelinerun
     |S.NO|pipeline_run_name       |status     |check_lable_propagation|
@@ -262,7 +285,7 @@ Steps:
     |2   |testdata/triggers/github-ctb/eventlistener-ctb-git-pr-review.yaml      |
   * Create & Link secret "github-secret" to service account "pipeline"  
   * Expose Event listener "listener-ctb-github-pr-review"
-  * Mock post event to "github" interceptor with event-type "issue_comment", payload "testdata/triggers/github-ctb/issue-comment.json"
+  * Mock post event to "github" interceptor with event-type "issue_comment", payload "testdata/triggers/github-ctb/issue-comment.json", with TLS "false"
   * Assert eventlistener response
   * Verify pipelinerun
     |S.NO|pipeline_run_name                |status     |check_lable_propagation|
@@ -288,7 +311,7 @@ Steps:
     |5   |testdata/triggers/triggersCRD/pipeline.yaml                |
   * Create & Link secret "github-secret" to service account "pipeline"  
   * Expose Event listener "listener-triggerref"
-  * Mock post event to "github" interceptor with event-type "pull_request", payload "testdata/triggers/triggersCRD/pull-request.json"
+  * Mock post event to "github" interceptor with event-type "pull_request", payload "testdata/triggers/triggersCRD/pull-request.json", with TLS "false"
   * Assert eventlistener response
   * Verify pipelinerun
     |S.NO|pipeline_run_name       |status     |check_lable_propagation|
