@@ -111,7 +111,7 @@ Steps:
   * Verify pipelinerun is "successfull"
 
 ## Create Eventlistener with TLS enabled
-Tags: tls
+Tags: tls, triggers, e2e
 
 This scenario tests the creation of eventLister with TLS enabled, listens to events forwards request to validator service -> parsed response to other validators and so on, on each event it creates/triggers
 openshift-pipeline Resources defined under triggers-template, which helps you to deploy example app
