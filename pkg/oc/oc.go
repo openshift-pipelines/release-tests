@@ -36,6 +36,6 @@ func CreateSecretWithSecretToken(secretname, namespace string) {
 	log.Printf("output: %s\n", cmd.MustSucceed("oc", "create", "secret", "generic", secretname, "--from-literal=secretToken="+os.Getenv("SECRET_TOKEN"), "-n", namespace).Stdout())
 }
 
-func DisableDefaultTLSConfigForEventlisteners(namespace string) {
-	log.Printf("output: %s\n", cmd.MustSucceed("oc", "label", "namespace", namespace, "operator.tekton.dev/disable-annotation=disabled").Stdout())
+func EnableTLSConfigForEventlisteners(namespace string) {
+	log.Printf("output: %s\n", cmd.MustSucceed("oc", "label", "namespace", namespace, "operator.tekton.dev/enable-annotation=enabled").Stdout())
 }
