@@ -1,0 +1,140 @@
+apiVersion: v1
+kind: Secret
+type: kubernetes.io/ssh-auth
+metadata:
+  name: ssh-key-for-git
+  annotations:
+    tekton.dev/git-0: github.com
+data:
+  ssh-privatekey: LS0tLS1CRUdJTiBSU0EgUFJJVkFURSBLRVktLS0tLQpNSUlFcFFJQkFBS0NBUUVBbTFhcXpaS2tQM2xmUTBmcGNveTVTZ3EwMDQ2by9mMksyRTVLdXhpV3VWTitKb0pCCjNHS1p6TWJvNDRMQmxuSm1yMjZFZjUxc25hSnoyY1NRZDRmeXQ1VENyR2FjKzFXR3lhUTk2MWdoU2pHQzhBa1kKRUdqdmx2a1pveTN2MUNYSXVCL3VwS3p6MSt1bzBMOGJIc0E2RExGMndsNTBnRndBNDJmME1PcUJkeVBDcGViZgpWc0pZbWR4NE9CQmtRVkNkVkt4cXE2ZzdZWGlDaS9uaVhKVW1tODl5Q3RYKzJnUDM4RjJNVXI3c0E2Mi8xY09GCkpzREJLRGUvaUIvY1VMdGZQWmZ1S2dFaXJ3UE9ENnZBZG5EWEtvUFprWnJwWFpCb0toRjQzOWkvSzhGaUJFQ3kKVU8wQWUzbUF6L24zMkpLKzlMbUI5VlhaOFR3citONUkxMEREbVFJREFRQUJBb0lCQVFDUTYwRDcrbU83Uit0RQo1SkQ1S2lvdTFtQXV3bmdNUlA3RW4vMytJSWwxS2x5VlpvNDFJZFBraEdsKzMxemxrNk1TNWFNOVAwdTJvSGsrClg3QjdvMXdnUXV0L1ZWZjg3cVNKOSsxQVkzN2pMZCsvT215MTJvQXpNLy9rQ1pZbU1IM2FzUWU5b0JENWpzUjIKd3VOMVE5YWtRdWZObTd0S2lRclhIUU5tbzFEWEtRc3drNEFLdDJSbHhBOGV0ZDcxSmNxNitQL0dCQm8zMTJ0ZwpBcS9Cb1FMbXh4WFA2MmFPbG1Ocy9VWTJ6VHQyNStRNElWNThKeTB4OVFZRGxKQ05SUnltc1hEWDAwdm9ML0x0ClMvNHFVdC9iTVpMOXEwZEQ0N2diaUppWmNhUnNuRE5mSGZNSzQrOWZLMkFxSENVem01KzYrMTQ5RGxLSEErR1IKY0VYTEE3eUJBb0dCQVBrMGpUSitZWlU3TUxTZHo1a3hwaGM5WXVHY2s2Qmx1czlYUDhES3VPYXg0NnlkUkJLaQo4TlVKTTdNWmdqSlkyeEFyMmtIY1hhblVZTldkUHZ1YmpPd1QySHk3VFZTTWliaUwwd3N6R3FEbXlWOFlBbDk0Cno3VEtRVlNkSzkzUWN2Tng0VFhINzRubW9JWklhdCtRWU9ONXdHT2oyckNRZlNWNTRFenk4RGJSQW9HQkFKK1MKN1hBQnIzN3ZwVGx4azNXYWc0RllCalZ6dERzelo3T1JoU0wvQ01iU045c04xenVuN0pZUDFFeEtwU0x0MEc3YgpTRWJmVy9ybG5FbHhQZzVBT3ZrLzhGTVhqWHQ1Nmw4bXlqR2Uvc0s1Q3h1SFVNK0pNLzYvbEpGZHdxSHVKdGZ2CitBUDlwa3JFalRaeXdhWGRIS0xRaDk3Y282b21KWldsUWhmMis0SkpBb0dCQVBVK09VSWF5NCtmeTJQRDlod04KbHlWQnZRRElKU1B4V1RGWTdKMmZJdTJzM0tEdnQ2RWJoeVF2eFJnWkgxN0t3UEtlSlZFeE8xKzVhSDV3SEI1aQpTd0c4Mmd5T0N5RU1tUy9yTW9yUUJRR1pmVXkvQlA3TmxxS1ZkRXQvelQ2aU42M0tRVmE2NXNud0U4TnltdkplClZHc29VeVA3aVdpL0dObDdvamczMEJ3eEFvR0FjR1ZjQ29XVmFESkJ6V2s3TlIybFBPaVVUdmYxWGJHQ2ZJK20KR0JWTXlFWHZnOEtHOUlUOTltQ2w1eXE0a0JhenRqR01BaWQzTVF5amZYTmZBMGlvZ1VGUTlDWGx5TEFCcmcyegpZeW9iUldweThXdnBOcFRzWTZYcmJreDlOL04zdHFkV3FQRHpQVHllUGxpc0h6alQzN1pEeld6WmRwSXg3T3FlCjJDUmwyTWtDZ1lFQW0weVdvVnpxQ3A5RXdQNng3ci9taXlPMW1XLzc3MGlPZ2cveDNpZFJabThTY3N1bm92L3oKR0x3QjRTak1yMThvU2NETHdRUGtLWEdVMS9rcVMvaHBQL1Ric0JORVdRWmE0S2FFVWdyMDE4Sk9NaVZpRnBFRgo3SXptUmJOMnNtNTFzNzJlMjFLT0o2c1duYUlSNTRQQXJMa2J0QS9BN2duOW5IaTFQVHpHTVRjPQotLS0tLUVORCBSU0EgUFJJVkFURSBLRVktLS0tLQo=
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: ssh-key-service-account
+secrets:
+- name: ssh-key-for-git
+---
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: yq
+spec:
+  params:
+    - name: commands
+      type: string
+      description: The set of commands to run
+  steps:
+    - name: yq
+      workingDir: $(workspaces.source.path)
+      image: mikefarah/yq:3.3.2
+      script: |
+        #!/usr/bin/env sh
+        echo "Running: '$(params.commands)'"
+        $(params.commands)
+  workspaces:
+    - name: source
+---
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  name: welcome-app-pipeline
+spec:
+  workspaces:
+  - description: This workspace for this pipeline
+    name: welcome-app-ws1
+  - description: This is a scratch disk
+    name: scratch
+  params:
+  - name: DEPLOY_REPO
+    type: string
+    description: The git repo where the deployment manifests are
+    default: git@github.com:praveen4g0/vote-api.git
+  - name: DEPLOY_REF
+    type: string
+    description: git revision to checkout from the deployment repo (branch, tag, sha, ref…)
+    default: docker-to-quay
+  - name: DEV_OVERLAY_DIR
+    type: string
+    description: the directory where the dev overlay is
+    default: k8s
+  - name: PATCH_VALUE
+    type: string
+    description: provide image patch value
+    default: quay.io/openshift-pipeline/vote-api:latest
+  tasks:
+  - name: clone-deploy-repo
+    params:
+    - name: url
+      value: $(params.DEPLOY_REPO)
+    - name: revision
+      value: $(params.DEPLOY_REF)
+    taskRef:
+      name: git-clone
+      kind: ClusterTask
+    workspaces:
+    - name: output
+      workspace: welcome-app-ws1
+  - name: patch-dev
+    taskRef:
+      name: yq
+    params:
+      - name: commands
+        value: |
+          yq w -i $(params.DEV_OVERLAY_DIR)/deployment.yaml "spec.containers[0].image.value" $(params.PATCH_VALUE)
+    runAfter:
+      - clone-deploy-repo
+    workspaces:
+      - name: source
+        workspace: welcome-app-ws1
+  - name: commit-to-dev
+    params:
+    - name: GIT_USER_NAME
+      value: praveen4g0
+    - name: GIT_USER_EMAIL
+      value: pthangad@redhat.com
+    - name: GIT_SCRIPT
+      value: |
+        git add -A .
+        git commit -am "Run  Updating image to $(params.PATCH_VALUE) on $(params.DEV_OVERLAY_DIR)"
+        GIT_SSH_COMMAND="ssh -i tekton/home/.ssh/id_ssh-key-for-git -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no" git push -f origin HEAD:$(params.DEPLOY_REF)
+    taskRef:
+      name: git-cli
+      kind: ClusterTask
+    runAfter:
+      - patch-dev
+    workspaces:
+    - name: source
+      workspace: welcome-app-ws1
+    - name: input
+      workspace: scratch
+---
+apiVersion: tekton.dev/v1beta1
+kind: PipelineRun
+metadata:
+  name:  git-ssh-pipelinerun
+spec:
+  serviceAccountName: ssh-key-service-account
+  pipelineRef:
+    name: welcome-app-pipeline
+  params:
+    - name: DEPLOY_REPO
+      value: git@github.com:praveen4g0/vote-api.git
+    - name: DEPLOY_REF
+      value: docker-to-quay
+    - name: DEV_OVERLAY_DIR
+      value: k8s
+    - name: PATCH_VALUE
+      value: quay.io/openshift-pipeline/vote-api:v1.1
+  workspaces:
+    - name: welcome-app-ws1
+      volumeClaimTemplate:
+        spec:
+          accessModes:
+            - ReadWriteOnce
+          resources:
+            requests:
+              storage: 100Mi
+    - name: scratch
+      emptyDir: {}
+---

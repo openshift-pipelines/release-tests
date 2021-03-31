@@ -102,3 +102,16 @@ Steps:
       |S.NO|pipeline_run_name                        |status     |check_lable_propagation|
       |----|-----------------------------------------|-----------|-----------------------|
       |1   |pipelinerun-with-pipelinespec-taskspec-vb|successfull|no                     |
+
+## Use SSH authentication in `git` type `tasks`(without know_hosts)
+Tags: ssh
+
+Steps:
+  * Create
+      |S.NO|resource_dir                             |
+      |----|-----------------------------------------|
+      |1   |testdata/v1beta1/pipelinerun/git-ssh.yaml|
+  * Verify pipelinerun
+      |S.NO|pipeline_run_name  |status     |check_lable_propagation|
+      |----|-------------------|-----------|-----------------------|
+      |1   |git-ssh-pipelinerun|successfull|no                     |
