@@ -104,7 +104,7 @@ Steps:
       |1   |pipelinerun-with-pipelinespec-taskspec-vb|successfull|no                     |
 
 ## Use SSH authentication in `git` type `tasks`(without know_hosts)
-Tags: ssh
+Tags: e2e, integration, pipelines, ssh
 
 Steps:
   * Create

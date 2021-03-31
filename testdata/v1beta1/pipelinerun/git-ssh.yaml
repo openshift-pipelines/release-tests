@@ -27,7 +27,7 @@ spec:
   steps:
     - name: yq
       workingDir: $(workspaces.source.path)
-      image: mikefarah/yq:3.3.2
+      image: quay.io/rhdevelopers/origin-cli-yq-jq:latest
       script: |
         #!/usr/bin/env sh
         echo "Running: '$(params.commands)'"
@@ -95,9 +95,9 @@ spec:
       value: pthangad@redhat.com
     - name: GIT_SCRIPT
       value: |
-        git add -A .
-        git commit -am "Run  Updating image to $(params.PATCH_VALUE) on $(params.DEV_OVERLAY_DIR)"
-        GIT_SSH_COMMAND="ssh -i tekton/home/.ssh/id_ssh-key-for-git -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no" git push -f origin HEAD:$(params.DEPLOY_REF)
+        git add -A . && \
+        git commit -am "Run  Updating image to $(params.PATCH_VALUE) on $(params.DEV_OVERLAY_DIR)" && \
+        GIT_SSH_COMMAND="ssh -i tekton/home/.ssh/id_ssh-key-for-git -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no" git push -f origin HEAD:$(params.DEPLOY_REF) || git commit -m "empty-commit" --allow-empty && GIT_SSH_COMMAND="ssh -i tekton/home/.ssh/id_ssh-key-for-git -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no" git push origin HEAD:$(params.DEPLOY_REF)
     taskRef:
       name: git-cli
       kind: ClusterTask
