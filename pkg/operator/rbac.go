@@ -37,6 +37,6 @@ func AssertRoleBinding(clients *clients.Clients, ns, roleBindingName string) {
 		return false, err
 	})
 	if err != nil {
-		assert.FailOnError(fmt.Errorf("could not find serviceaccount %s/%s: %q", ns, roleBindingName, err))
+		assert.FailOnError(fmt.Errorf("could not find Rolebinding %s/%s: %q", ns, roleBindingName, err))
 	}
 }

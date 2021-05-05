@@ -316,6 +316,17 @@ func ServiceNotExist(c *clients.Clients, namespace, name string) wait.ConditionF
 	}
 }
 
+// RouteNotExist returns a function that checks if the specified Route does not exist
+func RouteNotExist(c *clients.Clients, namespace, name string) wait.ConditionFunc {
+	return func() (bool, error) {
+		_, err := c.Route.Routes(namespace).Get(c.Ctx, name, metav1.GetOptions{})
+		if err != nil && errors.IsNotFound(err) {
+			return true, nil
+		}
+		return false, nil
+	}
+}
+
 // PipelineResourceExist returns a function that checks if the specified PipelineResource exists
 func PipelineResourceExist(c *clients.Clients, name string) wait.ConditionFunc {
 	return func() (bool, error) {

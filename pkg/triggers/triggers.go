@@ -209,6 +209,15 @@ func CleanupTriggers(c *clients.Clients, elName, namespace string) {
 
 	log.Println("EventListener's Service was deleted")
 
+	//Delete Route exposed earlier
+	err = c.Route.Routes(namespace).Delete(c.Ctx, fmt.Sprintf("%s-%s", eventReconciler.GeneratedResourcePrefix, elName), metav1.DeleteOptions{})
+	assert.FailOnError(err)
+
+	// Verify the EventListener's Route is deleted
+	err = wait.WaitFor(c.Ctx, wait.RouteNotExist(c, namespace, fmt.Sprintf("%s-%s", eventReconciler.GeneratedResourcePrefix, elName)))
+	assert.FailOnError(err)
+	log.Println("EventListener's Route was deleted successfully...")
+
 	// This is required when EL runs as TLS
 	cmd.MustSucceed("rm", "-rf", os.Getenv("GOPATH")+"/src/github.com/openshift-pipelines/release-tests/testdata/triggers/certs")
 }
