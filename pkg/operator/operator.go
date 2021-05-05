@@ -20,7 +20,7 @@ func ValidateRBAC(cs *clients.Clients, rnames config.ResourceNames) {
 	AssertServiceAccount(cs, store.Namespace(), "pipeline")
 	//Verify roleBindings are created in any namespace
 	AssertRoleBinding(cs, store.Namespace(), "edit")
-	AssertRoleBinding(cs, store.Namespace(), "pipeline-anyuid")
+	AssertRoleBinding(cs, store.Namespace(), "pipelines-scc-rolebinding")
 }
 
 func ValidatePipelineDeployments(cs *clients.Clients, rnames config.ResourceNames) {
