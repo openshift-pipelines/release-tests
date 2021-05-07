@@ -129,13 +129,13 @@ Tag\|TagB                    |have either TagA or TagB.
 ## Run openshift-pipeline tests
 
 ```
-> gauge run --env "default, test" --log-level=debug  --verbose specs/pipelines specs/triggers
+> gauge run --env "default, test" --log-level=debug --verbose specs/pipelines specs/triggers
 ```
 
 ## Run pipelines tests
 
 ```
-> gauge run --env "default, test" --log-level=debug  --verbose specs/pipelines/
+> gauge run --env "default, test" --log-level=debug --verbose specs/pipelines/
 ```
 
 ## Run openshift-pipelines monitoring acceptance tests
@@ -148,24 +148,24 @@ Tag\|TagB                    |have either TagA or TagB.
 
 ### Fresh installation
 ```
-> CATALOG_SOURCE=pre-stage-operators CHANNEL=preview gauge run --env "default, test" --tags "install" --log-level=debug --verbose   specs/olm.spec
+> CATALOG_SOURCE=pre-stage-operators CHANNEL=preview gauge run --env "default, test" --tags "install" --log-level=debug --verbose specs/olm.spec
 ```
 
 > Notes: 
 > - set `CATALOG_SOURCE` eg: `pre-stage-operators`
-> - set `CHANNEL` env variable Eg: `ocp-4.6`, 
+> - set `CHANNEL` env variable Eg: `stable`,
 > - helps user to install operator by subscribing to `CHANNEL` (Assumption: pipelines operator shouldn't be installed) for `redhat-operators` or user defined catalog sources
 
 ### Upgrade operator
 ```
-> CATALOG_SOURCE=$CATALOG_SOURCE CHANNEL=$CHANNEL gauge run --env "default, test" --tags "upgrade" --log-level=debug --verbose   specs/olm.spec
+> CATALOG_SOURCE=$CATALOG_SOURCE CHANNEL=$CHANNEL gauge run --env "default, test" --tags "upgrade" --log-level=debug --verbose specs/olm.spec
 ```
 > Notes:
 > - helps user to upgrade operator by updating subscription to latest `CHANNEL` (Assumption: cluster should have pipelines operator installed)
 
 ### Uninstall Operator
 ```
-> gauge run --env "default, test" --tags "uninstall" --log-level=debug --verbose   specs/olm.spec
+> gauge run --env "default, test" --tags "uninstall" --log-level=debug --verbose specs/olm.spec
 ```
  
 ## Package structures
@@ -219,7 +219,7 @@ Tag\|TagB                    |have either TagA or TagB.
 ```
 
 ```
-> gauge run --env "test" --log-level=debug  --verbose specs/pipelines/
+> gauge run --env "test" --log-level=debug --verbose specs/pipelines/
 ```
 
 ## Dogfooding own product
