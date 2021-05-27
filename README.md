@@ -158,7 +158,7 @@ Tag\|TagB                    |have either TagA or TagB.
 
 ### Upgrade operator
 ```
-> CHANNEL=$CHANNEL gauge run --env "default, test" --tags "upgrade" --log-level=debug --verbose   specs/olm.spec
+> CATALOG_SOURCE=$CATALOG_SOURCE CHANNEL=$CHANNEL gauge run --env "default, test" --tags "upgrade" --log-level=debug --verbose   specs/olm.spec
 ```
 > Notes:
 > - helps user to upgrade operator by updating subscription to latest `CHANNEL` (Assumption: cluster should have pipelines operator installed)
