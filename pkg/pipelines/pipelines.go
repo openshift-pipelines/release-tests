@@ -249,7 +249,7 @@ func AssertForNoNewPipelineRunCreation(c *clients.Clients, namespace string) {
 		}
 	}()
 	time.Sleep(1 * time.Minute)
-	if count != expectedCount {
+	if count >= expectedCount {
 		testsuit.T.Errorf("Error:  Expected: %+v (tekton resources add newly in namespace %s), \n Actual: %+v ", expectedCount, namespace, count)
 	}
 }

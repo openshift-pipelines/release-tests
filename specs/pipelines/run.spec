@@ -4,7 +4,7 @@ Pre condition:
   * Validate Operator should be installed
 
 ## Run sample pipeline
-Tags: e2e, integration, pipelines
+Tags: e2e, integration, pipelines, non-admin
 
 Run a sample pipeline that has 2 tasks:
   1. create a file
@@ -24,7 +24,7 @@ Steps:
       |2   |output-pipeline-run-vb|successfull|yes                    |
 
 ## Conditional pipeline run
-Tags: e2e, integration, pipelines
+Tags: e2e, integration, pipelines, non-admin
 
 Steps:
   * Create
@@ -38,7 +38,7 @@ Steps:
 
 
 ## Conditional pipeline runs without optional resources
-Tags: e2e, integration, pipelines
+Tags: e2e, integration, pipelines, non-admin
 
 Steps:
   * Create
@@ -52,7 +52,7 @@ Steps:
 
 
 ## Pipelinerun Timeout failure Test
-Tags: e2e, integration, pipelines
+Tags: e2e, integration, pipelines, non-admin
 
 Steps:
   * Create
@@ -65,7 +65,7 @@ Steps:
       |1   |pear             |timeout            |no                     |
 
 ## Configure execution results at the Task level Test
-Tags: e2e, integration, pipelines
+Tags: e2e, integration, pipelines, non-admin
 
 Steps:
   * Create
@@ -78,7 +78,7 @@ Steps:
       |1   |task-level-results|successfull|no                     |
 
 ## Cancel pipelinerun Test
-Tags: e2e, integration, pipelines
+Tags: e2e, integration, pipelines, non-admin
 
 Steps:
   * Create
@@ -91,7 +91,7 @@ Steps:
       |1   |output-pipeline-run-vb|cancelled|no                     |
 
 ## Pipelinerun with pipelinespec and taskspec(embedded pipelinerun tests)
-Tags: e2e, integration, pipelines
+Tags: e2e, integration, pipelines, non-admin
 
 Steps:
   * Create

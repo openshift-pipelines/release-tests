@@ -1,7 +1,7 @@
 # Olm Openshift Pipelines operator specs
 
 ## Install openshift-pipelines operator
-Tags: install
+Tags: install, admin
 Installs `openshift-pipelines` operator using olm
 
 Steps:
@@ -13,7 +13,7 @@ Steps:
   * Validate RBAC
 
 ## Upgrade openshift-pipelines operator
-Tags: upgrade
+Tags: upgrade, admin
 Installs `openshift-pipelines` operator using olm
 
 Steps:
@@ -23,7 +23,7 @@ Steps:
   * Validate RBAC
 
 ## Uninstall openshift-pipelines operator
-Tags: uninstall
+Tags: uninstall, admin
 
 Uninstalls `openshift-pipelines` operator using olm
 Steps:
