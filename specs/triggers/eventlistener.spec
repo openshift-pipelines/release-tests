@@ -111,7 +111,7 @@ Steps:
   * Verify pipelinerun is "successfull"
 
 ## Create Eventlistener with TLS enabled
-Tags: tls, triggers, e2e
+Tags: tls, triggers, admin
 
 This scenario tests the creation of eventLister with TLS enabled, listens to events forwards request to validator service -> parsed response to other validators and so on, on each event it creates/triggers
 openshift-pipeline Resources defined under triggers-template, which helps you to deploy example app
@@ -135,7 +135,7 @@ Steps:
   * Cleanup Triggers
 
 ## Create Eventlistener embedded TriggersBindings specs
-Tags: e2e, triggers
+Tags: e2e, triggers, non-admin
 
 This scenario tests the creation of eventLister with embedded triggerbinding spec, listens to events forwards request to validator service -> parsed response to other validators and so on, on each event it creates/triggers
 openshift-pipeline Resources defined under triggers-template, which helps you to deploy example app
@@ -158,7 +158,7 @@ Steps:
   * Cleanup Triggers  
 
 ## Create embedded TriggersTemplate
-Tags: e2e, triggers
+Tags: e2e, triggers, non-admin
 
 This scenario tests the creation of embedded triggertemplate spec, listens to events forwards request to validator service -> parsed response to other validators and so on, on each event it creates/triggers
 openshift-pipeline Resources defined under triggers-template, which helps you to deploy example app
@@ -180,7 +180,7 @@ Steps:
   * Cleanup Triggers  
 
 ## Create Eventlistener with gitlab interceptor
-Tags: e2e, triggers
+Tags: e2e, triggers, non-admin
 
 This scenario tests the creation of eventLister with gitlab interceptor, listens to gitlab events, on each event it creates/triggers
 openshift-pipeline Resources defined under triggers-template, to deploy example app
@@ -201,7 +201,7 @@ Steps:
   * Cleanup Triggers
 
 ## Create Eventlistener with bitbucket interceptor
-Tags: e2e, triggers
+Tags: e2e, triggers, non-admin
 
 This scenario tests the creation of eventLister with bitbucket interceptor, listens to bitbucket events, on each event it creates/triggers
 openshift-pipeline Resources defined under triggers-template
@@ -222,7 +222,7 @@ Steps:
   * Cleanup Triggers
 
 ## Verify Github push event with Embbeded TriggerTemplate using Github-CTB
-Tags: e2e, triggers
+Tags: e2e, triggers, non-admin
 
 This scenario tests Github `push` event via CTB, on each event it creates/triggers
 openshift-pipeline Resources defined under triggers-template
@@ -244,7 +244,7 @@ Steps:
   * Cleanup Triggers
 
 ## Verify Github pull_request event with Embbeded TriggerTemplate using Github-CTB
-Tags: e2e, triggers
+Tags: e2e, triggers, non-admin
 
 This scenario tests Github `pull_request` event via CTB, on each event it creates/triggers
 openshift-pipeline Resources defined under triggers-template
@@ -266,7 +266,7 @@ Steps:
   * Cleanup Triggers
 
 ## Verify Github pr_review event with Embbeded TriggerTemplate using Github-CTB
-Tags: e2e, triggers
+Tags: e2e, triggers, non-admin
 
 This scenario tests Github `issue_comment` event via CTB, on each event it creates/triggers
 openshift-pipeline Resources defined under triggers-template
@@ -288,7 +288,7 @@ Steps:
   * Cleanup Triggers
   
 ## Create TriggersCRD resource with CEL interceptors (overlays)
-Tags: e2e, triggers
+Tags: e2e, triggers, non-admin
 
 This scenario tests the creation of Trigger resource which is combination of TriggerTemplate, TriggerBindings and interceptors. The Trigger is processed by EventListener, and listens to events, on each event it creates/triggers
 openshift-pipeline Resources defined under triggers-template  

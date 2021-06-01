@@ -4,7 +4,7 @@ Pre condition:
   * Validate Operator should be installed
 
 ## Run Triggers tutorial (by Automatically configuring users webhook to git repo)
-Tags: e2e, integration, triggers
+Tags: e2e, integration, triggers, non-admin
 
 This scenario helps you to configure webhook & listens to github events, on each github event it creates/triggers
 openshift-pipeline Resources which helps you to deploy application (vote-app)

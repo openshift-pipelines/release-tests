@@ -6,7 +6,7 @@ Precondition:
   * Validate Operator should be installed
 
 ## Openshift pipelines metrics acceptance tests
-Tags: e2e, metrics
+Tags: e2e, metrics, admin
 
 Steps:
   * Verify job health status metrics

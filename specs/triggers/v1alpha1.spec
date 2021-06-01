@@ -4,7 +4,7 @@ Pre condition:
   * Validate Operator should be installed
 
 ## v1alpha1 resources creation Test
-Tags: e2e, triggers
+Tags: e2e, triggers, non-admin
 
 Steps:
   * Create
