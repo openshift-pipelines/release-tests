@@ -216,7 +216,7 @@ func CleanupTriggers(c *clients.Clients, elName, namespace string) {
 	// Verify the EventListener's Route is deleted
 	err = wait.WaitFor(c.Ctx, wait.RouteNotExist(c, namespace, fmt.Sprintf("%s-%s", eventReconciler.GeneratedResourcePrefix, elName)))
 	assert.FailOnError(err)
-	log.Println("EventListener's Route was deleted successfully...")
+	log.Println("EventListener's Route got deleted successfully...")
 
 	// This is required when EL runs as TLS
 	cmd.MustSucceed("rm", "-rf", os.Getenv("GOPATH")+"/src/github.com/openshift-pipelines/release-tests/testdata/triggers/certs")

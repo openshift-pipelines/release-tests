@@ -6,7 +6,7 @@ Precondition:
   * Validate Operator should be installed
 
 ## Run Pipeline with a non-existent ServiceAccount
-Tags: e2e, pipeline, negative
+Tags: e2e, pipeline, negative, non-admin
 
 Running a pipeline using a ServiceAccount that does not exist must fail
 
@@ -24,7 +24,7 @@ Steps:
        |2   |output-pipeline-run-vb|Failure|no                     |
 
 ## Run Task with a non-existent ServiceAccount
-Tags: e2e, tasks, negative
+Tags: e2e, tasks, negative, non-admin
 
 Running a task using a ServiceAccount that does not exist must fail
 
