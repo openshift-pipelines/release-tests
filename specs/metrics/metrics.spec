@@ -1,3 +1,4 @@
+OSPL-01
 # Verify openshift pipelines monitoring
 
 Contains scenarios that exercises running openshift pipelines monitoring acceptance tests
@@ -5,8 +6,12 @@ Contains scenarios that exercises running openshift pipelines monitoring accepta
 Precondition:
   * Validate Operator should be installed
 
-## Openshift pipelines metrics acceptance tests
+## Openshift pipelines metrics acceptance tests: OSPL-01-TC01
 Tags: e2e, metrics, admin
+Component: Operator
+Level: Integration
+Type: Functional
+Importance: Critical
 
 Steps:
   * Verify job health status metrics
