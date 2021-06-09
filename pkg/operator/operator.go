@@ -18,7 +18,12 @@ func ValidateRBAC(cs *clients.Clients, rnames config.ResourceNames) {
 	EnsureTektonConfigStatusInstalled(cs.TektonConfig(), rnames)
 	//Verify `pipelineSa` is created in any namespace
 	AssertServiceAccount(cs, store.Namespace(), "pipeline")
-	//Verify roleBindings are created in any namespace
+	//Verify clusterrole
+	AssertClusterRole(cs, "pipelines-scc-clusterrole")
+	//Verify configmaps is created in any namespace
+	AssertConfigMap(cs, store.Namespace(), "config-service-cabundle")
+	AssertConfigMap(cs, store.Namespace(), "config-trusted-cabundle")
+	//Verify roleBindings is created in any namespace
 	AssertRoleBinding(cs, store.Namespace(), "edit")
 	AssertRoleBinding(cs, store.Namespace(), "pipelines-scc-rolebinding")
 }
