@@ -1,0 +1,35 @@
+apiVersion: triggers.tekton.dev/v1alpha1
+kind: TriggerTemplate
+metadata:
+  name: taskrun-with-annotation
+  annotations:
+    triggers.tekton.dev/old-escape-quotes: "true"
+spec:
+  params:
+    - name: body
+  resourcetemplates:
+    - apiVersion: tekton.dev/v1beta1
+      kind: TaskRun
+      metadata:
+        name: trig-parse-json-body-with-annotation
+      spec:
+        taskSpec:
+          steps:
+          - image: registry.redhat.io/ubi8/ubi-minimal
+            script: |
+              #!/usr/bin/env bash
+              echo "parsed json body output : $(tt.params.body)."
+---              
+apiVersion: triggers.tekton.dev/v1alpha1
+kind: EventListener
+metadata:
+  name: parse-json-body-with-annotation
+spec:
+  serviceAccountName: pipeline
+  triggers:
+    - name: trig-with-annotation
+      bindings:
+      - name: body
+        value: $(body)
+      template:
+        ref: taskrun-with-annotation
