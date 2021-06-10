@@ -115,7 +115,7 @@ Steps:
       |----|----------------------|---------|-----------------------|
       |1   |output-pipeline-run-vb|cancelled|no                     |
 
-## Pipelinerun with pipelinespec and taskspec(embedded pipelinerun tests): PIPELINES-03-TC06
+## Pipelinerun with pipelinespec and taskspec(embedded pipelinerun tests): PIPELINES-03-TC07
 Tags: e2e, integration, pipelines, non-admin
 Component: Pipelines
 Level: Integration
