@@ -1,10 +1,15 @@
+PIPELINES-07
 # Verify Triggers
 
 Pre condition:
   * Validate Operator should be installed
 
-## v1alpha1 resources creation Test
+## v1alpha1 resources creation Test: PIPELINES-07-TC01
 Tags: e2e, triggers, non-admin
+Component: Triggers
+Level: Integration
+Type: Functional
+Importance: Critical
 
 Steps:
   * Create

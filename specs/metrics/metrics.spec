@@ -1,4 +1,4 @@
-OSPL-01
+PIPELINES-01
 # Verify openshift pipelines monitoring
 
 Contains scenarios that exercises running openshift pipelines monitoring acceptance tests

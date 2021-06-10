@@ -1,3 +1,4 @@
+PIPELINES-02
 # Verify Pipeline Failures
 
 Contains negative scenarios that exercises running pipeline
@@ -5,8 +6,13 @@ Contains negative scenarios that exercises running pipeline
 Precondition:
   * Validate Operator should be installed
 
-## Run Pipeline with a non-existent ServiceAccount
+## Run Pipeline with a non-existent ServiceAccount: PIPELINES-02-TC01
 Tags: e2e, pipeline, negative, non-admin
+Component: Pipelines
+Pos/Neg: Negative
+Level: Integration
+Type: Functional
+Importance: Critical
 
 Running a pipeline using a ServiceAccount that does not exist must fail
 
@@ -23,8 +29,13 @@ Steps:
        |1   |output-pipeline-run-va|Failure|no                     |
        |2   |output-pipeline-run-vb|Failure|no                     |
 
-## Run Task with a non-existent ServiceAccount
+## Run Task with a non-existent ServiceAccount: PIPELINES-02-TC02
 Tags: e2e, tasks, negative, non-admin
+Component: Pipelines
+Pos/Neg: Negative
+Level: Integration
+Type: Functional
+Importance: Critical
 
 Running a task using a ServiceAccount that does not exist must fail
 
