@@ -1,10 +1,15 @@
+PIPELINES-03
 # Verify Pipeline E2E spec
 
 Pre condition:
   * Validate Operator should be installed
 
-## Run sample pipeline
+## Run sample pipeline: PIPELINES-03-TC01
 Tags: e2e, integration, pipelines, non-admin
+Component: Pipelines
+Level: Integration
+Type: Functional
+Importance: Critical
 
 Run a sample pipeline that has 2 tasks:
   1. create a file
@@ -23,8 +28,12 @@ Steps:
       |1   |output-pipeline-run-va|successfull|yes                    |
       |2   |output-pipeline-run-vb|successfull|yes                    |
 
-## Conditional pipeline run
+## Conditional pipeline run: PIPELINES-03-TC02
 Tags: e2e, integration, pipelines, non-admin
+Component: Pipelines
+Level: Integration
+Type: Functional
+Importance: Critical
 
 Steps:
   * Create
@@ -37,8 +46,12 @@ Steps:
       |1   |condtional-pr-vb |successfull|no                     |
 
 
-## Conditional pipeline runs without optional resources
+## Conditional pipeline runs without optional resources: PIPELINES-03-TC03
 Tags: e2e, integration, pipelines, non-admin
+Component: Pipelines
+Level: Integration
+Type: Functional
+Importance: Critical
 
 Steps:
   * Create
@@ -51,8 +64,12 @@ Steps:
       |1   |condtional-pr-without-condition-resource|successfull|no                     |
 
 
-## Pipelinerun Timeout failure Test
+## Pipelinerun Timeout failure Test: PIPELINES-03-TC04
 Tags: e2e, integration, pipelines, non-admin
+Component: Pipelines
+Level: Integration
+Type: Functional
+Importance: Critical
 
 Steps:
   * Create
@@ -64,8 +81,12 @@ Steps:
       |----|-----------------|-------------------|-----------------------|
       |1   |pear             |timeout            |no                     |
 
-## Configure execution results at the Task level Test
+## Configure execution results at the Task level Test: PIPELINES-03-TC05
 Tags: e2e, integration, pipelines, non-admin
+Component: Pipelines
+Level: Integration
+Type: Functional
+Importance: Critical
 
 Steps:
   * Create
@@ -77,8 +98,12 @@ Steps:
       |----|------------------|-----------|-----------------------|
       |1   |task-level-results|successfull|no                     |
 
-## Cancel pipelinerun Test
+## Cancel pipelinerun Test: PIPELINES-03-TC06
 Tags: e2e, integration, pipelines, non-admin
+Component: Pipelines
+Level: Integration
+Type: Functional
+Importance: Critical
 
 Steps:
   * Create
@@ -90,8 +115,12 @@ Steps:
       |----|----------------------|---------|-----------------------|
       |1   |output-pipeline-run-vb|cancelled|no                     |
 
-## Pipelinerun with pipelinespec and taskspec(embedded pipelinerun tests)
+## Pipelinerun with pipelinespec and taskspec(embedded pipelinerun tests): PIPELINES-03-TC07
 Tags: e2e, integration, pipelines, non-admin
+Component: Pipelines
+Level: Integration
+Type: Functional
+Importance: Critical
 
 Steps:
   * Create

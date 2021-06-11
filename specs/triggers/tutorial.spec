@@ -1,10 +1,15 @@
+PIPELINES-06
 # Verify triggers tutorial
 
 Pre condition:
   * Validate Operator should be installed
 
-## Run Triggers tutorial (by Automatically configuring users webhook to git repo)
+## Run Triggers tutorial (by Automatically configuring users webhook to git repo): PIPELINES-06-TC01
 Tags: e2e, integration, triggers, non-admin
+Component: Triggers
+Level: Integration
+Type: Functional
+Importance: Critical
 
 This scenario helps you to configure webhook & listens to github events, on each github event it creates/triggers
 openshift-pipeline Resources which helps you to deploy application (vote-app)

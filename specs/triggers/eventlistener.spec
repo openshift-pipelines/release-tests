@@ -1,10 +1,15 @@
+PIPELINES-05
 # Verify eventlisteners spec
 
 Pre condition:
   * Validate Operator should be installed
 
-## Create Eventlistener
+## Create Eventlistener: PIPELINES-05-TC01
 Tags: triggers
+Component: Triggers
+Level: Integration
+Type: Functional
+Importance: High
 
 This scenario helps you to create eventlistner, listens to github events by default, on each github event it creates/triggers
 openshift-pipeline Resources defined under triggers-template, to deploy example app
@@ -21,8 +26,12 @@ Steps:
   * Verify resources are created with labels & event-id
   * Verify pipelinerun is "successfull"
 
-## Create Eventlistener with github interceptor
+## Create Eventlistener with github interceptor: PIPELINES-05-TC02
 Tags: triggers
+Component: Triggers
+Level: Integration
+Type: Functional
+Importance: High
 
 This scenario helps you to create eventlistner with github interceptor, listens to github events, on each github event it creates/triggers
 openshift-pipeline Resources defined under triggers-template, to deploy example app
@@ -39,8 +48,12 @@ Steps:
   * Verify resources are created with labels & event-id
   * Verify pipelinerun is "successfull"
 
-## Create EventListener with custom interceptor
+## Create EventListener with custom interceptor: PIPELINES-05-TC03
 Tags: triggers
+Component: Triggers
+Level: Integration
+Type: Functional
+Importance: High
 
 This scenario helps you to create eventlistner with custom interceptor, listens to custom events, on each event to custom service it creates/triggers
 openshift-pipeline Resources defined under triggers-template, to deploy example app
@@ -58,8 +71,12 @@ Steps:
   * Verify resources are created with labels & event-id
   * Verify pipelinerun is "successfull"
 
-## Create EventListener with CEL interceptor with filter
+## Create EventListener with CEL interceptor with filter: PIPELINES-05-TC04
 Tags: triggers
+Component: Triggers
+Level: Integration
+Type: Functional
+Importance: High
 
 This scenario helps you to create eventlistner with CEL interceptor with filter, listens to filtered CEL events, on each event it creates/triggers
 openshift-pipeline Resources defined under triggers-template, to deploy example app
@@ -75,8 +92,12 @@ Steps:
   * Verify resources are created with labels & event-id
   * Verify pipelinerun is "successfull"
 
-## Create EventListener with CEL interceptor without filter
+## Create EventListener with CEL interceptor without filter: PIPELINES-05-TC05
 Tags: triggers
+Component: Triggers
+Level: Integration
+Type: Functional
+Importance: High
 
 This scenario helps you to create eventlistner with CEL interceptor, listens to all CEL events, on each event it creates/triggers
 openshift-pipeline Resources defined under triggers-template, to deploy example app
@@ -93,8 +114,12 @@ Steps:
   * Verify pipelinerun is "successfull"
 
 
-## Create EventListener with multiple interceptors
+## Create EventListener with multiple interceptors: PIPELINES-05-TC06
 Tags: triggers
+Component: Triggers
+Level: Integration
+Type: Functional
+Importance: High
 
 This scenario helps you to create eventlistner with multiple interceptors, listens to events forwards request to validator service -> parsed response to other validators and so on, on each event it creates/triggers
 openshift-pipeline Resources defined under triggers-template, which helps you to deploy example app
@@ -110,8 +135,12 @@ Steps:
   * Verify resources are created with labels & event-id
   * Verify pipelinerun is "successfull"
 
-## Create Eventlistener with TLS enabled
+## Create Eventlistener with TLS enabled: PIPELINES-05-TC07
 Tags: tls, triggers, admin
+Component: Triggers
+Level: Integration
+Type: Functional
+Importance: Critical
 
 This scenario tests the creation of eventLister with TLS enabled, listens to events forwards request to validator service -> parsed response to other validators and so on, on each event it creates/triggers
 openshift-pipeline Resources defined under triggers-template, which helps you to deploy example app
@@ -134,8 +163,12 @@ Steps:
     |1   |simple-pipeline-run|successfull|no                     |
   * Cleanup Triggers
 
-## Create Eventlistener embedded TriggersBindings specs
+## Create Eventlistener embedded TriggersBindings specs: PIPELINES-05-TC08
 Tags: e2e, triggers, non-admin
+Component: Triggers
+Level: Integration
+Type: Functional
+Importance: Critical
 
 This scenario tests the creation of eventLister with embedded triggerbinding spec, listens to events forwards request to validator service -> parsed response to other validators and so on, on each event it creates/triggers
 openshift-pipeline Resources defined under triggers-template, which helps you to deploy example app
@@ -157,8 +190,12 @@ Steps:
     |1   |simple-pipeline-run|successfull|no                     |
   * Cleanup Triggers  
 
-## Create embedded TriggersTemplate
+## Create embedded TriggersTemplate: PIPELINES-06-TC09
 Tags: e2e, triggers, non-admin
+Component: Triggers
+Level: Integration
+Type: Functional
+Importance: Critical
 
 This scenario tests the creation of embedded triggertemplate spec, listens to events forwards request to validator service -> parsed response to other validators and so on, on each event it creates/triggers
 openshift-pipeline Resources defined under triggers-template, which helps you to deploy example app
@@ -179,8 +216,12 @@ Steps:
     |1   |pipelinerun-with-taskspec-to-echo-message|successfull|no                     |
   * Cleanup Triggers  
 
-## Create Eventlistener with gitlab interceptor
+## Create Eventlistener with gitlab interceptor: PIPELINES-05-TC10
 Tags: e2e, triggers, non-admin
+Component: Triggers
+Level: Integration
+Type: Functional
+Importance: Critical
 
 This scenario tests the creation of eventLister with gitlab interceptor, listens to gitlab events, on each event it creates/triggers
 openshift-pipeline Resources defined under triggers-template, to deploy example app
@@ -200,8 +241,12 @@ Steps:
     |1   |gitlab-run    |successfull|
   * Cleanup Triggers
 
-## Create Eventlistener with bitbucket interceptor
+## Create Eventlistener with bitbucket interceptor: PIPELINES-05-TC11
 Tags: e2e, triggers, non-admin
+Component: Triggers
+Level: Integration
+Type: Functional
+Importance: Critical
 
 This scenario tests the creation of eventLister with bitbucket interceptor, listens to bitbucket events, on each event it creates/triggers
 openshift-pipeline Resources defined under triggers-template
@@ -221,8 +266,12 @@ Steps:
     |1   |bitbucket-run    |Failure|
   * Cleanup Triggers
 
-## Verify Github push event with Embbeded TriggerTemplate using Github-CTB
+## Verify Github push event with Embbeded TriggerTemplate using Github-CTB: PIPELINES-05-TC12
 Tags: e2e, triggers, non-admin
+Component: Triggers
+Level: Integration
+Type: Functional
+Importance: Critical
 
 This scenario tests Github `push` event via CTB, on each event it creates/triggers
 openshift-pipeline Resources defined under triggers-template
@@ -243,8 +292,12 @@ Steps:
     |1   |pipelinerun-git-push-ctb|successfull|no                     |
   * Cleanup Triggers
 
-## Verify Github pull_request event with Embbeded TriggerTemplate using Github-CTB
+## Verify Github pull_request event with Embbeded TriggerTemplate using Github-CTB: PIPELINES-05-TC13
 Tags: e2e, triggers, non-admin
+Component: Triggers
+Level: Integration
+Type: Functional
+Importance: Critical
 
 This scenario tests Github `pull_request` event via CTB, on each event it creates/triggers
 openshift-pipeline Resources defined under triggers-template
@@ -265,8 +318,12 @@ Steps:
     |1   |pipelinerun-git-pr-ctb  |successfull|no                     |
   * Cleanup Triggers
 
-## Verify Github pr_review event with Embbeded TriggerTemplate using Github-CTB
+## Verify Github pr_review event with Embbeded TriggerTemplate using Github-CTB: PIPELINES-05-TC14
 Tags: e2e, triggers, non-admin
+Component: Triggers
+Level: Integration
+Type: Functional
+Importance: Critical
 
 This scenario tests Github `issue_comment` event via CTB, on each event it creates/triggers
 openshift-pipeline Resources defined under triggers-template
@@ -287,8 +344,12 @@ Steps:
     |1   |pipelinerun-git-pr-review-ctb    |successfull|no                     |
   * Cleanup Triggers
   
-## Create TriggersCRD resource with CEL interceptors (overlays)
+## Create TriggersCRD resource with CEL interceptors (overlays): PIPELINES-05-TC15
 Tags: e2e, triggers, non-admin
+Component: Triggers
+Level: Integration
+Type: Functional
+Importance: Critical
 
 This scenario tests the creation of Trigger resource which is combination of TriggerTemplate, TriggerBindings and interceptors. The Trigger is processed by EventListener, and listens to events, on each event it creates/triggers
 openshift-pipeline Resources defined under triggers-template  

@@ -1,10 +1,15 @@
+PIPELINES-04
 # Verify Triggers with cronjob
 
 Pre condition:
   * Validate Operator should be installed
 
-## Create Triggers using k8s cronJob
+## Create Triggers using k8s cronJob: PIPELINES-04-TC01
 Tags: e2e,triggers,non-admin
+Component: Triggers
+Level: Integration
+Type: Functional
+Importance: Critical
 
 This scenario helps you to Trigger pipelineRun, using a k8s CronJob, to implement a basic cron trigger that runs every minute
 

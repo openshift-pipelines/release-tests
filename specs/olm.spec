@@ -1,7 +1,13 @@
+PIPELINES-09
 # Olm Openshift Pipelines operator specs
 
-## Install openshift-pipelines operator
+## Install openshift-pipelines operator: PIPELINES-09-TC01
 Tags: install, admin
+Component: Operator
+Level: Integration
+Type: Functional
+Importance: Critical
+
 Installs `openshift-pipelines` operator using olm
 
 Steps:
@@ -12,8 +18,13 @@ Steps:
   * Verify TektonAddons Install status
   * Validate RBAC
 
-## Upgrade openshift-pipelines operator
+## Upgrade openshift-pipelines operator: PIPELINES-09-TC02
 Tags: upgrade, admin
+Component: Operator
+Level: Integration
+Type: Functional
+Importance: Critical
+
 Installs `openshift-pipelines` operator using olm
 
 Steps:
@@ -22,8 +33,12 @@ Steps:
   * Validate Operator should be installed
   * Validate RBAC
 
-## Uninstall openshift-pipelines operator
+## Uninstall openshift-pipelines operator: PIPELINES-09-TC03
 Tags: uninstall, admin
+Component: Operator
+Level: Integration
+Type: Functional
+Importance: Critical
 
 Uninstalls `openshift-pipelines` operator using olm
 Steps:
