@@ -5,7 +5,7 @@ Pre condition:
   * Validate Operator should be installed
 
 ## Run Triggers tutorial (by Automatically configuring users webhook to git repo): PIPELINES-06-TC01
-Tags: e2e, integration, triggers, non-admin
+Tags: e2e, integration, triggers, non-admin, to-do
 Component: Triggers
 Level: Integration
 Type: Functional

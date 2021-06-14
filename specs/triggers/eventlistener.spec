@@ -190,7 +190,7 @@ Steps:
     |1   |simple-pipeline-run|successfull|no                     |
   * Cleanup Triggers  
 
-## Create embedded TriggersTemplate: PIPELINES-06-TC09
+## Create embedded TriggersTemplate: PIPELINES-05-TC09
 Tags: e2e, triggers, non-admin
 Component: Triggers
 Level: Integration
