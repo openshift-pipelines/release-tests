@@ -1,0 +1,27 @@
+apiVersion: triggers.tekton.dev/v1alpha1
+kind: EventListener
+metadata:
+  name: parse-json-body
+spec:
+  serviceAccountName: pipeline
+  triggers:
+    - name: trig
+      bindings:
+      - name: body
+        value: $(body)
+      template:
+        spec:
+          params:
+            - name: body
+          resourcetemplates:
+            - apiVersion: tekton.dev/v1beta1
+              kind: TaskRun
+              metadata:
+                name: trig-parse-json-body
+              spec:
+                taskSpec:
+                  steps:
+                  - image: registry.redhat.io/ubi8/ubi-minimal
+                    script: |
+                      #!/usr/bin/env bash
+                      echo "parsed json body output : $(tt.params.body)."

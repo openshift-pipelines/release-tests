@@ -1,0 +1,32 @@
+apiVersion: triggers.tekton.dev/v1alpha1
+kind: EventListener
+metadata:
+  name: cel-marshaljson
+spec:
+  serviceAccountName: pipeline
+  triggers:
+    - name: cel-trig
+      interceptors:
+        - cel:
+            overlays:
+            - key: marshaled_body
+              expression: "body.marshalJSON()"
+      bindings:
+      - name: body
+        value: $(extensions.marshaled_body)
+      template:
+        spec:
+          params:
+            - name: body
+          resourcetemplates:
+            - apiVersion: tekton.dev/v1beta1
+              kind: TaskRun
+              metadata:
+                name: cel-trig-marshaljson
+              spec:
+                taskSpec:
+                  steps:
+                  - image: registry.redhat.io/ubi8/ubi-minimal
+                    script: |
+                      #!/usr/bin/env bash
+                      echo "cel json marshal func output body : $(tt.params.body)."
