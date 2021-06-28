@@ -18,7 +18,7 @@ Steps:
     |S.NO|resource_dir                                 |
     |----|---------------------------------------------|
     |1   |testdata/triggers/cron/example-pipeline.yaml |
-    |2   |testdata/triggers/cron/tiggerbinding.yaml    |
+    |2   |testdata/triggers/cron/triggerbinding.yaml   |
     |3   |testdata/triggers/cron/triggertemplate.yaml  |
     |4   |testdata/triggers/cron/eventlistener.yaml    |
   * Expose Event listener "cron-listener"

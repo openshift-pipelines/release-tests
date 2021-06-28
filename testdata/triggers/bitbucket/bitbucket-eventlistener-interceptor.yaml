@@ -55,14 +55,20 @@ spec:
     serviceAccountName: pipeline
     triggers:
     - name: bitbucket-triggers
-      interceptors:
-        - bitbucket:
-            secretRef:
-                secretName: bitbucket-secret
-                secretKey: secretToken
-            eventTypes:
-                - repo:refs_changed
       bindings:
         - ref: bitbucket-binding
+      interceptors:
+        - name: verify-bitbucket-payload
+          params:
+            - name: secretRef
+              value:
+                secretKey: secretToken
+                secretName: bitbucket-secret
+            - name: eventTypes
+              value:
+                - 'repo:refs_changed'
+          ref:
+            kind: ClusterInterceptor
+            name: bitbucket
       template:
         ref: bitbucket-template
