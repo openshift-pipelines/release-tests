@@ -7,10 +7,15 @@ spec:
   triggers:
     - name: cel-trig
       interceptors:
-        - cel:
-            overlays:
-            - key: marshaled_body
-              expression: "body.marshalJSON()"
+      - name: verify-cel-overlays
+        ref:
+          name: cel
+          kind: ClusterInterceptor
+        params:
+          - name: "overlays"
+            value:
+              - key: marshaled_body
+                expression: "body.marshalJSON()"
       bindings:
       - name: body
         value: $(extensions.marshaled_body)

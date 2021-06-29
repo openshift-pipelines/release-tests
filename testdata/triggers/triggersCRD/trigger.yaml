@@ -4,11 +4,17 @@ metadata:
   name: trigger
 spec:
   interceptors:
-    - cel:
-        filter: "header.match('X-GitHub-Event', 'pull_request')"
-        overlays:
-        - key: "truncated_sha"
-          expression: "body.pull_request.head.sha.truncate(7)"
+    - name: verify-cel-overlays-with-filter
+      ref:
+        name: cel
+        kind: ClusterInterceptor
+      params:
+        - name: "overlays"
+          value:
+            - key: filter
+              value: "header.match('X-GitHub-Event', 'pull_request')"
+            - key: truncated_sha
+              expression: "body.pull_request.head.sha.truncate(7)"
   bindings:
   - ref: github-pr-binding
   template:
