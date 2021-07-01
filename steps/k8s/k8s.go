@@ -10,6 +10,10 @@ var _ = gauge.Step("Verify ServiceAccount <sa> does not exist", func(sa string) 
 	k8s.VerifyNoServiceAccount(store.Clients().Ctx, store.Clients().KubeClient, sa, store.Namespace())
 })
 
+var _ = gauge.Step("Verify ServiceAccount <sa> exist", func(sa string) {
+	k8s.VerifyServiceAccountExists(store.Clients().Ctx, store.Clients().KubeClient, sa, store.Namespace())
+})
+
 var _ = gauge.Step("Create cron job with schedule <schedule>", func(schedule string) {
 	args := []string{"curl", "-X", "POST", "--data", "{}", store.GetScenarioData("route")}
 	k8s.CreateCronJob(store.Clients(), args, schedule, store.Namespace())

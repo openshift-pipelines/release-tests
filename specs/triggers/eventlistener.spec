@@ -231,7 +231,8 @@ Steps:
     |S.NO|resource_dir                                      |
     |----|--------------------------------------------------|
     |1   |testdata/triggers/gitlab/gitlab-push-listener.yaml|
-  * Create & Link secret "gitlab-secret" to service account "pipeline"  
+  * Verify ServiceAccount "pipeline" exist
+  * Create & Link secret "gitlab-secret" to service account "pipeline" 
   * Expose Event listener "gitlab-listener"
   * Mock post event to "gitlab" interceptor with event-type "Push Hook", payload "testdata/triggers/gitlab/gitlab-push-event.json", with TLS "false"
   * Assert eventlistener response
@@ -256,6 +257,7 @@ Steps:
     |S.NO|resource_dir                                                        |
     |----|--------------------------------------------------------------------|
     |1   |testdata/triggers/bitbucket/bitbucket-eventlistener-interceptor.yaml|
+  * Verify ServiceAccount "pipeline" exist  
   * Create & Link secret "bitbucket-secret" to service account "pipeline"  
   * Expose Event listener "bitbucket-listener"
   * Mock post event to "bitbucket" interceptor with event-type "refs_changed", payload "testdata/triggers/bitbucket/refs-change-event.json", with TLS "false"
@@ -282,6 +284,7 @@ Steps:
     |----|------------------------------------------------------------------|
     |1   |testdata/triggers/github-ctb/Embeddedtriggertemplate-git-push.yaml|
     |2   |testdata/triggers/github-ctb/eventlistener-ctb-git-push.yaml      |
+  * Verify ServiceAccount "pipeline" exist  
   * Create & Link secret "github-secret" to service account "pipeline"  
   * Expose Event listener "listener-clustertriggerbinding-github-push"
   * Mock post event to "github" interceptor with event-type "push", payload "testdata/triggers/github-ctb/push.json", with TLS "false"
@@ -308,6 +311,7 @@ Steps:
     |----|----------------------------------------------------------------|
     |1   |testdata/triggers/github-ctb/Embeddedtriggertemplate-git-pr.yaml|
     |2   |testdata/triggers/github-ctb/eventlistener-ctb-git-pr.yaml      |
+  * Verify ServiceAccount "pipeline" exist  
   * Create & Link secret "github-secret" to service account "pipeline"  
   * Expose Event listener "listener-clustertriggerbinding-github-pr"
   * Mock post event to "github" interceptor with event-type "pull_request", payload "testdata/triggers/github-ctb/pr.json", with TLS "false"
@@ -334,6 +338,7 @@ Steps:
     |----|-----------------------------------------------------------------------|
     |1   |testdata/triggers/github-ctb/Embeddedtriggertemplate-git-pr-review.yaml|
     |2   |testdata/triggers/github-ctb/eventlistener-ctb-git-pr-review.yaml      |
+  * Verify ServiceAccount "pipeline" exist  
   * Create & Link secret "github-secret" to service account "pipeline"  
   * Expose Event listener "listener-ctb-github-pr-review"
   * Mock post event to "github" interceptor with event-type "issue_comment", payload "testdata/triggers/github-ctb/issue-comment.json", with TLS "false"
@@ -363,6 +368,7 @@ Steps:
     |3   |testdata/triggers/triggersCRD/triggerbindings.yaml         |
     |4   |testdata/triggers/triggersCRD/triggertemplate.yaml         |
     |5   |testdata/triggers/triggersCRD/pipeline.yaml                |
+  * Verify ServiceAccount "pipeline" exist  
   * Create & Link secret "github-secret" to service account "pipeline"  
   * Expose Event listener "listener-triggerref"
   * Mock post event to "github" interceptor with event-type "pull_request", payload "testdata/triggers/triggersCRD/pull-request.json", with TLS "false"
