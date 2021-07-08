@@ -1,0 +1,20 @@
+apiVersion: tekton.dev/v1alpha1
+kind: Task
+metadata:
+  name: python-script-task
+spec:
+  steps:
+    - name: python-example
+      image: python
+      script: |
+        #!/usr/bin/env python3
+        print("Hello from Python!")
+        import time
+        for i in range(5):
+          print("waiting for 2 seconds", flush=True)
+          time.sleep(2)
+    - name: python-example-2
+      image: python
+      script: |
+        #!/usr/bin/env python3
+        print("Second Task", flush=True)
