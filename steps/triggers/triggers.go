@@ -8,16 +8,25 @@ import (
 	"github.com/openshift-pipelines/release-tests/pkg/triggers"
 )
 
+var _ = gauge.Step("Get knative service for eventlistener <elname>", func(elname string) {
+	routeurl := triggers.GetKnEventListnerService(elname, store.Namespace())
+	store.PutScenarioData("route", routeurl)
+	store.PutScenarioData("elname", elname)
+	store.PutScenarioData("knative", "true")
+})
+
 var _ = gauge.Step("Expose Event listener <elname>", func(elname string) {
 	routeurl := triggers.ExposeEventListner(store.Clients(), elname, store.Namespace())
 	store.PutScenarioData("route", routeurl)
 	store.PutScenarioData("elname", elname)
+	store.PutScenarioData("knative", "false")
 })
 
 var _ = gauge.Step("Expose Event listener for TLS <elname>", func(elname string) {
 	routeurl := triggers.ExposeEventListnerForTLS(store.Clients(), elname, store.Namespace())
 	store.PutScenarioData("route", routeurl)
 	store.PutScenarioData("elname", elname)
+	store.PutScenarioData("knative", "false")
 })
 
 var _ = gauge.Step("Mock post event with empty payload", func() {

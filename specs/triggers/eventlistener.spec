@@ -378,3 +378,95 @@ Steps:
     |----|------------------------|-----------|-----------------------|
     |1   |parallel-pipelinerun    |successfull|no                     |
   * Cleanup Triggers
+
+## Create Eventlistener resource with Custom interceptors (github-validate): PIPELINES-05-TC16
+Tags: e2e, triggers, non-admin
+Component: Triggers
+Level: Integration
+Type: Functional
+Importance: Critical
+
+This scenario tests the creation of Trigger resource which is combination of TriggerTemplate, TriggerBindings and custom interceptors. The Trigger is processed by EventListener, and listens to events, on each event it creates/triggers
+openshift-pipeline Resources defined under triggers-template  
+
+Steps:
+  * Create
+    |S.NO|resource_dir                                                          |
+    |----|----------------------------------------------------------------------|
+    |1   |testdata/triggers/custom-interceptor/inerceptor.yaml                  |
+    |2   |testdata/triggers/eventlisteners/eventlistener-custom-interceptor.yaml|
+    |3   |testdata/triggers/sample-pipeline.yaml                                |
+    |4   |testdata/triggers/triggerbindings/triggerbinding.yaml                 |
+    |5   |testdata/triggers/triggertemplate/triggertemplate.yaml                |
+  * Verify ServiceAccount "pipeline" exist    
+  * Create & Link secret "github-secret" to service account "pipeline"  
+  * Expose Event listener "listener-custom-interceptor"
+  * Mock post event to "custom" interceptor with event-type "push", payload "testdata/push.json", with TLS "false"
+  * Assert eventlistener response
+  * Verify pipelinerun
+    |S.NO|pipeline_run_name  |status     |check_lable_propagation|
+    |----|-------------------|-----------|-----------------------|
+    |1   |simple-pipeline-run|successfull|no                     |
+  * Cleanup Triggers
+
+## Create Eventlistener resource with multiple interceptors : PIPELINES-05-TC17
+Tags: e2e, triggers, non-admin
+Component: Triggers
+Level: Integration
+Type: Functional
+Importance: Critical
+
+This scenario tests the creation of Trigger resource which is combination of TriggerTemplate, TriggerBindings and with multiple interceptors. The Trigger is processed by EventListener, and listens to events, on each event it creates/triggers
+openshift-pipeline Resources defined under triggers-template  
+
+Steps:
+  * Create
+    |S.NO|resource_dir                                                          |
+    |----|----------------------------------------------------------------------|
+    |1   |testdata/triggers/custom-interceptor/inerceptor.yaml                  |
+    |2   |testdata/triggers/eventlisteners/eventlistener-multi-interceptor.yaml |
+    |3   |testdata/triggers/sample-pipeline.yaml                                |
+    |4   |testdata/triggers/triggerbindings/triggerbinding.yaml                 |
+    |5   |testdata/triggers/triggertemplate/triggertemplate.yaml                |
+  * Verify ServiceAccount "pipeline" exist    
+  * Create & Link secret "github-secret" to service account "pipeline"  
+  * Expose Event listener "listener-multi-interceptor"
+  * Mock post event to "custom" interceptor with event-type "push", payload "testdata/push.json", with TLS "false"
+  * Assert eventlistener response
+  * Verify pipelinerun
+    |S.NO|pipeline_run_name  |status     |check_lable_propagation|
+    |----|-------------------|-----------|-----------------------|
+    |1   |simple-pipeline-run|successfull|no                     |
+  * Mock post event to "github" interceptor with event-type "push", payload "testdata/push.json", with TLS "false"
+  * Assert eventlistener response
+  * Verify pipelinerun
+    |S.NO|pipeline_run_name  |status     |check_lable_propagation|
+    |----|-------------------|-----------|-----------------------|
+    |1   |simple-pipeline-run|successfull|no                     |  
+  * Cleanup Triggers
+
+## Create Eventlistener resource with knative : PIPELINES-05-TC18
+Tags: knative, non-admin
+Component: Triggers
+Level: Integration
+Type: Functional
+Importance: Critical
+
+This scenario tests the creation of Trigger resource which is combination of TriggerTemplate, TriggerBindings and custom interceptors. The Trigger is processed by EventListener, and listens to events, on each event it creates/triggers
+openshift-pipeline Resources defined under triggers-template  
+
+Steps:
+  * Verify ServiceAccount "pipeline" exist  
+  * Create
+    |S.NO|resource_dir                                                          |
+    |----|----------------------------------------------------------------------|
+    |1   |testdata/triggers/customresource/github-knative-listener.yaml         |
+  * Create & Link secret "github-secret" to service account "pipeline"  
+  * Get knative service for eventlistener "github-knative-listener"
+  * Mock post event to "github" interceptor with event-type "pull_request", payload "testdata/triggers/github-ctb/pr.json", with TLS "false"
+  * Assert eventlistener response
+  * Verify taskrun
+    |S.NO|task_run_name    |status |
+    |----|-----------------|-------|
+    |1   |github-run       |Success|
+  * Cleanup Triggers
