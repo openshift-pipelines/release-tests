@@ -94,6 +94,14 @@ func buildHeaders(req *http.Request, interceptor, eventType string) *http.Reques
 		req.Header.Add("Content-Type", "application/json")
 		req.Header.Add("X-Hub-Signature", "sha1="+GetSignature(store.GetPayload(), os.Getenv("SECRET_TOKEN")))
 		req.Header.Add("X-Event-Key", "repo:"+eventType)
+	case "custom":
+		log.Printf("Building headers for custom github interceptor..")
+		req.Header.Add("Accept", "application/json")
+		req.Header.Add("Content-Type", "application/json")
+		req.Header.Add("X-Hub-Signature", "sha1="+GetSignature(store.GetPayload(), os.Getenv("SECRET_TOKEN")))
+		req.Header.Add("X-GitHub-Event", eventType)
+		req.Header.Add("Header1", "string-value")
+		req.Header.Add("Header2", "[\"array-val1\",\"array-val2\"]")
 	default:
 		testsuit.T.Errorf("Error: %s ", "Please provide valid event_listener type eg: (github, gitlab, bitbucket)")
 	}

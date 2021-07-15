@@ -192,8 +192,8 @@ func validatePipelineRunCancel(c *clients.Clients, prname, namespace string) {
 }
 
 func ValidatePipelineRun(c *clients.Clients, prname, status, labelCheck, namespace string) {
-	matched_trname := getPipelineRunNameMatches(c, prname, namespace)
-	if matched_trname == "" {
+	matched_prname := getPipelineRunNameMatches(c, prname, namespace)
+	if matched_prname == "" {
 		testsuit.T.Errorf("Error: Nothing matched with Taskrun name: %s in namespace %s", prname, namespace)
 	}
 
@@ -201,16 +201,16 @@ func ValidatePipelineRun(c *clients.Clients, prname, status, labelCheck, namespa
 	switch {
 	case strings.Contains(strings.ToLower(status), "success"):
 		log.Printf("validating pipeline run for success state...")
-		validatePipelineRunForSuccessStatus(c, matched_trname, labelCheck, namespace)
+		validatePipelineRunForSuccessStatus(c, matched_prname, labelCheck, namespace)
 	case strings.Contains(strings.ToLower(status), "fail"):
 		log.Printf("validating pipeline run for failure state...")
-		validatePipelineRunForFailedStatus(c, matched_trname, namespace)
+		validatePipelineRunForFailedStatus(c, matched_prname, namespace)
 	case strings.Contains(strings.ToLower(status), "timeout"):
 		log.Printf("validating pipeline run timeout...")
-		validatePipelineRunTimeoutFailure(c, matched_trname, namespace)
+		validatePipelineRunTimeoutFailure(c, matched_prname, namespace)
 	case strings.Contains(strings.ToLower(status), "cancel"):
 		log.Printf("validating pipeline run timeout...")
-		validatePipelineRunCancel(c, matched_trname, namespace)
+		validatePipelineRunCancel(c, matched_prname, namespace)
 	default:
 		testsuit.T.Errorf("Error: %s ", "Not valid input")
 	}

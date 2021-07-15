@@ -56,6 +56,14 @@ func ExposeEventListner(c *clients.Clients, elname, namespace string) string {
 	return strings.Trim(route_url, "'")
 }
 
+func GetKnEventListnerService(elname, namespace string) string {
+	cmd.MustSucceed("oc", "wait", "--for=condition=Ready", "-n", namespace, "eventlistener", elname, "--timeout=5m").Stdout()
+	route_url := cmd.MustSucceed("oc", "get", "eventlistener", elname, "-n", namespace, "--template='{{.status.address.url}}'").Stdout()
+	log.Printf("Route url: %s", route_url)
+	time.Sleep(5 * time.Second)
+	return strings.Trim(route_url, "'")
+}
+
 func ExposeEventListnerForTLS(c *clients.Clients, elname, namespace string) string {
 	svcName, portName := getServiceNameAndPort(c, elname, namespace)
 	domain := getDomain(namespace)
@@ -179,7 +187,13 @@ func AssertElResponse(c *clients.Clients, resp *http.Response, elname, namespace
 		testsuit.T.Errorf("sink response no eventID")
 	}
 
-	labelSelector := fields.SelectorFromSet(eventReconciler.GenerateResourceLabels(elname)).String()
+	var labelSelector string
+	if gauge.GetScenarioStore()["knative"] == "false" {
+		labelSelector = fields.SelectorFromSet(eventReconciler.GenerateResourceLabels(elname)).String()
+	} else {
+		labelSelector = "serving.knative.dev/service=el-" + elname
+	}
+
 	// Grab EventListener sink pods
 	sinkPods, err := c.KubeClient.Kube.CoreV1().Pods(namespace).List(c.Ctx, metav1.ListOptions{LabelSelector: labelSelector})
 	assert.NoError(err, fmt.Sprintf("Error listing EventListener sink pods"))
@@ -209,14 +223,16 @@ func CleanupTriggers(c *clients.Clients, elName, namespace string) {
 
 	log.Println("EventListener's Service was deleted")
 
-	//Delete Route exposed earlier
-	err = c.Route.Routes(namespace).Delete(c.Ctx, fmt.Sprintf("%s-%s", eventReconciler.GeneratedResourcePrefix, elName), metav1.DeleteOptions{})
-	assert.FailOnError(err)
+	if gauge.GetScenarioStore()["knative"] == "false" {
+		//Delete Route exposed earlier
+		err = c.Route.Routes(namespace).Delete(c.Ctx, fmt.Sprintf("%s-%s", eventReconciler.GeneratedResourcePrefix, elName), metav1.DeleteOptions{})
+		assert.FailOnError(err)
 
-	// Verify the EventListener's Route is deleted
-	err = wait.WaitFor(c.Ctx, wait.RouteNotExist(c, namespace, fmt.Sprintf("%s-%s", eventReconciler.GeneratedResourcePrefix, elName)))
-	assert.FailOnError(err)
-	log.Println("EventListener's Route got deleted successfully...")
+		// Verify the EventListener's Route is deleted
+		err = wait.WaitFor(c.Ctx, wait.RouteNotExist(c, namespace, fmt.Sprintf("%s-%s", eventReconciler.GeneratedResourcePrefix, elName)))
+		assert.FailOnError(err)
+		log.Println("EventListener's Route got deleted successfully...")
+	}
 
 	// This is required when EL runs as TLS
 	cmd.MustSucceed("rm", "-rf", os.Getenv("GOPATH")+"/src/github.com/openshift-pipelines/release-tests/testdata/triggers/certs")
