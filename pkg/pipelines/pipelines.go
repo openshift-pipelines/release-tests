@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"regexp"
 	"strings"
 	"sync"
 	"time"
@@ -24,6 +25,20 @@ import (
 )
 
 var prGroupResource = schema.GroupVersionResource{Group: "tekton.dev", Resource: "pipelineruns"}
+
+func getPipelineRunNameMatches(c *clients.Clients, prname, namespace string) string {
+	prlist, err := c.PipelineRunClient.List(c.Ctx, metav1.ListOptions{})
+	assert.NoError(err, fmt.Sprintf("Error Getting PipelineRun list under namespace %s ", namespace))
+	var matched_tr string
+	match, _ := regexp.Compile(prname + ".*?")
+	for _, pr := range prlist.Items {
+		if match.MatchString(pr.Name) {
+			matched_tr = pr.Name
+			break
+		}
+	}
+	return matched_tr
+}
 
 func validatePipelineRunForSuccessStatus(c *clients.Clients, prname, labelCheck, namespace string) {
 	var err error
@@ -177,24 +192,25 @@ func validatePipelineRunCancel(c *clients.Clients, prname, namespace string) {
 }
 
 func ValidatePipelineRun(c *clients.Clients, prname, status, labelCheck, namespace string) {
-	var err error
-	pr, err := c.PipelineRunClient.Get(c.Ctx, prname, metav1.GetOptions{})
-	assert.NoError(err, fmt.Sprintf("Error Getting PipelineRun %s under namespace %s ", prname, namespace))
+	matched_trname := getPipelineRunNameMatches(c, prname, namespace)
+	if matched_trname == "" {
+		testsuit.T.Errorf("Error: Nothing matched with Taskrun name: %s in namespace %s", prname, namespace)
+	}
 
 	// Verify status of PipelineRun (wait for it)
 	switch {
 	case strings.Contains(strings.ToLower(status), "success"):
 		log.Printf("validating pipeline run for success state...")
-		validatePipelineRunForSuccessStatus(c, pr.GetName(), labelCheck, namespace)
+		validatePipelineRunForSuccessStatus(c, matched_trname, labelCheck, namespace)
 	case strings.Contains(strings.ToLower(status), "fail"):
 		log.Printf("validating pipeline run for failure state...")
-		validatePipelineRunForFailedStatus(c, pr.GetName(), namespace)
+		validatePipelineRunForFailedStatus(c, matched_trname, namespace)
 	case strings.Contains(strings.ToLower(status), "timeout"):
 		log.Printf("validating pipeline run timeout...")
-		validatePipelineRunTimeoutFailure(c, pr.GetName(), namespace)
+		validatePipelineRunTimeoutFailure(c, matched_trname, namespace)
 	case strings.Contains(strings.ToLower(status), "cancel"):
 		log.Printf("validating pipeline run timeout...")
-		validatePipelineRunCancel(c, pr.GetName(), namespace)
+		validatePipelineRunCancel(c, matched_trname, namespace)
 	default:
 		testsuit.T.Errorf("Error: %s ", "Not valid input")
 	}
