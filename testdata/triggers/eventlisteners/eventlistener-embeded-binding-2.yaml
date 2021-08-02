@@ -1,0 +1,14 @@
+apiVersion: triggers.tekton.dev/v1alpha1
+kind: EventListener
+metadata:
+  name: listener-embed-binding-2
+spec:
+  serviceAccountName: pipeline
+  triggers:
+    - name: embed-trig
+      bindings:
+        - ref: pipeline-binding
+        - name: message
+          value: Hello from the Triggers EventListener(listener-embed-binding)!
+      template:
+        ref: pipeline-template-2
