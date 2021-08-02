@@ -387,7 +387,7 @@ Type: Functional
 Importance: Critical
 CustomerScenario: yes
 
-This scenario tests the creation of eventLister with TLS enabled, listens to events forwards request to validator service -> parsed response to other validators and so on, on each event it creates/triggers
+This scenario tests the creation of multiple eventLister with TLS enabled, listens to events forwards request to validator service -> parsed response to other validators and so on, on each event it creates/triggers
 openshift-pipeline Resources defined under triggers-template, which helps you to deploy example app
 
 Steps:
