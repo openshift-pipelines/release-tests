@@ -21,6 +21,7 @@ import (
 	"github.com/openshift-pipelines/release-tests/pkg/cmd"
 	resource "github.com/openshift-pipelines/release-tests/pkg/config"
 	"github.com/openshift-pipelines/release-tests/pkg/wait"
+	"github.com/tektoncd/pipeline/pkg/names"
 	eventReconciler "github.com/tektoncd/triggers/pkg/reconciler/v1alpha1/eventlistener"
 	"github.com/tektoncd/triggers/pkg/sink"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -58,7 +59,7 @@ func ExposeEventListner(c *clients.Clients, elname, namespace string) string {
 
 func ExposeEventListnerForTLS(c *clients.Clients, elname, namespace string) string {
 	svcName, portName := getServiceNameAndPort(c, elname, namespace)
-	domain := getDomain(namespace)
+	domain := getDomain()
 	cmd.MustSucceed("mkdir", "-p", resource.Path("testdata/triggers/certs")).Stdout()
 
 	rootcaKey := resource.Path("testdata/triggers/certs/ca.key")
@@ -103,14 +104,15 @@ func ExposeEventListnerForTLS(c *clients.Clients, elname, namespace string) stri
 }
 
 // This function returns the formatted hostname.
-func getDomain(namespace string) string {
+func getDomain() string {
 	/* each cluster have different domain so below logic is to extract domain from existing route
 	each openshift installation have `console` route in `openshift-console` namespace.
 	ex: http://console-openshift-console.apps.tt3.testing */
 	route_url := cmd.MustSucceed("oc", "-n", "openshift-console", "get", "route", "console", "--template=http://{{.spec.host}}").Stdout()
 	splittedValue := strings.SplitAfter(route_url, ".apps")
 	routeDomainName := "apps" + splittedValue[1]
-	return "tls." + namespace + "." + routeDomainName
+	randomName := names.SimpleNameGenerator.RestrictLengthWithRandomSuffix("releasetest")
+	return "tls." + randomName + "." + routeDomainName
 }
 
 func MockPostEventWithEmptyPayload(routeurl string) *http.Response {

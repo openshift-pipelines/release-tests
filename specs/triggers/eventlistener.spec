@@ -378,3 +378,44 @@ Steps:
     |----|------------------------|-----------|-----------------------|
     |1   |parallel-pipelinerun    |successfull|no                     |
   * Cleanup Triggers
+
+## Create multiple Eventlistener with TLS enabled: PIPELINES-05-TC16
+Tags: tls, triggers, admin
+Component: Triggers
+Level: Integration
+Type: Functional
+Importance: Critical
+CustomerScenario: yes
+
+This scenario tests the creation of multiple eventLister with TLS enabled, listens to events forwards request to validator service -> parsed response to other validators and so on, on each event it creates/triggers
+openshift-pipeline Resources defined under triggers-template, which helps you to deploy example app
+
+Steps:
+  * Enable TLS config for eventlisteners
+  * Create
+    |S.NO|resource_dir                                                        |
+    |----|--------------------------------------------------------------------|
+    |1   |testdata/triggers/sample-pipeline.yaml                              |
+    |2   |testdata/triggers/triggerbindings/triggerbinding.yaml               |
+    |3   |testdata/triggers/triggertemplate/triggertemplate.yaml              |
+    |4   |testdata/triggers/eventlisteners/eventlistener-embeded-binding.yaml |
+  * Expose Event listener for TLS "listener-embed-binding"
+  * Mock post event to "github" interceptor with event-type "push", payload "testdata/push.json", with TLS "true"
+  * Assert eventlistener response
+  * Verify pipelinerun
+    |S.NO|pipeline_run_name  |status     |check_lable_propagation|
+    |----|-------------------|-----------|-----------------------|
+    |1   |simple-pipeline-run|successfull|no                     |
+  * Create
+    |S.NO|resource_dir                                                          |
+    |----|----------------------------------------------------------------------|
+    |1   |testdata/triggers/triggertemplate/triggertemplate-2.yaml              |
+    |2   |testdata/triggers/eventlisteners/eventlistener-embeded-binding-2.yaml |
+  * Expose Event listener for TLS "listener-embed-binding-2"
+  * Mock post event to "github" interceptor with event-type "push", payload "testdata/push.json", with TLS "true"
+  * Assert eventlistener response
+  * Verify pipelinerun
+    |S.NO|pipeline_run_name    |status     |check_lable_propagation|
+    |----|---------------------|-----------|-----------------------|
+    |1   |simple-pipeline-run-2|successfull|no                     |
+  * Cleanup Triggers
