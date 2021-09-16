@@ -36,3 +36,11 @@ var _ = gauge.Step("Verify taskrun <trname> label propagation", func(trname stri
 var _ = gauge.Step("Assert no new pipelineruns created", func() {
 	pipelines.AssertForNoNewPipelineRunCreation(store.Clients(), store.Namespace())
 })
+
+var _ = gauge.Step("<numberOfPr> of pipelineruns should be present", func(numberOfPr string) {
+	pipelines.AssertNumberOfPipelinerun(store.Clients(), store.Namespace(), numberOfPr)
+})
+
+var _ = gauge.Step("<numberOfTr> of taskruns should be present", func(numberOfTr string) {
+	pipelines.AssertNumberOfTaskrun(store.Clients(), store.Namespace(), numberOfTr)
+})
