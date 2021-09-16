@@ -1,0 +1,78 @@
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: echo-task
+spec:
+  params:
+    - name: message
+      type: string
+  steps:
+    - image: registry.redhat.io/ubi7/ubi-minimal
+      script: |
+        echo $(params.message)
+---
+apiVersion: tekton.dev/v1beta1
+kind: TaskRun
+metadata:
+  name: echo-task-run-1
+spec:
+  params:
+  - name: message
+    value: test
+  resources: {}
+  serviceAccountName: ""
+  taskRef:
+    name: echo-task
+---
+apiVersion: tekton.dev/v1beta1
+kind: TaskRun
+metadata:
+  name: echo-task-run-2
+spec:
+  params:
+  - name: message
+    value: test
+  resources: {}
+  serviceAccountName: ""
+  taskRef:
+    name: echo-task
+---
+apiVersion: tekton.dev/v1beta1
+kind: TaskRun
+metadata:
+  name: echo-task-run-3
+spec:
+  params:
+  - name: message
+    value: test
+  resources: {}
+  serviceAccountName: ""
+  taskRef:
+    name: echo-task
+---
+apiVersion: tekton.dev/v1beta1
+kind: TaskRun
+metadata:
+  name: echo-task-run-4
+spec:
+  params:
+  - name: message
+    value: test
+  resources: {}
+  serviceAccountName: ""
+  taskRef:
+    name: echo-task
+---
+apiVersion: tekton.dev/v1beta1
+kind: TaskRun
+metadata:
+  name: echo-task-run-5
+spec:
+  params:
+  - name: message
+    value: test
+  resources: {}
+  serviceAccountName: ""
+  taskRef:
+    name: echo-task
+

@@ -3,7 +3,9 @@ package oc
 import (
 	"log"
 	"os"
+	"strings"
 
+	"github.com/getgauge-contrib/gauge-go/testsuit"
 	"github.com/openshift-pipelines/release-tests/pkg/cmd"
 	resource "github.com/openshift-pipelines/release-tests/pkg/config"
 )
@@ -38,4 +40,27 @@ func CreateSecretWithSecretToken(secretname, namespace string) {
 
 func EnableTLSConfigForEventlisteners(namespace string) {
 	log.Printf("output: %s\n", cmd.MustSucceed("oc", "label", "namespace", namespace, "operator.tekton.dev/enable-annotation=enabled").Stdout())
+}
+
+func UpdateTektonConfig(patch_data string) {
+	log.Printf("output: %s\n", cmd.MustSucceed("oc", "patch", "tektonconfig", "config", "-p", patch_data, "--type=merge"))
+}
+
+func VerifyCronjobStatus(cronJobName, status, namespace string) {
+	res := cmd.MustSucceed("oc", "get", "cronjob", "-n", namespace).Stdout()
+	if status == "present" {
+		if !strings.Contains(res, cronJobName) {
+			testsuit.T.Errorf("Error: Expected a cronjob with name %v is present in namespace %v", cronJobName, namespace)
+		} else {
+			log.Printf("cronjob with name %v is present in namespace %v", cronJobName, namespace)
+		}
+	} else if status == "not present" {
+		if strings.Contains(res, cronJobName) {
+			testsuit.T.Errorf("Error: Expected a cronjob with name %v is not present in namespace %v", cronJobName, namespace)
+		} else {
+			log.Printf("cronjob with name %v is not present in namespace %v", cronJobName, namespace)
+		}
+	} else {
+		testsuit.T.Errorf("Invalid input for status: %v", status)
+	}
 }

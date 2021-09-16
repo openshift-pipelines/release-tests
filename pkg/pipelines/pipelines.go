@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -251,5 +252,26 @@ func AssertForNoNewPipelineRunCreation(c *clients.Clients, namespace string) {
 	time.Sleep(1 * time.Minute)
 	if count < expectedCount {
 		testsuit.T.Errorf("Error:  Expected: %+v (tekton resources add newly in namespace %s), \n Actual: %+v ", expectedCount, namespace, count)
+	}
+}
+
+func AssertNumberOfPipelinerun(c *clients.Clients, namespace, numberOfPr string) {
+	prlist, err := c.PipelineRunClient.List(c.Ctx, metav1.ListOptions{})
+	assert.NoError(err, fmt.Sprintf("Error Getting TaskRun list under namespace %s ", namespace))
+	log.Printf("Verifying if %s number of taskruns are present", numberOfPr)
+	numberOfPrInt, _ := strconv.Atoi(numberOfPr)
+	assert.NoError(err, fmt.Sprintf("Error Getting TaskRun list under namespace %s ", namespace))
+	if len(prlist.Items) != numberOfPrInt {
+		testsuit.T.Errorf("Error: Expected %v number of pipelineruns but found %v number of pipelineruns", numberOfPr, len(prlist.Items))
+	}
+}
+
+func AssertNumberOfTaskrun(c *clients.Clients, namespace, numberOfTr string) {
+	trlist, err := c.TaskRunClient.List(c.Ctx, metav1.ListOptions{})
+	assert.NoError(err, fmt.Sprintf("Error Getting TaskRun list under namespace %s ", namespace))
+	log.Printf("Verifying if %s number of taskruns are present", numberOfTr)
+	numberOfTrInt, _ := strconv.Atoi(numberOfTr)
+	if len(trlist.Items) != numberOfTrInt {
+		testsuit.T.Errorf("Error: Expected %v number of taskruns but found %v number of pipelineruns", numberOfTrInt, len(trlist.Items))
 	}
 }
