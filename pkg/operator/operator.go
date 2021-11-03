@@ -28,6 +28,20 @@ func ValidateRBAC(cs *clients.Clients, rnames config.ResourceNames) {
 	AssertRoleBinding(cs, store.Namespace(), "pipelines-scc-rolebinding")
 }
 
+func ValidateRBACAfterDisable(cs *clients.Clients, rnames config.ResourceNames) {
+	EnsureTektonConfigStatusInstalled(cs.TektonConfig(), rnames)
+	//Verify `pipelineSa` is not created in any namespace
+	AssertServiceAccountAfterDisable(cs, store.Namespace(), "pipeline")
+	//Verify clusterrole does not create
+	AssertClusterRoleAfterDisable(cs, "pipelines-scc-clusterrole")
+	//Verify configmaps is not created in any namespace
+	AssertConfigMapAfterDisable(cs, store.Namespace(), "config-service-cabundle")
+	AssertConfigMapAfterDisable(cs, store.Namespace(), "config-trusted-cabundle")
+	//Verify roleBindings is not created in any namespace
+	AssertRoleBindingAfterDisable(cs, store.Namespace(), "edit")
+	AssertRoleBindingAfterDisable(cs, store.Namespace(), "pipelines-scc-rolebinding")
+}
+
 func ValidatePipelineDeployments(cs *clients.Clients, rnames config.ResourceNames) {
 	EnsureTektonPipelineExists(cs.TektonPipeline(), rnames)
 	k8s.ValidateDeployments(cs, rnames.TargetNamespace,

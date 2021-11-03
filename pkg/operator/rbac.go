@@ -76,3 +76,69 @@ func AssertClusterRole(clients *clients.Clients, clusterRoleName string) {
 		assert.FailOnError(fmt.Errorf("could not find ClusterRole %s: %q", clusterRoleName, err))
 	}
 }
+
+func AssertServiceAccountAfterDisable(clients *clients.Clients, ns, targetSA string) {
+	err := wait.Poll(config.APIRetry, config.APITimeout, func() (bool, error) {
+		saList, err := clients.KubeClient.Kube.CoreV1().ServiceAccounts(ns).List(context.TODO(), metav1.ListOptions{})
+		for _, item := range saList.Items {
+			if item.Name == targetSA {
+				return false, fmt.Errorf("found serviceaccount %s/%s", ns, targetSA)
+			}
+		}
+		return true, err
+	})
+	if err != nil {
+		assert.FailOnError(fmt.Errorf("found serviceaccount %s/%s: %q", ns, targetSA, err))
+	}
+}
+
+func AssertRoleBindingAfterDisable(clients *clients.Clients, ns, roleBindingName string) {
+	err := wait.Poll(config.APIRetry, config.APITimeout, func() (bool, error) {
+		rbList, err := clients.KubeClient.Kube.RbacV1().RoleBindings(ns).List(context.TODO(), metav1.ListOptions{})
+		for _, item := range rbList.Items {
+			if item.Name == roleBindingName {
+				return false, fmt.Errorf("found Rolebinding %s/%s", ns, roleBindingName)
+			}
+		}
+		return true, err
+	})
+	if err != nil {
+		assert.FailOnError(fmt.Errorf("found Rolebinding %s/%s", ns, roleBindingName))
+	}
+}
+
+func AssertConfigMapAfterDisable(clients *clients.Clients, ns, configMapName string) {
+	err := wait.Poll(config.APIRetry, config.APITimeout, func() (bool, error) {
+		cmList, err := clients.KubeClient.Kube.CoreV1().ConfigMaps(ns).List(context.TODO(), metav1.ListOptions{})
+		if err != nil {
+			return false, err
+		}
+		for _, item := range cmList.Items {
+			if item.Name == configMapName {
+				return false, fmt.Errorf("found ConfigMap %s/%s", ns, configMapName)
+			}
+		}
+		return true, err
+	})
+	if err != nil {
+		assert.FailOnError(fmt.Errorf("found ConfigMap %s/%s", ns, configMapName))
+	}
+}
+
+func AssertClusterRoleAfterDisable(clients *clients.Clients, clusterRoleName string) {
+	err := wait.Poll(config.APIRetry, config.APITimeout, func() (bool, error) {
+		rbList, err := clients.KubeClient.Kube.RbacV1().ClusterRoles().List(context.TODO(), metav1.ListOptions{})
+		if err != nil {
+			return false, err
+		}
+		for _, item := range rbList.Items {
+			if item.Name == clusterRoleName {
+				return false, fmt.Errorf("found ClusterRole %s", clusterRoleName)
+			}
+		}
+		return true, err
+	})
+	if err != nil {
+		assert.FailOnError(fmt.Errorf("found ClusterRole %s", clusterRoleName))
+	}
+}
