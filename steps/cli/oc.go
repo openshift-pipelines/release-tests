@@ -49,6 +49,16 @@ var _ = gauge.Step("Update pruner config to default", func() {
 })
 
 var _ = gauge.Step("Assert if cronjob <cronJobName> is <status> in namespace <namespace>", func(cronJobName, status, namespace string) {
+	if namespace == "targetNamespace" {
+		namespace = store.TargetNamespace()
+	} else if namespace == "currentNamespace" {
+		namespace = store.Namespace()
+	}
 	log.Printf("Verifying if the cronjob %v is %v in namespace %v", cronJobName, status, namespace)
 	oc.VerifyCronjobStatus(cronJobName, status, namespace)
+})
+
+var _ = gauge.Step("Annotate namespace with <annotation>", func(annotation string) {
+	log.Printf("Annotating namespace %v with %v", store.Namespace(), annotation)
+	oc.AnnotateNamespace(store.Namespace(), annotation)
 })

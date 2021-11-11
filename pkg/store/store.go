@@ -65,3 +65,7 @@ func PutScenarioData(key, value string) {
 func GetScenarioData(key string) string {
 	return gauge.GetScenarioStore()[key].(string)
 }
+
+func TargetNamespace() string {
+	return gauge.GetScenarioStore()["targetNamespace"].(string)
+}
