@@ -24,6 +24,7 @@ var _ = gauge.BeforeScenario(func() {
 	store["clients"] = cs
 	store["namespace"] = namespace
 	store["scenario.cleanup"] = cleanup
+	store["targetNamespace"] = config.TargetNamespace
 }, []string{}, testsuit.AND)
 
 // Runs After every Secenario

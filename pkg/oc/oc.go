@@ -43,7 +43,7 @@ func EnableTLSConfigForEventlisteners(namespace string) {
 }
 
 func UpdateTektonConfig(patch_data string) {
-	log.Printf("output: %s\n", cmd.MustSucceed("oc", "patch", "tektonconfig", "config", "-p", patch_data, "--type=merge"))
+	log.Printf("output: %s\n", cmd.MustSucceed("oc", "patch", "tektonconfig", "config", "-p", patch_data, "--type=merge").Stdout())
 }
 
 func VerifyCronjobStatus(cronJobName, status, namespace string) {
@@ -63,4 +63,8 @@ func VerifyCronjobStatus(cronJobName, status, namespace string) {
 	} else {
 		testsuit.T.Errorf("Invalid input for status: %v", status)
 	}
+}
+
+func AnnotateNamespace(namespace, annotation string) {
+	log.Printf("output: %s\n", cmd.MustSucceed("oc", "annotate", "namespace", namespace, annotation).Stdout())
 }
