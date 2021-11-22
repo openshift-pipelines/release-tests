@@ -35,25 +35,29 @@ var _ = gauge.Step("Create & Link secret <secret> to service account <sa>", func
 	oc.LinkSecretToSA(secret, sa, store.Namespace())
 })
 
-var _ = gauge.Step("Update pruner config with keep <keep> schedule <schedule> resouces <resources>", func(keep, schedule, resouces string) {
-	resouces_split := strings.Split(resouces, ",")
-	resources_list := strings.Join(resouces_split, "\",\"")
-	patch_data := fmt.Sprintf("{\"spec\":{\"pruner\":{\"keep\":%s,\"schedule\":\"%s\",\"resources\":[\"%s\"]}}}", keep, schedule, resources_list)
-	oc.UpdateTektonConfig(patch_data)
-})
-
-var _ = gauge.Step("Update pruner config to default", func() {
-	log.Print("Updating pruner config to default value")
-	patch_data := "{\"spec\":{\"pruner\":{\"keep\":1,\"schedule\":\"\"}}}"
-	oc.UpdateTektonConfig(patch_data)
-})
-
-var _ = gauge.Step("Assert if cronjob <cronJobName> is <status> in namespace <namespace>", func(cronJobName, status, namespace string) {
-	if namespace == "targetNamespace" {
-		namespace = store.TargetNamespace()
-	} else if namespace == "currentNamespace" {
-		namespace = store.Namespace()
+var _ = gauge.Step("Update pruner config <keepPresence> keep <keep> schedule <schedule> resouces <resources> and <keepSincePresence> keep-since <keepSince>", func(keepPresence, keep, schedule, resouces, keepSincePresence, keepSince string) {
+	resoucesSplit := strings.Split(resouces, ",")
+	resourcesList := strings.Join(resoucesSplit, "\",\"")
+	patch_data := ""
+	if keepPresence == "with" && keepSincePresence == "without" {
+		patch_data = fmt.Sprintf("{\"spec\":{\"pruner\":{\"keep\":%s,\"schedule\":\"%s\",\"resources\":[\"%s\"]}}}", keep, schedule, resourcesList)
+	} else if keepPresence == "without" && keepSincePresence == "with" {
+		patch_data = fmt.Sprintf("{\"spec\":{\"pruner\":{\"keep-since\":%s,\"schedule\":\"%s\",\"resources\":[\"%s\"]}}}", keepSince, schedule, resourcesList)
+	} else if keepPresence == "with" && keepSincePresence == "with" {
+		patch_data = fmt.Sprintf("{\"spec\":{\"pruner\":{\"keep\":%s,\"keep-since\":%s,\"schedule\":\"%s\",\"resources\":[\"%s\"]}}}", keep, keepSince, schedule, resourcesList)
+	} else if keepPresence == "without" && keepSincePresence == "without" {
+		patch_data = fmt.Sprintf("{\"spec\":{\"pruner\":{\"schedule\":\"%s\",\"resources\":[\"%s\"]}}}",schedule, resourcesList)
 	}
+	oc.UpdateTektonConfig(patch_data)
+})
+
+var _ = gauge.Step("Remove auto pruner configuration from config CR", func() {
+	log.Print("Removing pruner configuration from config CR")
+	oc.RemovePrunerConfig()
+})
+
+var _ = gauge.Step("Assert if cronjob with prefix <cronJobName> is <status> in target namespace", func(cronJobName, status string) {
+	namespace := store.TargetNamespace()
 	log.Printf("Verifying if the cronjob %v is %v in namespace %v", cronJobName, status, namespace)
 	oc.VerifyCronjobStatus(cronJobName, status, namespace)
 })
@@ -61,4 +65,9 @@ var _ = gauge.Step("Assert if cronjob <cronJobName> is <status> in namespace <na
 var _ = gauge.Step("Annotate namespace with <annotation>", func(annotation string) {
 	log.Printf("Annotating namespace %v with %v", store.Namespace(), annotation)
 	oc.AnnotateNamespace(store.Namespace(), annotation)
+})
+
+var _ = gauge.Step("Remove annotation <annotation> from namespace", func(annotation string){
+	log.Printf("Removing annotation %v from namespace %v", store.Namespace(), annotation)
+	oc.AnnotateNamespace(store.Namespace(), annotation + "-")
 })

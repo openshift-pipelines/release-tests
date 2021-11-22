@@ -257,8 +257,8 @@ func AssertForNoNewPipelineRunCreation(c *clients.Clients, namespace string) {
 
 func AssertNumberOfPipelinerun(c *clients.Clients, namespace, numberOfPr string) {
 	prlist, err := c.PipelineRunClient.List(c.Ctx, metav1.ListOptions{})
-	assert.NoError(err, fmt.Sprintf("Error Getting TaskRun list under namespace %s ", namespace))
-	log.Printf("Verifying if %s number of taskruns are present", numberOfPr)
+	assert.NoError(err, fmt.Sprintf("Error Getting pipelinerun list under namespace %s ", namespace))
+	log.Printf("Verifying if %s number of pipelinerun are present", numberOfPr)
 	numberOfPrInt, _ := strconv.Atoi(numberOfPr)
 	assert.NoError(err, fmt.Sprintf("Error Getting TaskRun list under namespace %s ", namespace))
 	if len(prlist.Items) != numberOfPrInt {
@@ -272,6 +272,6 @@ func AssertNumberOfTaskrun(c *clients.Clients, namespace, numberOfTr string) {
 	log.Printf("Verifying if %s number of taskruns are present", numberOfTr)
 	numberOfTrInt, _ := strconv.Atoi(numberOfTr)
 	if len(trlist.Items) != numberOfTrInt {
-		testsuit.T.Errorf("Error: Expected %v number of taskruns but found %v number of pipelineruns", numberOfTrInt, len(trlist.Items))
+		testsuit.T.Errorf("Error: Expected %v number of taskruns but found %v number of taskruns", numberOfTrInt, len(trlist.Items))
 	}
 }
