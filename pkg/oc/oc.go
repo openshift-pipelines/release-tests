@@ -68,3 +68,7 @@ func VerifyCronjobStatus(cronJobName, status, namespace string) {
 func AnnotateNamespace(namespace, annotation string) {
 	log.Printf("output: %s\n", cmd.MustSucceed("oc", "annotate", "namespace", namespace, annotation).Stdout())
 }
+
+func RemovePrunerConfig() {
+	cmd.Run("oc", "patch", "tektonconfig", "config", "-p", "[{ \"op\": \"remove\", \"path\": \"/spec/pruner\" }]", "--type=json")
+}
