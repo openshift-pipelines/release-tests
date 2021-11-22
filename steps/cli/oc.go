@@ -46,7 +46,7 @@ var _ = gauge.Step("Update pruner config <keepPresence> keep <keep> schedule <sc
 	} else if keepPresence == "with" && keepSincePresence == "with" {
 		patch_data = fmt.Sprintf("{\"spec\":{\"pruner\":{\"keep\":%s,\"keep-since\":%s,\"schedule\":\"%s\",\"resources\":[\"%s\"]}}}", keep, keepSince, schedule, resourcesList)
 	} else if keepPresence == "without" && keepSincePresence == "without" {
-		patch_data = fmt.Sprintf("{\"spec\":{\"pruner\":{\"schedule\":\"%s\",\"resources\":[\"%s\"]}}}",schedule, resourcesList)
+		patch_data = fmt.Sprintf("{\"spec\":{\"pruner\":{\"schedule\":\"%s\",\"resources\":[\"%s\"]}}}", schedule, resourcesList)
 	}
 	oc.UpdateTektonConfig(patch_data)
 })
@@ -67,7 +67,7 @@ var _ = gauge.Step("Annotate namespace with <annotation>", func(annotation strin
 	oc.AnnotateNamespace(store.Namespace(), annotation)
 })
 
-var _ = gauge.Step("Remove annotation <annotation> from namespace", func(annotation string){
+var _ = gauge.Step("Remove annotation <annotation> from namespace", func(annotation string) {
 	log.Printf("Removing annotation %v from namespace %v", store.Namespace(), annotation)
-	oc.AnnotateNamespace(store.Namespace(), annotation + "-")
+	oc.AnnotateNamespace(store.Namespace(), annotation+"-")
 })
