@@ -244,7 +244,7 @@ Steps:
       |2   |testdata/pruner/pipeline/pipelinerun-for-pruner.yaml|
       |3   |testdata/pruner/task/task-for-pruner.yaml           |
       |4   |testdata/pruner/task/taskrun-for-pruner.yaml        |
-  * Annotate namespace with "operator.tekton.dev/prune.resources=taskrun,pipelinerun"
+  * Annotate namespace with "operator.tekton.dev/prune.resources=pipelinerun,taskrun"
   * Update pruner config "with" keep "2" schedule "*/1 * * * *" resouces "taskrun" and "without" keep-since ""
   * Sleep for "80" seconds
   * Assert if cronjob with prefix "tekton-resource-pruner" is "present" in target namespace
@@ -285,7 +285,7 @@ Steps:
       |3   |testdata/pruner/task/task-for-pruner.yaml           |
       |4   |testdata/pruner/task/taskrun-for-pruner.yaml        |
   * Annotate namespace with "operator.tekton.dev/prune.keep=3"
-  * Update pruner config "with" keep "2" schedule "*/1 * * * *" resouces "taskrun,pipelinerun" and "without" keep-since ""
+  * Update pruner config "with" keep "2" schedule "*/1 * * * *" resouces "pipelinerun,taskrun" and "without" keep-since ""
   * Sleep for "80" seconds
   * Assert if cronjob with prefix "tekton-resource-pruner" is "present" in target namespace
   * "3" number of pipelineruns should be present
