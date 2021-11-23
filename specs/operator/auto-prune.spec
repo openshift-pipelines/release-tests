@@ -293,7 +293,6 @@ Steps:
   * Remove annotation "operator.tekton.dev/prune.keep" from namespace
   * Sleep for "80" seconds
   * "2" number of pipelineruns should be present
-  * "2" number of taskruns should be present
   * Remove auto pruner configuration from config CR
   * Assert if cronjob with prefix "tekton-resource-pruner" is "not present" in target namespace
 
