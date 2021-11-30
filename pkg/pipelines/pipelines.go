@@ -13,6 +13,7 @@ import (
 	"github.com/getgauge-contrib/gauge-go/testsuit"
 	"github.com/openshift-pipelines/release-tests/pkg/assert"
 	"github.com/openshift-pipelines/release-tests/pkg/clients"
+	"github.com/openshift-pipelines/release-tests/pkg/config"
 	"github.com/openshift-pipelines/release-tests/pkg/k8s"
 	"github.com/openshift-pipelines/release-tests/pkg/wait"
 	"github.com/tektoncd/pipeline/pkg/apis/pipeline/v1beta1"
@@ -21,6 +22,7 @@ import (
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/apimachinery/pkg/types"
+	w "k8s.io/apimachinery/pkg/util/wait"
 	"k8s.io/apimachinery/pkg/watch"
 )
 
@@ -255,23 +257,36 @@ func AssertForNoNewPipelineRunCreation(c *clients.Clients, namespace string) {
 	}
 }
 
-func AssertNumberOfPipelinerun(c *clients.Clients, namespace, numberOfPr string) {
-	prlist, err := c.PipelineRunClient.List(c.Ctx, metav1.ListOptions{})
-	assert.NoError(err, fmt.Sprintf("Error Getting pipelinerun list under namespace %s ", namespace))
+func AssertNumberOfPipelinerun(c *clients.Clients, namespace, numberOfPr, timeoutSeconds string) {
 	log.Printf("Verifying if %s number of pipelinerun are present", numberOfPr)
-	numberOfPrInt, _ := strconv.Atoi(numberOfPr)
-	assert.NoError(err, fmt.Sprintf("Error Getting TaskRun list under namespace %s ", namespace))
-	if len(prlist.Items) != numberOfPrInt {
-		testsuit.T.Errorf("Error: Expected %v number of pipelineruns but found %v number of pipelineruns", numberOfPr, len(prlist.Items))
+	timeoutSecondsInt, _ := strconv.Atoi(timeoutSeconds)
+	err := w.Poll(config.APIRetry, time.Second*time.Duration(timeoutSecondsInt), func() (bool, error) {
+		prlist, err := c.PipelineRunClient.List(c.Ctx, metav1.ListOptions{})
+		numberOfPrInt, _ := strconv.Atoi(numberOfPr)
+		if len(prlist.Items) == numberOfPrInt {
+			return true, nil
+		}
+		return false, err
+	})
+	if err != nil {
+		prlist, _ := c.PipelineRunClient.List(c.Ctx, metav1.ListOptions{})
+		assert.FailOnError(fmt.Errorf("Error: Expected %v number of pipelineruns but found %v number of pipelineruns", numberOfPr, len(prlist.Items)))
 	}
 }
 
-func AssertNumberOfTaskrun(c *clients.Clients, namespace, numberOfTr string) {
-	trlist, err := c.TaskRunClient.List(c.Ctx, metav1.ListOptions{})
-	assert.NoError(err, fmt.Sprintf("Error Getting TaskRun list under namespace %s ", namespace))
+func AssertNumberOfTaskrun(c *clients.Clients, namespace, numberOfTr, timeoutSeconds string) {
 	log.Printf("Verifying if %s number of taskruns are present", numberOfTr)
-	numberOfTrInt, _ := strconv.Atoi(numberOfTr)
-	if len(trlist.Items) != numberOfTrInt {
-		testsuit.T.Errorf("Error: Expected %v number of taskruns but found %v number of taskruns", numberOfTrInt, len(trlist.Items))
+	timeoutSecondsInt, _ := strconv.Atoi(timeoutSeconds)
+	err := w.Poll(config.APIRetry, time.Second*time.Duration(timeoutSecondsInt), func() (bool, error) {
+		trlist, err := c.TaskRunClient.List(c.Ctx, metav1.ListOptions{})
+		numberOfPrInt, _ := strconv.Atoi(numberOfTr)
+		if len(trlist.Items) == numberOfPrInt {
+			return true, nil
+		}
+		return false, err
+	})
+	if err != nil {
+		trlist, _ := c.TaskRunClient.List(c.Ctx, metav1.ListOptions{})
+		assert.FailOnError(fmt.Errorf("Error: Expected %v number of taskruns but found %v number of taskruns", numberOfTr, len(trlist.Items)))
 	}
 }
