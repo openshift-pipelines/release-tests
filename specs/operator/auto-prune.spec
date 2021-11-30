@@ -25,11 +25,12 @@ Steps:
       |3   |testdata/pruner/task/task-for-pruner.yaml           |
       |4   |testdata/pruner/task/taskrun-for-pruner.yaml        |
   * Update pruner config "with" keep "2" schedule "*/1 * * * *" resouces "taskrun" and "without" keep-since ""
-  * Sleep for "80" seconds
+  * Sleep for "5" seconds
   * Assert if cronjob with prefix "tekton-resource-pruner" is "present" in target namespace
-  * "2" number of taskruns should be present
-  * "5" number of pipelineruns should be present
+  * "2" number of taskruns should be present within "120" seconds
+  * "5" number of pipelineruns should be present within "120" seconds
   * Remove auto pruner configuration from config CR
+  * Sleep for "5" seconds
   * Assert if cronjob with prefix "tekton-resource-pruner" is "not present" in target namespace
 
 ## Verify auto prune for pipelinerun: PIPELINES-12-TC02
@@ -52,11 +53,12 @@ Steps:
       |3   |testdata/pruner/task/task-for-pruner.yaml           |
       |4   |testdata/pruner/task/taskrun-for-pruner.yaml        |
   * Update pruner config "with" keep "2" schedule "*/1 * * * *" resouces "pipelinerun" and "without" keep-since ""
-  * Sleep for "80" seconds
+  * Sleep for "5" seconds
   * Assert if cronjob with prefix "tekton-resource-pruner" is "present" in target namespace
-  * "2" number of pipelineruns should be present
-  * "7" number of taskruns should be present
+  * "2" number of pipelineruns should be present within "120" seconds
+  * "7" number of taskruns should be present within "120" seconds
   * Remove auto pruner configuration from config CR
+  * Sleep for "5" seconds
   * Assert if cronjob with prefix "tekton-resource-pruner" is "not present" in target namespace
 
 
@@ -80,11 +82,12 @@ Steps:
       |3   |testdata/pruner/task/task-for-pruner.yaml           |
       |4   |testdata/pruner/task/taskrun-for-pruner.yaml        |
   * Update pruner config "with" keep "2" schedule "*/1 * * * *" resouces "pipelinerun,taskrun" and "without" keep-since ""
-  * Sleep for "80" seconds
+  * Sleep for "5" seconds
   * Assert if cronjob with prefix "tekton-resource-pruner" is "present" in target namespace
-  * "2" number of pipelineruns should be present
-  * "2" number of taskruns should be present
+  * "2" number of pipelineruns should be present within "120" seconds
+  * "2" number of taskruns should be present within "120" seconds
   * Remove auto pruner configuration from config CR
+  * Sleep for "5" seconds
   * Assert if cronjob with prefix "tekton-resource-pruner" is "not present" in target namespace
 
 ## Verify auto prune with keep-since: PIPELINES-12-TC04
@@ -113,11 +116,12 @@ Steps:
       |1   |testdata/pruner/pipeline/pipelinerun-for-pruner.yaml|
       |2   |testdata/pruner/task/taskrun-for-pruner.yaml        |
   * Update pruner config "without" keep "" schedule "*/1 * * * *" resouces "pipelinerun,taskrun" and "with" keep-since "2"
-  * Sleep for "80" seconds
+  * Sleep for "5" seconds
   * Assert if cronjob with prefix "tekton-resource-pruner" is "present" in target namespace
-  * "5" number of pipelineruns should be present
-  * "10" number of taskruns should be present
+  * "5" number of pipelineruns should be present within "120" seconds
+  * "10" number of taskruns should be present within "120" seconds
   * Remove auto pruner configuration from config CR
+  * Sleep for "5" seconds
   * Assert if cronjob with prefix "tekton-resource-pruner" is "not present" in target namespace
 
 
@@ -148,11 +152,12 @@ Steps:
       |1   |testdata/pruner/pipeline/pipelinerun-for-pruner.yaml|
       |2   |testdata/pruner/task/taskrun-for-pruner.yaml        |
   * Update pruner config "with" keep "3" schedule "*/1 * * * *" resouces "pipelinerun,taskrun" and "with" keep-since "2"
-  * Sleep for "80" seconds
+  * Sleep for "5" seconds
   * Assert if cronjob with prefix "tekton-resource-pruner" is "present" in target namespace
-  * "3" number of pipelineruns should be present
-  * "3" number of taskruns should be present
+  * "3" number of pipelineruns should be present within "120" seconds
+  * "3" number of taskruns should be present within "120" seconds
   * Remove auto pruner configuration from config CR
+  * Sleep for "5" seconds
   * Assert if cronjob with prefix "tekton-resource-pruner" is "not present" in target namespace
 
 
@@ -179,15 +184,15 @@ Steps:
       |4   |testdata/pruner/task/taskrun-for-pruner.yaml        |
   * Annotate namespace with "operator.tekton.dev/prune.skip=true"
   * Update pruner config "with" keep "2" schedule "*/1 * * * *" resouces "pipelinerun,taskrun" and "without" keep-since ""
-  * Sleep for "80" seconds
+  * Sleep for "5" seconds
   * Assert if cronjob with prefix "tekton-resource-pruner" is "present" in target namespace
-  * "5" number of pipelineruns should be present
-  * "10" number of taskruns should be present
+  * "5" number of pipelineruns should be present within "120" seconds
+  * "10" number of taskruns should be present within "120" seconds
   * Remove annotation "operator.tekton.dev/prune.skip" from namespace
-  * Sleep for "80" seconds
-  * "2" number of pipelineruns should be present
-  * "2" number of taskruns should be present
+  * "2" number of pipelineruns should be present within "120" seconds
+  * "2" number of taskruns should be present within "120" seconds
   * Remove auto pruner configuration from config CR
+  * Sleep for "5" seconds
   * Assert if cronjob with prefix "tekton-resource-pruner" is "not present" in target namespace
 
 
@@ -213,14 +218,14 @@ Steps:
       |4   |testdata/pruner/task/taskrun-for-pruner.yaml        |
   * Annotate namespace with "operator.tekton.dev/prune.resources=taskrun"
   * Update pruner config "with" keep "2" schedule "*/1 * * * *" resouces "pipelinerun,taskrun" and "without" keep-since ""
-  * Sleep for "80" seconds
+  * Sleep for "5" seconds
   * Assert if cronjob with prefix "tekton-resource-pruner" is "present" in target namespace
-  * "5" number of pipelineruns should be present
-  * "2" number of taskruns should be present
+  * "5" number of pipelineruns should be present within "120" seconds
+  * "2" number of taskruns should be present within "120" seconds
   * Remove annotation "operator.tekton.dev/prune.resources" from namespace
-  * Sleep for "80" seconds
-  * "2" number of pipelineruns should be present
+  * "2" number of pipelineruns should be present within "120" seconds
   * Remove auto pruner configuration from config CR
+  * Sleep for "5" seconds
   * Assert if cronjob with prefix "tekton-resource-pruner" is "not present" in target namespace
 
 
@@ -246,20 +251,20 @@ Steps:
       |4   |testdata/pruner/task/taskrun-for-pruner.yaml        |
   * Annotate namespace with "operator.tekton.dev/prune.resources=pipelinerun,taskrun"
   * Update pruner config "with" keep "2" schedule "*/1 * * * *" resouces "taskrun" and "without" keep-since ""
-  * Sleep for "80" seconds
+  * Sleep for "5" seconds
   * Assert if cronjob with prefix "tekton-resource-pruner" is "present" in target namespace
-  * "2" number of pipelineruns should be present
-  * "2" number of taskruns should be present
+  * "2" number of pipelineruns should be present within "120" seconds
+  * "2" number of taskruns should be present within "120" seconds
   * Remove annotation "operator.tekton.dev/prune.resources" from namespace
   * Create
       |S.NO|resource_dir                                        |
       |----|----------------------------------------------------|
       |1   |testdata/pruner/pipeline/pipelinerun-for-pruner.yaml|
       |2   |testdata/pruner/task/taskrun-for-pruner.yaml        |
-  * Sleep for "80" seconds
-  * "7" number of pipelineruns should be present
-  * "2" number of taskruns should be present
+  * "7" number of pipelineruns should be present within "120" seconds
+  * "2" number of taskruns should be present within "120" seconds
   * Remove auto pruner configuration from config CR
+  * Sleep for "5" seconds
   * Assert if cronjob with prefix "tekton-resource-pruner" is "not present" in target namespace
 
 
@@ -286,14 +291,14 @@ Steps:
       |4   |testdata/pruner/task/taskrun-for-pruner.yaml        |
   * Annotate namespace with "operator.tekton.dev/prune.keep=3"
   * Update pruner config "with" keep "2" schedule "*/1 * * * *" resouces "pipelinerun,taskrun" and "without" keep-since ""
-  * Sleep for "80" seconds
+  * Sleep for "5" seconds
   * Assert if cronjob with prefix "tekton-resource-pruner" is "present" in target namespace
-  * "3" number of pipelineruns should be present
-  * "3" number of taskruns should be present
+  * "3" number of pipelineruns should be present within "120" seconds
+  * "3" number of taskruns should be present within "120" seconds
   * Remove annotation "operator.tekton.dev/prune.keep" from namespace
-  * Sleep for "80" seconds
-  * "2" number of pipelineruns should be present
+  * "2" number of pipelineruns should be present within "120" seconds
   * Remove auto pruner configuration from config CR
+  * Sleep for "5" seconds
   * Assert if cronjob with prefix "tekton-resource-pruner" is "not present" in target namespace
 
 
@@ -325,12 +330,12 @@ Steps:
       |2   |testdata/pruner/task/taskrun-for-pruner.yaml        |
   * Annotate namespace with "operator.tekton.dev/prune.keep-since=2"
   * Update pruner config "without" keep "" schedule "*/1 * * * *" resouces "pipelinerun,taskrun" and "with" keep-since "10"
-  * Sleep for "80" seconds
   * Assert if cronjob with prefix "tekton-resource-pruner" is "present" in target namespace
-  * "5" number of pipelineruns should be present
-  * "10" number of taskruns should be present
+  * "5" number of pipelineruns should be present within "120" seconds
+  * "10" number of taskruns should be present within "120" seconds
   * Remove annotation "operator.tekton.dev/prune.keep-since" from namespace
   * Remove auto pruner configuration from config CR
+  * Sleep for "5" seconds
   * Assert if cronjob with prefix "tekton-resource-pruner" is "not present" in target namespace
 
 
@@ -356,15 +361,15 @@ Steps:
       |4   |testdata/pruner/task/taskrun-for-pruner.yaml        |
   * Annotate namespace with "operator.tekton.dev/prune.keep=2"
   * Update pruner config "without" keep "" schedule "*/1 * * * *" resouces "pipelinerun,taskrun" and "with" keep-since "10"
-  * Sleep for "80" seconds
+  * Sleep for "5" seconds
   * Assert if cronjob with prefix "tekton-resource-pruner" is "present" in target namespace
-  * "5" number of pipelineruns should be present
-  * "10" number of taskruns should be present
+  * "5" number of pipelineruns should be present within "120" seconds
+  * "10" number of taskruns should be present within "120" seconds
   * Annotate namespace with "operator.tekton.dev/prune.strategy=keep"
-  * Sleep for "80" seconds
-  * "2" number of pipelineruns should be present
-  * "2" number of taskruns should be present
+  * "2" number of pipelineruns should be present within "120" seconds
+  * "2" number of taskruns should be present within "120" seconds
   * Remove auto pruner configuration from config CR
+  * Sleep for "5" seconds
   * Assert if cronjob with prefix "tekton-resource-pruner" is "not present" in target namespace
 
 ## Verify auto prune shcedule per namespace: PIPELINES-12-TC12
@@ -387,10 +392,10 @@ Steps:
       |4   |testdata/pruner/task/taskrun-for-pruner.yaml        |
   * Annotate namespace with "operator.tekton.dev/prune.schedule=*/1 * * * *"
   * Update pruner config "with" keep "2" schedule "*/8 * * * *" resouces "pipelinerun,taskrun" and "without" keep-since ""
-  * Sleep for "80" seconds
+  * Sleep for "5" seconds
   * Assert if cronjob with prefix "tekton-resource-pruner" is "present" in target namespace
-  * "2" number of pipelineruns should be present
-  * "2" number of taskruns should be present
+  * "2" number of pipelineruns should be present within "120" seconds
+  * "2" number of taskruns should be present within "120" seconds
   * Remove annotation "operator.tekton.dev/prune.schedule" from namespace
   * Sleep for "60" seconds
   * Create
@@ -398,8 +403,8 @@ Steps:
       |----|----------------------------------------------------|
       |1   |testdata/pruner/pipeline/pipelinerun-for-pruner.yaml|
       |2   |testdata/pruner/task/taskrun-for-pruner.yaml        |
-  * Sleep for "80" seconds
-  * "7" number of pipelineruns should be present
-  * "12" number of taskruns should be present
+  * "7" number of pipelineruns should be present within "120" seconds
+  * "12" number of taskruns should be present within "120" seconds
   * Remove auto pruner configuration from config CR
+  * Sleep for "5" seconds
   * Assert if cronjob with prefix "tekton-resource-pruner" is "not present" in target namespace
