@@ -46,6 +46,17 @@ func UpdateTektonConfig(patch_data string) {
 	log.Printf("output: %s\n", cmd.MustSucceed("oc", "patch", "tektonconfig", "config", "-p", patch_data, "--type=merge").Stdout())
 }
 
+func UpdateTektonConfigwithInvalidData(patch_data, errorMessage string) {
+	result := cmd.Run("oc", "patch", "tektonconfig", "config", "-p", patch_data, "--type=merge")
+	log.Printf("Output: %s\n", result.Stdout())
+	if result.ExitCode != 1 {
+		testsuit.T.Errorf("Expected exit code 1 but got %v", result.ExitCode)
+	}
+	if !strings.Contains(result.Stderr(), errorMessage) {
+		testsuit.T.Errorf("Expected error message substring %v in %v", errorMessage, result.Stderr())
+	}
+}
+
 func VerifyCronjobStatus(cronJobName, status, namespace string) {
 	res := cmd.MustSucceed("oc", "get", "cronjob", "-n", namespace).Stdout()
 	if status == "present" {

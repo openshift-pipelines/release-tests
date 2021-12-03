@@ -37,10 +37,10 @@ var _ = gauge.Step("Assert no new pipelineruns created", func() {
 	pipelines.AssertForNoNewPipelineRunCreation(store.Clients(), store.Namespace())
 })
 
-var _ = gauge.Step("<numberOfPr> number of pipelineruns should be present within <timeoutSeconds> seconds", func(numberOfPr , timeoutSeconds string) {
-	pipelines.AssertNumberOfPipelinerun(store.Clients(), store.Namespace(), numberOfPr, timeoutSeconds)
+var _ = gauge.Step("<numberOfPr> pipelinerun(s) should be present within <timeoutSeconds> seconds", func(numberOfPr, timeoutSeconds string) {
+	pipelines.AssertNumberOfPipelineruns(store.Clients(), store.Namespace(), numberOfPr, timeoutSeconds)
 })
 
-var _ = gauge.Step("<numberOfTr> number of taskruns should be present within <timeoutSeconds> seconds", func(numberOfTr, timeoutSeconds string) {
-	pipelines.AssertNumberOfTaskrun(store.Clients(), store.Namespace(), numberOfTr, timeoutSeconds)
+var _ = gauge.Step("<numberOfTr> taskrun(s) should be present within <timeoutSeconds> seconds", func(numberOfTr, timeoutSeconds string) {
+	pipelines.AssertNumberOfTaskruns(store.Clients(), store.Namespace(), numberOfTr, timeoutSeconds)
 })
