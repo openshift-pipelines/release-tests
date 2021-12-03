@@ -257,7 +257,7 @@ func AssertForNoNewPipelineRunCreation(c *clients.Clients, namespace string) {
 	}
 }
 
-func AssertNumberOfPipelinerun(c *clients.Clients, namespace, numberOfPr, timeoutSeconds string) {
+func AssertNumberOfPipelineruns(c *clients.Clients, namespace, numberOfPr, timeoutSeconds string) {
 	log.Printf("Verifying if %s number of pipelinerun are present", numberOfPr)
 	timeoutSecondsInt, _ := strconv.Atoi(timeoutSeconds)
 	err := w.Poll(config.APIRetry, time.Second*time.Duration(timeoutSecondsInt), func() (bool, error) {
@@ -274,7 +274,7 @@ func AssertNumberOfPipelinerun(c *clients.Clients, namespace, numberOfPr, timeou
 	}
 }
 
-func AssertNumberOfTaskrun(c *clients.Clients, namespace, numberOfTr, timeoutSeconds string) {
+func AssertNumberOfTaskruns(c *clients.Clients, namespace, numberOfTr, timeoutSeconds string) {
 	log.Printf("Verifying if %s number of taskruns are present", numberOfTr)
 	timeoutSecondsInt, _ := strconv.Atoi(timeoutSeconds)
 	err := w.Poll(config.APIRetry, time.Second*time.Duration(timeoutSecondsInt), func() (bool, error) {
