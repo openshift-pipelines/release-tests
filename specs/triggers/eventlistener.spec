@@ -5,7 +5,7 @@ Pre condition:
   * Validate Operator should be installed
 
 ## Create Eventlistener: PIPELINES-05-TC01
-Tags: triggers
+Tags: triggers, to-do
 Component: Triggers
 Level: Integration
 Type: Functional
@@ -27,7 +27,7 @@ Steps:
   * Verify pipelinerun is "successfull"
 
 ## Create Eventlistener with github interceptor: PIPELINES-05-TC02
-Tags: triggers
+Tags: triggers, to-do
 Component: Triggers
 Level: Integration
 Type: Functional
@@ -49,7 +49,7 @@ Steps:
   * Verify pipelinerun is "successfull"
 
 ## Create EventListener with custom interceptor: PIPELINES-05-TC03
-Tags: triggers
+Tags: triggers, to-do
 Component: Triggers
 Level: Integration
 Type: Functional
@@ -72,7 +72,7 @@ Steps:
   * Verify pipelinerun is "successfull"
 
 ## Create EventListener with CEL interceptor with filter: PIPELINES-05-TC04
-Tags: triggers
+Tags: triggers, to-do
 Component: Triggers
 Level: Integration
 Type: Functional
@@ -93,7 +93,7 @@ Steps:
   * Verify pipelinerun is "successfull"
 
 ## Create EventListener with CEL interceptor without filter: PIPELINES-05-TC05
-Tags: triggers
+Tags: triggers, to-do
 Component: Triggers
 Level: Integration
 Type: Functional
@@ -115,7 +115,7 @@ Steps:
 
 
 ## Create EventListener with multiple interceptors: PIPELINES-05-TC06
-Tags: triggers
+Tags: triggers, to-do
 Component: Triggers
 Level: Integration
 Type: Functional
@@ -188,7 +188,7 @@ Steps:
     |S.NO|pipeline_run_name  |status     |check_lable_propagation|
     |----|-------------------|-----------|-----------------------|
     |1   |simple-pipeline-run|successfull|no                     |
-  * Cleanup Triggers  
+  * Cleanup Triggers
 
 ## Create embedded TriggersTemplate: PIPELINES-05-TC09
 Tags: e2e, triggers, non-admin
@@ -214,7 +214,7 @@ Steps:
     |S.NO|pipeline_run_name                        |status     |check_lable_propagation|
     |----|-----------------------------------------|-----------|-----------------------|
     |1   |pipelinerun-with-taskspec-to-echo-message|successfull|no                     |
-  * Cleanup Triggers  
+  * Cleanup Triggers
 
 ## Create Eventlistener with gitlab interceptor: PIPELINES-05-TC10
 Tags: e2e, triggers, non-admin
@@ -232,7 +232,7 @@ Steps:
     |----|--------------------------------------------------|
     |1   |testdata/triggers/gitlab/gitlab-push-listener.yaml|
   * Verify ServiceAccount "pipeline" exist
-  * Create & Link secret "gitlab-secret" to service account "pipeline" 
+  * Create & Link secret "gitlab-secret" to service account "pipeline"
   * Expose Event listener "gitlab-listener"
   * Mock post event to "gitlab" interceptor with event-type "Push Hook", payload "testdata/triggers/gitlab/gitlab-push-event.json", with TLS "false"
   * Assert eventlistener response
@@ -257,8 +257,8 @@ Steps:
     |S.NO|resource_dir                                                        |
     |----|--------------------------------------------------------------------|
     |1   |testdata/triggers/bitbucket/bitbucket-eventlistener-interceptor.yaml|
-  * Verify ServiceAccount "pipeline" exist  
-  * Create & Link secret "bitbucket-secret" to service account "pipeline"  
+  * Verify ServiceAccount "pipeline" exist
+  * Create & Link secret "bitbucket-secret" to service account "pipeline"
   * Expose Event listener "bitbucket-listener"
   * Mock post event to "bitbucket" interceptor with event-type "refs_changed", payload "testdata/triggers/bitbucket/refs-change-event.json", with TLS "false"
   * Assert eventlistener response
@@ -284,8 +284,8 @@ Steps:
     |----|------------------------------------------------------------------|
     |1   |testdata/triggers/github-ctb/Embeddedtriggertemplate-git-push.yaml|
     |2   |testdata/triggers/github-ctb/eventlistener-ctb-git-push.yaml      |
-  * Verify ServiceAccount "pipeline" exist  
-  * Create & Link secret "github-secret" to service account "pipeline"  
+  * Verify ServiceAccount "pipeline" exist
+  * Create & Link secret "github-secret" to service account "pipeline"
   * Expose Event listener "listener-clustertriggerbinding-github-push"
   * Mock post event to "github" interceptor with event-type "push", payload "testdata/triggers/github-ctb/push.json", with TLS "false"
   * Assert eventlistener response
@@ -311,8 +311,8 @@ Steps:
     |----|----------------------------------------------------------------|
     |1   |testdata/triggers/github-ctb/Embeddedtriggertemplate-git-pr.yaml|
     |2   |testdata/triggers/github-ctb/eventlistener-ctb-git-pr.yaml      |
-  * Verify ServiceAccount "pipeline" exist  
-  * Create & Link secret "github-secret" to service account "pipeline"  
+  * Verify ServiceAccount "pipeline" exist
+  * Create & Link secret "github-secret" to service account "pipeline"
   * Expose Event listener "listener-clustertriggerbinding-github-pr"
   * Mock post event to "github" interceptor with event-type "pull_request", payload "testdata/triggers/github-ctb/pr.json", with TLS "false"
   * Assert eventlistener response
@@ -338,8 +338,8 @@ Steps:
     |----|-----------------------------------------------------------------------|
     |1   |testdata/triggers/github-ctb/Embeddedtriggertemplate-git-pr-review.yaml|
     |2   |testdata/triggers/github-ctb/eventlistener-ctb-git-pr-review.yaml      |
-  * Verify ServiceAccount "pipeline" exist  
-  * Create & Link secret "github-secret" to service account "pipeline"  
+  * Verify ServiceAccount "pipeline" exist
+  * Create & Link secret "github-secret" to service account "pipeline"
   * Expose Event listener "listener-ctb-github-pr-review"
   * Mock post event to "github" interceptor with event-type "issue_comment", payload "testdata/triggers/github-ctb/issue-comment.json", with TLS "false"
   * Assert eventlistener response
@@ -348,7 +348,7 @@ Steps:
     |----|---------------------------------|-----------|-----------------------|
     |1   |pipelinerun-git-pr-review-ctb    |successfull|no                     |
   * Cleanup Triggers
-  
+
 ## Create TriggersCRD resource with CEL interceptors (overlays): PIPELINES-05-TC15
 Tags: e2e, triggers, non-admin
 Component: Triggers
@@ -357,7 +357,7 @@ Type: Functional
 Importance: Critical
 
 This scenario tests the creation of Trigger resource which is combination of TriggerTemplate, TriggerBindings and interceptors. The Trigger is processed by EventListener, and listens to events, on each event it creates/triggers
-openshift-pipeline Resources defined under triggers-template  
+openshift-pipeline Resources defined under triggers-template
 
 Steps:
   * Create
@@ -368,8 +368,8 @@ Steps:
     |3   |testdata/triggers/triggersCRD/triggerbindings.yaml         |
     |4   |testdata/triggers/triggersCRD/triggertemplate.yaml         |
     |5   |testdata/triggers/triggersCRD/pipeline.yaml                |
-  * Verify ServiceAccount "pipeline" exist  
-  * Create & Link secret "github-secret" to service account "pipeline"  
+  * Verify ServiceAccount "pipeline" exist
+  * Create & Link secret "github-secret" to service account "pipeline"
   * Expose Event listener "listener-triggerref"
   * Mock post event to "github" interceptor with event-type "pull_request", payload "testdata/triggers/triggersCRD/pull-request.json", with TLS "false"
   * Assert eventlistener response
