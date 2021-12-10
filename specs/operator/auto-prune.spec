@@ -293,6 +293,7 @@ Steps:
       |2   |testdata/pruner/task/taskrun-for-pruner.yaml        |
   * Annotate namespace with "operator.tekton.dev/prune.keep-since=2"
   * Update pruner config "without" keep "" schedule "*/1 * * * *" resouces "pipelinerun,taskrun" and "with" keep-since "10"
+  * Sleep for "5" seconds
   * Assert if cronjob with prefix "tekton-resource-pruner" is "present" in target namespace
   * "5" pipelinerun(s) should be present within "120" seconds
   * "10" taskrun(s) should be present within "120" seconds
