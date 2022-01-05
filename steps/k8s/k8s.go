@@ -26,3 +26,8 @@ var _ = gauge.Step("Wait for cron job to be active", func() {
 var _ = gauge.Step("Delete cron job", func() {
 	k8s.DeleteCronJob(store.Clients(), store.GetScenarioData("cronjob"), store.Namespace())
 })
+
+var _ = gauge.Step("Assert if cronjob with default schedule and with default prefix present in target namespace", func() {
+	namespace := store.TargetNamespace()
+	k8s.AssertIfDefaultCronjobExists(store.Clients(), namespace)
+})

@@ -45,6 +45,10 @@ const (
 	// Name of the trigger deployment
 	TriggerControllerName = "tekton-triggers-controller"
 	TriggerWebhookName    = "tekton-triggers-webhook"
+
+	// Default config for auto pruner
+	PrunerSchedule = "0 8 * * *"
+	PrunerNamePrefix = "tekton-resource-pruner-"
 )
 
 // Flags holds the command line flags or defaults for settings in the user's environment.
