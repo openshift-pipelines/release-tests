@@ -314,3 +314,20 @@ func AssertIfDefaultCronjobExists(c *clients.Clients, namespace string) {
 		testsuit.T.Errorf("No cronjobs with schedule %v and with prefix %v is not present", config.PrunerSchedule, config.PrunerNamePrefix)
 	}
 }
+
+func GetCronjobNameWithSchedule(c *clients.Clients, namespace, schedule string) string {
+	name := ""
+	cronJobs, err := c.KubeClient.Kube.BatchV1beta1().CronJobs(namespace).List(c.Ctx, metav1.ListOptions{})
+	assert.NoError(err, fmt.Sprintf("Failed to get cronjob from namespace %v", namespace))
+	if len(cronJobs.Items) == 0 {
+		testsuit.T.Errorf("No cronjobs present in the namespace %v", namespace)
+	}
+	for _, cj := range cronJobs.Items {
+		if cj.Spec.Schedule == schedule {
+			if strings.Contains(cj.Name, "tekton-resource-pruner-") {
+				name = cj.Name
+			}
+		}
+	}
+	return name
+}

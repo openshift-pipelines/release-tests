@@ -387,3 +387,27 @@ Steps:
   * Update pruner config with invalid data "with" keep "2" schedule "*/8 * * * *" resouces "pipelinerun,taskrun" and "with" keep-since "2" and expect error message "validation failed: expected exactly one, got both: spec.pruner.keep, spec.pruner.keep-since"
   * Update pruner config with invalid data "with" keep "2" schedule "*/8 * * * *" resouces "pipelinerun,taskrunas" and "without" keep-since "" and expect error message "validation failed: invalid value: taskrunas: spec.pruner.resources[1]"
   * Update pruner config with invalid data "with" keep "2" schedule "*/8 * * * *" resouces "pipelinerunas,taskrun" and "without" keep-since "" and expect error message "validation failed: invalid value: pipelinerunas: spec.pruner.resources[0]"
+
+## Verify auto prune cronjob re-creation for addition of random annotation to namespace: PIPELINES-12-TC13
+Tags: e2e, integration, auto-prune, admin
+Component: Operator
+Level: Integration
+Type: Functional
+Importance: Critical
+
+This scenrio tests if auto prune job is not getting re-created for addition of random annotation to namespace.
+Test case fails if the cronjob gets re-created for addition of random annotation to namepsace.
+Steps:
+  * Verify ServiceAccount "pipeline" exist
+  * Remove auto pruner configuration from config CR
+  * Update pruner config "with" keep "2" schedule "10 * * * *" resouces "pipelinerun,taskrun" and "without" keep-since ""
+  * Sleep for "5" seconds
+  * Assert if cronjob with prefix "tekton-resource-pruner" is "present" in target namespace
+  * Store name of the cronjob in target namespace with schedule "10 * * * *" to variable "pre-annotation-name"
+  * Annotate namespace with "random-annotation=true"
+  * Sleep for "5" seconds
+  * Store name of the cronjob in target namespace with schedule "10 * * * *" to variable "post-annotation-name"
+  * Assert if values stored in variable "pre-annotation-name" and variable "post-annotation-name" are "equal"
+  * Remove annotation "random-annotation" from namespace
+  * Store name of the cronjob in target namespace with schedule "10 * * * *" to variable "post-annotation-removal-name"
+  * Assert if values stored in variable "pre-annotation-name" and variable "post-annotation-removal-name" are "equal"
