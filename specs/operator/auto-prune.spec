@@ -388,7 +388,7 @@ Steps:
   * Update pruner config with invalid data "with" keep "2" schedule "*/8 * * * *" resouces "pipelinerun,taskrunas" and "without" keep-since "" and expect error message "validation failed: invalid value: taskrunas: spec.pruner.resources[1]"
   * Update pruner config with invalid data "with" keep "2" schedule "*/8 * * * *" resouces "pipelinerunas,taskrun" and "without" keep-since "" and expect error message "validation failed: invalid value: pipelinerunas: spec.pruner.resources[0]"
 
-## Verify auto prune cronjob re-creation for addition of random annotation to namespace: PIPELINES-12-TC13
+## Verify auto prune cronjob re-creation for addition of random annotation/label to namespace: PIPELINES-12-TC13
 Tags: e2e, integration, auto-prune, admin
 Component: Operator
 Level: Integration
@@ -411,3 +411,9 @@ Steps:
   * Remove annotation "random-annotation" from namespace
   * Store name of the cronjob in target namespace with schedule "10 * * * *" to variable "post-annotation-removal-name"
   * Assert if values stored in variable "pre-annotation-name" and variable "post-annotation-removal-name" are "equal"
+  * Add label "random=true" to namespace
+  * Store name of the cronjob in target namespace with schedule "10 * * * *" to variable "post-label-name"
+  * Assert if values stored in variable "pre-annotation-name" and variable "post-label-name" are "equal"
+  * Remove label "random" from the namespace
+  * Store name of the cronjob in target namespace with schedule "10 * * * *" to variable "post-label-removal-name"
+  * Assert if values stored in variable "pre-annotation-name" and variable "post-label-removal-name" are "equal"

@@ -83,3 +83,7 @@ func AnnotateNamespace(namespace, annotation string) {
 func RemovePrunerConfig() {
 	cmd.Run("oc", "patch", "tektonconfig", "config", "-p", "[{ \"op\": \"remove\", \"path\": \"/spec/pruner\" }]", "--type=json")
 }
+
+func LabelNamespace(namespace, label string) {
+	log.Printf("output: %s\n", cmd.MustSucceed("oc", "label", "namespace", namespace, label).Stdout())
+}
