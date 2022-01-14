@@ -694,6 +694,8 @@ github.com/stretchr/testify v1.5.1/go.mod h1:5W2xD1RspED5o8YsWQXVCued0rvSQ+mT+I5
 github.com/stretchr/testify v1.6.1/go.mod h1:6Fq8oRcR53rry900zMqJjRRixrwX3KX962/h/Wwjteg=
 github.com/stretchr/testify v1.7.0/go.mod h1:6Fq8oRcR53rry900zMqJjRRixrwX3KX962/h/Wwjteg=
 github.com/tektoncd/pipeline v0.24.1/go.mod h1:ChFD/vfu14VOtCVlLWdtlvOwXfBfVotULoNV6yz+CKY=
+github.com/tektoncd/pipeline v0.24.3 h1:hfMDwkAa5D4BMKUI0ojivXa1Vw5ls+N3KROtwK8sNd0=
+github.com/tektoncd/pipeline v0.24.3/go.mod h1:8yXwJvaRU+cDH6fjwJFvKFOnB/WYHrRUD66TTR7l1eg=
 github.com/tektoncd/plumbing v0.0.0-20210420200944-17170d5e7bc9/go.mod h1:WTWwsg91xgm+jPOKoyKVK/yRYxnVDlUYeDlypB1lDdQ=
 github.com/tektoncd/plumbing v0.0.0-20210514044347-f8a9689d5bd5/go.mod h1:WTWwsg91xgm+jPOKoyKVK/yRYxnVDlUYeDlypB1lDdQ=
 github.com/tektoncd/triggers v0.14.2 h1:p0tQpLMqa7a2uq9sY8IqawENPoA7aQuluDkHYbYW4tk=
