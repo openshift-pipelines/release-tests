@@ -23,9 +23,9 @@ require (
 	go.opencensus.io v0.22.5
 	gomodules.xyz/jsonpatch/v2 v2.2.0
 	gotest.tools/v3 v3.0.3
-	k8s.io/api v0.21.8
-	k8s.io/apimachinery v0.21.8
-	k8s.io/client-go v0.21.8
+	k8s.io/api v0.22.0
+	k8s.io/apimachinery v0.22.0
+	k8s.io/client-go v11.0.1-0.20190805182717-6502b5e7b1b5+incompatible
 	knative.dev/pkg v0.0.0-20201218185703-e41409af6cff
 )
 
