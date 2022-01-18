@@ -4,7 +4,7 @@ go 1.14
 
 require (
 	github.com/Netflix/go-expect v0.0.0-20201125194554-85d881c3777e
-	github.com/getgauge-contrib/gauge-go v0.1.4
+	github.com/getgauge-contrib/gauge-go v0.2.0
 	github.com/getgauge/common v0.0.0-20200824023809-24587c106922 // indirect
 	github.com/ghodss/yaml v1.0.1-0.20190212211648-25d852aebe32 // indirect
 	github.com/google/go-cmp v0.5.4
