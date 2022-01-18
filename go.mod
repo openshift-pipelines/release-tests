@@ -23,16 +23,16 @@ require (
 	go.opencensus.io v0.22.5
 	gomodules.xyz/jsonpatch/v2 v2.2.0
 	gotest.tools/v3 v3.0.3
-	k8s.io/api v0.22.0
-	k8s.io/apimachinery v0.22.0
-	k8s.io/client-go v12.0.0+incompatible
+	k8s.io/api v0.21.8
+	k8s.io/apimachinery v0.21.8
+	k8s.io/client-go v0.21.8
 	knative.dev/pkg v0.0.0-20201218185703-e41409af6cff
 )
 
-// Pin k8s deps to 0.18.8
+// Pin k8s deps to 0.21.8
 replace (
-	k8s.io/api => k8s.io/api v0.18.8
-	k8s.io/apimachinery => k8s.io/apimachinery v0.18.8
-	k8s.io/client-go => k8s.io/client-go v0.18.8
-	k8s.io/code-generator => k8s.io/code-generator v0.18.8
+	k8s.io/api => k8s.io/api v0.21.8
+	k8s.io/apimachinery => k8s.io/apimachinery v0.21.8
+	k8s.io/client-go => k8s.io/client-go v0.21.8
+	k8s.io/code-generator => k8s.io/code-generator v0.21.8
 )
