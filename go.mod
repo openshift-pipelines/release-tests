@@ -10,8 +10,8 @@ require (
 	github.com/google/go-cmp v0.5.4
 	github.com/openshift/api v0.0.0-20200331152225-585af27e34fd
 	github.com/openshift/client-go v0.0.0-20200326155132-2a6cd50aedd0
-	github.com/operator-framework/api v0.3.20
-	github.com/operator-framework/operator-lifecycle-manager v0.17.0
+	github.com/operator-framework/api v0.10.3
+	github.com/operator-framework/operator-lifecycle-manager v0.19.0
 	github.com/pkg/errors v0.9.1
 	github.com/prometheus-operator/prometheus-operator/pkg/apis/monitoring v0.45.0 // indirect
 	github.com/prometheus-operator/prometheus-operator/pkg/client v0.45.0
