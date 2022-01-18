@@ -22,6 +22,7 @@ require (
 	github.com/tektoncd/triggers v0.10.2
 	go.opencensus.io v0.22.5
 	gomodules.xyz/jsonpatch/v2 v2.2.0
+	google.golang.org/api v0.36.0 // indirect
 	gotest.tools/v3 v3.0.3
 	k8s.io/api v0.22.0
 	k8s.io/apimachinery v0.22.0
