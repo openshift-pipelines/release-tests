@@ -22,7 +22,7 @@ import (
 	resource "github.com/openshift-pipelines/release-tests/pkg/config"
 	"github.com/openshift-pipelines/release-tests/pkg/wait"
 	"github.com/tektoncd/pipeline/pkg/names"
-	eventReconciler "github.com/tektoncd/triggers/pkg/reconciler/v1alpha1/eventlistener"
+	eventReconciler "github.com/tektoncd/triggers/pkg/reconciler/eventlistener"
 	"github.com/tektoncd/triggers/pkg/sink"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/fields"
