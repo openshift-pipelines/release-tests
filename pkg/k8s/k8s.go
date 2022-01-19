@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"strings"
 
 	"time"
 
@@ -291,4 +292,25 @@ func GetGroupVersionResource(gr schema.GroupVersionResource, discovery discovery
 		return nil, err
 	}
 	return &gvr, nil
+}
+
+func AssertIfDefaultCronjobExists(c *clients.Clients, namespace string) {
+	cronJobs, err := c.KubeClient.Kube.BatchV1beta1().CronJobs(namespace).List(c.Ctx, metav1.ListOptions{})
+	assert.NoError(err, fmt.Sprintf("Failed to get cronjob from namespace %v", namespace))
+	if len(cronJobs.Items) == 0 {
+		testsuit.T.Errorf("No cronjobs present in the namespace %v", namespace)
+	}
+	present := false
+	for _, cj := range cronJobs.Items {
+		if cj.Spec.Schedule == config.PrunerSchedule {
+			if strings.Contains(cj.Name, config.PrunerNamePrefix) {
+				present = true
+				log.Printf("Cronjob with schedule %v and with name prefix %v is present", config.PrunerSchedule, config.PrunerNamePrefix)
+				break
+			}
+		}
+	}
+	if !present {
+		testsuit.T.Errorf("No cronjobs with schedule %v and with prefix %v is not present", config.PrunerSchedule, config.PrunerNamePrefix)
+	}
 }
