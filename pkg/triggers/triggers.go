@@ -23,6 +23,7 @@ import (
 	"github.com/openshift-pipelines/release-tests/pkg/wait"
 	"github.com/tektoncd/pipeline/pkg/names"
 	eventReconciler "github.com/tektoncd/triggers/pkg/reconciler/eventlistener"
+	"github.com/tektoncd/triggers/pkg/reconciler/eventlistener/resources"
 	"github.com/tektoncd/triggers/pkg/sink"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/fields"
@@ -33,7 +34,7 @@ func getServiceNameAndPort(c *clients.Clients, elname, namespace string) (string
 	err := wait.WaitFor(c.Ctx, wait.EventListenerReady(c, namespace, elname))
 	assert.NoError(err, fmt.Sprintf("EventListener not %s ready", elname))
 
-	labelSelector := fields.SelectorFromSet(eventReconciler.GenerateResourceLabels(elname)).String()
+	labelSelector := fields.SelectorFromSet(resources.GenerateLabels(elname, resources.DefaultStaticResourceLabels)).String()
 	// Grab EventListener sink pods
 	sinkPods, err := c.KubeClient.Kube.CoreV1().Pods(namespace).List(c.Ctx, metav1.ListOptions{LabelSelector: labelSelector})
 	assert.NoError(err, fmt.Sprintf("Error listing EventListener sink pods"))
@@ -181,7 +182,7 @@ func AssertElResponse(c *clients.Clients, resp *http.Response, elname, namespace
 		testsuit.T.Errorf("sink response no eventID")
 	}
 
-	labelSelector := fields.SelectorFromSet(eventReconciler.GenerateResourceLabels(elname)).String()
+	labelSelector := fields.SelectorFromSet(resources.GenerateLabels(elname, resources.DefaultStaticResourceLabels)).String()
 	// Grab EventListener sink pods
 	sinkPods, err := c.KubeClient.Kube.CoreV1().Pods(namespace).List(c.Ctx, metav1.ListOptions{LabelSelector: labelSelector})
 	assert.NoError(err, fmt.Sprintf("Error listing EventListener sink pods"))
