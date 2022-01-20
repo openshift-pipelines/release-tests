@@ -75,32 +75,32 @@ func NewClients(configPath string, clusterName, namespace string) (*Clients, err
 
 	clients.Dynamic, err = dynamic.NewForConfig(clients.KubeConfig)
 	if err != nil {
-		return nil, fmt.Errorf("failed to create dynamic clients from config file at %s: %s", configPath, err)
+		return nil, fmt.Errorf("Failed to create dynamic clients from config file at %s: %s", configPath, err)
 	}
 
 	clients.Operator, err = newTektonOperatorAlphaClients(clients.KubeConfig)
 	if err != nil {
-		return nil, fmt.Errorf("failed to create Operator v1alpha1 clients from config file at %s: %s", configPath, err)
+		return nil, fmt.Errorf("Failed to create Operator v1alpha1 clients from config file at %s: %s", configPath, err)
 	}
 
 	clients.OLM, err = olmversioned.NewForConfig(clients.KubeConfig)
 	if err != nil {
-		return nil, fmt.Errorf("failed to create olm clients from config file at %s: %s", configPath, err)
+		return nil, fmt.Errorf("Failed to create olm clients from config file at %s: %s", configPath, err)
 	}
 
 	clients.Tekton, err = pversioned.NewForConfig(clients.KubeConfig)
 	if err != nil {
-		return nil, fmt.Errorf("failed to create pipeline clientset from config file at %s: %s", configPath, err)
+		return nil, fmt.Errorf("Failed to create pipeline clientset from config file at %s: %s", configPath, err)
 	}
 
 	rcs, err := resourceversioned.NewForConfig(clients.KubeConfig)
 	if err != nil {
-		return nil, fmt.Errorf("failed to create resource clientset from config file at %s: %s", configPath, err)
+		return nil, fmt.Errorf("Failed to create resource clientset from config file at %s: %s", configPath, err)
 	}
 
 	clients.TriggersClient, err = triggersclientset.NewForConfig(clients.KubeConfig)
 	if err != nil {
-		return nil, fmt.Errorf("failed to create triggers clientset from config file at %s: %s", configPath, err)
+		return nil, fmt.Errorf("Failed to create triggers clientset from config file at %s: %s", configPath, err)
 	}
 
 	clients.PipelineClient = clients.Tekton.TektonV1beta1().Pipelines(namespace)
