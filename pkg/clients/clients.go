@@ -90,7 +90,7 @@ func NewClients(configPath string, clusterName, namespace string) (*Clients, err
 
 	clients.Tekton, err = pversioned.NewForConfig(clients.KubeConfig)
 	if err != nil {
-		return nil, fmt.Errorf("Failed to create pipeline clientset from config file at %s: %s", configPath, err)
+		return nil, fmt.Errorf("failed to create pipeline clientset from config file at %s: %s", configPath, err)
 	}
 
 	rcs, err := resourceversioned.NewForConfig(clients.KubeConfig)
