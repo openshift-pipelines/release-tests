@@ -22,7 +22,7 @@ import (
 	"github.com/tektoncd/pipeline/pkg/client/clientset/versioned/typed/pipeline/v1beta1"
 	resourceversioned "github.com/tektoncd/pipeline/pkg/client/resource/clientset/versioned"
 	resourcev1alpha1 "github.com/tektoncd/pipeline/pkg/client/resource/clientset/versioned/typed/resource/v1alpha1"
-	// triggersclientset "github.com/tektoncd/triggers/pkg/client/clientset/versioned"
+	triggersclientset "github.com/tektoncd/triggers/pkg/client/clientset/versioned"
 )
 
 // KubeClient holds instances of interfaces for making requests to kubernetes client.
@@ -50,7 +50,7 @@ type Clients struct {
 	PipelineRunClient      v1beta1.PipelineRunInterface
 	PipelineResourceClient resourcev1alpha1.PipelineResourceInterface
 	ConditionClient        v1alpha1.ConditionInterface
-	// TriggersClient         triggersclientset.Interface
+	TriggersClient         triggersclientset.Interface
 }
 
 // NewClients instantiates and returns several clientsets required for making request to the
@@ -98,10 +98,10 @@ func NewClients(configPath string, clusterName, namespace string) (*Clients, err
 		return nil, fmt.Errorf("failed to create resource clientset from config file at %s: %s", configPath, err)
 	}
 
-	// clients.TriggersClient, err = triggersclientset.NewForConfig(clients.KubeConfig)
-	// if err != nil {
-	// 	return nil, fmt.Errorf("Failed to create triggers clientset from config file at %s: %s", configPath, err)
-	// }
+	clients.TriggersClient, err = triggersclientset.NewForConfig(clients.KubeConfig)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create triggers clientset from config file at %s: %s", configPath, err)
+	}
 
 	clients.PipelineClient = clients.Tekton.TektonV1beta1().Pipelines(namespace)
 	clients.TaskClient = clients.Tekton.TektonV1beta1().Tasks(namespace)
@@ -159,9 +159,9 @@ func (c *Clients) TektonPipeline() operatorv1alpha1.TektonPipelineInterface {
 	return c.Operator.TektonPipelines()
 }
 
-// func (c *Clients) TektonTrigger() operatorv1alpha1.TektonTriggerInterface {
-// 	return c.Operator.TektonTriggers()
-// }
+func (c *Clients) TektonTrigger() operatorv1alpha1.TektonTriggerInterface {
+	return c.Operator.TektonTriggers()
+}
 
 func (c *Clients) TektonDashboard() operatorv1alpha1.TektonDashboardInterface {
 	return c.Operator.TektonDashboards()
