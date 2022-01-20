@@ -10,10 +10,10 @@ import (
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/clientcmd"
 
-	olmversioned "github.com/operator-framework/operator-lifecycle-manager/pkg/api/client/clientset/versioned"
+	configV1 "github.com/openshift/client-go/config/clientset/versioned/typed/config/v1"
 	consolev1 "github.com/openshift/client-go/console/clientset/versioned/typed/console/v1"
 	routev1 "github.com/openshift/client-go/route/clientset/versioned/typed/route/v1"
-	configV1 "github.com/openshift/client-go/config/clientset/versioned/typed/config/v1"
+	olmversioned "github.com/operator-framework/operator-lifecycle-manager/pkg/api/client/clientset/versioned"
 	monclientv1 "github.com/prometheus-operator/prometheus-operator/pkg/client/versioned/typed/monitoring/v1"
 	"github.com/tektoncd/operator/pkg/client/clientset/versioned"
 	operatorv1alpha1 "github.com/tektoncd/operator/pkg/client/clientset/versioned/typed/operator/v1alpha1"
@@ -22,7 +22,7 @@ import (
 	"github.com/tektoncd/pipeline/pkg/client/clientset/versioned/typed/pipeline/v1beta1"
 	resourceversioned "github.com/tektoncd/pipeline/pkg/client/resource/clientset/versioned"
 	resourcev1alpha1 "github.com/tektoncd/pipeline/pkg/client/resource/clientset/versioned/typed/resource/v1alpha1"
-	triggersclientset "github.com/tektoncd/triggers/pkg/client/clientset/versioned"
+	// triggersclientset "github.com/tektoncd/triggers/pkg/client/clientset/versioned"
 )
 
 // KubeClient holds instances of interfaces for making requests to kubernetes client.
@@ -39,10 +39,10 @@ type Clients struct {
 	KubeConfig             *rest.Config
 	Scheme                 *runtime.Scheme
 	OLM                    olmversioned.Interface
-	Route              routev1.RouteV1Interface
-	ProxyConfig        configV1.ConfigV1Interface
-	ConsoleCLIDownload consolev1.ConsoleCLIDownloadInterface
-	MonitoringClient   monclientv1.MonitoringV1Interface
+	Route                  routev1.RouteV1Interface
+	ProxyConfig            configV1.ConfigV1Interface
+	ConsoleCLIDownload     consolev1.ConsoleCLIDownloadInterface
+	MonitoringClient       monclientv1.MonitoringV1Interface
 	Tekton                 pversioned.Interface
 	PipelineClient         v1beta1.PipelineInterface
 	TaskClient             v1beta1.TaskInterface
@@ -50,7 +50,7 @@ type Clients struct {
 	PipelineRunClient      v1beta1.PipelineRunInterface
 	PipelineResourceClient resourcev1alpha1.PipelineResourceInterface
 	ConditionClient        v1alpha1.ConditionInterface
-	TriggersClient         triggersclientset.Interface
+	// TriggersClient         triggersclientset.Interface
 }
 
 // NewClients instantiates and returns several clientsets required for making request to the
@@ -75,17 +75,17 @@ func NewClients(configPath string, clusterName, namespace string) (*Clients, err
 
 	clients.Dynamic, err = dynamic.NewForConfig(clients.KubeConfig)
 	if err != nil {
-		return nil, fmt.Errorf("Failed to create dynamic clients from config file at %s: %s", configPath, err)
+		return nil, fmt.Errorf("failed to create dynamic clients from config file at %s: %s", configPath, err)
 	}
 
 	clients.Operator, err = newTektonOperatorAlphaClients(clients.KubeConfig)
 	if err != nil {
-		return nil, fmt.Errorf("Failed to create Operator v1alpha1 clients from config file at %s: %s", configPath, err)
+		return nil, fmt.Errorf("failed to create Operator v1alpha1 clients from config file at %s: %s", configPath, err)
 	}
 
 	clients.OLM, err = olmversioned.NewForConfig(clients.KubeConfig)
 	if err != nil {
-		return nil, fmt.Errorf("Failed to create olm clients from config file at %s: %s", configPath, err)
+		return nil, fmt.Errorf("failed to create olm clients from config file at %s: %s", configPath, err)
 	}
 
 	clients.Tekton, err = pversioned.NewForConfig(clients.KubeConfig)
@@ -95,13 +95,13 @@ func NewClients(configPath string, clusterName, namespace string) (*Clients, err
 
 	rcs, err := resourceversioned.NewForConfig(clients.KubeConfig)
 	if err != nil {
-		return nil, fmt.Errorf("Failed to create resource clientset from config file at %s: %s", configPath, err)
+		return nil, fmt.Errorf("failed to create resource clientset from config file at %s: %s", configPath, err)
 	}
 
-	clients.TriggersClient, err = triggersclientset.NewForConfig(clients.KubeConfig)
-	if err != nil {
-		return nil, fmt.Errorf("Failed to create triggers clientset from config file at %s: %s", configPath, err)
-	}
+	// clients.TriggersClient, err = triggersclientset.NewForConfig(clients.KubeConfig)
+	// if err != nil {
+	// 	return nil, fmt.Errorf("Failed to create triggers clientset from config file at %s: %s", configPath, err)
+	// }
 
 	clients.PipelineClient = clients.Tekton.TektonV1beta1().Pipelines(namespace)
 	clients.TaskClient = clients.Tekton.TektonV1beta1().Tasks(namespace)
@@ -159,9 +159,9 @@ func (c *Clients) TektonPipeline() operatorv1alpha1.TektonPipelineInterface {
 	return c.Operator.TektonPipelines()
 }
 
-func (c *Clients) TektonTrigger() operatorv1alpha1.TektonTriggerInterface {
-	return c.Operator.TektonTriggers()
-}
+// func (c *Clients) TektonTrigger() operatorv1alpha1.TektonTriggerInterface {
+// 	return c.Operator.TektonTriggers()
+// }
 
 func (c *Clients) TektonDashboard() operatorv1alpha1.TektonDashboardInterface {
 	return c.Operator.TektonDashboards()

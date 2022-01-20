@@ -241,29 +241,29 @@ func WaitFor(ctx context.Context, waitFunc wait.ConditionFunc) error {
 // EventListenerReady returns a function that checks if all conditions on the
 // specified EventListener are true and that the deployment available condition
 // is within this set
-func EventListenerReady(c *clients.Clients, namespace, name string) wait.ConditionFunc {
-	return func() (bool, error) {
-		el, err := c.TriggersClient.TriggersV1alpha1().EventListeners(namespace).Get(c.Ctx, name, metav1.GetOptions{})
-		if err != nil && errors.IsNotFound(err) {
-			log.Printf("EventListener not found")
-			return false, nil
-		}
-		log.Printf("EventListenerStatus: %+v", el.Status)
-		// No conditions have been set yet
-		if len(el.Status.Conditions) == 0 {
-			return false, nil
-		}
-		if el.Status.GetCondition(apis.ConditionType(appsv1.DeploymentAvailable)) == nil {
-			return false, nil
-		}
-		for _, cond := range el.Status.Conditions {
-			if cond.Status != corev1.ConditionTrue {
-				return false, nil
-			}
-		}
-		return true, nil
-	}
-}
+// func EventListenerReady(c *clients.Clients, namespace, name string) wait.ConditionFunc {
+// 	return func() (bool, error) {
+// 		el, err := c.TriggersClient.TriggersV1alpha1().EventListeners(namespace).Get(c.Ctx, name, metav1.GetOptions{})
+// 		if err != nil && errors.IsNotFound(err) {
+// 			log.Printf("EventListener not found")
+// 			return false, nil
+// 		}
+// 		log.Printf("EventListenerStatus: %+v", el.Status)
+// 		// No conditions have been set yet
+// 		if len(el.Status.Conditions) == 0 {
+// 			return false, nil
+// 		}
+// 		if el.Status.GetCondition(apis.ConditionType(appsv1.DeploymentAvailable)) == nil {
+// 			return false, nil
+// 		}
+// 		for _, cond := range el.Status.Conditions {
+// 			if cond.Status != corev1.ConditionTrue {
+// 				return false, nil
+// 			}
+// 		}
+// 		return true, nil
+// 	}
+// }
 
 func WaitForPodsWithLabels(c *clients.Clients, namespace, labels string) wait.ConditionFunc {
 	lastKnownPodNumber := -1

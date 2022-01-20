@@ -49,7 +49,7 @@ func ValidatePipelineDeployments(cs *clients.Clients, rnames config.ResourceName
 }
 
 func ValidateTriggerDeployments(cs *clients.Clients, rnames config.ResourceNames) {
-	EnsureTektonTriggerExists(cs.TektonTrigger(), rnames)
+	// EnsureTektonTriggerExists(cs.TektonTrigger(), rnames)
 	k8s.ValidateDeployments(cs, rnames.TargetNamespace,
 		config.TriggerControllerName, config.TriggerWebhookName)
 }
