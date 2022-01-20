@@ -23,12 +23,10 @@ require (
 	go.opencensus.io v0.23.0
 	gomodules.xyz/jsonpatch/v2 v2.2.0
 	gotest.tools/v3 v3.0.3
-	honnef.co/go/tools v0.0.1-2020.1.5 // indirect
 	k8s.io/api v0.22.0
 	k8s.io/apimachinery v0.22.0
 	k8s.io/client-go v11.0.1-0.20190805182717-6502b5e7b1b5+incompatible
 	knative.dev/pkg v0.0.0-20210827184538-2bd91f75571c
-	knative.dev/test-infra v0.0.0-20200921012245-37f1a12adbd3 // indirect
 )
 
 // Pin k8s deps to 0.21.8
