@@ -18,11 +18,15 @@ package operator
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"log"
 
+	"github.com/openshift-pipelines/release-tests/pkg/assert"
 	"github.com/openshift-pipelines/release-tests/pkg/clients"
 	"github.com/openshift-pipelines/release-tests/pkg/config"
+
+	"knative.dev/pkg/test/logging"
 
 	"k8s.io/apimachinery/pkg/util/wait"
 
@@ -55,8 +59,8 @@ func EnsureTektonTriggerExists(clients triggerv1alpha1.TektonTriggerInterface, n
 // is done, returns an error or timeout.
 func WaitForTektonTriggerState(clients triggerv1alpha1.TektonTriggerInterface, name string,
 	inState func(s *v1alpha1.TektonTrigger, err error) (bool, error)) (*v1alpha1.TektonTrigger, error) {
-	// span := logging.GetEmitableSpan(context.Background(), fmt.Sprintf("WaitForTektonTriggerState/%s/%s", name, "TektonTriggerIsReady"))
-	// defer span.End()
+	span := logging.GetEmitableSpan(context.Background(), fmt.Sprintf("WaitForTektonTriggerState/%s/%s", name, "TektonTriggerIsReady"))
+	defer span.End()
 
 	var lastState *v1alpha1.TektonTrigger
 	waitErr := wait.PollImmediate(config.APIRetry, config.APITimeout, func() (bool, error) {
@@ -77,40 +81,40 @@ func IsTektonTriggerReady(s *v1alpha1.TektonTrigger, err error) (bool, error) {
 
 // AssertTektonTriggerCRReadyStatus verifies if the TektonTrigger reaches the READY status.
 func AssertTektonTriggerCRReadyStatus(clients *clients.Clients, names config.ResourceNames) {
-	// if _, err := WaitForTektonTriggerState(clients.TektonTrigger(), names.TektonTrigger,
-	// 	IsTektonTriggerReady); err != nil {
-	// 	assert.FailOnError(fmt.Errorf("TektonTriggerCR %q failed to get to the READY status: %v", names.TektonTrigger, err))
-	// }
+	if _, err := WaitForTektonTriggerState(clients.TektonTrigger(), names.TektonTrigger,
+		IsTektonTriggerReady); err != nil {
+		assert.FailOnError(fmt.Errorf("TektonTriggerCR %q failed to get to the READY status: %v", names.TektonTrigger, err))
+	}
 }
 
 // TektonTriggerCRDelete deletes tha TektonTrigger to see if all resources will be deleted
 func TektonTriggerCRDelete(clients *clients.Clients, crNames config.ResourceNames) {
-	// if err := clients.TektonTrigger().Delete(context.TODO(), crNames.TektonTrigger, metav1.DeleteOptions{}); err != nil {
-	// 	assert.FailOnError(fmt.Errorf("TektonTrigger %q failed to delete: %v", crNames.TektonTrigger, err))
-	// }
-	// err := wait.PollImmediate(config.APIRetry, config.APITimeout, func() (bool, error) {
-	// 	_, err := clients.TektonTrigger().Get(context.TODO(), crNames.TektonTrigger, metav1.GetOptions{})
-	// 	if apierrs.IsNotFound(err) {
-	// 		return true, nil
-	// 	}
-	// 	return false, err
-	// })
-	// if err != nil {
-	// 	assert.FailOnError(fmt.Errorf("Timed out waiting on TektonTrigger to delete", err))
-	// }
+	if err := clients.TektonTrigger().Delete(context.TODO(), crNames.TektonTrigger, metav1.DeleteOptions{}); err != nil {
+		assert.FailOnError(fmt.Errorf("TektonTrigger %q failed to delete: %v", crNames.TektonTrigger, err))
+	}
+	err := wait.PollImmediate(config.APIRetry, config.APITimeout, func() (bool, error) {
+		_, err := clients.TektonTrigger().Get(context.TODO(), crNames.TektonTrigger, metav1.GetOptions{})
+		if apierrs.IsNotFound(err) {
+			return true, nil
+		}
+		return false, err
+	})
+	if err != nil {
+		assert.FailOnError(fmt.Errorf("Timed out waiting on TektonTrigger to delete", err))
+	}
 
-	// if err := verifyNoTektonTriggerCR(clients); err != nil {
-	// 	assert.FailOnError(err)
-	// }
+	if err := verifyNoTektonTriggerCR(clients); err != nil {
+		assert.FailOnError(err)
+	}
 }
 
-// func verifyNoTektonTriggerCR(clients *clients.Clients) error {
-// 	triggers, err := clients.TektonTrigger().List(context.TODO(), metav1.ListOptions{})
-// 	if err != nil {
-// 		return err
-// 	}
-// 	if len(triggers.Items) > 0 {
-// 		return errors.New("Unable to verify cluster-scoped resources are deleted if any TektonTrigger exists")
-// 	}
-// 	return nil
-// }
+func verifyNoTektonTriggerCR(clients *clients.Clients) error {
+	triggers, err := clients.TektonTrigger().List(context.TODO(), metav1.ListOptions{})
+	if err != nil {
+		return err
+	}
+	if len(triggers.Items) > 0 {
+		return errors.New("Unable to verify cluster-scoped resources are deleted if any TektonTrigger exists")
+	}
+	return nil
+}
