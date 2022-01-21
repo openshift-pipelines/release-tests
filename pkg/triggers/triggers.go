@@ -173,7 +173,7 @@ func AssertElResponse(c *clients.Clients, resp *http.Response, elname, namespace
 	err := json.NewDecoder(resp.Body).Decode(&gotBody)
 	assert.FailOnError(err)
 
-	if diff := cmp.Diff(wantBody, gotBody, cmpopts.IgnoreFields(sink.Response{}, "EventID")); diff != "" {
+	if diff := cmp.Diff(wantBody, gotBody, cmpopts.IgnoreFields(sink.Response{}, "EventID", "EventListenerUID")); diff != "" {
 		testsuit.T.Errorf(fmt.Sprintf("unexpected sink response -want/+got: %s", diff))
 	}
 
