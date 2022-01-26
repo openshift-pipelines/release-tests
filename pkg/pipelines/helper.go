@@ -62,11 +62,13 @@ func checkLabelPropagation(c *clients.Clients, namespace string, pipelineRunName
 	p, err := c.PipelineClient.Get(c.Ctx, pr.Spec.PipelineRef.Name, metav1.GetOptions{})
 	assert.NoError(err, fmt.Sprintf("Couldn't get expected Pipeline for %s: %s", pr.Name, err))
 
+	// By default, controller doesn't add any labels to Pipelines
 	for key, val := range p.ObjectMeta.Labels {
 		labels[key] = val
 	}
+
 	// This label is added to every PipelineRun by the PipelineRun controller
-	labels[pipeline.GroupName+pipeline.PipelineLabelKey] = p.Name
+	labels[pipeline.PipelineLabelKey] = p.Name
 	AssertLabelsMatch(labels, pr.ObjectMeta.Labels)
 
 	// Check label propagation to TaskRuns.
@@ -74,25 +76,26 @@ func checkLabelPropagation(c *clients.Clients, namespace string, pipelineRunName
 		labels[key] = val
 	}
 	// This label is added to every TaskRun by the PipelineRun controller
-	labels[pipeline.GroupName+pipeline.PipelineRunLabelKey] = pr.Name
+	labels[pipeline.PipelineRunLabelKey] = pr.Name
 	if tr.Spec.TaskRef != nil {
 		task, err := c.TaskClient.Get(c.Ctx, tr.Spec.TaskRef.Name, metav1.GetOptions{})
 		assert.NoError(err, fmt.Sprintf("Couldn't get expected Task for %s: %s", tr.Name, err))
+		// By default, controller doesn't add any labels to Tasks
 		for key, val := range task.ObjectMeta.Labels {
 			labels[key] = val
 		}
 		// This label is added to TaskRuns that reference a Task by the TaskRun controller
-		labels[pipeline.GroupName+pipeline.TaskLabelKey] = task.Name
+		labels[pipeline.TaskLabelKey] = task.Name
 	}
 	AssertLabelsMatch(labels, tr.ObjectMeta.Labels)
 
-	// PodName is "" iff a retry happened and pod is deleted
+	// PodName is "" if a retry happened and pod is deleted
 	// This label is added to every Pod by the TaskRun controller
 	if tr.Status.PodName != "" {
 		// Check label propagation to Pods.
 		pod := GetPodForTaskRun(c, namespace, tr)
 		// This label is added to every Pod by the TaskRun controller
-		labels[pipeline.GroupName+pipeline.TaskRunLabelKey] = tr.Name
+		labels[pipeline.TaskRunLabelKey] = tr.Name
 		AssertLabelsMatch(labels, pod.ObjectMeta.Labels)
 	}
 }
@@ -133,7 +136,7 @@ func checkAnnotationPropagation(c *clients.Clients, namespace string, pipelineRu
 func GetPodForTaskRun(c *clients.Clients, namespace string, tr *v1beta1.TaskRun) *corev1.Pod {
 	// The Pod name has a random suffix, so we filter by label to find the one we care about.
 	pods, err := c.KubeClient.Kube.CoreV1().Pods(namespace).List(c.Ctx, metav1.ListOptions{
-		LabelSelector: pipeline.GroupName + pipeline.TaskRunLabelKey + " = " + tr.Name,
+		LabelSelector: pipeline.TaskRunLabelKey + " = " + tr.Name,
 	})
 	assert.NoError(err, fmt.Sprintf("Couldn't get expected Pod for %s: %s", tr.Name, err))
 	if numPods := len(pods.Items); numPods != 1 {

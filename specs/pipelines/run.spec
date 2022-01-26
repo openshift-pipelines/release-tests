@@ -24,7 +24,7 @@ Steps:
       |1   |testdata/v1alpha1/pipelinerun/pipelinerun.yaml|
       |2   |testdata/v1beta1/pipelinerun/pipelinerun.yaml |
   * Verify pipelinerun
-      |S.NO|pipeline_run_name     |status     |check_lable_propagation|
+      |S.NO|pipeline_run_name     |status     |check_label_propagation|
       |----|----------------------|-----------|-----------------------|
       |1   |output-pipeline-run-va|successfull|yes                    |
       |2   |output-pipeline-run-vb|successfull|yes                    |
