@@ -1,6 +1,6 @@
 module github.com/openshift-pipelines/release-tests
 
-go 1.14
+go 1.16
 
 require (
 	github.com/Netflix/go-expect v0.0.0-20201125194554-85d881c3777e
@@ -22,7 +22,6 @@ require (
 	github.com/tektoncd/triggers v0.16.1
 	go.opencensus.io v0.23.0
 	golang.org/x/time v0.0.0-20210723032227-1f47c861a9ac // indirect
-	gomodules.xyz/jsonpatch/v2 v2.2.0
 	gotest.tools/v3 v3.0.3
 	k8s.io/api v0.21.8
 	k8s.io/apimachinery v0.21.8
