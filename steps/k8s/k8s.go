@@ -31,3 +31,9 @@ var _ = gauge.Step("Validate default auto prune cronjob in target namespace", fu
 	namespace := store.TargetNamespace()
 	k8s.AssertIfDefaultCronjobExists(store.Clients(), namespace)
 })
+
+var _ = gauge.Step("Store name of the cronjob in target namespace with schedule <schedule> to variable <variableName>", func(schedule, variable string) {
+	namespace := store.TargetNamespace()
+	cronJobName := k8s.GetCronjobNameWithSchedule(store.Clients(), namespace, schedule)
+	store.PutScenarioData(variable, cronJobName)
+})

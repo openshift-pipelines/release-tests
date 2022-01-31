@@ -87,3 +87,13 @@ var _ = gauge.Step("Remove annotation <annotation> from namespace", func(annotat
 	log.Printf("Removing annotation %v from namespace %v", store.Namespace(), annotation)
 	oc.AnnotateNamespace(store.Namespace(), annotation+"-")
 })
+
+var _ = gauge.Step("Add label <label> to namespace", func(label string) {
+	log.Printf("Labelling namespace %v with %v", store.Namespace(), label)
+	oc.LabelNamespace(store.Namespace(), label)
+})
+
+var _ = gauge.Step("Remove label <label> from the namespace", func(label string) {
+	log.Printf("Removing annotation %v from namespace %v", store.Namespace(), label)
+	oc.AnnotateNamespace(store.Namespace(), label+"-")
+})
