@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"strings"
+	"time"
 
 	"github.com/getgauge-contrib/gauge-go/gauge"
 	m "github.com/getgauge-contrib/gauge-go/models"
@@ -21,6 +22,10 @@ var _ = gauge.Step("Create <table>", func(table *m.Table) {
 var _ = gauge.Step("Enable TLS config for eventlisteners", func() {
 	oc.EnableTLSConfigForEventlisteners(store.Namespace())
 
+})
+
+var _ = gauge.Step("Verify kubernetes events for eventlistener", func() {
+	oc.VerifyKubernetesEventsForEventListener(store.Namespace())
 })
 
 var _ = gauge.Step("Delete <table>", func(table *m.Table) {
