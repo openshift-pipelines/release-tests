@@ -92,7 +92,7 @@ func ValidateTaskRunLabelPropogation(c *clients.Clients, trname, namespace strin
 	if tr.Status.PodName != "" {
 		pod := GetPodForTaskRun(c, namespace, tr)
 		// This label is added to every Pod by the TaskRun controller
-		labels[pipeline.GroupName+pipeline.TaskRunLabelKey] = tr.Name
+		labels[pipeline.TaskRunLabelKey] = tr.Name
 		AssertLabelsMatch(labels, pod.ObjectMeta.Labels)
 		gauge.WriteMessage("Labels: \n\n %+v", createKeyValuePairs(labels))
 	}

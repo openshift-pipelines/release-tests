@@ -10,10 +10,10 @@ import (
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/clientcmd"
 
-	olmversioned "github.com/operator-framework/operator-lifecycle-manager/pkg/api/client/clientset/versioned"
+	configV1 "github.com/openshift/client-go/config/clientset/versioned/typed/config/v1"
 	consolev1 "github.com/openshift/client-go/console/clientset/versioned/typed/console/v1"
 	routev1 "github.com/openshift/client-go/route/clientset/versioned/typed/route/v1"
-	configV1 "github.com/openshift/client-go/config/clientset/versioned/typed/config/v1"
+	olmversioned "github.com/operator-framework/operator-lifecycle-manager/pkg/api/client/clientset/versioned"
 	monclientv1 "github.com/prometheus-operator/prometheus-operator/pkg/client/versioned/typed/monitoring/v1"
 	"github.com/tektoncd/operator/pkg/client/clientset/versioned"
 	operatorv1alpha1 "github.com/tektoncd/operator/pkg/client/clientset/versioned/typed/operator/v1alpha1"
@@ -39,10 +39,10 @@ type Clients struct {
 	KubeConfig             *rest.Config
 	Scheme                 *runtime.Scheme
 	OLM                    olmversioned.Interface
-	Route              routev1.RouteV1Interface
-	ProxyConfig        configV1.ConfigV1Interface
-	ConsoleCLIDownload consolev1.ConsoleCLIDownloadInterface
-	MonitoringClient   monclientv1.MonitoringV1Interface
+	Route                  routev1.RouteV1Interface
+	ProxyConfig            configV1.ConfigV1Interface
+	ConsoleCLIDownload     consolev1.ConsoleCLIDownloadInterface
+	MonitoringClient       monclientv1.MonitoringV1Interface
 	Tekton                 pversioned.Interface
 	PipelineClient         v1beta1.PipelineInterface
 	TaskClient             v1beta1.TaskInterface

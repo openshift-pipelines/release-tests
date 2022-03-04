@@ -1,7 +1,6 @@
 package pipelines
 
 import (
-	"encoding/json"
 	"fmt"
 	"log"
 	"strconv"
@@ -13,15 +12,14 @@ import (
 	"github.com/getgauge-contrib/gauge-go/testsuit"
 	"github.com/openshift-pipelines/release-tests/pkg/assert"
 	"github.com/openshift-pipelines/release-tests/pkg/clients"
+	"github.com/openshift-pipelines/release-tests/pkg/cmd"
 	"github.com/openshift-pipelines/release-tests/pkg/config"
 	"github.com/openshift-pipelines/release-tests/pkg/k8s"
 	"github.com/openshift-pipelines/release-tests/pkg/wait"
 	"github.com/tektoncd/pipeline/pkg/apis/pipeline/v1beta1"
-	"gomodules.xyz/jsonpatch/v2"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
-	"k8s.io/apimachinery/pkg/types"
 	w "k8s.io/apimachinery/pkg/util/wait"
 	"k8s.io/apimachinery/pkg/watch"
 )
@@ -134,35 +132,8 @@ func validatePipelineRunCancel(c *clients.Clients, prname, namespace string) {
 	}
 
 	var wg sync.WaitGroup
-	var trName []string
-	log.Printf("Waiting for TaskRuns from PipelineRun %s in namespace %s to be running", prname, namespace)
-	for _, taskrunItem := range taskrunList.Items {
-		trName = append(trName, taskrunItem.Name)
-		wg.Add(1)
-		go func(name string) {
-			defer wg.Done()
-			err := wait.WaitForTaskRunState(c, name, wait.Running(name), "TaskRunRunning")
-			assert.NoError(err, fmt.Sprintf("Error waiting for TaskRun %s to be running", name))
-		}(taskrunItem.Name)
-	}
-	wg.Wait()
+	log.Printf("Canceling pipeline run: %s\n", cmd.MustSucceed("tkn", "pipelinerun", "cancel", prname, "-n", namespace).Stdout())
 
-	pr, err := c.PipelineRunClient.Get(c.Ctx, prname, metav1.GetOptions{})
-	assert.NoError(err, fmt.Sprintf("Error Getting PipelineRun %s under namespace %s ", prname, namespace))
-
-	patches := []jsonpatch.JsonPatchOperation{{
-		Operation: "add",
-		Path:      "/spec/status",
-		Value:     v1beta1.PipelineRunSpecStatusCancelled,
-	}}
-	patchBytes, err := json.Marshal(patches)
-	assert.NoError(err, fmt.Sprintf("failed to marshal patch bytes in order to cancel"))
-
-	if _, err := c.PipelineRunClient.Patch(c.Ctx, pr.Name, types.JSONPatchType, patchBytes, metav1.PatchOptions{}, ""); err != nil {
-		testsuit.T.Errorf(fmt.Sprintf("Failed to patch PipelineRun `%s` with cancellation", prname))
-	}
-
-	log.Printf("Waiting for PipelineRun %s in namespace %s to be cancelled", prname, namespace)
 	if err := wait.WaitForPipelineRunState(c, prname, wait.FailedWithReason("PipelineRunCancelled", prname), "PipelineRunCancelled"); err != nil {
 		testsuit.T.Errorf(fmt.Sprintf("Error waiting for PipelineRun `%s` to finished: %s", prname, err))
 	}

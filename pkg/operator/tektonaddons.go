@@ -31,14 +31,13 @@ import (
 	"k8s.io/apimachinery/pkg/util/wait"
 
 	"github.com/tektoncd/operator/pkg/apis/operator/v1alpha1"
-	addonv1alpha1 "github.com/tektoncd/operator/pkg/client/clientset/versioned/typed/operator/v1alpha1"
-	configv1alpha1 "github.com/tektoncd/operator/pkg/client/clientset/versioned/typed/operator/v1alpha1"
+	operatorv1alpha1 "github.com/tektoncd/operator/pkg/client/clientset/versioned/typed/operator/v1alpha1"
 	apierrs "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
 // EnsureTektonAddonExists creates a TektonAddon with the name names.TektonAddon, if it does not exist.
-func EnsureTektonAddonExists(clients addonv1alpha1.TektonAddonInterface, names config.ResourceNames) (*v1alpha1.TektonAddon, error) {
+func EnsureTektonAddonExists(clients operatorv1alpha1.TektonAddonInterface, names config.ResourceNames) (*v1alpha1.TektonAddon, error) {
 	// If this function is called by the upgrade tests, we only create the custom resource, if it does not exist.
 	ks, err := clients.Get(context.TODO(), names.TektonAddon, metav1.GetOptions{})
 	err = wait.Poll(config.APIRetry, config.APITimeout, func() (bool, error) {
@@ -58,7 +57,7 @@ func EnsureTektonAddonExists(clients addonv1alpha1.TektonAddonInterface, names c
 // WaitForTektonAddonState polls the status of the TektonAddon called name
 // from client every `interval` until `inState` returns `true` indicating it
 // is done, returns an error or timeout.
-func WaitForTektonAddonState(clients addonv1alpha1.TektonAddonInterface, name string,
+func WaitForTektonAddonState(clients operatorv1alpha1.TektonAddonInterface, name string,
 	inState func(s *v1alpha1.TektonAddon, err error) (bool, error)) (*v1alpha1.TektonAddon, error) {
 	span := logging.GetEmitableSpan(context.Background(), fmt.Sprintf("WaitForTektonAddonState/%s/%s", name, "TektonAddonIsReady"))
 	defer span.End()
@@ -80,7 +79,7 @@ func IsTektonAddonReady(s *v1alpha1.TektonAddon, err error) (bool, error) {
 	return s.Status.IsReady(), err
 }
 
-func EnsureTektonAddonsStatusInstalled(clients configv1alpha1.TektonAddonInterface, names config.ResourceNames) {
+func EnsureTektonAddonsStatusInstalled(clients operatorv1alpha1.TektonAddonInterface, names config.ResourceNames) {
 	err := wait.PollImmediate(config.APIRetry, config.APITimeout, func() (bool, error) {
 		// Refresh Cluster CR
 		cr, err := EnsureTektonAddonExists(clients, names)
