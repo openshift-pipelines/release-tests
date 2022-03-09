@@ -42,6 +42,16 @@ func EnableTLSConfigForEventlisteners(namespace string) {
 	log.Printf("output: %s\n", cmd.MustSucceed("oc", "label", "namespace", namespace, "operator.tekton.dev/enable-annotation=enabled").Stdout())
 }
 
+func VerifyKubernetesEventsForEventListener(namespace string) {
+	result := cmd.Run("oc", "-n", namespace, "get", "events")
+	startedEvent := strings.Contains(result.String(), "dev.tekton.event.triggers.started.v1")
+	successfulEvent := strings.Contains(result.String(), "dev.tekton.event.triggers.successful.v1")
+	doneEvent := strings.Contains(result.String(), "dev.tekton.event.triggers.done.v1")
+	if !startedEvent || !successfulEvent || !doneEvent {
+		testsuit.T.Errorf("No events for successful, done and started")
+	}
+}
+
 func UpdateTektonConfig(patch_data string) {
 	log.Printf("output: %s\n", cmd.MustSucceed("oc", "patch", "tektonconfig", "config", "-p", patch_data, "--type=merge").Stdout())
 }

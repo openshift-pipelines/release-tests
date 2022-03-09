@@ -419,3 +419,31 @@ Steps:
     |----|---------------------|-----------|-----------------------|
     |1   |simple-pipeline-run-2|successfull|no                     |
   * Cleanup Triggers
+
+## Create Eventlistener with github interceptor And verify Kuberenetes Events: PIPELINES-05-TC17
+Tags: events, triggers, admin
+Component: Triggers
+Level: Integration
+Type: Functional
+Importance: Normal
+
+This scenario helps you to create eventlistner with github interceptor, listens to github events, on each github event it creates/triggers
+openshift-pipeline Resources defined under triggers-template, to deploy example app and emit events for done/started/success/failure.
+
+Steps:
+  * Create
+    |S.NO|resource_dir                                                        |
+    |----|--------------------------------------------------------------------|
+    |1   |testdata/triggers/sample-pipeline.yaml                              |
+    |2   |testdata/triggers/triggerbindings/triggerbinding.yaml               |
+    |3   |testdata/triggers/triggertemplate/triggertemplate.yaml              |
+    |4   |testdata/triggers/eventlisteners/eventlistener-embeded-binding.yaml |
+  * Expose Event listener "listener-embed-binding"
+  * Mock post event to "github" interceptor with event-type "push", payload "testdata/push.json", with TLS "false"
+  * Assert eventlistener response
+  * Verify kubernetes events for eventlistener
+  * Verify pipelinerun
+    |S.NO|pipeline_run_name  |status     |check_lable_propagation|
+    |----|-------------------|-----------|-----------------------|
+    |1   |simple-pipeline-run|successfull|no                     |
+  * Cleanup Triggers
