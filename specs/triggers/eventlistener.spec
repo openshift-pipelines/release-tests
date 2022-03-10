@@ -425,7 +425,7 @@ Tags: events, triggers, admin
 Component: Triggers
 Level: Integration
 Type: Functional
-Importance: Normal
+Importance: Medium
 
 This scenario helps you to create eventlistner with github interceptor, listens to github events, on each github event it creates/triggers
 openshift-pipeline Resources defined under triggers-template, to deploy example app and emit events for done/started/success/failure.
