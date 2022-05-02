@@ -55,9 +55,6 @@ func ValidateTriggerDeployments(cs *clients.Clients, rnames config.ResourceNames
 func ValidateOperatorInstallStatus(cs *clients.Clients, rnames config.ResourceNames) {
 	log.Printf("Waiting for operator to be up and running....\n")
 	EnsureTektonConfigStatusInstalled(cs.TektonConfig(), rnames)
-	ValidatePipelineDeployments(cs, rnames)
-	ValidateTriggerDeployments(cs, rnames)
-	EnsureTektonAddonsStatusInstalled(cs.TektonAddon(), rnames)
 	log.Printf("Operator is up\n")
 }
 
