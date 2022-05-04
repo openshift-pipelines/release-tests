@@ -49,6 +49,12 @@ const (
 	// Default config for auto pruner
 	PrunerSchedule = "0 8 * * *"
 	PrunerNamePrefix = "tekton-resource-pruner-"
+
+	// Name of PAC deployment
+	PACEventListener = "el-pipelines-as-code-interceptor"
+
+	// Name of tkn deployment
+	TKNDeployment = "tkn-cli-serve"
 )
 
 // Flags holds the command line flags or defaults for settings in the user's environment.
