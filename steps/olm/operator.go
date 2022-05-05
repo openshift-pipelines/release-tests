@@ -62,11 +62,11 @@ var _ = gauge.Step("Verify TektonAddons Install status", func() {
 var _ = gauge.Step("Validate PAC eventlistener deployment", func() {
 	rnames := store.GetCRNames()
 	cs := store.Clients()
-	k8s.ValidateDeployments(cs, rnames.TargetNamespace, config.PACEventListener)
+	k8s.ValidateDeployments(cs, rnames.TargetNamespace, config.PacEventListener)
 })
 
 var _ = gauge.Step("Validate tkn server cli deployment", func() {
 	rnames := store.GetCRNames()
 	cs := store.Clients()
-	k8s.ValidateDeployments(cs, rnames.TargetNamespace, config.TKNDeployment)
+	k8s.ValidateDeployments(cs, rnames.TargetNamespace, config.TknDeployment)
 })
