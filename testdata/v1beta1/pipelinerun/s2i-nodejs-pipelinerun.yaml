@@ -1,0 +1,121 @@
+apiVersion: image.openshift.io/v1
+kind: ImageStream
+metadata:
+  name: nodejs-ex-git
+---
+kind: DeploymentConfig
+apiVersion: apps.openshift.io/v1
+metadata:
+  name: nodejs-ex-git
+  labels:
+    app: nodejs-ex-git
+spec:
+  strategy:
+    type: Rolling
+  triggers:
+    - type: ImageChange
+      imageChangeParams:
+        automatic: true
+        containerNames:
+          - nodejs-ex-git
+        from:
+          kind: ImageStreamTag
+          name: 'nodejs-ex-git:latest'
+    - type: ConfigChange
+  replicas: 1
+  template:
+    metadata:
+      name: nodejs-ex-git
+      labels:
+        app: nodejs-ex-git
+    spec:
+      containers:
+        - name: nodejs-ex-git
+          ports:
+            - containerPort: 8080
+              protocol: TCP
+          # terminationMessagePath: /dev/termination-log
+          # terminationMessagePolicy: File
+          # imagePullPolicy: Always
+---
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  name: nodejs-ex-git
+spec:
+  params:
+    - name: APP_NAME
+      default: nodejs-ex-git
+    - name: GIT_REPO
+      default: 'https://github.com/sclorg/nodejs-ex.git'
+    - name: GIT_REVISION
+      default: master
+    - name: IMAGE_NAME
+      default: "image-registry.openshift-image-registry.svc:5000/$(context.pipelineRun.namespace)/nodejs-ex-git"
+    - name: PATH_CONTEXT
+      default: .
+    - name: VERSION
+      default: 16-ubi8
+  tasks:
+    - name: fetch-repository
+      params:
+        - name: url
+          value: $(params.GIT_REPO)
+        - name: revision
+          value: $(params.GIT_REVISION)
+        - name: subdirectory
+          value: ''
+        - name: deleteExisting
+          value: 'true'
+      taskRef:
+        kind: ClusterTask
+        name: git-clone
+      workspaces:
+        - name: output
+          workspace: workspace
+    - name: build
+      params:
+        - name: IMAGE
+          value: $(params.IMAGE_NAME)
+        - name: TLSVERIFY
+          value: 'false'
+        - name: PATH_CONTEXT
+          value: $(params.PATH_CONTEXT)
+        - name: VERSION
+          value: $(params.VERSION)
+      runAfter:
+        - fetch-repository
+      taskRef:
+        kind: ClusterTask
+        name: s2i-nodejs
+      workspaces:
+        - name: source
+          workspace: workspace
+    - name: deploy
+      params:
+        - name: SCRIPT
+          value: oc rollout status dc/$(params.APP_NAME)
+      runAfter:
+        - build
+      taskRef:
+        kind: ClusterTask
+        name: openshift-client
+  workspaces:
+    - name: workspace
+---
+apiVersion: tekton.dev/v1beta1
+kind: PipelineRun
+metadata:
+  name: nodejs-ex-git-pr
+spec:
+  pipelineRef:
+    name: nodejs-ex-git
+  workspaces:
+    - name: workspace
+      volumeClaimTemplate:
+        spec:
+          accessModes:
+            - ReadWriteOnce
+          resources:
+            requests:
+              storage: 1Gi
