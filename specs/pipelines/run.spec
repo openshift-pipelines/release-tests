@@ -139,25 +139,7 @@ Steps:
       |----|-----------------------------------------|-----------|-----------------------|
       |1   |pipelinerun-with-pipelinespec-taskspec-vb|successfull|no                     |
 
-## S2I nodejs pipelinerun: PIPELINES-03-TC08
-Tags: e2e, integration, pipelines, non-admin, s2i
-Component: Pipelines
-Level: Integration
-Type: Functional
-Importance: Critical
-
-Steps:
-  * Verify ServiceAccount "pipeline" exist
-  * Create
-      |S.NO|resource_dir                                            |
-      |----|--------------------------------------------------------|
-      |1   |testdata/v1beta1/pipelinerun/s2i-nodejs-pipelinerun.yaml|
-  * Verify pipelinerun
-      |S.NO|pipeline_run_name|status     |check_lable_propagation|
-      |----|-----------------|-----------|-----------------------|
-      |1   |nodejs-ex-git-pr |successfull|no                     |
-
-## Pipelinerun with large result: PIPELINES-03-TC09
+## Pipelinerun with large result: PIPELINES-03-TC08
 Tags: e2e, integration, pipelines, non-admin, results
 Component: Pipelines
 Level: Integration
