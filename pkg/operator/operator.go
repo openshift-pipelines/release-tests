@@ -22,7 +22,7 @@ func ValidateRBAC(cs *clients.Clients, rnames config.ResourceNames) {
 	AssertClusterRole(cs, "pipelines-scc-clusterrole")
 	AssertConfigMap(cs, store.Namespace(), "config-service-cabundle")
 	AssertConfigMap(cs, store.Namespace(), "config-trusted-cabundle")
-	AssertRoleBinding(cs, store.Namespace(), "edit")
+	AssertRoleBinding(cs, store.Namespace(), "openshift-pipelines-edit")
 	AssertRoleBinding(cs, store.Namespace(), "pipelines-scc-rolebinding")
 }
 
