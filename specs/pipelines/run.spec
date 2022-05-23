@@ -163,6 +163,7 @@ Component: Pipelines
 Level: Integration
 Type: Functional
 Importance: Critical
+CustomerScenario: yes
 
 Steps:
   * Verify ServiceAccount "pipeline" exist
