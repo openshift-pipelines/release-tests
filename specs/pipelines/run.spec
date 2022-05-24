@@ -138,3 +138,22 @@ Steps:
       |S.NO|pipeline_run_name                        |status     |check_lable_propagation|
       |----|-----------------------------------------|-----------|-----------------------|
       |1   |pipelinerun-with-pipelinespec-taskspec-vb|successfull|no                     |
+
+## Pipelinerun with large result: PIPELINES-03-TC08
+Tags: e2e, integration, pipelines, non-admin, results
+Component: Pipelines
+Level: Integration
+Type: Functional
+Importance: Critical
+CustomerScenario: yes
+
+Steps:
+  * Verify ServiceAccount "pipeline" exist
+  * Create
+      |S.NO|resource_dir                                                   |
+      |----|---------------------------------------------------------------|
+      |1   |testdata/v1beta1/pipelinerun/pipelinerun-with-large-result.yaml|
+  * Verify pipelinerun
+      |S.NO|pipeline_run_name|status     |check_lable_propagation|
+      |----|-----------------|-----------|-----------------------|
+      |1   |result-test-run  |successfull|no                     |
