@@ -1,0 +1,16 @@
+{
+    "PIPELINES-01": "specs/metrics/metrics.spec",
+    "PIPELINES-02": "specs/pipelines/fail.spec",
+    "PIPELINES-03": "specs/pipelines/run.spec",
+    "PIPELINES-04": "specs/triggers/cron.spec",
+    "PIPELINES-05": "specs/triggers/eventlistener.spec",
+    "PIPELINES-06": "specs/triggers/tutorial.spec",
+    "PIPELINES-07": "specs/triggers/v1alpha1.spec",
+    "PIPELINES-08": "specs/icon.spec",
+    "PIPELINES-09": "specs/olm.spec",
+    "PIPELINES-10": "specs/triggers/triggerbinding.spec",
+    "PIPELINES-11": "specs/operator/rbac.spec",
+    "PIPELINES-12": "specs/operator/auto-prune.spec",
+    "PIPELINES-13": "specs/operator/hpa.spec",
+    "PIPELINES-14": "specs/clustertasks/clustertask.spec"
+}

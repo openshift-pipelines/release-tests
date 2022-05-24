@@ -1,3 +1,4 @@
+PIPELINES-10
 # Verify triggerbindings spec
 
 Pre condition:
