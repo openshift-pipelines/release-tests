@@ -11,8 +11,7 @@ import (
 
 func GetClusterTask(c *clients.Clients, clusterTaskName, status string) {
 	log.Printf("Verifying if the clustertask %v is %v", clusterTaskName, status)
-	cts, err := c.ClustertaskClient.Get(c.Ctx, clusterTaskName, v1.GetOptions{})
-	log.Printf("%v %v", cts, err)
+	_, err := c.ClustertaskClient.Get(c.Ctx, clusterTaskName, v1.GetOptions{})
 	if status == "present" {
 		if err == nil {
 			log.Printf("Clustertask %v- Expected: Present, Actual: Present", clusterTaskName)
@@ -21,7 +20,7 @@ func GetClusterTask(c *clients.Clients, clusterTaskName, status string) {
 		}
 
 	} else {
-		if err != nil {
+		if err == nil {
 			assert.FailOnError(fmt.Errorf("Clustertask %v- Expected: Not Present, Actual: Present", clusterTaskName))
 		} else {
 			log.Printf("Clustertask %v- Expected: Not Present, Actual: Not Present", clusterTaskName)

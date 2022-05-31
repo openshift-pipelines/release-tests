@@ -113,6 +113,7 @@ func NewClients(configPath string, clusterName, namespace string) (*Clients, err
 	clients.Route = routev1.NewForConfigOrDie(clients.KubeConfig)
 	clients.ProxyConfig = configV1.NewForConfigOrDie(clients.KubeConfig)
 	clients.ConsoleCLIDownload = consolev1.NewForConfigOrDie(clients.KubeConfig).ConsoleCLIDownloads()
+	clients.ClustertaskClient = clients.Tekton.TektonV1beta1().ClusterTasks()
 	if err != nil {
 		return nil, err
 	}
