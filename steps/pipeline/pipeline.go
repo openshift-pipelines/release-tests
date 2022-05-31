@@ -2,13 +2,13 @@
 package pipeline
 
 import (
-	"strings"
-	"log"
 	"github.com/getgauge-contrib/gauge-go/gauge"
 	m "github.com/getgauge-contrib/gauge-go/models"
+	"github.com/openshift-pipelines/release-tests/pkg/config"
 	"github.com/openshift-pipelines/release-tests/pkg/pipelines"
 	"github.com/openshift-pipelines/release-tests/pkg/store"
-	"github.com/openshift-pipelines/release-tests/pkg/config"
+	"log"
+	"strings"
 )
 
 var _ = gauge.Step("Verify taskrun <table>", func(table *m.Table) {
