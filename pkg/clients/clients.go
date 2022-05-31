@@ -51,6 +51,7 @@ type Clients struct {
 	PipelineResourceClient resourcev1alpha1.PipelineResourceInterface
 	ConditionClient        v1alpha1.ConditionInterface
 	TriggersClient         triggersclientset.Interface
+	ClustertaskClient      v1beta1.ClusterTaskInterface
 }
 
 // NewClients instantiates and returns several clientsets required for making request to the

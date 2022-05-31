@@ -7,7 +7,9 @@ import (
 
 	"github.com/getgauge-contrib/gauge-go/gauge"
 	m "github.com/getgauge-contrib/gauge-go/models"
+	"github.com/openshift-pipelines/release-tests/pkg/config"
 	"github.com/openshift-pipelines/release-tests/pkg/oc"
+	"github.com/openshift-pipelines/release-tests/pkg/pipelines"
 	"github.com/openshift-pipelines/release-tests/pkg/store"
 )
 
@@ -100,4 +102,15 @@ var _ = gauge.Step("Add label <label> to namespace", func(label string) {
 var _ = gauge.Step("Remove label <label> from the namespace", func(label string) {
 	log.Printf("Removing annotation %v from namespace %v", store.Namespace(), label)
 	oc.AnnotateNamespace(store.Namespace(), label+"-")
+})
+
+var _ = gauge.Step("<cts> clustertasks are <status>", func(cts, status string) {
+	if cts == "community" {
+		cts = config.CommunityClustertasks
+	}
+	log.Printf("Checking if clustertasks %v is %v", cts, status)
+	ctsList := strings.Split(cts, ",")
+	for _, c := range ctsList {
+		pipelines.GetClusterTask(store.Clients(), c, status)
+	}
 })

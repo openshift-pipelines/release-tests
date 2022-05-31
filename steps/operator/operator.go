@@ -8,6 +8,7 @@ import (
 	"github.com/openshift-pipelines/release-tests/pkg/cmd"
 	"github.com/openshift-pipelines/release-tests/pkg/operator"
 	"github.com/openshift-pipelines/release-tests/pkg/store"
+	"github.com/openshift-pipelines/release-tests/pkg/oc"
 )
 
 var _ = gauge.Step("Update TektonConfig CR to use param with name createRbacResource and value <value> to <action> auto creation of RBAC resources", func(value, action string) {
@@ -22,4 +23,13 @@ var _ = gauge.Step("Verify RBAC resources disabled successfully", func() {
 
 var _ = gauge.Step("Verify RBAC resources are auto created successfully", func() {
 	operator.ValidateRBAC(store.Clients(), store.GetCRNames())
+})
+
+var _ = gauge.Step("Update addon config param <paramName> with value <paramValue> and expect message <expectedMessage>", func(paramName, paramValue, expectedMessage string){
+	patchData := fmt.Sprintf("{\"spec\":{\"addon\":{\"params\":[{\"name\":\"%s\",\"value\":\"%s\"}]}}}", paramName, paramValue)
+	if expectedMessage == "" {
+		oc.UpdateTektonConfig(patchData)
+	} else {
+		oc.UpdateTektonConfigwithInvalidData(patchData, expectedMessage)
+	}
 })
