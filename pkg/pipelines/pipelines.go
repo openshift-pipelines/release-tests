@@ -261,3 +261,26 @@ func AssertNumberOfTaskruns(c *clients.Clients, namespace, numberOfTr, timeoutSe
 		assert.FailOnError(fmt.Errorf("Error: Expected %v number of taskruns but found %v number of taskruns", numberOfTr, len(trlist.Items)))
 	}
 }
+
+func AssertPipelinesExist(c *clients.Clients, status, namespace string) {
+	log.Printf("Verifying if pipelines %v in namespace %v", status, namespace)
+	pclient := c.Tekton.TektonV1beta1().Pipelines(namespace)
+	p, err := pclient.List(c.Ctx, metav1.ListOptions{})
+	if err != nil {
+		assert.FailOnError(fmt.Errorf("Error getting pipelines from namespace %v, Error: %v", namespace, err))
+	} else {
+		if status == "present" {
+			if len(p.Items) == 0 {
+				assert.FailOnError(fmt.Errorf("Expected: Pipelines present in %v namespace, Actual: Pipelines not present in %v namespace", namespace, namespace))
+			} else {
+				log.Printf("Exptected: Pipelines present in %v namespace, Actual: Pipelines present in %v namespace", namespace, namespace)
+			}
+		} else {
+			if len(p.Items) == 0 {
+				log.Printf("Exptected: Pipelines not present in %v namespace, Actual: Pipelines not present in %v namespace", namespace, namespace)
+			} else {
+				assert.FailOnError(fmt.Errorf("Expected: Pipelines not present in %v namespace, Actual: Pipelines present in %v namespace", namespace, namespace))
+			}
+		}
+	}
+}

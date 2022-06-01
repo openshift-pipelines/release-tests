@@ -37,16 +37,37 @@ Steps:
   * Sleep for "10" seconds
   * "community" clustertasks are "present"
   * "tkn,openshift-client" clustertasks are "present"
+  * Assert pipelines are "present" in "openshift" namespace
   * Update addon config with clusterTasks as "false" communityClustertasks as "false" and pipelineTemplates as "false" and expect message ""
   * Sleep for "10" seconds
   * "community" clustertasks are "not present"
   * "tkn,openshift-client" clustertasks are "not present"
+  * Assert pipelines are "not present" in "openshift" namespace
   * Update addon config with clusterTasks as "true" communityClustertasks as "true" and pipelineTemplates as "true" and expect message ""
   * Sleep for "10" seconds
   * "community" clustertasks are "present"
   * "tkn,openshift-client" clustertasks are "present"
+  * Assert pipelines are "present" in "openshift" namespace
 
-## Enable community cluster tasks when clustertask is disabled: PIPELINES-15-TC03
+## Disable/Enable pipeline templates: PIPELINES-15-TC03
+Tags: e2e, integration, clustertasks, admin, addon
+Component: Pipelines
+Level: Integration
+Type: Functional
+Importance: Critical
+
+Steps:
+  * Update addon config with clusterTasks as "true" communityClustertasks as "true" and pipelineTemplates as "true" and expect message ""
+  * Sleep for "10" seconds
+  * Assert pipelines are "present" in "openshift" namespace
+  * Update addon config with clusterTasks as "true" communityClustertasks as "true" and pipelineTemplates as "false" and expect message ""
+  * Sleep for "10" seconds
+  * Assert pipelines are "not present" in "openshift" namespace
+  * Update addon config with clusterTasks as "true" communityClustertasks as "true" and pipelineTemplates as "true" and expect message ""
+  * Sleep for "10" seconds
+  * Assert pipelines are "present" in "openshift" namespace
+
+## Enable community cluster tasks when clustertask is disabled: PIPELINES-15-TC04
 Tags: e2e, integration, negative, admin, addon
 Component: Pipelines
 Level: Integration
@@ -57,7 +78,7 @@ Pos/Neg: Negative
 Steps:
   * Update addon config with clusterTasks as "false" communityClustertasks as "true" and pipelineTemplates as "false" and expect message "validation failed: communityClusterTasks cannot be true if clusterTask is false"
 
-## Enable pipeline templates when clustertask is disabled: PIPELINES-15-TC04
+## Enable pipeline templates when clustertask is disabled: PIPELINES-15-TC05
 Tags: e2e, integration, negative, admin, addon
 Component: Pipelines
 Level: Integration

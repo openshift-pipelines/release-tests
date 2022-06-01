@@ -58,3 +58,7 @@ var _ = gauge.Step("<cts> clustertasks are <status>", func(cts, status string) {
 		pipelines.GetClusterTask(store.Clients(), c, status)
 	}
 })
+
+var _ = gauge.Step("Assert pipelines are <status> in <namespace> namespace", func(status, namespace string) {
+	pipelines.AssertPipelinesExist(store.Clients(), status, namespace)
+})
