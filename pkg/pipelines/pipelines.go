@@ -261,3 +261,28 @@ func AssertNumberOfTaskruns(c *clients.Clients, namespace, numberOfTr, timeoutSe
 		assert.FailOnError(fmt.Errorf("Error: Expected %v number of taskruns but found %v number of taskruns", numberOfTr, len(trlist.Items)))
 	}
 }
+func AssertPipelinesPresent(c *clients.Clients, namespace string) {
+	log.Printf("Verifying if pipelines are present in namespace %v", namespace)
+	pclient := c.Tekton.TektonV1beta1().Pipelines(namespace)
+	p, err := pclient.List(c.Ctx, metav1.ListOptions{})
+	if err != nil {
+		assert.FailOnError(fmt.Errorf("Error getting pipelines from namespace %v, Error: %v", namespace, err))
+	}
+	if len(p.Items) == 0 {
+		assert.FailOnError(fmt.Errorf("Expected: Pipelines present in namespace %v, Actual: Pipelines not present in namespace %v", namespace, namespace))
+	}
+	fmt.Printf("Pipelines are present in namespace %v", namespace)
+}
+
+func AssertPipelinesNotPresent(c *clients.Clients, namespace string) {
+	log.Printf("Verifying if pipelines are not present in namespace %v", namespace)
+	pclient := c.Tekton.TektonV1beta1().Pipelines(namespace)
+	p, err := pclient.List(c.Ctx, metav1.ListOptions{})
+	if err != nil {
+		assert.FailOnError(fmt.Errorf("Error getting pipelines from namespace %v, Error: %v", namespace, err))
+	}
+	if len(p.Items) != 0 {
+		assert.FailOnError(fmt.Errorf("Expected: Pipelines not present in namespace %v, Actual: Pipelines present in namespace %v", namespace, namespace))
+	}
+	fmt.Printf("Pipelines are not present in namespace %v", namespace)
+}

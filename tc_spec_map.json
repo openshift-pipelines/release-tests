@@ -12,5 +12,6 @@
     "PIPELINES-11": "specs/operator/rbac.spec",
     "PIPELINES-12": "specs/operator/auto-prune.spec",
     "PIPELINES-13": "specs/operator/hpa.spec",
-    "PIPELINES-14": "specs/clustertasks/clustertask.spec"
+    "PIPELINES-14": "specs/clustertasks/clustertask.spec",
+    "PIPELINES-15": "specs/operator/addon.spec"
 }

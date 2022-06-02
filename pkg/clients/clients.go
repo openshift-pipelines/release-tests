@@ -51,6 +51,7 @@ type Clients struct {
 	PipelineResourceClient resourcev1alpha1.PipelineResourceInterface
 	ConditionClient        v1alpha1.ConditionInterface
 	TriggersClient         triggersclientset.Interface
+	ClustertaskClient      v1beta1.ClusterTaskInterface
 }
 
 // NewClients instantiates and returns several clientsets required for making request to the
@@ -112,6 +113,7 @@ func NewClients(configPath string, clusterName, namespace string) (*Clients, err
 	clients.Route = routev1.NewForConfigOrDie(clients.KubeConfig)
 	clients.ProxyConfig = configV1.NewForConfigOrDie(clients.KubeConfig)
 	clients.ConsoleCLIDownload = consolev1.NewForConfigOrDie(clients.KubeConfig).ConsoleCLIDownloads()
+	clients.ClustertaskClient = clients.Tekton.TektonV1beta1().ClusterTasks()
 	if err != nil {
 		return nil, err
 	}
