@@ -9,21 +9,20 @@ import (
 	"k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
-func GetClusterTask(c *clients.Clients, clusterTaskName, status string) {
-	log.Printf("Verifying if the clustertask %v is %v", clusterTaskName, status)
+func AssertClustertaskPresent(c *clients.Clients, clusterTaskName string) {
+	log.Printf("Verifying if the clustertask %v is present", clusterTaskName)
 	_, err := c.ClustertaskClient.Get(c.Ctx, clusterTaskName, v1.GetOptions{})
-	if status == "present" {
-		if err == nil {
-			log.Printf("Clustertask %v- Expected: Present, Actual: Present", clusterTaskName)
-		} else {
-			assert.FailOnError(fmt.Errorf("Clustertask %v- Expected: Present, Actual: Not Present, Error: %v", clusterTaskName, err))
-		}
-
-	} else {
-		if err == nil {
-			assert.FailOnError(fmt.Errorf("Clustertask %v- Expected: Not Present, Actual: Present", clusterTaskName))
-		} else {
-			log.Printf("Clustertask %v- Expected: Not Present, Actual: Not Present", clusterTaskName)
-		}
+	if err != nil {
+		assert.FailOnError(fmt.Errorf("Clustertasks %v Expected: Present, Actual: Not Present", clusterTaskName))
 	}
+	log.Printf("Clustertask %v is present", clusterTaskName)
+}
+
+func AssertClustertaskNotPresent(c *clients.Clients, clusterTaskName string) {
+	log.Printf("Verifying if the clustertask %v is present", clusterTaskName)
+	_, err := c.ClustertaskClient.Get(c.Ctx, clusterTaskName, v1.GetOptions{})
+	if err == nil {
+		assert.FailOnError(fmt.Errorf("Clustertasks %v Expected: Not Present, Actual: Present", clusterTaskName))
+	}
+	log.Printf("Clustertask %v is not present", clusterTaskName)
 }

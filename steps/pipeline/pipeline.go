@@ -52,13 +52,23 @@ var _ = gauge.Step("<cts> clustertasks are <status>", func(cts, status string) {
 	if cts == "community" {
 		cts = config.CommunityClustertasks
 	}
-	log.Printf("Checking if clustertasks %v is %v", cts, status)
+	log.Printf("Checking if clustertasks %v is/are %v", cts, status)
 	ctsList := strings.Split(cts, ",")
-	for _, c := range ctsList {
-		pipelines.GetClusterTask(store.Clients(), c, status)
+	if status == "present" {
+		for _, c := range ctsList {
+			pipelines.AssertClustertaskPresent(store.Clients(), c)
+		}
+	} else {
+		for _, c := range ctsList {
+			pipelines.AssertClustertaskNotPresent(store.Clients(), c)
+		}
 	}
 })
 
 var _ = gauge.Step("Assert pipelines are <status> in <namespace> namespace", func(status, namespace string) {
-	pipelines.AssertPipelinesExist(store.Clients(), status, namespace)
+	if status == "present" {
+		pipelines.AssertPipelinesPresent(store.Clients(), namespace)
+	} else {
+		pipelines.AssertPipelinesNotPresent(store.Clients(), namespace)
+	}
 })
