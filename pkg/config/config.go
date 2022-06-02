@@ -55,6 +55,9 @@ const (
 
 	// Name of tkn deployment
 	TknDeployment = "tkn-cli-serve"
+
+	// Community Clustertasks
+	CommunityClustertasks = "jib-maven,helm-upgrade-from-source,helm-upgrade-from-repo,trigger-jenkins-job,git-cli,pull-request,kubeconfig-creator,argocd-task-sync-and-wait"
 )
 
 // Flags holds the command line flags or defaults for settings in the user's environment.

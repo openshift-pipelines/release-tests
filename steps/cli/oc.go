@@ -101,3 +101,12 @@ var _ = gauge.Step("Remove label <label> from the namespace", func(label string)
 	log.Printf("Removing annotation %v from namespace %v", store.Namespace(), label)
 	oc.AnnotateNamespace(store.Namespace(), label+"-")
 })
+
+var _ = gauge.Step("Update addon config with clusterTasks as <clusterTaskStatus> communityClustertasks as <comClusterTaskStatus> and pipelineTemplates as <pipelineTemplateStatus> and expect message <expectedMessage>", func(clusterTaskStatus, commClustertaskStatus, pipeTemplateStatus, expectedMessage string) {
+	patchData := fmt.Sprintf("{\"spec\":{\"addon\":{\"params\":[{\"name\":\"clusterTasks\",\"value\":\"%s\"},{\"name\":\"communityClusterTasks\",\"value\":\"%s\"},{\"name\":\"pipelineTemplates\",\"value\":\"%s\"}]}}}", clusterTaskStatus, commClustertaskStatus, pipeTemplateStatus)
+	if expectedMessage == "" {
+		oc.UpdateTektonConfig(patchData)
+	} else {
+		oc.UpdateTektonConfigwithInvalidData(patchData, expectedMessage)
+	}
+})
