@@ -18,11 +18,9 @@ import (
 	secv1 "github.com/openshift/api/security/v1"
 	secclient "github.com/openshift/client-go/security/clientset/versioned/typed/security/v1"
 	"github.com/tektoncd/pipeline/pkg/names"
-	v1 "k8s.io/api/batch/v1"
-	batchv1beta1 "k8s.io/api/batch/v1beta1"
+	batchv1 "k8s.io/api/batch/v1"
 	corev1 "k8s.io/api/core/v1"
-	"k8s.io/apimachinery/pkg/api/errors"
-	apierrors "k8s.io/apimachinery/pkg/api/errors"
+	errors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime/schema"
@@ -54,7 +52,7 @@ func WaitForDeploymentDeletion(cs *clients.Clients, namespace, name string) erro
 		kc := cs.KubeClient.Kube
 		_, err := kc.AppsV1().Deployments(namespace).Get(cs.Ctx, name, metav1.GetOptions{})
 		if err != nil {
-			if apierrors.IsGone(err) || apierrors.IsNotFound(err) {
+			if errors.IsGone(err) || errors.IsNotFound(err) {
 				return true, nil
 			}
 			return false, err
@@ -152,7 +150,7 @@ func WaitForDeployment(ctx context.Context, kc kubernetes.Interface, namespace, 
 	err := wait.Poll(retryInterval, timeout, func() (done bool, err error) {
 		deployment, err := kc.AppsV1().Deployments(namespace).Get(ctx, name, metav1.GetOptions{})
 		if err != nil {
-			if apierrors.IsNotFound(err) {
+			if errors.IsNotFound(err) {
 				log.Printf("Waiting for availability of %s deployment\n", name)
 				return false, nil
 			}
@@ -196,18 +194,18 @@ func VerifyServiceAccountExists(ctx context.Context, kc *clients.KubeClient, sa,
 }
 
 func CreateCronJob(c *clients.Clients, args []string, schedule, namespace string) {
-	cronjob := &batchv1beta1.CronJob{
-		TypeMeta: metav1.TypeMeta{APIVersion: batchv1beta1.SchemeGroupVersion.String(), Kind: "CronJob"},
+	cronjob := &batchv1.CronJob{
+		TypeMeta: metav1.TypeMeta{APIVersion: batchv1.SchemeGroupVersion.String(), Kind: "CronJob"},
 		ObjectMeta: metav1.ObjectMeta{
 			Name: "hello",
 		},
-		Spec: batchv1beta1.CronJobSpec{
+		Spec: batchv1.CronJobSpec{
 			Schedule: schedule,
-			JobTemplate: batchv1beta1.JobTemplateSpec{
+			JobTemplate: batchv1.JobTemplateSpec{
 				ObjectMeta: metav1.ObjectMeta{
 					Name: "hello",
 				},
-				Spec: v1.JobSpec{
+				Spec: batchv1.JobSpec{
 					Template: corev1.PodTemplateSpec{
 						Spec: corev1.PodSpec{
 							Containers: []corev1.Container{
@@ -224,7 +222,7 @@ func CreateCronJob(c *clients.Clients, args []string, schedule, namespace string
 			},
 		},
 	}
-	cj, err := c.KubeClient.Kube.BatchV1beta1().CronJobs(namespace).Create(c.Ctx, cronjob, metav1.CreateOptions{})
+	cj, err := c.KubeClient.Kube.BatchV1().CronJobs(namespace).Create(c.Ctx, cronjob, metav1.CreateOptions{})
 	assert.NoError(err, fmt.Sprintf("CronJob: %+s, failed to create\n", cj.Name))
 	log.Printf("Cronjob: %s created in namespace: %s", cj.Name, namespace)
 	store.PutScenarioData("cronjob", cj.Name)
@@ -245,13 +243,13 @@ func WaitForCronJobToBeSceduled(c *clients.Clients, activejobs int, job, namespa
 	assert.NoError(err, fmt.Sprintf("Error: Waiting for cron job %s to be scheduled on namespace %s ", job, namespace))
 }
 
-func GetCronJob(c *clients.Clients, ns, name string) (*batchv1beta1.CronJob, error) {
-	return c.KubeClient.Kube.BatchV1beta1().CronJobs(ns).Get(c.Ctx, name, metav1.GetOptions{})
+func GetCronJob(c *clients.Clients, ns, name string) (*batchv1.CronJob, error) {
+	return c.KubeClient.Kube.BatchV1().CronJobs(ns).Get(c.Ctx, name, metav1.GetOptions{})
 }
 
 func DeleteCronJob(c *clients.Clients, name, ns string) error {
 	propagationPolicy := metav1.DeletePropagationBackground // Also delete jobs and pods related to cronjob
-	return c.KubeClient.Kube.BatchV1beta1().CronJobs(ns).Delete(c.Ctx, name, metav1.DeleteOptions{PropagationPolicy: &propagationPolicy})
+	return c.KubeClient.Kube.BatchV1().CronJobs(ns).Delete(c.Ctx, name, metav1.DeleteOptions{PropagationPolicy: &propagationPolicy})
 }
 
 func Get(ctx context.Context, gr schema.GroupVersionResource, clients *clients.Clients, objname, ns string, op metav1.GetOptions) (*unstructured.Unstructured, error) {
@@ -295,7 +293,7 @@ func GetGroupVersionResource(gr schema.GroupVersionResource, discovery discovery
 }
 
 func AssertIfDefaultCronjobExists(c *clients.Clients, namespace string) {
-	cronJobs, err := c.KubeClient.Kube.BatchV1beta1().CronJobs(namespace).List(c.Ctx, metav1.ListOptions{})
+	cronJobs, err := c.KubeClient.Kube.BatchV1().CronJobs(namespace).List(c.Ctx, metav1.ListOptions{})
 	assert.NoError(err, fmt.Sprintf("Failed to get cronjob from namespace %v", namespace))
 	if len(cronJobs.Items) == 0 {
 		testsuit.T.Errorf("No cronjobs present in the namespace %v", namespace)
@@ -317,7 +315,7 @@ func AssertIfDefaultCronjobExists(c *clients.Clients, namespace string) {
 
 func GetCronjobNameWithSchedule(c *clients.Clients, namespace, schedule string) string {
 	name := ""
-	cronJobs, err := c.KubeClient.Kube.BatchV1beta1().CronJobs(namespace).List(c.Ctx, metav1.ListOptions{})
+	cronJobs, err := c.KubeClient.Kube.BatchV1().CronJobs(namespace).List(c.Ctx, metav1.ListOptions{})
 	assert.NoError(err, fmt.Sprintf("Failed to get cronjob from namespace %v", namespace))
 	if len(cronJobs.Items) == 0 {
 		testsuit.T.Errorf("No cronjobs present in the namespace %v", namespace)
