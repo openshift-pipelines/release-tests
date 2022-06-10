@@ -24,7 +24,7 @@ Steps:
   * Mock push event
   * Verify creation of openshift-pipeline-resources
   * Verify resources are created with labels & event-id
-  * Verify pipelinerun is "successfull"
+  * Verify pipelinerun is "successful"
 
 ## Create Eventlistener with github interceptor: PIPELINES-05-TC02
 Tags: triggers, to-do
@@ -46,7 +46,7 @@ Steps:
   * Mock push event
   * Verify creation of openshift-pipeline-resources
   * Verify resources are created with labels & event-id
-  * Verify pipelinerun is "successfull"
+  * Verify pipelinerun is "successful"
 
 ## Create EventListener with custom interceptor: PIPELINES-05-TC03
 Tags: triggers, to-do
@@ -69,7 +69,7 @@ Steps:
   * Mock push event
   * Verify creation of openshift-pipeline-resources
   * Verify resources are created with labels & event-id
-  * Verify pipelinerun is "successfull"
+  * Verify pipelinerun is "successful"
 
 ## Create EventListener with CEL interceptor with filter: PIPELINES-05-TC04
 Tags: triggers, to-do
@@ -90,7 +90,7 @@ Steps:
   * Mock CEL push/pr event
   * Verify creation of openshift-pipeline-resources
   * Verify resources are created with labels & event-id
-  * Verify pipelinerun is "successfull"
+  * Verify pipelinerun is "successful"
 
 ## Create EventListener with CEL interceptor without filter: PIPELINES-05-TC05
 Tags: triggers, to-do
@@ -111,7 +111,7 @@ Steps:
   * Mock CEL push/pr event
   * Verify creation of openshift-pipeline-resources
   * Verify resources are created with labels & event-id
-  * Verify pipelinerun is "successfull"
+  * Verify pipelinerun is "successful"
 
 
 ## Create EventListener with multiple interceptors: PIPELINES-05-TC06
@@ -133,7 +133,7 @@ Steps:
   * Mock push event
   * Verify creation of openshift-pipeline-resources
   * Verify resources are created with labels & event-id
-  * Verify pipelinerun is "successfull"
+  * Verify pipelinerun is "successful"
 
 ## Create Eventlistener with TLS enabled: PIPELINES-05-TC07
 Tags: tls, triggers, admin
@@ -158,9 +158,9 @@ Steps:
   * Mock post event to "github" interceptor with event-type "push", payload "testdata/push.json", with TLS "true"
   * Assert eventlistener response
   * Verify pipelinerun
-    |S.NO|pipeline_run_name  |status     |check_lable_propagation|
-    |----|-------------------|-----------|-----------------------|
-    |1   |simple-pipeline-run|successfull|no                     |
+    |S.NO|pipeline_run_name  |status    |check_lable_propagation|
+    |----|-------------------|----------|-----------------------|
+    |1   |simple-pipeline-run|successful|no                     |
   * Cleanup Triggers
 
 ## Create Eventlistener embedded TriggersBindings specs: PIPELINES-05-TC08
@@ -185,9 +185,9 @@ Steps:
   * Mock post event to "github" interceptor with event-type "push", payload "testdata/push.json", with TLS "false"
   * Assert eventlistener response
   * Verify pipelinerun
-    |S.NO|pipeline_run_name  |status     |check_lable_propagation|
-    |----|-------------------|-----------|-----------------------|
-    |1   |simple-pipeline-run|successfull|no                     |
+    |S.NO|pipeline_run_name  |status    |check_lable_propagation|
+    |----|-------------------|----------|-----------------------|
+    |1   |simple-pipeline-run|successful|no                     |
   * Cleanup Triggers
 
 ## Create embedded TriggersTemplate: PIPELINES-05-TC09
@@ -211,9 +211,9 @@ Steps:
   * Mock post event to "github" interceptor with event-type "push", payload "testdata/push.json", with TLS "false"
   * Assert eventlistener response
   * Verify pipelinerun
-    |S.NO|pipeline_run_name                        |status     |check_lable_propagation|
-    |----|-----------------------------------------|-----------|-----------------------|
-    |1   |pipelinerun-with-taskspec-to-echo-message|successfull|no                     |
+    |S.NO|pipeline_run_name                        |status    |check_lable_propagation|
+    |----|-----------------------------------------|----------|-----------------------|
+    |1   |pipelinerun-with-taskspec-to-echo-message|successful|no                     |
   * Cleanup Triggers
 
 ## Create Eventlistener with gitlab interceptor: PIPELINES-05-TC10
@@ -237,9 +237,9 @@ Steps:
   * Mock post event to "gitlab" interceptor with event-type "Push Hook", payload "testdata/triggers/gitlab/gitlab-push-event.json", with TLS "false"
   * Assert eventlistener response
   * Verify taskrun
-    |S.NO|task_run_name |status     |
-    |----|--------------|-----------|
-    |1   |gitlab-run    |successfull|
+    |S.NO|task_run_name |status    |
+    |----|--------------|----------|
+    |1   |gitlab-run    |successful|
   * Cleanup Triggers
 
 ## Create Eventlistener with bitbucket interceptor: PIPELINES-05-TC11
@@ -290,9 +290,9 @@ Steps:
   * Mock post event to "github" interceptor with event-type "push", payload "testdata/triggers/github-ctb/push.json", with TLS "false"
   * Assert eventlistener response
   * Verify pipelinerun
-    |S.NO|pipeline_run_name       |status     |check_lable_propagation|
-    |----|------------------------|-----------|-----------------------|
-    |1   |pipelinerun-git-push-ctb|successfull|no                     |
+    |S.NO|pipeline_run_name       |status    |check_lable_propagation|
+    |----|------------------------|----------|-----------------------|
+    |1   |pipelinerun-git-push-ctb|successful|no                     |
   * Cleanup Triggers
 
 ## Verify Github pull_request event with Embbeded TriggerTemplate using Github-CTB: PIPELINES-05-TC13
@@ -317,9 +317,9 @@ Steps:
   * Mock post event to "github" interceptor with event-type "pull_request", payload "testdata/triggers/github-ctb/pr.json", with TLS "false"
   * Assert eventlistener response
   * Verify pipelinerun
-    |S.NO|pipeline_run_name       |status     |check_lable_propagation|
-    |----|------------------------|-----------|-----------------------|
-    |1   |pipelinerun-git-pr-ctb  |successfull|no                     |
+    |S.NO|pipeline_run_name       |status    |check_lable_propagation|
+    |----|------------------------|----------|-----------------------|
+    |1   |pipelinerun-git-pr-ctb  |successful|no                     |
   * Cleanup Triggers
 
 ## Verify Github pr_review event with Embbeded TriggerTemplate using Github-CTB: PIPELINES-05-TC14
@@ -344,9 +344,9 @@ Steps:
   * Mock post event to "github" interceptor with event-type "issue_comment", payload "testdata/triggers/github-ctb/issue-comment.json", with TLS "false"
   * Assert eventlistener response
   * Verify pipelinerun
-    |S.NO|pipeline_run_name                |status     |check_lable_propagation|
-    |----|---------------------------------|-----------|-----------------------|
-    |1   |pipelinerun-git-pr-review-ctb    |successfull|no                     |
+    |S.NO|pipeline_run_name                |status    |check_lable_propagation|
+    |----|---------------------------------|----------|-----------------------|
+    |1   |pipelinerun-git-pr-review-ctb    |successful|no                     |
   * Cleanup Triggers
 
 ## Create TriggersCRD resource with CEL interceptors (overlays): PIPELINES-05-TC15
@@ -374,9 +374,9 @@ Steps:
   * Mock post event to "github" interceptor with event-type "pull_request", payload "testdata/triggers/triggersCRD/pull-request.json", with TLS "false"
   * Assert eventlistener response
   * Verify pipelinerun
-    |S.NO|pipeline_run_name       |status     |check_lable_propagation|
-    |----|------------------------|-----------|-----------------------|
-    |1   |parallel-pipelinerun    |successfull|no                     |
+    |S.NO|pipeline_run_name       |status    |check_lable_propagation|
+    |----|------------------------|----------|-----------------------|
+    |1   |parallel-pipelinerun    |successful|no                     |
   * Cleanup Triggers
 
 ## Create multiple Eventlistener with TLS enabled: PIPELINES-05-TC16
@@ -403,9 +403,9 @@ Steps:
   * Mock post event to "github" interceptor with event-type "push", payload "testdata/push.json", with TLS "true"
   * Assert eventlistener response
   * Verify pipelinerun
-    |S.NO|pipeline_run_name  |status     |check_lable_propagation|
-    |----|-------------------|-----------|-----------------------|
-    |1   |simple-pipeline-run|successfull|no                     |
+    |S.NO|pipeline_run_name  |status    |check_lable_propagation|
+    |----|-------------------|----------|-----------------------|
+    |1   |simple-pipeline-run|successful|no                     |
   * Create
     |S.NO|resource_dir                                                          |
     |----|----------------------------------------------------------------------|
@@ -415,9 +415,9 @@ Steps:
   * Mock post event to "github" interceptor with event-type "push", payload "testdata/push.json", with TLS "true"
   * Assert eventlistener response
   * Verify pipelinerun
-    |S.NO|pipeline_run_name    |status     |check_lable_propagation|
-    |----|---------------------|-----------|-----------------------|
-    |1   |simple-pipeline-run-2|successfull|no                     |
+    |S.NO|pipeline_run_name    |status    |check_lable_propagation|
+    |----|---------------------|----------|-----------------------|
+    |1   |simple-pipeline-run-2|successful|no                     |
   * Cleanup Triggers
 
 ## Create Eventlistener with github interceptor And verify Kuberenetes Events: PIPELINES-05-TC17
@@ -443,7 +443,7 @@ Steps:
   * Assert eventlistener response
   * Verify kubernetes events for eventlistener
   * Verify pipelinerun
-    |S.NO|pipeline_run_name  |status     |check_lable_propagation|
-    |----|-------------------|-----------|-----------------------|
-    |1   |simple-pipeline-run|successfull|no                     |
+    |S.NO|pipeline_run_name  |status    |check_lable_propagation|
+    |----|-------------------|----------|-----------------------|
+    |1   |simple-pipeline-run|successful|no                     |
   * Cleanup Triggers

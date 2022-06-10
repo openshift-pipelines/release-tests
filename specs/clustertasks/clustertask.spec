@@ -19,6 +19,6 @@ Steps:
       |----|--------------------------------------------------------|
       |1   |testdata/v1beta1/pipelinerun/s2i-nodejs-pipelinerun.yaml|
   * Verify pipelinerun
-      |S.NO|pipeline_run_name|status     |check_lable_propagation|
-      |----|-----------------|-----------|-----------------------|
-      |1   |nodejs-ex-git-pr |successfull|no                     |
+      |S.NO|pipeline_run_name|status    |check_lable_propagation|
+      |----|-----------------|----------|-----------------------|
+      |1   |nodejs-ex-git-pr |successful|no                     |
