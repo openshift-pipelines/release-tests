@@ -16,15 +16,15 @@ require (
 	github.com/prometheus-operator/prometheus-operator/pkg/apis/monitoring v0.45.0 // indirect
 	github.com/prometheus-operator/prometheus-operator/pkg/client v0.45.0
 	github.com/prometheus/client_golang v1.11.0
-	github.com/prometheus/common v0.30.0
-	github.com/tektoncd/operator v0.50.2
-	github.com/tektoncd/pipeline v0.28.2
-	github.com/tektoncd/triggers v0.16.1
+	github.com/prometheus/common v0.32.1
+	github.com/tektoncd/operator v0.55.1
+	github.com/tektoncd/pipeline v0.31.0
+	github.com/tektoncd/triggers v0.18.0
 	go.opencensus.io v0.23.0
 	golang.org/x/time v0.0.0-20210723032227-1f47c861a9ac // indirect
 	gotest.tools/v3 v3.0.3
 	k8s.io/api v0.21.8
 	k8s.io/apimachinery v0.21.8
 	k8s.io/client-go v0.21.8
-	knative.dev/pkg v0.0.0-20210827184538-2bd91f75571c
+	knative.dev/pkg v0.0.0-20211206113427-18589ac7627e
 )
