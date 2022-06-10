@@ -43,7 +43,7 @@ Steps:
       |----|------------------------------------------------|
       |1   |testdata/v1beta1/pipelinerun/conditional-pr.yaml|
   * Verify pipelinerun
-      |S.NO|pipeline_run_name|status    |check_lable_propagation|
+      |S.NO|pipeline_run_name|status    |check_label_propagation|
       |----|-----------------|----------|-----------------------|
       |1   |condtional-pr-vb |successful|no                     |
 
@@ -62,7 +62,7 @@ Steps:
       |----|---------------------------------------------------------------------------------|
       |1   |testdata/v1beta1/pipelinerun/conditional-pipelinerun-with-optional-resources.yaml|
   * Verify pipelinerun
-      |S.NO|pipeline_run_name                       |status    |check_lable_propagation|
+      |S.NO|pipeline_run_name                       |status    |check_label_propagation|
       |----|----------------------------------------|----------|-----------------------|
       |1   |condtional-pr-without-condition-resource|successful|no                     |
 
@@ -81,7 +81,7 @@ Steps:
       |----|-----------------------------------------------------|
       |1   |testdata/v1beta1/pipelinerun/pipelineruntimeout.yaml |
   * Verify pipelinerun
-      |S.NO|pipeline_run_name|status             |check_lable_propagation|
+      |S.NO|pipeline_run_name|status             |check_label_propagation|
       |----|-----------------|-------------------|-----------------------|
       |1   |pear             |timeout            |no                     |
 
@@ -99,7 +99,7 @@ Steps:
       |----|------------------------------------------------------|
       |1   |testdata/v1beta1/pipelinerun/task_results_example.yaml|
   * Verify pipelinerun
-      |S.NO|pipeline_run_name |status    |check_lable_propagation|
+      |S.NO|pipeline_run_name |status    |check_label_propagation|
       |----|------------------|----------|-----------------------|
       |1   |task-level-results|successful|no                     |
 
@@ -117,7 +117,7 @@ Steps:
       |----|---------------------------------------------|
       |1   |testdata/v1beta1/pipelinerun/pipelinerun.yaml|
   * Verify pipelinerun
-      |S.NO|pipeline_run_name     |status   |check_lable_propagation|
+      |S.NO|pipeline_run_name     |status   |check_label_propagation|
       |----|----------------------|---------|-----------------------|
       |1   |output-pipeline-run-vb|cancelled|no                     |
 
@@ -135,7 +135,7 @@ Steps:
       |----|----------------------------------------------------------------------------|
       |1   |testdata/v1beta1/pipelinerun/pipelinerun-with-pipelinespec-and-taskspec.yaml|
   * Verify pipelinerun
-      |S.NO|pipeline_run_name                        |status    |check_lable_propagation|
+      |S.NO|pipeline_run_name                        |status    |check_label_propagation|
       |----|-----------------------------------------|----------|-----------------------|
       |1   |pipelinerun-with-pipelinespec-taskspec-vb|successful|no                     |
 
@@ -154,6 +154,6 @@ Steps:
       |----|---------------------------------------------------------------|
       |1   |testdata/v1beta1/pipelinerun/pipelinerun-with-large-result.yaml|
   * Verify pipelinerun
-      |S.NO|pipeline_run_name|status    |check_lable_propagation|
+      |S.NO|pipeline_run_name|status    |check_label_propagation|
       |----|-----------------|----------|-----------------------|
       |1   |result-test-run  |successful|no                     |
