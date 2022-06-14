@@ -417,3 +417,15 @@ Steps:
   * Remove label "random" from the namespace
   * Store name of the cronjob in target namespace with schedule "10 * * * *" to variable "post-label-removal-name"
   * Assert if values stored in variable "pre-annotation-name" and variable "post-label-removal-name" are "equal"
+
+## Verify auto prune cronjob contains single container: PIPELINES-12-TC14
+Tags: e2e, integration, auto-prune, admin, cronjob
+Component: Operator
+Level: Integration
+Type: Functional
+Importance: Critical
+
+Steps:
+  * Update pruner config "with" keep "2" schedule "20 * * * *" resouces "taskrun" and "without" keep-since ""
+  * Sleep for "10" seconds
+  * Assert cronjob in namespace "target namespace" with schedule "20 * * * *" contains "1" container
