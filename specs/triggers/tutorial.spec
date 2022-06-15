@@ -32,4 +32,4 @@ Steps:
      |sha1=229cdf873cf63caf73f04ce12e7c5841462de38e|id=master|url=https://github.com/openshift-pipelines/vote-ui.git |name=vote-ui |
   * Verify creation of openshift-pipeline-resources
   * Verify resources are created with labels & event-id
-  * Verify pipelinerun is "successfull"
+  * Verify pipelinerun is "successful"
