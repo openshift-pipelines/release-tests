@@ -31,7 +31,7 @@ func validatePipelineRunForSuccessStatus(c *clients.Clients, prname, labelCheck,
 	// Verify status of PipelineRun (wait for it)
 	err = wait.WaitForPipelineRunState(c, prname, wait.PipelineRunSucceed(prname), "PipelineRunCompleted")
 	assert.NoError(err, fmt.Sprintf("Error waiting for PipelineRun %s to finish", prname))
-	log.Printf("pipelineRun: %s is successfull under namespace : %s", prname, namespace)
+	log.Printf("pipelineRun: %s is successful under namespace : %s", prname, namespace)
 
 	if strings.ToLower(labelCheck) == "yes" || strings.ToLower(labelCheck) == "y" {
 		log.Println("Check for events, labels & annotations")
