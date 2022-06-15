@@ -140,13 +140,13 @@ func VerifyPipelinesControlPlaneMetrics(cs *clients.Clients) error {
 }
 
 func getBearerTokenForPrometheusAccount(cs *clients.Clients) (string, error) {
-	sa, err := cs.KubeClient.Kube.CoreV1().ServiceAccounts("openshift-monitoring").Get(context.Background(), "prometheus-k8s", meta.GetOptions{})
+	secrets, err := cs.KubeClient.Kube.CoreV1().Secrets("openshift-monitoring").List(context.Background(), meta.ListOptions{})
 	if err != nil {
-		return "", fmt.Errorf("error getting service account prometheus-k8s %v", err)
+		return "", fmt.Errorf("error getting secrets from namespace %v: %v", "openshift-monitoring", err)
 	}
-	tokenSecret := getSecretNameForToken(sa.Secrets)
+	tokenSecret := getPrometheusSecretNameForToken(secrets.Items)
 	if tokenSecret == "" {
-		return "", errors.New("token name for prometheus-k8s service account not found")
+		return "", errors.New("token secret with prefix \"prometheus-k8s\" service account not found")
 	}
 	sec, err := cs.KubeClient.Kube.CoreV1().Secrets("openshift-monitoring").Get(context.Background(), tokenSecret, meta.GetOptions{})
 	if err != nil {
@@ -159,10 +159,12 @@ func getBearerTokenForPrometheusAccount(cs *clients.Clients) (string, error) {
 	return string(tokenContents), nil
 }
 
-func getSecretNameForToken(secrets []corev1.ObjectReference) string {
+func getPrometheusSecretNameForToken(secrets []corev1.Secret) string {
 	for _, sec := range secrets {
-		if strings.Contains(sec.Name, "token") {
-			return sec.Name
+		if strings.Contains(sec.Name, "prometheus-k8s") {
+			if strings.Contains(sec.Name, "token") {
+				return sec.Name
+			}
 		}
 	}
 	return ""

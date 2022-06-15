@@ -10,13 +10,13 @@ import (
 
 var _ = gauge.Step("Verify job health status metrics <table>", func(table *m.Table) {
 	for _, row := range table.Rows {
-		ts:= monitoring.TargetService{row.Cells[1],row.Cells[2] }
-		err := monitoring.VerifyHealthStatusMetric(store.Clients(), ts);
+		ts := monitoring.TargetService{Job: row.Cells[1], ExpectedValue: row.Cells[2]}
+		err := monitoring.VerifyHealthStatusMetric(store.Clients(), ts)
 		assert.FailOnError(err)
 	}
 })
 
 var _ = gauge.Step("Verify pipelines controlPlane metrics", func() {
-	err:=monitoring.VerifyPipelinesControlPlaneMetrics(store.Clients())
+	err := monitoring.VerifyPipelinesControlPlaneMetrics(store.Clients())
 	assert.FailOnError(err)
 })
