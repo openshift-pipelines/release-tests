@@ -141,7 +141,6 @@ func VerifyPipelinesControlPlaneMetrics(cs *clients.Clients) error {
 
 func getBearerTokenForPrometheusAccount(cs *clients.Clients) (string, error) {
 	secrets, err := cs.KubeClient.Kube.CoreV1().Secrets("openshift-monitoring").List(context.Background(), meta.ListOptions{})
-	// sa, err := cs.KubeClient.Kube.CoreV1().ServiceAccounts("openshift-monitoring").Get(context.Background(), "prometheus-k8s", meta.GetOptions{})
 	if err != nil {
 		return "", fmt.Errorf("error getting secrets from namespace %v: %v", "openshift-monitoring", err)
 	}
