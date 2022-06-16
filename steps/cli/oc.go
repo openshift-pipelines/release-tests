@@ -110,3 +110,13 @@ var _ = gauge.Step("Update addon config with clusterTasks as <clusterTaskStatus>
 		oc.UpdateTektonConfigwithInvalidData(patchData, expectedMessage)
 	}
 })
+
+var _ = gauge.Step("Create project <projectName>", func(projectName string) {
+	log.Printf("Creating project %v", projectName)
+	oc.CreateNewProject(projectName)
+})
+
+var _ = gauge.Step("Delete project <projectName>", func(projectName string) {
+	log.Printf("Deleting project %v", projectName)
+	oc.DeleteProject(projectName)
+})

@@ -427,5 +427,10 @@ Importance: Critical
 
 Steps:
   * Update pruner config "with" keep "2" schedule "20 * * * *" resouces "taskrun" and "without" keep-since ""
+  * Create project "test-project-1"
+  * Create project "test-project-2"
   * Sleep for "10" seconds
-  * Assert cronjob in namespace "target namespace" with schedule "20 * * * *" contains "1" container
+  * Assert pruner cronjob(s) in namespace "target namespace" contains "1" number of container(s)
+  * Delete project "test-project-1"
+  * Delete project "test-project-2"
+  * Remove auto pruner configuration from config CR
