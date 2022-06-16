@@ -1,0 +1,34 @@
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  name: git-cli-read-private-pipeline
+spec:
+  workspaces:
+    - name: input
+      optional: true
+    - name: shared-workspace
+  tasks:
+    - name: git-cli
+      taskRef:
+        name: git-cli
+        kind: ClusterTask
+      workspaces:
+        - name: input
+          workspace: input
+        - name: source
+          workspace: shared-workspace
+          subPath: $(context.pipelineRun.name)
+      params:
+        - name: GIT_USER_NAME
+          value: git_username
+        - name: GIT_USER_EMAIL
+          value: git_email
+        - name: GIT_SCRIPT
+          value: |
+            git_dir=$(context.pipelineRun.name)
+            git clone --config core.sshCommand="ssh -oStrictHostKeyChecking=no" git@github.com:ppitonak/topsecret.git ${git_dir}
+            cd ${git_dir}
+            cat README
+  results:
+    - name: commit
+      value: $(tasks.git-cli.results.commit)

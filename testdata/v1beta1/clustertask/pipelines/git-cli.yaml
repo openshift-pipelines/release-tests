@@ -1,0 +1,50 @@
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  name: git-cli-pipeline
+spec:
+  workspaces:
+    - name: shared-workspace
+    - name: input
+  tasks:
+    - name: clone-git-repo
+      taskRef:
+        name: git-clone
+        kind: ClusterTask
+      workspaces:
+        - name: output
+          workspace: shared-workspace
+      params:
+        - name: url
+          value: https://github.com/kelseyhightower/nocode
+        - name: subdirectory
+          value: "git-cli"
+        - name: deleteExisting
+          value: "true"
+    - name: git-cli
+      taskRef:
+        name: git-cli
+        kind: ClusterTask
+      runAfter:
+        - clone-git-repo
+      workspaces:
+        - name: source
+          workspace: shared-workspace
+        - name: input
+          workspace: input
+      params:
+        - name: GIT_USER_NAME
+          value: git_username
+        - name: GIT_USER_EMAIL
+          value: git_email
+        - name: GIT_SCRIPT
+          value: |
+            cd git-cli
+            echo "Hello" > hello
+            git add .
+            git status
+            git commit -m 'Add sample file'
+            git log --oneline -5
+  results:
+    - name: commit
+      value: $(tasks.git-cli.results.commit)

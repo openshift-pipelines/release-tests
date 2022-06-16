@@ -1,0 +1,15 @@
+apiVersion: tekton.dev/v1beta1
+kind: PipelineRun
+metadata:
+  name: s2i-java-openjdk-11-el7-run
+spec:
+  params:
+    - name: VERSION
+      value: openjdk-11-el7
+  pipelineRef:
+    name: s2i-java-pipeline
+  timeout: 12m
+  workspaces:
+  - name: source
+    persistentVolumeClaim:
+      claimName: shared-pvc

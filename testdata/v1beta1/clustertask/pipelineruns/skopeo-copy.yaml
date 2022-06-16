@@ -1,0 +1,27 @@
+apiVersion: tekton.dev/v1beta1
+kind: PipelineRun
+metadata:
+  name: skopeo-copy-run
+spec:
+  pipelineSpec:
+    tasks:
+    - name: run-skopeo-copy
+      taskRef:
+        name: skopeo-copy
+        kind: ClusterTask
+      params:
+      - name: srcImageURL
+        value: "docker://quay.io/fedora/fedora:34"
+      - name: destImageURL
+        value: "docker://image-registry.openshift-image-registry.svc:5000/$(context.pipelineRun.namespace)/fedora:34skopeo"
+      - name: destTLSverify
+        value: "true"
+      workspaces:
+        - name: images-url
+          workspace: images-url
+    workspaces:
+    - name: images-url
+  timeout: 5m
+  workspaces:
+  - name: images-url
+    emptyDir: {}

@@ -1,0 +1,91 @@
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  name: buildah-pipeline
+spec:
+  params:
+  - name: REVISION
+    default: fedora-34
+  - name: SUBDIR
+    description: where to clone the git repo
+    default: buildah
+  workspaces:
+  - name: source
+  tasks:
+  - name: clone-git-repo
+    taskRef:
+      name: git-clone
+      kind: ClusterTask
+    workspaces:
+    - name: output
+      workspace: source
+    params:
+    - name: url
+      value: https://github.com/ppitonak/nocode
+    - name: subdirectory
+      value: $(params.SUBDIR)
+    - name: deleteExisting
+      value: "true"
+    - name: revision
+      value: $(params.REVISION)
+  - name: update-dockerfile
+    taskSpec:
+      params:
+      - name: CONTEXT
+      workspaces:
+      - name: source
+      steps:
+      - name: update-dockerfile
+        image: image-registry.openshift-image-registry.svc:5000/openshift/cli
+        script: |
+          #!/usr/bin/env bash
+          sed -i "s|registry.svc:5000/catalog-tests/|registry.svc:5000/$(context.taskRun.namespace)/|" \
+            $(workspaces.source.path)/$(params.CONTEXT)/Dockerfile
+    params:
+    - name: CONTEXT
+      value: $(params.SUBDIR)
+    runAfter:
+    - clone-git-repo
+    workspaces:
+    - name: source
+      workspace: source
+  - name: run-buildah
+    taskRef:
+      name: buildah
+      kind: ClusterTask
+    runAfter:
+    - update-dockerfile
+    workspaces:
+    - name: source
+      workspace: source
+    params:
+    - name: IMAGE
+      value: image-registry.openshift-image-registry.svc:5000/$(context.pipelineRun.namespace)/$(params.SUBDIR)
+    - name: CONTEXT
+      value: $(params.SUBDIR)
+    - name: TLSVERIFY
+      value: "true"
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: shared-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: tekton.dev/v1beta1
+kind: PipelineRun
+metadata:
+  name: buildah-run
+spec:
+  pipelineRef:
+    name: buildah-pipeline
+  timeout: 10m
+  workspaces:
+  - name: source
+    persistentVolumeClaim:
+      claimName: shared-pvc

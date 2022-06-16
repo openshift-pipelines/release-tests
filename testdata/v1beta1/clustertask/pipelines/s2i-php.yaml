@@ -1,0 +1,43 @@
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  name: s2i-php-pipeline
+spec:
+  params:
+  - name: VERSION
+    description: The tag of 'php' imagestream for PHP version
+  workspaces:
+  - name: source
+  tasks:
+  - name: clone-git-repo
+    taskRef:
+      name: git-clone
+      kind: ClusterTask
+    workspaces:
+    - name: output
+      workspace: source
+    params:
+    - name: url
+      value: https://github.com/sclorg/s2i-php-container
+    - name: subdirectory
+      value: s2i-php-$(params.VERSION)
+    - name: deleteExisting
+      value: "true"
+  - name: build
+    taskRef:
+      name: s2i-php
+      kind: ClusterTask
+    runAfter:
+    - clone-git-repo
+    workspaces:
+    - name: source
+      workspace: source
+    params:
+    - name: IMAGE
+      value: image-registry.openshift-image-registry.svc:5000/$(context.pipelineRun.namespace)/s2i-php-$(params.VERSION)
+    - name: PATH_CONTEXT
+      value: "s2i-php-$(params.VERSION)/test/test-app"
+    - name: TLSVERIFY
+      value: "true"
+    - name: VERSION
+      value: $(params.VERSION)

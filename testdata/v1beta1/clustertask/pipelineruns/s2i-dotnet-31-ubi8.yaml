@@ -1,0 +1,17 @@
+apiVersion: tekton.dev/v1beta1
+kind: PipelineRun
+metadata:
+  name: s2i-dotnet-31-ubi8-run
+spec:
+  params:
+    - name: EXAMPLE_REVISION
+      value: dotnetcore-3.1
+    - name: VERSION
+      value: 3.1-ubi8
+  pipelineRef:
+    name: s2i-dotnet-pipeline
+  timeout: 10m
+  workspaces:
+  - name: source
+    persistentVolumeClaim:
+      claimName: shared-pvc

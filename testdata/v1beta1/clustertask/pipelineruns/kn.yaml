@@ -1,0 +1,21 @@
+apiVersion: tekton.dev/v1beta1
+kind: PipelineRun
+metadata:
+  name: kn-run
+spec:
+  pipelineSpec:
+    tasks:
+    - name: run-kn
+      taskRef:
+        name: kn
+        kind: ClusterTask
+      params:
+      - name: ARGS
+        value:
+        - "service"
+        - "create"
+        - "hello"
+        - "--force"
+        - "--image=gcr.io/knative-samples/helloworld-go:latest"
+        - "-eTARGET=Pipeline"
+  timeout: 10m

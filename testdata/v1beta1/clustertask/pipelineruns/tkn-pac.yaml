@@ -1,0 +1,17 @@
+apiVersion: tekton.dev/v1beta1
+kind: PipelineRun
+metadata:
+  name: tkn-pac-run
+spec:
+  pipelineSpec:
+    tasks:
+    - name: run-tkn
+      taskRef:
+        name: tkn
+        kind: ClusterTask
+      params:
+      - name: ARGS
+        value:
+          - "pac"
+          - "version"
+  timeout: 2m
