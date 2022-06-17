@@ -424,6 +424,7 @@ Component: Operator
 Level: Integration
 Type: Functional
 Importance: Critical
+CustomerScenario: yes
 
 Steps:
   * Update pruner config "with" keep "2" schedule "20 * * * *" resouces "taskrun" and "without" keep-since ""
