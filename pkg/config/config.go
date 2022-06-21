@@ -47,11 +47,13 @@ const (
 	TriggerWebhookName    = "tekton-triggers-webhook"
 
 	// Default config for auto pruner
-	PrunerSchedule = "0 8 * * *"
+	PrunerSchedule   = "0 8 * * *"
 	PrunerNamePrefix = "tekton-resource-pruner-"
 
 	// Name of PAC deployment
-	PacEventListener = "el-pipelines-as-code-interceptor"
+	PacControllerName = "pipelines-as-code-controller"
+	PacWatcherName    = "pipelines-as-code-watcher"
+	PacWebhookName    = "pipelines-as-code-webhook"
 
 	// Name of tkn deployment
 	TknDeployment = "tkn-cli-serve"

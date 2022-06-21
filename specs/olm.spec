@@ -15,7 +15,7 @@ Steps:
   * Wait for TektonConfig CR availability
   * Validate pipelines deployment
   * Validate triggers deployment
-  * Validate PAC eventlistener deployment
+  * Validate PAC deployment
   * Validate tkn server cli deployment
   * Verify TektonAddons Install status
   * Validate RBAC
