@@ -344,9 +344,9 @@ func AssertPrunerCronjobWithContainer(c *clients.Clients, namespace, num string)
 			containers := cr.Spec.JobTemplate.Spec.Template.Spec.Containers
 			numInt, _ := strconv.Atoi(num)
 			if len(containers) != numInt {
-				testsuit.T.Errorf("Expected: %v number of containers in cornjob spec, Actual: %v number of containers in cronjob spec")
+				testsuit.T.Errorf("Expected: %v containers in cronjob spec, Actual: %v containers in cronjob spec", numInt, len(containers))
 			}
-			log.Printf("%v number of containers found in the cronjob spec", numInt)
+			log.Printf("%v containers found in the cronjob spec", numInt)
 			break
 		}
 	}
