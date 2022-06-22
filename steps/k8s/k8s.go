@@ -37,3 +37,10 @@ var _ = gauge.Step("Store name of the cronjob in target namespace with schedule 
 	cronJobName := k8s.GetCronjobNameWithSchedule(store.Clients(), namespace, schedule)
 	store.PutScenarioData(variable, cronJobName)
 })
+
+var _ = gauge.Step("Assert pruner cronjob(s) in namespace <namespace> contains <num> number of container(s)", func(namespace, num string) {
+	if namespace == "target namespace" {
+		namespace = store.TargetNamespace()
+	}
+	k8s.AssertPrunerCronjobWithContainer(store.Clients(), namespace, num)
+})

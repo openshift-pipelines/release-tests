@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"strconv"
 	"strings"
 
 	"time"
@@ -328,4 +329,28 @@ func GetCronjobNameWithSchedule(c *clients.Clients, namespace, schedule string) 
 		}
 	}
 	return name
+}
+
+func AssertPrunerCronjobWithContainer(c *clients.Clients, namespace, num string) {
+	log.Printf("Verifying if the cronjob with prefix tekton-resource-pruner in namespace %v contains %v number of containers", namespace, num)
+	cronJobs, err := c.KubeClient.Kube.BatchV1().CronJobs(namespace).List(c.Ctx, metav1.ListOptions{})
+	if err != nil {
+		testsuit.T.Errorf("Error while getting cronjobs %v", err)
+	}
+	jobFound := false
+	for _, cr := range cronJobs.Items {
+		if strings.Contains(cr.Name, "tekton-resource-pruner") {
+			jobFound = true
+			containers := cr.Spec.JobTemplate.Spec.Template.Spec.Containers
+			numInt, _ := strconv.Atoi(num)
+			if len(containers) != numInt {
+				testsuit.T.Errorf("Expected: %v containers in cronjob spec, Actual: %v containers in cronjob spec", numInt, len(containers))
+			}
+			log.Printf("%v containers found in the cronjob spec", numInt)
+			break
+		}
+	}
+	if !jobFound {
+		testsuit.T.Errorf("Cronjob with prefix tekton-resource-pruner not found in %v namespace", namespace)
+	}
 }
