@@ -29,44 +29,6 @@ Steps:
       |1   |output-pipeline-run-va|successful|yes                    |
       |2   |output-pipeline-run-vb|successful|yes                    |
 
-## Conditional pipeline run: PIPELINES-03-TC02
-Tags: e2e, integration, pipelines, non-admin
-Component: Pipelines
-Level: Integration
-Type: Functional
-Importance: Critical
-
-Steps:
-  * Verify ServiceAccount "pipeline" exist
-  * Create
-      |S.NO|resource_dir                                    |
-      |----|------------------------------------------------|
-      |1   |testdata/v1beta1/pipelinerun/conditional-pr.yaml|
-  * Verify pipelinerun
-      |S.NO|pipeline_run_name|status    |check_label_propagation|
-      |----|-----------------|----------|-----------------------|
-      |1   |condtional-pr-vb |successful|no                     |
-
-
-## Conditional pipeline runs without optional resources: PIPELINES-03-TC03
-Tags: e2e, integration, pipelines, non-admin
-Component: Pipelines
-Level: Integration
-Type: Functional
-Importance: Critical
-
-Steps:
-  * Verify ServiceAccount "pipeline" exist
-  * Create
-      |S.NO|resource_dir                                                                     |
-      |----|---------------------------------------------------------------------------------|
-      |1   |testdata/v1beta1/pipelinerun/conditional-pipelinerun-with-optional-resources.yaml|
-  * Verify pipelinerun
-      |S.NO|pipeline_run_name                       |status    |check_label_propagation|
-      |----|----------------------------------------|----------|-----------------------|
-      |1   |condtional-pr-without-condition-resource|successful|no                     |
-
-
 ## Pipelinerun Timeout failure Test: PIPELINES-03-TC04
 Tags: e2e, integration, pipelines, non-admin
 Component: Pipelines
