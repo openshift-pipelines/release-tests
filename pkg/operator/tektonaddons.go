@@ -86,7 +86,7 @@ func EnsureTektonAddonsStatusInstalled(clients operatorv1alpha1.TektonAddonInter
 		assert.FailOnError(err)
 		for _, ac := range cr.Status.Conditions {
 			if ac.Type != "InstallSucceeded" && ac.Status != "True" {
-				log.Printf("Waiting for %s cr InstalledStatus Actual: [True] Expected: [%s]\n", names.TektonAddon, ac.Status)
+				log.Printf("Waiting for %s cr InstalledStatus Actual: [%s] Expected: [True]\n", names.TektonAddon, ac.Status)
 				return false, nil
 			}
 		}
