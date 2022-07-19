@@ -89,7 +89,7 @@ func EnsureTektonConfigStatusInstalled(clients configv1alpha1.TektonConfigInterf
 		assert.FailOnError(err)
 		for _, cc := range cr.Status.Conditions {
 			if cc.Type != "InstallSucceeded" && cc.Status != "True" {
-				log.Printf("Waiting for %s cr InstalledStatus Actual: [True] Expected: [%s]\n", names.TektonConfig, cc.Status)
+				log.Printf("Waiting for %s cr InstalledStatus Actual: [%s] Expected: [True]\n", names.TektonConfig, cc.Status)
 				return false, nil
 			}
 		}
