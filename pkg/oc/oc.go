@@ -5,9 +5,15 @@ import (
 	"os"
 	"strings"
 
+	"fmt"
 	"github.com/getgauge-contrib/gauge-go/testsuit"
+	"github.com/openshift-pipelines/release-tests/pkg/assert"
+	"github.com/openshift-pipelines/release-tests/pkg/clients"
 	"github.com/openshift-pipelines/release-tests/pkg/cmd"
+	"github.com/openshift-pipelines/release-tests/pkg/config"
 	resource "github.com/openshift-pipelines/release-tests/pkg/config"
+	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/util/wait"
 )
 
 // Create resources using oc command
@@ -67,6 +73,45 @@ func UpdateTektonConfigwithInvalidData(patch_data, errorMessage string) {
 	}
 }
 
+func AssertCronjobPresent(c *clients.Clients, cronJobName, namespace string) {
+	err := wait.Poll(config.APIRetry, config.ResourceTimeout, func() (bool, error) {
+		log.Printf("Verifying if cronjob with prefix %v is present in namespace %v", cronJobName, namespace)
+		cjs, err := c.KubeClient.Kube.BatchV1().CronJobs(namespace).List(c.Ctx, v1.ListOptions{})
+		if err != nil {
+			return false, err
+		}
+		for _, cj := range cjs.Items {
+			if strings.Contains(cj.Name, cronJobName) {
+				return true, nil
+			}
+		}
+		return false, nil
+	})
+	if err != nil {
+		assert.FailOnError(fmt.Errorf("Expected: cronjob with prefix %v to be present in namespace %v, Actual:cronjob with prefix %v to be not present in namespace %v", cronJobName, namespace, cronJobName, namespace))
+	}
+	fmt.Printf("Cronjob with prefix %v is present in namespace %v", cronJobName, namespace)
+}
+
+func AssertCronjobNotPresent(c *clients.Clients, cronJobName, namespace string) {
+	err := wait.Poll(config.APIRetry, config.ResourceTimeout, func() (bool, error) {
+		log.Printf("Verifying if cronjob with prefix %v is present in namespace %v", cronJobName, namespace)
+		cjs, err := c.KubeClient.Kube.BatchV1().CronJobs(namespace).List(c.Ctx, v1.ListOptions{})
+		if err != nil {
+			return false, err
+		}
+		for _, cj := range cjs.Items {
+			if strings.Contains(cj.Name, cronJobName) {
+				return false, nil
+			}
+		}
+		return true, nil
+	})
+	if err != nil {
+		assert.FailOnError(fmt.Errorf("Expected: cronjob with prefix %v to be present in namespace %v, Actual:cronjob with prefix %v to be not present in namespace %v", cronJobName, namespace, cronJobName, namespace))
+	}
+	fmt.Printf("Cronjob with prefix %v is present in namespace %v", cronJobName, namespace)
+}
 func VerifyCronjobStatus(cronJobName, status, namespace string) {
 	res := cmd.MustSucceed("oc", "get", "cronjob", "-n", namespace).Stdout()
 	if status == "present" {
