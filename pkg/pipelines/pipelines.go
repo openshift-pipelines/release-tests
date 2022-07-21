@@ -264,16 +264,16 @@ func AssertNumberOfTaskruns(c *clients.Clients, namespace, numberOfTr, timeoutSe
 func AssertPipelinesPresent(c *clients.Clients, namespace string) {
 	pclient := c.Tekton.TektonV1beta1().Pipelines(namespace)
 	err := w.Poll(config.APIRetry, config.ResourceTimeout, func() (bool, error) {
-		log.Printf("Verifying if %v pipelines are present in namespace %v", config.ExpectedNumberOfPipeline, namespace)
+		log.Printf("Verifying if %v pipelines are present in namespace %v", config.NumberOfPipelineTemplates, namespace)
 		p, _ := pclient.List(c.Ctx, metav1.ListOptions{})
-		if len(p.Items) == config.ExpectedNumberOfPipeline {
+		if len(p.Items) == config.NumberOfPipelineTemplates {
 			return true, nil
 		}
 		return false, nil
 	})
 	if err != nil {
 		p, _ := pclient.List(c.Ctx, metav1.ListOptions{})
-		assert.FailOnError(fmt.Errorf("Expected: %v number of pipelines present in namespace %v, Actual:%v number of pipelines present in namespace %v , Error: %v", config.ExpectedNumberOfPipeline, len(p.Items), namespace, namespace, err))
+		assert.FailOnError(fmt.Errorf("Expected: %v number of pipelines present in namespace %v, Actual:%v number of pipelines present in namespace %v , Error: %v", config.NumberOfPipelineTemplates, len(p.Items), namespace, namespace, err))
 	}
 	fmt.Printf("Pipelines are present in namespace %v", namespace)
 }

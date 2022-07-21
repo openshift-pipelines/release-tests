@@ -64,7 +64,7 @@ const (
 	CommunityClustertasks = "jib-maven,helm-upgrade-from-source,helm-upgrade-from-repo,trigger-jenkins-job,git-cli,pull-request,kubeconfig-creator,argocd-task-sync-and-wait"
 
 	// Expected number of pipelines in Openshift namespace
-	ExpectedNumberOfPipeline = 27
+	NumberOfPipelineTemplates = 27
 )
 
 // Flags holds the command line flags or defaults for settings in the user's environment.

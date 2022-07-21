@@ -12,10 +12,10 @@ import (
 	"k8s.io/apimachinery/pkg/util/wait"
 )
 
-func AssertServiceAccount(clients *clients.Clients, ns, targetSA string) {
+func AssertServiceAccountPesent(clients *clients.Clients, ns, targetSA string) {
 
 	err := wait.Poll(config.APIRetry, config.APITimeout, func() (bool, error) {
-		log.Printf("Verifying that service account %s exists\n", targetSA)
+		log.Printf("Verifying that service account %s exist\n", targetSA)
 		saList, err := clients.KubeClient.Kube.CoreV1().ServiceAccounts(ns).List(context.TODO(), metav1.ListOptions{})
 		for _, item := range saList.Items {
 			if item.Name == targetSA {
@@ -28,9 +28,9 @@ func AssertServiceAccount(clients *clients.Clients, ns, targetSA string) {
 		assert.FailOnError(fmt.Errorf("could not find serviceaccount %s/%s: %q", ns, targetSA, err))
 	}
 }
-func AssertRoleBinding(clients *clients.Clients, ns, roleBindingName string) {
+func AssertRoleBindingPresent(clients *clients.Clients, ns, roleBindingName string) {
 	err := wait.Poll(config.APIRetry, config.APITimeout, func() (bool, error) {
-		log.Printf("Verifying that role binding %s exists\n", roleBindingName)
+		log.Printf("Verifying that role binding %s exist\n", roleBindingName)
 		rbList, err := clients.KubeClient.Kube.RbacV1().RoleBindings(ns).List(context.TODO(), metav1.ListOptions{})
 		for _, item := range rbList.Items {
 			if item.Name == roleBindingName {
@@ -44,9 +44,9 @@ func AssertRoleBinding(clients *clients.Clients, ns, roleBindingName string) {
 	}
 }
 
-func AssertConfigMap(clients *clients.Clients, ns, configMapName string) {
+func AssertConfigMapPresent(clients *clients.Clients, ns, configMapName string) {
 	err := wait.Poll(config.APIRetry, config.APITimeout, func() (bool, error) {
-		log.Printf("Verifying that config map %s exists\n", configMapName)
+		log.Printf("Verifying that config map %s exist\n", configMapName)
 		rbList, err := clients.KubeClient.Kube.CoreV1().ConfigMaps(ns).List(context.TODO(), metav1.ListOptions{})
 		if err != nil {
 			return false, err
@@ -63,9 +63,9 @@ func AssertConfigMap(clients *clients.Clients, ns, configMapName string) {
 	}
 }
 
-func AssertClusterRole(clients *clients.Clients, clusterRoleName string) {
+func AssertClusterRolePresent(clients *clients.Clients, clusterRoleName string) {
 	err := wait.Poll(config.APIRetry, config.APITimeout, func() (bool, error) {
-		log.Printf("Verifying that cluster role %s exists\n", clusterRoleName)
+		log.Printf("Verifying that cluster role %s exist\n", clusterRoleName)
 		rbList, err := clients.KubeClient.Kube.RbacV1().ClusterRoles().List(context.TODO(), metav1.ListOptions{})
 		if err != nil {
 			return false, err
@@ -82,9 +82,9 @@ func AssertClusterRole(clients *clients.Clients, clusterRoleName string) {
 	}
 }
 
-func AssertServiceAccountAfterDisable(clients *clients.Clients, ns, targetSA string) {
+func AssertServiceAccountNotPresent(clients *clients.Clients, ns, targetSA string) {
 	err := wait.Poll(config.APIRetry, config.APITimeout, func() (bool, error) {
-		log.Printf("Verifying that service account %s doesn't exists\n", targetSA)
+		log.Printf("Verifying that service account %s doesn't exist\n", targetSA)
 		saList, err := clients.KubeClient.Kube.CoreV1().ServiceAccounts(ns).List(context.TODO(), metav1.ListOptions{})
 		for _, item := range saList.Items {
 			if item.Name == targetSA {
@@ -98,9 +98,9 @@ func AssertServiceAccountAfterDisable(clients *clients.Clients, ns, targetSA str
 	}
 }
 
-func AssertRoleBindingAfterDisable(clients *clients.Clients, ns, roleBindingName string) {
+func AssertRoleBindingNotPresent(clients *clients.Clients, ns, roleBindingName string) {
 	err := wait.Poll(config.APIRetry, config.APITimeout, func() (bool, error) {
-		log.Printf("Verifying that role binding %s doesn't exists\n", roleBindingName)
+		log.Printf("Verifying that role binding %s doesn't exist\n", roleBindingName)
 		rbList, err := clients.KubeClient.Kube.RbacV1().RoleBindings(ns).List(context.TODO(), metav1.ListOptions{})
 		for _, item := range rbList.Items {
 			if item.Name == roleBindingName {
@@ -114,9 +114,9 @@ func AssertRoleBindingAfterDisable(clients *clients.Clients, ns, roleBindingName
 	}
 }
 
-func AssertConfigMapAfterDisable(clients *clients.Clients, ns, configMapName string) {
+func AssertConfigMapNotPresent(clients *clients.Clients, ns, configMapName string) {
 	err := wait.Poll(config.APIRetry, config.APITimeout, func() (bool, error) {
-		log.Printf("Verifying that config map %s doesn't exists\n", configMapName)
+		log.Printf("Verifying that config map %s doesn't exist\n", configMapName)
 		cmList, err := clients.KubeClient.Kube.CoreV1().ConfigMaps(ns).List(context.TODO(), metav1.ListOptions{})
 		if err != nil {
 			return false, err
@@ -133,9 +133,9 @@ func AssertConfigMapAfterDisable(clients *clients.Clients, ns, configMapName str
 	}
 }
 
-func AssertClusterRoleAfterDisable(clients *clients.Clients, clusterRoleName string) {
+func AssertClusterRoleNotPresent(clients *clients.Clients, clusterRoleName string) {
 	err := wait.Poll(config.APIRetry, config.APITimeout, func() (bool, error) {
-		log.Printf("Verifying that cluster role %s doesn't exists\n", clusterRoleName)
+		log.Printf("Verifying that cluster role %s doesn't exist\n", clusterRoleName)
 		rbList, err := clients.KubeClient.Kube.RbacV1().ClusterRoles().List(context.TODO(), metav1.ListOptions{})
 		if err != nil {
 			return false, err

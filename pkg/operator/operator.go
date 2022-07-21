@@ -18,26 +18,26 @@ func ValidateRBAC(cs *clients.Clients, rnames config.ResourceNames) {
 	log.Printf("Verifying that TektonConfig status is \"installed\"\n")
 	EnsureTektonConfigStatusInstalled(cs.TektonConfig(), rnames)
 
-	AssertServiceAccount(cs, store.Namespace(), "pipeline")
-	AssertClusterRole(cs, "pipelines-scc-clusterrole")
-	AssertConfigMap(cs, store.Namespace(), "config-service-cabundle")
-	AssertConfigMap(cs, store.Namespace(), "config-trusted-cabundle")
-	AssertRoleBinding(cs, store.Namespace(), "openshift-pipelines-edit")
-	AssertRoleBinding(cs, store.Namespace(), "pipelines-scc-rolebinding")
+	AssertServiceAccountPesent(cs, store.Namespace(), "pipeline")
+	AssertClusterRolePresent(cs, "pipelines-scc-clusterrole")
+	AssertConfigMapPresent(cs, store.Namespace(), "config-service-cabundle")
+	AssertConfigMapPresent(cs, store.Namespace(), "config-trusted-cabundle")
+	AssertRoleBindingPresent(cs, store.Namespace(), "openshift-pipelines-edit")
+	AssertRoleBindingPresent(cs, store.Namespace(), "pipelines-scc-rolebinding")
 }
 
 func ValidateRBACAfterDisable(cs *clients.Clients, rnames config.ResourceNames) {
 	EnsureTektonConfigStatusInstalled(cs.TektonConfig(), rnames)
 	//Verify `pipelineSa` is not created in any namespace
-	AssertServiceAccountAfterDisable(cs, store.Namespace(), "pipeline")
+	AssertServiceAccountNotPresent(cs, store.Namespace(), "pipeline")
 	//Verify clusterrole does not create
-	AssertClusterRoleAfterDisable(cs, "pipelines-scc-clusterrole")
+	AssertClusterRoleNotPresent(cs, "pipelines-scc-clusterrole")
 	//Verify configmaps is not created in any namespace
-	AssertConfigMapAfterDisable(cs, store.Namespace(), "config-service-cabundle")
-	AssertConfigMapAfterDisable(cs, store.Namespace(), "config-trusted-cabundle")
+	AssertConfigMapNotPresent(cs, store.Namespace(), "config-service-cabundle")
+	AssertConfigMapNotPresent(cs, store.Namespace(), "config-trusted-cabundle")
 	//Verify roleBindings is not created in any namespace
-	AssertRoleBindingAfterDisable(cs, store.Namespace(), "edit")
-	AssertRoleBindingAfterDisable(cs, store.Namespace(), "pipelines-scc-rolebinding")
+	AssertRoleBindingNotPresent(cs, store.Namespace(), "edit")
+	AssertRoleBindingNotPresent(cs, store.Namespace(), "pipelines-scc-rolebinding")
 }
 
 func ValidatePipelineDeployments(cs *clients.Clients, rnames config.ResourceNames) {

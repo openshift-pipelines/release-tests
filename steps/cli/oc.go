@@ -76,16 +76,6 @@ var _ = gauge.Step("Remove auto pruner configuration from config CR", func() {
 	oc.RemovePrunerConfig()
 })
 
-var _ = gauge.Step("Assert if cronjob with prefix <cronJobName> is <status> in target namespace", func(cronJobName, status string) {
-	namespace := store.TargetNamespace()
-	log.Printf("Verifying if the cronjob %v is %v in namespace %v", cronJobName, status, namespace)
-	if status == "present" {
-		oc.AssertCronjobPresent(store.Clients(), cronJobName, namespace)
-	} else {
-		oc.AssertCronjobNotPresent(store.Clients(), cronJobName, namespace)
-	}
-})
-
 var _ = gauge.Step("Annotate namespace with <annotation>", func(annotation string) {
 	log.Printf("Annotating namespace %v with %v", store.Namespace(), annotation)
 	oc.AnnotateNamespace(store.Namespace(), annotation)
