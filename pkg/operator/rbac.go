@@ -17,30 +17,36 @@ func AssertServiceAccountPesent(clients *clients.Clients, ns, targetSA string) {
 	err := wait.Poll(config.APIRetry, config.APITimeout, func() (bool, error) {
 		log.Printf("Verifying that service account %s exist\n", targetSA)
 		saList, err := clients.KubeClient.Kube.CoreV1().ServiceAccounts(ns).List(context.TODO(), metav1.ListOptions{})
+		if err != nil {
+			return false, err
+		}
 		for _, item := range saList.Items {
 			if item.Name == targetSA {
 				return true, nil
 			}
 		}
-		return false, err
+		return false, nil
 	})
 	if err != nil {
-		assert.FailOnError(fmt.Errorf("could not find serviceaccount %s/%s: %q", ns, targetSA, err))
+		assert.FailOnError(fmt.Errorf("Expected: Service account %v present in the namespace %v, Actual: Service account %v not present in the namespace %v, Error: %v", targetSA, ns, targetSA, ns, err))
 	}
 }
 func AssertRoleBindingPresent(clients *clients.Clients, ns, roleBindingName string) {
 	err := wait.Poll(config.APIRetry, config.APITimeout, func() (bool, error) {
 		log.Printf("Verifying that role binding %s exist\n", roleBindingName)
 		rbList, err := clients.KubeClient.Kube.RbacV1().RoleBindings(ns).List(context.TODO(), metav1.ListOptions{})
+		if err != nil {
+			return false, err
+		}
 		for _, item := range rbList.Items {
 			if item.Name == roleBindingName {
 				return true, nil
 			}
 		}
-		return false, err
+		return false, nil
 	})
 	if err != nil {
-		assert.FailOnError(fmt.Errorf("could not find Rolebinding %s/%s: %q", ns, roleBindingName, err))
+		assert.FailOnError(fmt.Errorf("Expected: Rolebinding %v present in the namespace %v, Actual: Rolebinding %v not present in the namespace %v, Error: %v", roleBindingName, ns, roleBindingName, ns, err))
 	}
 }
 
@@ -56,10 +62,10 @@ func AssertConfigMapPresent(clients *clients.Clients, ns, configMapName string) 
 				return true, nil
 			}
 		}
-		return false, err
+		return false, nil
 	})
 	if err != nil {
-		assert.FailOnError(fmt.Errorf("could not find ConfigMap %s/%s: %q", ns, configMapName, err))
+		assert.FailOnError(fmt.Errorf("Expected: Configmap %v present in the namespace %v, Actual: Configmap %v not present in the namespace %v, Error: %v", configMapName, ns, configMapName, ns, err))
 	}
 }
 
@@ -75,10 +81,10 @@ func AssertClusterRolePresent(clients *clients.Clients, clusterRoleName string) 
 				return true, nil
 			}
 		}
-		return false, err
+		return false, nil
 	})
 	if err != nil {
-		assert.FailOnError(fmt.Errorf("could not find ClusterRole %s: %q", clusterRoleName, err))
+		assert.FailOnError(fmt.Errorf("Expected: Clusterrole %v present, Actual: Clusterrole %v not present, Error: %v", clusterRoleName, clusterRoleName, err))
 	}
 }
 
@@ -86,15 +92,18 @@ func AssertServiceAccountNotPresent(clients *clients.Clients, ns, targetSA strin
 	err := wait.Poll(config.APIRetry, config.APITimeout, func() (bool, error) {
 		log.Printf("Verifying that service account %s doesn't exist\n", targetSA)
 		saList, err := clients.KubeClient.Kube.CoreV1().ServiceAccounts(ns).List(context.TODO(), metav1.ListOptions{})
+		if err != nil {
+			return false, err
+		}
 		for _, item := range saList.Items {
 			if item.Name == targetSA {
-				return false, err
+				return false, nil
 			}
 		}
-		return true, err
+		return true, nil
 	})
 	if err != nil {
-		assert.FailOnError(fmt.Errorf("found serviceaccount %s/%s: %q", ns, targetSA, err))
+		assert.FailOnError(fmt.Errorf("Expected: Service account %v not present in the namespace %v, Actual: Service account %v is present in the namespace %v, Error: %v", targetSA, ns, targetSA, ns, err))
 	}
 }
 
@@ -102,15 +111,18 @@ func AssertRoleBindingNotPresent(clients *clients.Clients, ns, roleBindingName s
 	err := wait.Poll(config.APIRetry, config.APITimeout, func() (bool, error) {
 		log.Printf("Verifying that role binding %s doesn't exist\n", roleBindingName)
 		rbList, err := clients.KubeClient.Kube.RbacV1().RoleBindings(ns).List(context.TODO(), metav1.ListOptions{})
+		if err != nil {
+			return false, err
+		}
 		for _, item := range rbList.Items {
 			if item.Name == roleBindingName {
-				return false, err
+				return false, nil
 			}
 		}
-		return true, err
+		return true, nil
 	})
 	if err != nil {
-		assert.FailOnError(fmt.Errorf("found Rolebinding %s/%s", ns, roleBindingName))
+		assert.FailOnError(fmt.Errorf("Expected: Rolebinding %v not present in the namespace %v, Actual: Rolebinding %v present in the namespace %v, Error: %v", roleBindingName, ns, roleBindingName, ns, err))
 	}
 }
 
@@ -123,13 +135,13 @@ func AssertConfigMapNotPresent(clients *clients.Clients, ns, configMapName strin
 		}
 		for _, item := range cmList.Items {
 			if item.Name == configMapName {
-				return false, fmt.Errorf("found ConfigMap %s/%s", ns, configMapName)
+				return false, nil
 			}
 		}
-		return true, err
+		return true, nil
 	})
 	if err != nil {
-		assert.FailOnError(fmt.Errorf("found ConfigMap %s/%s", ns, configMapName))
+		assert.FailOnError(fmt.Errorf("Expected: Configmap %v not present in the namespace %v, Expected: Configmap %v present in the namespace %v, Error: %v", configMapName, ns, configMapName, ns, err))
 	}
 }
 
@@ -142,12 +154,12 @@ func AssertClusterRoleNotPresent(clients *clients.Clients, clusterRoleName strin
 		}
 		for _, item := range rbList.Items {
 			if item.Name == clusterRoleName {
-				return false, fmt.Errorf("found ClusterRole %s", clusterRoleName)
+				return false, nil
 			}
 		}
 		return true, err
 	})
 	if err != nil {
-		assert.FailOnError(fmt.Errorf("found ClusterRole %s", clusterRoleName))
+		assert.FailOnError(fmt.Errorf("Expected, Clusterrole %v not present, Actual: Clusterrole %v present, Error: %v", clusterRoleName, clusterRoleName, err))
 	}
 }
