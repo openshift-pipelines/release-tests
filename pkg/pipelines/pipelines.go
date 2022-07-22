@@ -273,7 +273,7 @@ func AssertPipelinesPresent(c *clients.Clients, namespace string) {
 	})
 	if err != nil {
 		p, _ := pclient.List(c.Ctx, metav1.ListOptions{})
-		assert.FailOnError(fmt.Errorf("Expected: %v number of pipelines present in namespace %v, Actual:%v number of pipelines present in namespace %v , Error: %v", config.NumberOfPipelineTemplates, len(p.Items), namespace, namespace, err))
+		assert.FailOnError(fmt.Errorf("Expected: %v number of pipelines present in namespace %v, Actual: %v number of pipelines present in namespace %v , Error: %v", config.NumberOfPipelineTemplates, namespace, len(p.Items), namespace, err))
 	}
 	fmt.Printf("Pipelines are present in namespace %v", namespace)
 }
@@ -290,7 +290,7 @@ func AssertPipelinesNotPresent(c *clients.Clients, namespace string) {
 	})
 	if err != nil {
 		p, _ := pclient.List(c.Ctx, metav1.ListOptions{})
-		assert.FailOnError(fmt.Errorf("Expected: %v number of pipelines present in namespace %v, Actual:%v number of pipelines present in namespace %v , Error: %v", 0, len(p.Items), namespace, namespace, err))
+		assert.FailOnError(fmt.Errorf("Expected: %v number of pipelines present in namespace %v, Actual: %v number of pipelines present in namespace %v , Error: %v", 0, namespace, len(p.Items), namespace, err))
 	}
 	fmt.Printf("Pipelines are present in namespace %v", namespace)
 }
