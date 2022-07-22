@@ -15,7 +15,7 @@ import (
 func AssertServiceAccountPesent(clients *clients.Clients, ns, targetSA string) {
 
 	err := wait.Poll(config.APIRetry, config.APITimeout, func() (bool, error) {
-		log.Printf("Verifying that service account %s exist\n", targetSA)
+		log.Printf("Verifying that service account %s exists\n", targetSA)
 		saList, err := clients.KubeClient.Kube.CoreV1().ServiceAccounts(ns).List(context.TODO(), metav1.ListOptions{})
 		if err != nil {
 			return false, err
@@ -33,7 +33,7 @@ func AssertServiceAccountPesent(clients *clients.Clients, ns, targetSA string) {
 }
 func AssertRoleBindingPresent(clients *clients.Clients, ns, roleBindingName string) {
 	err := wait.Poll(config.APIRetry, config.APITimeout, func() (bool, error) {
-		log.Printf("Verifying that role binding %s exist\n", roleBindingName)
+		log.Printf("Verifying that role binding %s exists\n", roleBindingName)
 		rbList, err := clients.KubeClient.Kube.RbacV1().RoleBindings(ns).List(context.TODO(), metav1.ListOptions{})
 		if err != nil {
 			return false, err
@@ -52,7 +52,7 @@ func AssertRoleBindingPresent(clients *clients.Clients, ns, roleBindingName stri
 
 func AssertConfigMapPresent(clients *clients.Clients, ns, configMapName string) {
 	err := wait.Poll(config.APIRetry, config.APITimeout, func() (bool, error) {
-		log.Printf("Verifying that config map %s exist\n", configMapName)
+		log.Printf("Verifying that config map %s exists\n", configMapName)
 		rbList, err := clients.KubeClient.Kube.CoreV1().ConfigMaps(ns).List(context.TODO(), metav1.ListOptions{})
 		if err != nil {
 			return false, err
@@ -71,7 +71,7 @@ func AssertConfigMapPresent(clients *clients.Clients, ns, configMapName string) 
 
 func AssertClusterRolePresent(clients *clients.Clients, clusterRoleName string) {
 	err := wait.Poll(config.APIRetry, config.APITimeout, func() (bool, error) {
-		log.Printf("Verifying that cluster role %s exist\n", clusterRoleName)
+		log.Printf("Verifying that cluster role %s exists\n", clusterRoleName)
 		rbList, err := clients.KubeClient.Kube.RbacV1().ClusterRoles().List(context.TODO(), metav1.ListOptions{})
 		if err != nil {
 			return false, err

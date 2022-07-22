@@ -370,7 +370,7 @@ func AssertCronjobPresent(c *clients.Clients, cronJobName, namespace string) {
 		return false, nil
 	})
 	if err != nil {
-		assert.FailOnError(fmt.Errorf("Expected: cronjob with prefix %v to be present in namespace %v, Actual:cronjob with prefix %v to be not present in namespace %v", cronJobName, namespace, cronJobName, namespace))
+		assert.FailOnError(fmt.Errorf("Expected: cronjob with prefix %v present in namespace %v, Actual: cronjob with prefix %v not present in namespace %v", cronJobName, namespace, cronJobName, namespace))
 	}
 	fmt.Printf("Cronjob with prefix %v is present in namespace %v", cronJobName, namespace)
 }
@@ -390,7 +390,7 @@ func AssertCronjobNotPresent(c *clients.Clients, cronJobName, namespace string) 
 		return true, nil
 	})
 	if err != nil {
-		assert.FailOnError(fmt.Errorf("Expected: cronjob with prefix %v to be present in namespace %v, Actual:cronjob with prefix %v to be not present in namespace %v", cronJobName, namespace, cronJobName, namespace))
+		assert.FailOnError(fmt.Errorf("Expected: cronjob with prefix %v present in namespace %v, Actual: cronjob with prefix %v not present in namespace %v", cronJobName, namespace, cronJobName, namespace))
 	}
 	fmt.Printf("Cronjob with prefix %v is present in namespace %v", cronJobName, namespace)
 }
