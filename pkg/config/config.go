@@ -28,7 +28,7 @@ const (
 	// ConsistentlyDuration sets  the default duration for Consistently. Consistently will verify that your condition is satisfied for this long.
 	ConsistentlyDuration = 30 * time.Second
 
-	ResourceTimeout = 30 * time.Second
+	ResourceTimeout = 60 * time.Second
 
 	//TektonConfigName specify the name of tekton config
 	TektonConfigName = "config"
