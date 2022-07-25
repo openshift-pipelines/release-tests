@@ -67,25 +67,6 @@ func UpdateTektonConfigwithInvalidData(patch_data, errorMessage string) {
 	}
 }
 
-func VerifyCronjobStatus(cronJobName, status, namespace string) {
-	res := cmd.MustSucceed("oc", "get", "cronjob", "-n", namespace).Stdout()
-	if status == "present" {
-		if !strings.Contains(res, cronJobName) {
-			testsuit.T.Errorf("Error: Expected a cronjob with name %v is present in namespace %v", cronJobName, namespace)
-		} else {
-			log.Printf("cronjob with name %v is present in namespace %v", cronJobName, namespace)
-		}
-	} else if status == "not present" {
-		if strings.Contains(res, cronJobName) {
-			testsuit.T.Errorf("Error: Expected a cronjob with name %v is not present in namespace %v", cronJobName, namespace)
-		} else {
-			log.Printf("cronjob with name %v is not present in namespace %v", cronJobName, namespace)
-		}
-	} else {
-		testsuit.T.Errorf("Invalid input for status: %v", status)
-	}
-}
-
 func AnnotateNamespace(namespace, annotation string) {
 	log.Printf("output: %s\n", cmd.MustSucceed("oc", "annotate", "namespace", namespace, annotation).Stdout())
 }

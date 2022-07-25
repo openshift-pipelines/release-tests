@@ -100,7 +100,7 @@ func TektonTriggerCRDelete(clients *clients.Clients, crNames config.ResourceName
 		return false, err
 	})
 	if err != nil {
-		assert.FailOnError(fmt.Errorf("Timed out waiting on TektonTrigger to delete", err))
+		assert.FailOnError(fmt.Errorf("Timed out waiting on TektonTrigger to delete, Error: %v", err))
 	}
 
 	if err := verifyNoTektonTriggerCR(clients); err != nil {

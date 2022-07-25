@@ -21,12 +21,14 @@ const (
 
 	// APITimeout defines the amount of time we should spend querying the k8s api
 	// when waiting for a specific condition to be true.
-	APITimeout = time.Minute * 20
+	APITimeout = time.Minute * 10
 	// Timeout httpClient
 	Timeout = time.Second * 10
 
 	// ConsistentlyDuration sets  the default duration for Consistently. Consistently will verify that your condition is satisfied for this long.
 	ConsistentlyDuration = 30 * time.Second
+
+	ResourceTimeout = 60 * time.Second
 
 	//TektonConfigName specify the name of tekton config
 	TektonConfigName = "config"
@@ -58,6 +60,9 @@ const (
 
 	// Community Clustertasks
 	CommunityClustertasks = "jib-maven,helm-upgrade-from-source,helm-upgrade-from-repo,trigger-jenkins-job,git-cli,pull-request,kubeconfig-creator,argocd-task-sync-and-wait"
+
+	// Expected number of pipelines in Openshift namespace
+	NumberOfPipelineTemplates = 27
 )
 
 // Flags holds the command line flags or defaults for settings in the user's environment.
