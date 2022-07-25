@@ -4,6 +4,7 @@ import (
 	"github.com/getgauge-contrib/gauge-go/gauge"
 	"github.com/openshift-pipelines/release-tests/pkg/k8s"
 	"github.com/openshift-pipelines/release-tests/pkg/store"
+	"log"
 )
 
 var _ = gauge.Step("Verify ServiceAccount <sa> does not exist", func(sa string) {
@@ -43,4 +44,14 @@ var _ = gauge.Step("Assert pruner cronjob(s) in namespace <namespace> contains <
 		namespace = store.TargetNamespace()
 	}
 	k8s.AssertPrunerCronjobWithContainer(store.Clients(), namespace, num)
+})
+
+var _ = gauge.Step("Assert if cronjob with prefix <cronJobName> is <status> in target namespace", func(cronJobName, status string) {
+	namespace := store.TargetNamespace()
+	log.Printf("Verifying if the cronjob %v is %v in namespace %v", cronJobName, status, namespace)
+	if status == "present" {
+		k8s.AssertCronjobPresent(store.Clients(), cronJobName, namespace)
+	} else {
+		k8s.AssertCronjobNotPresent(store.Clients(), cronJobName, namespace)
+	}
 })

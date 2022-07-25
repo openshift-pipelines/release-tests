@@ -103,7 +103,7 @@ func TektonPipelineCRDelete(clients *clients.Clients, crNames config.ResourceNam
 		return false, err
 	})
 	if err != nil {
-		assert.FailOnError(fmt.Errorf("Timed out waiting on TektonPipeline to delete", err))
+		assert.FailOnError(fmt.Errorf("Timed out waiting on TektonPipeline to delete, Error: %v", err))
 	}
 	if err := verifyNoTektonPipelineCR(clients); err != nil {
 		assert.FailOnError(err)

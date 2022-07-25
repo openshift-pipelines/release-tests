@@ -354,3 +354,43 @@ func AssertPrunerCronjobWithContainer(c *clients.Clients, namespace, num string)
 		testsuit.T.Errorf("Cronjob with prefix tekton-resource-pruner not found in %v namespace", namespace)
 	}
 }
+
+func AssertCronjobPresent(c *clients.Clients, cronJobName, namespace string) {
+	err := wait.Poll(config.APIRetry, config.ResourceTimeout, func() (bool, error) {
+		log.Printf("Verifying if cronjob with prefix %v is present in namespace %v", cronJobName, namespace)
+		cjs, err := c.KubeClient.Kube.BatchV1().CronJobs(namespace).List(c.Ctx, metav1.ListOptions{})
+		if err != nil {
+			return false, err
+		}
+		for _, cj := range cjs.Items {
+			if strings.Contains(cj.Name, cronJobName) {
+				return true, nil
+			}
+		}
+		return false, nil
+	})
+	if err != nil {
+		assert.FailOnError(fmt.Errorf("Expected: cronjob with prefix %v present in namespace %v, Actual: cronjob with prefix %v not present in namespace %v", cronJobName, namespace, cronJobName, namespace))
+	}
+	fmt.Printf("Cronjob with prefix %v is present in namespace %v", cronJobName, namespace)
+}
+
+func AssertCronjobNotPresent(c *clients.Clients, cronJobName, namespace string) {
+	err := wait.Poll(config.APIRetry, config.ResourceTimeout, func() (bool, error) {
+		log.Printf("Verifying if cronjob with prefix %v is present in namespace %v", cronJobName, namespace)
+		cjs, err := c.KubeClient.Kube.BatchV1().CronJobs(namespace).List(c.Ctx, metav1.ListOptions{})
+		if err != nil {
+			return false, err
+		}
+		for _, cj := range cjs.Items {
+			if strings.Contains(cj.Name, cronJobName) {
+				return false, nil
+			}
+		}
+		return true, nil
+	})
+	if err != nil {
+		assert.FailOnError(fmt.Errorf("Expected: cronjob with prefix %v present in namespace %v, Actual: cronjob with prefix %v not present in namespace %v", cronJobName, namespace, cronJobName, namespace))
+	}
+	fmt.Printf("Cronjob with prefix %v is present in namespace %v", cronJobName, namespace)
+}

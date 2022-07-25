@@ -13,15 +13,12 @@ Importance: Critical
 
 Steps:
   * Update addon config with clusterTasks as "true" communityClustertasks as "true" and pipelineTemplates as "true" and expect message ""
-  * Sleep for "10" seconds
   * "community" clustertasks are "present"
   * "tkn,openshift-client" clustertasks are "present"
   * Update addon config with clusterTasks as "true" communityClustertasks as "false" and pipelineTemplates as "true" and expect message ""
-  * Sleep for "10" seconds
   * "community" clustertasks are "not present"
   * "tkn,openshift-client" clustertasks are "present"
   * Update addon config with clusterTasks as "true" communityClustertasks as "true" and pipelineTemplates as "true" and expect message ""
-  * Sleep for "10" seconds
   * "community" clustertasks are "present"
   * "tkn,openshift-client" clustertasks are "present"
 
@@ -34,17 +31,14 @@ Importance: Critical
 
 Steps:
   * Update addon config with clusterTasks as "true" communityClustertasks as "true" and pipelineTemplates as "true" and expect message ""
-  * Sleep for "10" seconds
   * "community" clustertasks are "present"
   * "tkn,openshift-client" clustertasks are "present"
   * Assert pipelines are "present" in "openshift" namespace
   * Update addon config with clusterTasks as "false" communityClustertasks as "false" and pipelineTemplates as "false" and expect message ""
-  * Sleep for "10" seconds
   * "community" clustertasks are "not present"
   * "tkn,openshift-client" clustertasks are "not present"
   * Assert pipelines are "not present" in "openshift" namespace
   * Update addon config with clusterTasks as "true" communityClustertasks as "true" and pipelineTemplates as "true" and expect message ""
-  * Sleep for "10" seconds
   * "community" clustertasks are "present"
   * "tkn,openshift-client" clustertasks are "present"
   * Assert pipelines are "present" in "openshift" namespace
@@ -58,13 +52,10 @@ Importance: Critical
 
 Steps:
   * Update addon config with clusterTasks as "true" communityClustertasks as "true" and pipelineTemplates as "true" and expect message ""
-  * Sleep for "10" seconds
   * Assert pipelines are "present" in "openshift" namespace
   * Update addon config with clusterTasks as "true" communityClustertasks as "true" and pipelineTemplates as "false" and expect message ""
-  * Sleep for "10" seconds
   * Assert pipelines are "not present" in "openshift" namespace
   * Update addon config with clusterTasks as "true" communityClustertasks as "true" and pipelineTemplates as "true" and expect message ""
-  * Sleep for "10" seconds
   * Assert pipelines are "present" in "openshift" namespace
 
 ## Enable community cluster tasks when clustertask is disabled: PIPELINES-15-TC04

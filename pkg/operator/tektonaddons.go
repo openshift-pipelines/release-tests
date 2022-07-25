@@ -116,7 +116,7 @@ func TektonAddonCRDelete(clients *clients.Clients, crNames config.ResourceNames)
 		return false, err
 	})
 	if err != nil {
-		assert.FailOnError(fmt.Errorf("Timed out waiting on TektonAddon to delete", err))
+		assert.FailOnError(fmt.Errorf("Timed out waiting on TektonAddon to delete, Error: %v", err))
 	}
 
 	err = verifyNoTektonAddonCR(clients)
