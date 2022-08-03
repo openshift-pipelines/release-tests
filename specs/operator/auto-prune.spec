@@ -1,6 +1,7 @@
 PIPELINES-12
 
 # Verify auto-prune E2E
+Tags: auto-prune
 
 Pre condition:
   * Validate Operator should be installed
