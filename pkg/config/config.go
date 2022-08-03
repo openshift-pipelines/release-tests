@@ -9,6 +9,7 @@ import (
 	"path"
 	"path/filepath"
 	"runtime"
+	"strings"
 	"time"
 
 	"github.com/openshift-pipelines/release-tests/pkg/assert"
@@ -62,10 +63,9 @@ const (
 
 	// Community Clustertasks
 	CommunityClustertasks = "jib-maven,helm-upgrade-from-source,helm-upgrade-from-repo,trigger-jenkins-job,git-cli,pull-request,kubeconfig-creator,argocd-task-sync-and-wait"
-
-	// Expected number of pipelines in Openshift namespace
-	NumberOfPipelineTemplates = 27
 )
+
+var PrefixesOfDefaultPipelines [9]string = [9]string{"buildah", "s2i-dotnet", "s2i-go", "s2i-java", "s2i-nodejs", "s2i-perl", "s2i-php", "s2i-python", "s2i-ruby"}
 
 // Flags holds the command line flags or defaults for settings in the user's environment.
 // See EnvironmentFlags for a list of supported fields
@@ -84,6 +84,7 @@ type EnvironmentFlags struct {
 	InstallPlan      string // Default Installationplan Automatic
 	OperatorVersion  string
 	TknVersion       string
+	ClusterArch      string // Architecture of the cluster
 }
 
 func initializeFlags() *EnvironmentFlags {
@@ -111,7 +112,7 @@ func initializeFlags() *EnvironmentFlags {
 
 	defaultCatalogSource := os.Getenv("CATALOG_SOURCE")
 	flag.StringVar(&f.CatalogSource, "catalogsource", defaultCatalogSource,
-		"Provide defaultCatalogSource to subscribe operator from. By default `pre-stage-operators` will be used.")
+		"Provide defaultCatalogSource to subscribe operator from. By default `custom-operators` will be used.")
 
 	defaultSubscriptionName := os.Getenv("SUBSCRIPTION_NAME")
 	flag.StringVar(&f.SubscriptionName, "subscriptionName", defaultSubscriptionName,
@@ -132,6 +133,13 @@ func initializeFlags() *EnvironmentFlags {
 	defaultTkn := os.Getenv("TKN_VERSION")
 	flag.StringVar(&f.TknVersion, "tknversion", defaultTkn,
 		"Provide tknversion to download specified cli binary you'd like to use for these tests. By default `0.6.0` will be used.")
+
+	defaultClusterArch := os.Getenv("ARCH")
+	if defaultClusterArch != "" {
+		defaultClusterArch = strings.Split(defaultClusterArch, "/")[1]
+	}
+	flag.StringVar(&f.ClusterArch, "clusterarch", defaultClusterArch,
+		"Provide the architecture of testing cluster. By default `amd64` will be used.")
 
 	return &f
 }
