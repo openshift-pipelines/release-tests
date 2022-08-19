@@ -20,11 +20,11 @@ spec:
         type: pullRequest
     steps:
     - name: dump-workspace
-      image: registry.redhat.io/ubi8/ubi-minimal
+      image: image-registry.openshift-image-registry.svc:5000/openshift/golang
       script: find $(resources.inputs.pr.path)/* -type f | xargs tail -n +1
 
     - name: ensure-approved
-      image: registry.redhat.io/ubi8/ubi-minimal
+      image: image-registry.openshift-image-registry.svc:5000/openshift/golang
       script: |
         if [ -f "$(resources.inputs.pr.path)/labels/approved" ]; then
           echo "PR is approved!"

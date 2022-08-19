@@ -26,11 +26,11 @@ spec:
       type: git
   steps:
   - name: read-docs-old
-    image: registry.redhat.io/ubi8/ubi-minimal
+    image: image-registry.openshift-image-registry.svc:5000/openshift/ubi8-minimal:foo
     command: ["/bin/bash"]
     args: ['-c', 'ls -la /workspace/damnworkspace/docs/README.md']  # tests that targetpath works
   - name: write-new-stuff
-    image: registry.redhat.io/ubi8/ubi-minimal
+    image: image-registry.openshift-image-registry.svc:5000/openshift/ubi8-minimal:foo
     command: ['bash']
     args: ['-c', 'ln -s /workspace/damnworkspace /workspace/output/workspace && echo some stuff > /workspace/output/workspace/stuff']
 ---
@@ -50,7 +50,7 @@ spec:
       targetPath: newworkspace
   steps:
   - name: read
-    image: registry.redhat.io/ubi8/ubi-minimal
+    image: image-registry.openshift-image-registry.svc:5000/openshift/ubi8-minimal:foo
     command: ["/bin/bash"]
     args: ['$(inputs.params.args[*])']  # tests that new targetpath and previous task output is dumped
 ---

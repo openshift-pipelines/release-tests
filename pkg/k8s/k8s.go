@@ -212,7 +212,7 @@ func CreateCronJob(c *clients.Clients, args []string, schedule, namespace string
 							Containers: []corev1.Container{
 								{
 									Name:  "hello",
-									Image: "registry.redhat.io/ubi8/ubi-minimal",
+									Image: "image-registry.openshift-image-registry.svc:5000/openshift/golang",
 									Args:  args,
 								},
 							},
