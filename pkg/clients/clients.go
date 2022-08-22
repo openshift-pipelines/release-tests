@@ -18,7 +18,6 @@ import (
 	"github.com/tektoncd/operator/pkg/client/clientset/versioned"
 	operatorv1alpha1 "github.com/tektoncd/operator/pkg/client/clientset/versioned/typed/operator/v1alpha1"
 	pversioned "github.com/tektoncd/pipeline/pkg/client/clientset/versioned"
-	"github.com/tektoncd/pipeline/pkg/client/clientset/versioned/typed/pipeline/v1alpha1"
 	"github.com/tektoncd/pipeline/pkg/client/clientset/versioned/typed/pipeline/v1beta1"
 	resourceversioned "github.com/tektoncd/pipeline/pkg/client/resource/clientset/versioned"
 	resourcev1alpha1 "github.com/tektoncd/pipeline/pkg/client/resource/clientset/versioned/typed/resource/v1alpha1"
@@ -49,7 +48,6 @@ type Clients struct {
 	TaskRunClient          v1beta1.TaskRunInterface
 	PipelineRunClient      v1beta1.PipelineRunInterface
 	PipelineResourceClient resourcev1alpha1.PipelineResourceInterface
-	ConditionClient        v1alpha1.ConditionInterface
 	TriggersClient         triggersclientset.Interface
 	ClustertaskClient      v1beta1.ClusterTaskInterface
 }
@@ -109,7 +107,6 @@ func NewClients(configPath string, clusterName, namespace string) (*Clients, err
 	clients.TaskRunClient = clients.Tekton.TektonV1beta1().TaskRuns(namespace)
 	clients.PipelineRunClient = clients.Tekton.TektonV1beta1().PipelineRuns(namespace)
 	clients.PipelineResourceClient = rcs.TektonV1alpha1().PipelineResources(namespace)
-	clients.ConditionClient = clients.Tekton.TektonV1alpha1().Conditions(namespace)
 	clients.Route = routev1.NewForConfigOrDie(clients.KubeConfig)
 	clients.ProxyConfig = configV1.NewForConfigOrDie(clients.KubeConfig)
 	clients.ConsoleCLIDownload = consolev1.NewForConfigOrDie(clients.KubeConfig).ConsoleCLIDownloads()
