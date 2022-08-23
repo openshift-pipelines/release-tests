@@ -77,9 +77,9 @@ Steps:
       |----|---------------------------------------------|
       |1   |testdata/v1beta1/pipelinerun/pipelinerun.yaml|
   * Verify pipelinerun
-      |S.NO|pipeline_run_name     |status   |check_label_propagation|
-      |----|----------------------|---------|-----------------------|
-      |1   |output-pipeline-run-vb|cancelled|no                     |
+      |S.NO|pipeline_run_name       |status   |check_label_propagation|
+      |----|------------------------|---------|-----------------------|
+      |1   |output-pipeline-run-v1b1|cancelled|no                     |
 
 ## Pipelinerun with pipelinespec and taskspec(embedded pipelinerun tests): PIPELINES-03-TC07
 Tags: e2e, integration, pipelines, non-admin
