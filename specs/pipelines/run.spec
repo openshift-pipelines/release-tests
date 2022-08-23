@@ -21,13 +21,11 @@ Steps:
   * Create
       |S.NO|resource_dir                                  |
       |----|----------------------------------------------|
-      |1   |testdata/v1alpha1/pipelinerun/pipelinerun.yaml|
-      |2   |testdata/v1beta1/pipelinerun/pipelinerun.yaml |
+      |1   |testdata/v1beta1/pipelinerun/pipelinerun.yaml |
   * Verify pipelinerun
-      |S.NO|pipeline_run_name     |status    |check_label_propagation|
-      |----|----------------------|----------|-----------------------|
-      |1   |output-pipeline-run-va|successful|yes                    |
-      |2   |output-pipeline-run-vb|successful|yes                    |
+      |S.NO|pipeline_run_name       |status    |check_label_propagation|
+      |----|------------------------|----------|-----------------------|
+      |1   |output-pipeline-run-v1b1|successful|yes                    |
 
 ## Pipelinerun Timeout failure Test: PIPELINES-03-TC04
 Tags: e2e, integration, pipelines, non-admin
