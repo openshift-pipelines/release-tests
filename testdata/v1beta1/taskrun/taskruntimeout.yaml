@@ -8,7 +8,7 @@ spec:
         - 3000s
       command:
         - sleep
-      image: registry.redhat.io/ubi8/ubi-minimal
+      image: image-registry.openshift-image-registry.svc:5000/openshift/golang
       name: ''
       resources: {}
 ---
