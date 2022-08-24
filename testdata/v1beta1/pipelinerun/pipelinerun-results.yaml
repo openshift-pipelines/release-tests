@@ -13,7 +13,7 @@ spec:
       description: the sum of the first and second operand
   steps:
     - name: add
-      image: registry.redhat.io/ubi8/ubi-minimal
+      image: image-registry.openshift-image-registry.svc:5000/openshift/golang
       env:
         - name: OP1
           value: $(params.first)

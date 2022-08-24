@@ -32,7 +32,7 @@ spec:
                   default: "Hello World!"
                 steps:
                   - name: echo
-                    image: registry.redhat.io/ubi8/ubi-minimal
+                    image: image-registry.openshift-image-registry.svc:5000/openshift/golang
                     script: |
                       #!/usr/bin/env bash
                       echo "$(tt.params.MESSAGE)"

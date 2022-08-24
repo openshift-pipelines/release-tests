@@ -5,7 +5,7 @@ metadata:
 spec:
   steps:
     - name: write
-      image: registry.redhat.io/ubi8/ubi-minimal
+      image: image-registry.openshift-image-registry.svc:5000/openshift/golang
       script: echo bar > $(workspaces.task-ws.path)/foo
   workspaces:
     - name: task-ws
@@ -20,10 +20,10 @@ spec:
     - name: ws-b
   steps:
     - name: read-1
-      image: registry.redhat.io/ubi8/ubi-minimal
+      image: image-registry.openshift-image-registry.svc:5000/openshift/golang
       script: cat $(workspaces.ws-a.path)/foo | grep bar
     - name: read-2
-      image: registry.redhat.io/ubi8/ubi-minimal
+      image: image-registry.openshift-image-registry.svc:5000/openshift/golang
       script: cat $(workspaces.ws-b.path)/foo | grep bar
 ---
 apiVersion: tekton.dev/v1beta1

@@ -13,7 +13,7 @@ spec:
         type: git
   steps:
   - name: say-hi
-    image: registry.redhat.io/ubi8/ubi-minimal
+    image: image-registry.openshift-image-registry.svc:5000/openshift/golang
     command: ["bash", "-c"]
     args:
       - echo -e 'Hello Triggers!\nContent-Type is $(params.contenttype)'
@@ -34,7 +34,7 @@ spec:
       type: git
   steps:
   - name: say-message
-    image: registry.redhat.io/ubi8/ubi-minimal
+    image: image-registry.openshift-image-registry.svc:5000/openshift/golang
     command: ["bash", "-c"]
     args:
       - echo '$(params.message)'
@@ -50,7 +50,7 @@ spec:
       type: git
   steps:
   - name: say-bye
-    image: registry.redhat.io/ubi8/ubi-minimal
+    image: image-registry.openshift-image-registry.svc:5000/openshift/golang
     command: ["bash", "-c"]
     args:
     - echo 'Goodbye Triggers!'
