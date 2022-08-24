@@ -134,7 +134,7 @@ func validatePipelineRunCancel(c *clients.Clients, prname, namespace string) {
 	var wg sync.WaitGroup
 	log.Printf("Canceling pipeline run: %s\n", cmd.MustSucceed("tkn", "pipelinerun", "cancel", prname, "-n", namespace).Stdout())
 
-	if err := wait.WaitForPipelineRunState(c, prname, wait.FailedWithReason("PipelineRunCancelled", prname), "PipelineRunCancelled"); err != nil {
+	if err := wait.WaitForPipelineRunState(c, prname, wait.FailedWithReason("Cancelled", prname), "Cancelled"); err != nil {
 		testsuit.T.Errorf(fmt.Sprintf("Error waiting for PipelineRun `%s` to finished: %s", prname, err))
 	}
 
