@@ -1,103 +1,84 @@
-apiVersion: tekton.dev/v1alpha1
-kind: PipelineResource
-metadata:
-  name: skaffold-git-output-pipelinerun-vb
-spec:
-  type: git
-  params:
-  - name: revision
-    value: v0.32.0
-  - name: url
-    value: https://github.com/GoogleContainerTools/skaffold
 ---
-# Task writes "some stuff" to a predefined path in the workspace git PipelineResource
+# Task writes "some stuff" to a predefined path in the workspace
 apiVersion: tekton.dev/v1beta1
 kind: Task
 metadata:
-  name: create-file-vb
+  name: create-file-v1b1
 spec:
-  resources:
-    inputs:
-    - name: workspace
-      type: git
-      targetPath: damnworkspace
-    outputs:
-    - name: workspace
-      type: git
+  results:
+    - name: output-file
+      description: Name of directory used to create a new file
   steps:
-  - name: read-docs-old
-    image: registry.redhat.io/ubi8/ubi-minimal
-    command: ["/bin/bash"]
-    args: ['-c', 'ls -la /workspace/damnworkspace/docs/README.md']  # tests that targetpath works
-  - name: write-new-stuff
-    image: registry.redhat.io/ubi8/ubi-minimal
-    command: ['bash']
-    args: ['-c', 'ln -s /workspace/damnworkspace /workspace/output/workspace && echo some stuff > /workspace/output/workspace/stuff']
+    - name: read
+      image: image-registry.openshift-image-registry.svc:5000/openshift/golang
+      script: |
+        #!/usr/bin/env bash
+        echo $(workspaces.test.path) && ls -la $(workspaces.test.path)
+    - name: write-new-stuff
+      image: image-registry.openshift-image-registry.svc:5000/openshift/golang
+      script: |
+        #!/usr/bin/env bash
+        OUTPUT_FILE=$(context.task.name)-$RANDOM
+        echo "some stuff" > $(workspaces.test.path)/${OUTPUT_FILE}
+        echo -n ${OUTPUT_FILE} | tee $(results.output-file.path)
+  workspaces:
+    - name: test
 ---
-# Reads a file from a predefined path in the workspace git PipelineResource
+# Reads a file from a predefined path in the workspace
 apiVersion: tekton.dev/v1beta1
 kind: Task
 metadata:
-  name: check-stuff-file-exists-vb
+  name: check-file-exists-v1b1
 spec:
   params:
-  - name: args
-    type: array
-  resources:
-    inputs:
-    - name: workspace
-      type: git
-      targetPath: newworkspace
+    - name: FILE
   steps:
-  - name: read
-    image: registry.redhat.io/ubi8/ubi-minimal
-    command: ["/bin/bash"]
-    args: ['$(inputs.params.args[*])']  # tests that new targetpath and previous task output is dumped
+    - name: read
+      image: image-registry.openshift-image-registry.svc:5000/openshift/golang
+      script: |
+        #!/usr/bin/env bash
+        if [ ! -f $(workspaces.test.path)/$(params.FILE) ]; then
+          echo "File stuff doesn't exist!"
+          exit 1
+        fi
+        cat $(workspaces.test.path)/$(params.FILE)
+  workspaces:
+    - name: test
 ---
-# The Output of the first Task (git resource) create-file is given as an `Input`
-# to the next `Task` check-stuff-file-exists using`from` clause.
-
 apiVersion: tekton.dev/v1beta1
 kind: Pipeline
 metadata:
-  name: output-pipeline-vb
+  name: output-pipeline-v1b1
 spec:
-  resources:
-  - name: source-repo
-    type: git
   tasks:
-  - name: first-create-file          # 1. create file
-    taskRef:
-      name: create-file-vb
-    resources:
-      inputs:
-      - name: workspace
-        resource: source-repo
-      outputs:
-      - name: workspace
-        resource: source-repo
-  - name: then-check                 # 2.  check file exists
-    taskRef:
-      name: check-stuff-file-exists-vb
-    params:
-    - name: args
-      value:
-      - '-c'
-      - 'cat /workspace/newworkspace/stuff'
-    resources:
-      inputs:
-      - name: workspace
-        resource: source-repo
-        from: [first-create-file]
+    - name: create-file
+      taskRef:
+        name: create-file-v1b1
+      workspaces:
+        - name: test
+          workspace: test
+    - name: check-file-exists
+      params:
+        - name: FILE
+          value: $(tasks.create-file.results.output-file)
+      runAfter:
+        - create-file
+      taskRef:
+        name: check-file-exists-v1b1
+      workspaces:
+        - name: test
+          workspace: test
+  workspaces:
+    - name: test
 ---
 apiVersion: tekton.dev/v1beta1
 kind: PipelineRun
 metadata:
-  name: output-pipeline-run-vb
+  name: output-pipeline-run-v1b1
 spec:
   pipelineRef:
-    name: output-pipeline-vb
-  resources:
-  - name: source-repo
-    resourceRef:
-      name: skaffold-git-output-pipelinerun-vb
+    name: output-pipeline-v1b1
+  workspaces:
+    - name: test
+      persistentVolumeClaim:
+        claimName: testdata

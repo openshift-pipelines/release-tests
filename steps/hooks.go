@@ -32,6 +32,8 @@ var _ = gauge.BeforeScenario(func() {
 	store["namespace"] = namespace
 	store["scenario.cleanup"] = cleanup
 	store["targetNamespace"] = config.TargetNamespace
+
+	oc.Create("testdata/pvc.yaml", namespace)
 }, []string{}, testsuit.AND)
 
 // Runs After every Secenario
