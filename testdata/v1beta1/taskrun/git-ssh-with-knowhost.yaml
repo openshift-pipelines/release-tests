@@ -44,7 +44,7 @@ spec:
         type: git
     steps:
     - name: config
-      image: registry.redhat.io/ubi8/ubi-minimal
+      image: image-registry.openshift-image-registry.svc:5000/openshift/golang
       script: |
         #!/usr/bin/env bash
         cat /workspace/gitssh/README.md

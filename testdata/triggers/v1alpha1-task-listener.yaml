@@ -13,7 +13,7 @@ spec:
       taskSpec:
         steps:
         - name: "hellothere"
-          image: registry.redhat.io/ubi8/ubi-minimal
+          image: image-registry.openshift-image-registry.svc:5000/openshift/golang
           script: echo "hello there"
 ---
 apiVersion: triggers.tekton.dev/v1alpha1

@@ -30,7 +30,7 @@ spec:
             - name: source
               type: git
           steps:
-            - image: registry.redhat.io/ubi8/ubi-minimal
+            - image: image-registry.openshift-image-registry.svc:5000/openshift/golang
               script: |
                 #! /bin/bash
                 echo "git revision: $(tt.params.gitrevision)"

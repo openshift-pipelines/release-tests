@@ -8,7 +8,7 @@ spec:
       taskSpec:
         steps:
           - name: write
-            image: registry.redhat.io/ubi8/ubi-minimal
+            image: image-registry.openshift-image-registry.svc:5000/openshift/golang
             script: echo bar > $(workspaces.task-ws.path)/foo
         workspaces:
           - name: task-ws
@@ -21,7 +21,7 @@ spec:
       taskSpec:
         steps:
           - name: read
-            image: registry.redhat.io/ubi8/ubi-minimal
+            image: image-registry.openshift-image-registry.svc:5000/openshift/golang
             script: cat $(workspaces.myws.path)/foo | grep bar
         workspaces:
           - name: myws
