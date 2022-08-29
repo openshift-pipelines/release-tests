@@ -1,11 +1,12 @@
 apiVersion: tekton.dev/v1beta1
 kind: Pipeline
 metadata:
-  name: s2i-nodejs-pipeline
+  name: jib-maven-pipeline
 spec:
   params:
-  - name: VERSION
-    description: The tag of 'nodejs' imagestream for Node.js version
+  - name: SUBDIR
+    description: where to clone the git repo
+    default: jib-maven
   workspaces:
   - name: source
   tasks:
@@ -18,14 +19,14 @@ spec:
       workspace: source
     params:
     - name: url
-      value: https://github.com/sclorg/nodejs-ex
+      value: https://github.com/che-samples/console-java-simple
     - name: subdirectory
-      value: s2i-nodejs-$(params.VERSION)
+      value: $(params.SUBDIR)
     - name: deleteExisting
       value: "true"
   - name: build
     taskRef:
-      name: s2i-nodejs
+      name: jib-maven
       kind: ClusterTask
     runAfter:
     - clone-git-repo
@@ -33,11 +34,9 @@ spec:
     - name: source
       workspace: source
     params:
+    - name: DIRECTORY
+      value: $(params.SUBDIR)
     - name: IMAGE
-      value: image-registry.openshift-image-registry.svc:5000/$(context.pipelineRun.namespace)/s2i-nodejs-$(params.VERSION)
-    - name: PATH_CONTEXT
-      value: s2i-nodejs-$(params.VERSION)
-    - name: TLSVERIFY
-      value: "true"
-    - name: VERSION
-      value: $(params.VERSION)
+      value: image-registry.openshift-image-registry.svc:5000/$(context.pipelineRun.namespace)/jib-maven
+    - name: INSECUREREGISTRY
+      value: "false"

@@ -5,7 +5,7 @@ Pre condition:
   * Validate Operator should be installed
 
 ## buildah pipelinerun: PIPELINES-16-TC01
-Tags: e2e, integration, clustertasks, non-admin, buildah
+Tags: e2e, clustertasks, non-admin, buildah
 Component: Pipelines
 Level: Integration
 Type: Functional
@@ -25,7 +25,7 @@ Steps:
       |1   |buildah-run      |successful|no                     |
 
 ## buildah disconnected pipelinerun: PIPELINES-16-TC02
-Tags: disconnected-e2e, integration, clustertasks, non-admin, buildah
+Tags: disconnected-e2e, clustertasks, non-admin, buildah
 Component: Pipelines
 Level: Integration
 Type: Functional
@@ -45,7 +45,7 @@ Steps:
       |1   |buildah-disconnected-run|successful|no                     |
 
 ## git-cli pipelinerun: PIPELINES-16-TC03
-Tags: e2e, integration, clustertasks, non-admin, git-cli
+Tags: e2e, clustertasks, non-admin, git-cli
 Component: Pipelines
 Level: Integration
 Type: Functional
@@ -65,7 +65,7 @@ Steps:
       |1   |git-cli-run      |successful|no                     |
 
 ## git-cli read private repo pipelinerun: PIPELINES-16-TC04
-Tags: e2e, integration, clustertasks, non-admin, git-cli
+Tags: e2e, clustertasks, non-admin, git-cli
 Component: Pipelines
 Level: Integration
 Type: Functional
@@ -90,7 +90,7 @@ Steps:
       |1   |git-cli-read-private-run|successful|no                     |
 
 ## git-cli read private repo using different service account pipelinerun: PIPELINES-16-TC05
-Tags: e2e, integration, clustertasks, non-admin, git-cli
+Tags: e2e, clustertasks, non-admin, git-cli
 Component: Pipelines
 Level: Integration
 Type: Functional
@@ -116,7 +116,7 @@ Steps:
       |1   |git-cli-read-private-sa-run|successful|no                     |
 
 ## maven pipelinerun: PIPELINES-16-TC06
-Tags: e2e, integration, clustertasks, non-admin, maven
+Tags: e2e, clustertasks, non-admin, maven
 Component: Pipelines
 Level: Integration
 Type: Functional
@@ -127,15 +127,16 @@ Steps:
       |S.NO|resource_dir                                               |
       |----|-----------------------------------------------------------|
       |1   |testdata/v1beta1/clustertask/pipelines/maven.yaml          |
-      |2   |testdata/v1beta1/clustertask/configmaps/maven-settings.yaml|
-      |3   |testdata/v1beta1/clustertask/pipelineruns/maven.yaml       |
+      |2   |testdata/v1beta1/clustertask/pvc/pvc.yaml                  |
+      |3   |testdata/v1beta1/clustertask/configmaps/maven-settings.yaml|
+      |4   |testdata/v1beta1/clustertask/pipelineruns/maven.yaml       |
   * Verify pipelinerun
       |S.NO|pipeline_run_name|status    |check_label_propagation|
       |----|-----------------|----------|-----------------------|
       |1   |maven-run        |successful|no                     |
 
 ## openshift-client pipelinerun: PIPELINES-16-TC07
-Tags: e2e, integration, clustertasks, non-admin, openshift-client
+Tags: e2e, clustertasks, non-admin, openshift-client
 Component: Pipelines
 Level: Integration
 Type: Functional
@@ -152,7 +153,7 @@ Steps:
       |1   |openshift-client-run|successful|no                     |
 
 ## skopeo-copy pipelinerun: PIPELINES-16-TC08
-Tags: e2e, integration, clustertasks, non-admin, openshift-client
+Tags: e2e, clustertasks, non-admin, skopeo-copy
 Component: Pipelines
 Level: Integration
 Type: Functional
@@ -169,7 +170,7 @@ Steps:
       |1   |skopeo-copy-run  |successful|no                     |
 
 ## tkn pipelinerun: PIPELINES-16-TC09
-Tags: e2e, integration, clustertasks, non-admin, tkn
+Tags: e2e, clustertasks, non-admin, tkn
 Component: Pipelines
 Level: Integration
 Type: Functional
@@ -186,7 +187,7 @@ Steps:
       |1   |tkn-run          |successful|no                     |
 
 ## tkn pac pipelinerun: PIPELINES-16-TC10
-Tags: e2e, integration, clustertasks, non-admin, tkn
+Tags: e2e, clustertasks, non-admin, tkn
 Component: Pipelines
 Level: Integration
 Type: Functional
@@ -203,7 +204,7 @@ Steps:
       |1   |tkn-pac-run      |successful|no                     |
 
 ## tkn version pipelinerun: PIPELINES-16-TC11
-Tags: e2e, integration, clustertasks, non-admin, tkn
+Tags: e2e, clustertasks, non-admin, tkn
 Component: Pipelines
 Level: Integration
 Type: Functional
