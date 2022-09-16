@@ -135,8 +135,9 @@ func initializeFlags() *EnvironmentFlags {
 		"Provide tknversion to download specified cli binary you'd like to use for these tests. By default `0.6.0` will be used.")
 
 	defaultClusterArch := os.Getenv("ARCH")
-	if defaultClusterArch != "" {
+	if defaultClusterArch != ""  && strings.Contains(defaultClusterArch, "/") {
 		defaultClusterArch = strings.Split(defaultClusterArch, "/")[1]
+		
 	}
 	flag.StringVar(&f.ClusterArch, "clusterarch", defaultClusterArch,
 		"Provide the architecture of testing cluster. By default `amd64` will be used.")
