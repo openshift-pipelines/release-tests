@@ -2,11 +2,13 @@ package tkn
 
 import (
 	"bytes"
+	"fmt"
 	"io"
 	"log"
 	"os"
 	"os/exec"
 	"runtime/debug"
+	"strings"
 	"sync"
 
 	"github.com/Netflix/go-expect"
@@ -126,4 +128,22 @@ func (tkn *Cmd) RunInteractiveTests(namespace string, ops *Prompt) *expect.Conso
 	}
 
 	return c
+}
+
+func StartPipeline(pipelineName string, params map[string]string, workspaces map[string]string, args ...string) string{
+	var commandArgs []string
+	commandArgs = append(commandArgs, "tkn", "pipeline", "start", pipelineName, "-o", "name")
+	for key, value := range params {
+		commandArgs = append(commandArgs, fmt.Sprintf("-p %s=%s", key, value))
+	}
+	for key, value := range workspaces {
+		commandArgs = append(commandArgs, fmt.Sprintf("-w %s,%s", key, value))
+	}
+	for _, arg := range args {
+		commandArgs = append(commandArgs, arg)
+	}
+	commandArgs = strings.Split(strings.Join(commandArgs, " "), " ")
+	pipelineRunName := strings.Trim(cmd.MustSucceed(commandArgs...).Stdout(), "\n")
+	log.Printf("Pipelinerun %s started", pipelineRunName)
+	return pipelineRunName
 }
