@@ -42,7 +42,7 @@ func NewClientSet() (*clients.Clients, string, func()) {
 	assert.FailOnError(err)
 	oc.CreateNewProject(ns)
 	return cs, ns, func() {
-		oc.DeleteProject(ns)
+		oc.DeleteProjectIgnoreErors(ns)
 	}
 }
 
