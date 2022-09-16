@@ -136,7 +136,9 @@ func initializeFlags() *EnvironmentFlags {
 
 	defaultClusterArch := os.Getenv("ARCH")
 	if defaultClusterArch != "" {
-		defaultClusterArch = strings.Split(defaultClusterArch, "/")[1]
+		if strings.Contains(defaultClusterArch, "/") {
+			defaultClusterArch = strings.Split(defaultClusterArch, "/")[1]
+		}
 	}
 	flag.StringVar(&f.ClusterArch, "clusterarch", defaultClusterArch,
 		"Provide the architecture of testing cluster. By default `amd64` will be used.")
