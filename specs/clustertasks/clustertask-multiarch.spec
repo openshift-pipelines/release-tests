@@ -4,7 +4,7 @@ PIPELINES-14
 Pre condition:
   * Validate Operator should be installed
 
-## jib-maven P&Z pipelinerun: PIPELINES-17-TC01
+## jib-maven pipelinerun: PIPELINES-17-TC01
 Tags: linux/amd64, clustertasks, non-admin, jib-maven
 Component: Pipelines
 Level: Integration
@@ -16,13 +16,13 @@ Steps:
   * Create
       |S.NO|resource_dir                                               |
       |----|-----------------------------------------------------------|
-      |1   |testdata/v1beta1/clustertask/pipelines/jib-maven.yaml   |
+      |1   |testdata/v1beta1/clustertask/pipelines/jib-maven.yaml      |
       |2   |testdata/v1beta1/clustertask/pvc/pvc.yaml                  |
-      |3   |testdata/v1beta1/clustertask/pipelineruns/jib-maven.yaml|
+      |3   |testdata/v1beta1/clustertask/pipelineruns/jib-maven.yaml   |
   * Verify pipelinerun
       |S.NO|pipeline_run_name|status    |check_label_propagation|
       |----|-----------------|----------|-----------------------|
-      |1   |jib-maven-run |successful|no                     |
+      |1   |jib-maven-run |successful|no                        |
 
 ## jib-maven P&Z pipelinerun: PIPELINES-17-TC02
 Tags: linux/ppc64le, linux/s390x, clustertasks, non-admin, jib-maven
@@ -62,7 +62,7 @@ Steps:
       |1   |kn-apply-run     |successful|no                     |
 
 ## kn-apply p&z pipelinerun: PIPELINES-17-TC04
-Tags: linux/ppc64le, linux/s390x, clustertasks, non-admin, kn-apply
+Tags: linux/ppc64le, linux/s390x, linux/arm64, clustertasks, non-admin, kn-apply
 Component: Pipelines
 Level: Integration
 Type: Functional
@@ -70,9 +70,9 @@ Importance: Critical
 
 Steps:
   * Create
-      |S.NO|resource_dir                                              |
-      |----|----------------------------------------------------------|
-      |1   |testdata/v1beta1/clustertask/pipelineruns/kn-apply-pz.yaml|
+      |S.NO|resource_dir                                                     |
+      |----|-----------------------------------------------------------------|
+      |1   |testdata/v1beta1/clustertask/pipelineruns/kn-apply-multiarch.yaml|
   * Verify pipelinerun
       |S.NO|pipeline_run_name|status    |check_label_propagation|
       |----|-----------------|----------|-----------------------|
