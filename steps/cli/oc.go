@@ -114,3 +114,7 @@ var _ = gauge.Step("Delete project <projectName>", func(projectName string) {
 	log.Printf("Deleting project %v", projectName)
 	oc.DeleteProject(projectName)
 })
+
+var _ = gauge.Step("Link secret <secret> to service account <sa>", func(secret, sa string) {
+	oc.LinkSecretToSA(secret, sa, store.Namespace())
+})

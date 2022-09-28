@@ -1,0 +1,37 @@
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  name: maven-pipeline
+spec:
+  workspaces:
+  - name: source
+  - name: maven-settings
+  tasks:
+  - name: clone-git-repo
+    taskRef:
+      name: git-clone
+      kind: ClusterTask
+    workspaces:
+    - name: output
+      workspace: source
+    params:
+    - name: url
+      value: https://github.com/jboss-openshift/openshift-quickstarts.git
+    - name: deleteExisting
+      value: "true"
+    - name: subdirectory
+      value: $(context.pipelineRun.name)
+  - name: build
+    taskRef:
+      name: maven
+      kind: ClusterTask
+    params:
+    - name: CONTEXT_DIR
+      value: $(context.pipelineRun.name)/undertow-servlet
+    runAfter:
+    - clone-git-repo
+    workspaces:
+    - name: source
+      workspace: source
+    - name: maven-settings
+      workspace: maven-settings
