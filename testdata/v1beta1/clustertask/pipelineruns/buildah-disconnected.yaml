@@ -1,0 +1,17 @@
+apiVersion: tekton.dev/v1beta1
+kind: PipelineRun
+metadata:
+  name: buildah-disconnected-run
+spec:
+  pipelineRef:
+    name: buildah-pipeline
+  params:
+  - name: REVISION
+    value: fedora-34-dis-1
+  - name: SUBDIR
+    value: buildah-disconnected
+  timeout: 10m
+  workspaces:
+  - name: source
+    persistentVolumeClaim:
+      claimName: shared-pvc

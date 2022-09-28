@@ -1,0 +1,17 @@
+apiVersion: tekton.dev/v1beta1
+kind: PipelineRun
+metadata:
+  name: kn-apply-pz-run
+spec:
+  pipelineSpec:
+    tasks:
+    - name: run-kn-apply
+      taskRef:
+        name: kn-apply
+        kind: ClusterTask
+      params:
+      - name: SERVICE
+        value: "hello-apply"
+      - name: IMAGE
+        value: "quay.io/multi-arch/knative-samples-helloworld-go:latest"
+  timeout: 5m
