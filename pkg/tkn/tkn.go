@@ -130,7 +130,7 @@ func (tkn *Cmd) RunInteractiveTests(namespace string, ops *Prompt) *expect.Conso
 	return c
 }
 
-func StartPipeline(pipelineName string, params map[string]string, workspaces map[string]string, args ...string) string{
+func StartPipeline(pipelineName string, params map[string]string, workspaces map[string]string, args ...string) string {
 	var commandArgs []string
 	commandArgs = append(commandArgs, "tkn", "pipeline", "start", pipelineName, "-o", "name")
 	for key, value := range params {
