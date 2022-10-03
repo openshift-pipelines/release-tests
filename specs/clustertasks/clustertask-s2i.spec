@@ -38,7 +38,7 @@ Steps:
       |1   |testdata/v1beta1/clustertask/pipelines/s2i-dotnet.yaml|
       |2   |testdata/v1beta1/clustertask/pvc/pvc.yaml             |
   * Get tags of the imagestream "dotnet" from namespace "openshift" and store to variable "dotnet-tags"
-  * Start and verify pipeline "s2i-dotnet-pipeline" with param "VERSION" with values stored in variable "dotnet-tags" with workspace "name=source,claimName=shared-pvc"
+  * Start and verify dotnet pipeline "s2i-dotnet-pipeline" with values stored in variable "dotnet-tags" with workspace "name=source,claimName=shared-pvc"
 
 ## S2I golang pipelinerun: PIPELINES-14-TC03
 Tags: e2e, clustertasks, non-admin, s2i
@@ -126,7 +126,7 @@ Steps:
   * Start and verify pipeline "s2i-php-pipeline" with param "VERSION" with values stored in variable "php-tags" with workspace "name=source,claimName=shared-pvc"
 
 ## S2I python pipelinerun: PIPELINES-14-TC08
-Tags: e2e, clustertasks, non-admin, s2i-try
+Tags: e2e, clustertasks, non-admin, s2i
 Component: Pipelines
 Level: Integration
 Type: Functional
