@@ -22,6 +22,4 @@ func GetImageStreamTags(c *clients.Clients, namespace, name string) []string {
 		tagNames = append(tagNames, tag.Name)
 	}
 	return tagNames
-	// fmt.Print(tags)
-
 }
