@@ -74,7 +74,7 @@ Steps:
   * Get tags of the imagestream "java" from namespace "openshift" and store to variable "java-tags"
   * Start and verify pipeline "s2i-java-pipeline" with param "VERSION" with values stored in variable "java-tags" with workspace "name=source,claimName=shared-pvc"
 
-## S2I java pipelinerun: PIPELINES-14-TC05
+## S2I nodejs pipelinerun: PIPELINES-14-TC05
 Tags: e2e, clustertasks, non-admin, s2i
 Component: Pipelines
 Level: Integration
