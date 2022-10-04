@@ -19,6 +19,9 @@ var _ = gauge.Step("Start and verify pipeline <pipelineName> with param <paramNa
 	workspaces := make(map[string]string)
 	workspaces[strings.Split(workspaceValue, ",")[0]] = strings.Split(workspaceValue, ",")[1]
 	for _, value := range values {
+		if value == "latest" {
+			continue
+		}
 		log.Printf("Starting pipeline %s with param %s=%s", pipelineName, paramName, value)
 		params[paramName] = value
 		pipelineRunName := tkn.StartPipeline(pipelineName, params, workspaces, "--use-param-defaults")
