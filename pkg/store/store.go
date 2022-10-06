@@ -62,6 +62,13 @@ func PutScenarioData(key, value string) {
 	gauge.GetScenarioStore()[key] = value
 }
 
+func PutScenarioDataSlice(key string, value []string) {
+	gauge.GetScenarioStore()[key] = value
+}
+
+func GetScenarioDataSlice(key string) []string {
+	return gauge.GetScenarioStore()[key].([]string)
+}
 func GetScenarioData(key string) string {
 	return gauge.GetScenarioStore()[key].(string)
 }
