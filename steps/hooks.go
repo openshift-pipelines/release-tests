@@ -53,9 +53,9 @@ var _ = gauge.AfterScenario(func(exInfo *gauge_messages.ExecutionInfo) {
 	switch c := gauge.GetScenarioStore()["scenario.cleanup"].(type) {
 	case func():
 		if exInfo.CurrentSpec.IsFailed {
-			c()
-		} else {
 			log.Printf("Skipping deletion of namespace %s as the test got failed", store.Namespace())
+		} else {
+			c()
 		}
 	default:
 		testsuit.T.Errorf("Error: return type is not of type func()")
