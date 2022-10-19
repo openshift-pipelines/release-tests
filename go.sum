@@ -356,8 +356,8 @@ github.com/fsouza/fake-gcs-server v1.7.0/go.mod h1:5XIRs4YvwNbNoz+1JF8j6KLAyDh7R
 github.com/fvbommel/sortorder v1.0.1/go.mod h1:uk88iVf1ovNn1iLfgUVU2F9o5eO30ui720w+kxuqRs0=
 github.com/garyburd/redigo v0.0.0-20150301180006-535138d7bcd7/go.mod h1:NR3MbYisc3/PwhQ00EMzDiPmrwpPxAn5GI05/YaO1SY=
 github.com/garyburd/redigo v1.6.0/go.mod h1:NR3MbYisc3/PwhQ00EMzDiPmrwpPxAn5GI05/YaO1SY=
-github.com/getgauge-contrib/gauge-go v0.2.0 h1:UkqEXm+APHC2aswqC9cG9qwEuXNanId/hsOuGiiMx08=
-github.com/getgauge-contrib/gauge-go v0.2.0/go.mod h1:6/Aagmhzq0I878fDXqIkrnzvo3aaTuJ5upVhOQTGL48=
+github.com/getgauge-contrib/gauge-go v0.3.1 h1:MYlgeKSjlnwcxLE13WqZP4/t4utGhKr5UetguSEtj9A=
+github.com/getgauge-contrib/gauge-go v0.3.1/go.mod h1:6/Aagmhzq0I878fDXqIkrnzvo3aaTuJ5upVhOQTGL48=
 github.com/getgauge/common v0.0.0-20160906120419-fce5f398028f/go.mod h1:tHtGp+rvfECQYRDCNQX46uQTO6qHpdDrikX9ZkBjkSA=
 github.com/getgauge/common v0.0.0-20200824023809-24587c106922 h1:/KwwglTNoofndO0RhEPY750erewl4uAL+WbfN+nLkVs=
 github.com/getgauge/common v0.0.0-20200824023809-24587c106922/go.mod h1:e3V+gYeNMZt9gGaHqxwnVAwrewx6uauCqT+IE0vZhM8=

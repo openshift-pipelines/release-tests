@@ -4,7 +4,7 @@ go 1.18
 
 require (
 	github.com/Netflix/go-expect v0.0.0-20201125194554-85d881c3777e
-	github.com/getgauge-contrib/gauge-go v0.2.0
+	github.com/getgauge-contrib/gauge-go v0.3.1
 	github.com/google/go-cmp v0.5.7
 	github.com/openshift/api v0.0.0-20210910062324-a41d3573a3ba
 	github.com/openshift/client-go v0.0.0-20210521082421-73d9475a9142
