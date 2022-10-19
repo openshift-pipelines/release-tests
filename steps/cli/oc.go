@@ -39,9 +39,9 @@ var _ = gauge.Step("Create & Link secret <secret> to service account <sa>", func
 	oc.LinkSecretToSA(secret, sa, store.Namespace())
 })
 
-var _ = gauge.Step("Update pruner config <keepPresence> keep <keep> schedule <schedule> resouces <resources> and <keepSincePresence> keep-since <keepSince>", func(keepPresence, keep, schedule, resouces, keepSincePresence, keepSince string) {
-	resoucesSplit := strings.Split(resouces, ",")
-	resourcesList := strings.Join(resoucesSplit, "\",\"")
+var _ = gauge.Step("Update pruner config <keepPresence> keep <keep> schedule <schedule> resources <resources> and <keepSincePresence> keep-since <keepSince>", func(keepPresence, keep, schedule, resources, keepSincePresence, keepSince string) {
+	resourcesSplit := strings.Split(resources, ",")
+	resourcesList := strings.Join(resourcesSplit, "\",\"")
 	patch_data := ""
 	if keepPresence == "with" && keepSincePresence == "without" {
 		patch_data = fmt.Sprintf("{\"spec\":{\"pruner\":{\"keep\":%s,\"schedule\":\"%s\",\"resources\":[\"%s\"]}}}", keep, schedule, resourcesList)
@@ -55,9 +55,9 @@ var _ = gauge.Step("Update pruner config <keepPresence> keep <keep> schedule <sc
 	oc.UpdateTektonConfig(patch_data)
 })
 
-var _ = gauge.Step("Update pruner config with invalid data <keepPresence> keep <keep> schedule <schedule> resouces <resources> and <keepSincePresence> keep-since <keepSince> and expect error message <errorMessage>", func(keepPresence, keep, schedule, resouces, keepSincePresence, keepSince, errorMessage string) {
-	resoucesSplit := strings.Split(resouces, ",")
-	resourcesList := strings.Join(resoucesSplit, "\",\"")
+var _ = gauge.Step("Update pruner config with invalid data <keepPresence> keep <keep> schedule <schedule> resources <resources> and <keepSincePresence> keep-since <keepSince> and expect error message <errorMessage>", func(keepPresence, keep, schedule, resources, keepSincePresence, keepSince, errorMessage string) {
+	resourcesSplit := strings.Split(resources, ",")
+	resourcesList := strings.Join(resourcesSplit, "\",\"")
 	patch_data := ""
 	if keepPresence == "with" && keepSincePresence == "without" {
 		patch_data = fmt.Sprintf("{\"spec\":{\"pruner\":{\"keep\":%s,\"schedule\":\"%s\",\"resources\":[\"%s\"]}}}", keep, schedule, resourcesList)
