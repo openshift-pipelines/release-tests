@@ -36,16 +36,16 @@ var _ = gauge.BeforeScenario(func(exInfo *gauge_messages.ExecutionInfo) {
 	store["scenario.cleanup"] = cleanup
 	store["targetNamespace"] = config.TargetNamespace
 
-	autoPruneTagPresent := true
+	autoPruneTagPresent := false
 	for _, tag := range exInfo.CurrentScenario.Tags {
 		if tag == "auto-prune" {
-			autoPruneTagPresent = false
+			autoPruneTagPresent = true
+			break
 		}
 	}
 	if !autoPruneTagPresent {
 		oc.AnnotateNamespace(namespace, "operator.tekton.dev/prune.skip=true")
 	}
-	oc.Create("testdata/pvc.yaml", namespace)
 }, []string{}, testsuit.AND)
 
 // Runs After every Secenario
