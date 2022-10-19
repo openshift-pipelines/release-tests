@@ -35,17 +35,6 @@ var _ = gauge.BeforeScenario(func(exInfo *gauge_messages.ExecutionInfo) {
 	store["namespace"] = namespace
 	store["scenario.cleanup"] = cleanup
 	store["targetNamespace"] = config.TargetNamespace
-
-	autoPruneTagPresent := false
-	for _, tag := range exInfo.CurrentScenario.Tags {
-		if tag == "auto-prune" {
-			autoPruneTagPresent = true
-			break
-		}
-	}
-	if !autoPruneTagPresent {
-		oc.AnnotateNamespace(namespace, "operator.tekton.dev/prune.skip=true")
-	}
 }, []string{}, testsuit.AND)
 
 // Runs After every Secenario
@@ -84,6 +73,18 @@ var _ = gauge.BeforeSpec(func(exInfo *gauge_messages.ExecutionInfo) {
 	}
 	store["resources"] = tc.Spec.Pruner.Resources
 	store["schedule"] = tc.Spec.Pruner.Schedule
+
+	// Annotate other namespace with value operator.tekton.dev/prune.skip=true
+	namespaces, err := cs.KubeClient.Kube.CoreV1().Namespaces().List(context.TODO(), metav1.ListOptions{})
+	if err != nil {
+		log.Printf("Warning: Could not annotate other namespace as issue getting namespaces: %v", err)
+	}
+	for _, ns := range namespaces.Items {
+		if ! (strings.HasPrefix("openshift", ns.Name) || strings.HasPrefix("kube", ns.Name)) {
+			oc.AnnotateNamespace(ns.Name, "operator.tekton.dev/prune.skip=true")
+		}
+	}
+
 }, []string{"auto-prune"}, testsuit.AND)
 
 // Revert changes made by pruner tests
