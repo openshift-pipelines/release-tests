@@ -8,8 +8,6 @@ import (
 	"github.com/getgauge-contrib/gauge-go/testsuit"
 	"github.com/openshift-pipelines/release-tests/pkg/cmd"
 	resource "github.com/openshift-pipelines/release-tests/pkg/config"
-	"google.golang.org/genproto/googleapis/api/annotations"
-	"knative.dev/pkg/client/injection/kube/reconciler/core/v1/namespace"
 )
 
 // Create resources using oc command
