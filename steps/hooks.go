@@ -42,7 +42,7 @@ var _ = gauge.AfterScenario(func(exInfo *gauge_messages.ExecutionInfo) {
 	switch c := gauge.GetScenarioStore()["scenario.cleanup"].(type) {
 	case func():
 		if exInfo.CurrentSpec.IsFailed {
-			log.Printf("Skipping deletion of namespace %s as the test got failed", store.Namespace())
+			log.Printf("Skipping deletion of the namespace '%s' as the test got failed", store.Namespace())
 		} else {
 			c()
 		}
@@ -79,9 +79,10 @@ var _ = gauge.BeforeSpec(func(exInfo *gauge_messages.ExecutionInfo) {
 	if err != nil {
 		log.Printf("Warning: Could not annotate other namespace as issue getting namespaces: %v", err)
 	}
+	log.Print("Annotating the namespaces with 'operator.tekton.dev/prune.skip=true' so that the pipelineruns should not get deleted")
 	for _, ns := range namespaces.Items {
-		if ! (strings.HasPrefix("openshift", ns.Name) || strings.HasPrefix("kube", ns.Name)) {
-			oc.AnnotateNamespace(ns.Name, "operator.tekton.dev/prune.skip=true")
+		if !(strings.HasPrefix("openshift", ns.Name) || strings.HasPrefix("kube", ns.Name)) {
+			oc.AnnotateNamespaceIgnoreErrors(ns.Name, "operator.tekton.dev/prune.skip=true")
 		}
 	}
 
