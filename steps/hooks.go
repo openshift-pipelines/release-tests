@@ -81,7 +81,7 @@ var _ = gauge.BeforeSpec(func(exInfo *gauge_messages.ExecutionInfo) {
 	}
 	log.Print("Annotating the namespaces with 'operator.tekton.dev/prune.skip=true' so that the pipelineruns should not get deleted")
 	for _, ns := range namespaces.Items {
-		if !(strings.HasPrefix("openshift", ns.Name) || strings.HasPrefix("kube", ns.Name)) {
+		if !(strings.HasPrefix(ns.Name, "openshift-") || strings.HasPrefix(ns.Name, "kube-")) {
 			oc.AnnotateNamespaceIgnoreErrors(ns.Name, "operator.tekton.dev/prune.skip=true")
 		}
 	}
