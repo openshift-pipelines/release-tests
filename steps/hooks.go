@@ -3,19 +3,22 @@ package steps
 import (
 	"context"
 	"fmt"
+	"log"
 	"strconv"
 	"strings"
 
 	"github.com/getgauge-contrib/gauge-go/gauge"
+	"github.com/getgauge-contrib/gauge-go/gauge_messages"
 	"github.com/getgauge-contrib/gauge-go/testsuit"
 	"github.com/openshift-pipelines/release-tests/pkg/config"
 	"github.com/openshift-pipelines/release-tests/pkg/k8s"
 	"github.com/openshift-pipelines/release-tests/pkg/oc"
+	"github.com/openshift-pipelines/release-tests/pkg/store"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
 // Runs Before every Secenario
-var _ = gauge.BeforeScenario(func() {
+var _ = gauge.BeforeScenario(func(exInfo *gauge_messages.ExecutionInfo) {
 	cs, namespace, cleanup := k8s.NewClientSet()
 	crNames := config.ResourceNames{
 		TektonPipeline:  "pipeline",
@@ -32,22 +35,24 @@ var _ = gauge.BeforeScenario(func() {
 	store["namespace"] = namespace
 	store["scenario.cleanup"] = cleanup
 	store["targetNamespace"] = config.TargetNamespace
-
-	oc.Create("testdata/pvc.yaml", namespace)
 }, []string{}, testsuit.AND)
 
 // Runs After every Secenario
-var _ = gauge.AfterScenario(func() {
+var _ = gauge.AfterScenario(func(exInfo *gauge_messages.ExecutionInfo) {
 	switch c := gauge.GetScenarioStore()["scenario.cleanup"].(type) {
 	case func():
-		c()
+		if exInfo.CurrentSpec.IsFailed {
+			log.Printf("Skipping deletion of the namespace '%s' as the test got failed", store.Namespace())
+		} else {
+			c()
+		}
 	default:
 		testsuit.T.Errorf("Error: return type is not of type func()")
 	}
 }, []string{}, testsuit.AND)
 
 // Store default pruner config
-var _ = gauge.BeforeSpec(func() {
+var _ = gauge.BeforeSpec(func(exInfo *gauge_messages.ExecutionInfo) {
 	cs, _, _ := k8s.NewClientSet()
 
 	tc, err := cs.TektonConfig().Get(context.TODO(), config.TektonConfigName, metav1.GetOptions{})
@@ -68,10 +73,23 @@ var _ = gauge.BeforeSpec(func() {
 	}
 	store["resources"] = tc.Spec.Pruner.Resources
 	store["schedule"] = tc.Spec.Pruner.Schedule
+
+	// Annotate other namespace with value operator.tekton.dev/prune.skip=true
+	namespaces, err := cs.KubeClient.Kube.CoreV1().Namespaces().List(context.TODO(), metav1.ListOptions{})
+	if err != nil {
+		log.Printf("Warning: Could not annotate other namespace as issue getting namespaces: %v", err)
+	}
+	log.Print("Annotating the namespaces with 'operator.tekton.dev/prune.skip=true' so that the pipelineruns should not get deleted")
+	for _, ns := range namespaces.Items {
+		if !(strings.HasPrefix(ns.Name, "openshift-") || strings.HasPrefix(ns.Name, "kube-")) {
+			oc.AnnotateNamespaceIgnoreErrors(ns.Name, "operator.tekton.dev/prune.skip=true")
+		}
+	}
+
 }, []string{"auto-prune"}, testsuit.AND)
 
 // Revert changes made by pruner tests
-var _ = gauge.AfterSpec(func() {
+var _ = gauge.AfterSpec(func(exInfo *gauge_messages.ExecutionInfo) {
 	keep := gauge.GetSpecStore()["keep"]
 	keepSince := gauge.GetSpecStore()["keepSince"]
 	resources := gauge.GetSpecStore()["resources"].([]string)

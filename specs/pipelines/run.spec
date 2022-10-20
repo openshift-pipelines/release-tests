@@ -21,7 +21,8 @@ Steps:
   * Create
       |S.NO|resource_dir                                  |
       |----|----------------------------------------------|
-      |1   |testdata/v1beta1/pipelinerun/pipelinerun.yaml |
+      |1   |testdata/pvc.yaml                             |
+      |2   |testdata/v1beta1/pipelinerun/pipelinerun.yaml |
   * Verify pipelinerun
       |S.NO|pipeline_run_name       |status    |check_label_propagation|
       |----|------------------------|----------|-----------------------|
@@ -75,7 +76,8 @@ Steps:
   * Create
       |S.NO|resource_dir                                 |
       |----|---------------------------------------------|
-      |1   |testdata/v1beta1/pipelinerun/pipelinerun.yaml|
+      |1   |testdata/pvc.yaml                            |
+      |2   |testdata/v1beta1/pipelinerun/pipelinerun.yaml|
   * Verify pipelinerun
       |S.NO|pipeline_run_name       |status   |check_label_propagation|
       |----|------------------------|---------|-----------------------|
