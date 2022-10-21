@@ -13,4 +13,4 @@ spec:
       - name: ARGS
         value:
           - "version"
-  timeout: 1m
+  timeout: 5m
