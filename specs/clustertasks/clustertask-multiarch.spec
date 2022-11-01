@@ -25,7 +25,7 @@ Steps:
       |1   |jib-maven-run |successful|no                        |
 
 ## jib-maven P&Z pipelinerun: PIPELINES-17-TC02
-Tags: linux/ppc64le, linux/s390x, clustertasks, non-admin, jib-maven
+Tags: linux/ppc64le, linux/s390x, linux/arm64, clustertasks, non-admin, jib-maven
 Component: Pipelines
 Level: Integration
 Type: Functional
@@ -38,7 +38,7 @@ Steps:
       |----|-----------------------------------------------------------|
       |1   |testdata/v1beta1/clustertask/pipelines/jib-maven-pz.yaml   |
       |2   |testdata/v1beta1/clustertask/pvc/pvc.yaml                  |
-      |3   |testdata/v1beta1/clustertask/pipelineruns/jib-maven.yaml|
+      |3   |testdata/v1beta1/clustertask/pipelineruns/jib-maven-pz.yaml|
   * Verify pipelinerun
       |S.NO|pipeline_run_name|status    |check_label_propagation|
       |----|-----------------|----------|-----------------------|
@@ -78,7 +78,7 @@ Steps:
   * Verify pipelinerun
       |S.NO|pipeline_run_name|status    |check_label_propagation|
       |----|-----------------|----------|-----------------------|
-      |1   |kn-apply-run     |successful|no                     |
+      |1   |kn-apply-pz-run  |successful|no                     |
 
 ## kn pipelinerun: PIPELINES-17-TC05
 Tags: linux/amd64, clustertasks, non-admin, kn
