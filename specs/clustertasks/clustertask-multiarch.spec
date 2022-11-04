@@ -63,7 +63,7 @@ Steps:
       |1   |kn-apply-run     |successful|no                     |
 
 ## kn-apply p&z pipelinerun: PIPELINES-17-TC04
-Tags: linux/ppc64le, linux/s390x, linux/arm64, clustertasks, non-admin, kn-apply
+Tags: linux/ppc64le, linux/s390x, clustertasks, non-admin, kn-apply
 Component: Pipelines
 Level: Integration
 Type: Functional
