@@ -61,6 +61,13 @@ func ValidateOperatorInstallStatus(cs *clients.Clients, rnames utils.ResourceNam
 	log.Printf("Operator is up\n")
 }
 
+func ValidateChainsNotEnabled(cs *clients.Clients, rnames utils.ResourceNames) {
+	VerifyNoTektonChainCR(cs)
+
+	AssertConfigMapNotPresent(cs, rnames.TargetNamespace, "chains-config")
+	AssertConfigMapNotPresent(cs, rnames.TargetNamespace, "chains-info")
+}
+
 func DeleteTektonConfigCR(cs *clients.Clients, rnames utils.ResourceNames) {
 	EnsureTektonConfigStatusInstalled(cs.TektonConfig(), rnames)
 	TektonConfigCRDelete(cs, rnames)

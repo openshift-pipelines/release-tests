@@ -79,4 +79,7 @@ var _ = gauge.Step("Validate tektoninstallersets status", func() {
 
 var _ = gauge.Step("Validate tektoninstallersets names", func() {
 	k8s.ValidateTektonInstallersetNames(store.Clients())
+
+var _ = gauge.Step("Validate Chains not enabled", func() {
+	operator.ValidateChainsNotEnabled(store.Clients(), store.GetCRNames())
 })
