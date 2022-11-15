@@ -395,7 +395,7 @@ func AssertCronjobNotPresent(c *clients.Clients, cronJobName, namespace string) 
 	fmt.Printf("Cronjob with prefix %v is present in namespace %v", cronJobName, namespace)
 }
 
-func ValidateTektonInstallersets(c *clients.Clients) {
+func ValidateTektonInstallersetStatus(c *clients.Clients) {
 	tis, err := c.Operator.TektonInstallerSets().List(c.Ctx, metav1.ListOptions{})
 	failedInstallersets := make([]string, 0)
 	if err != nil {
