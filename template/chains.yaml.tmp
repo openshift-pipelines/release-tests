@@ -1,0 +1,9 @@
+apiVersion: operator.tekton.dev/v1alpha1
+kind: TektonChain
+metadata:
+  name: chain
+spec:
+  artifacts.taskrun.format: {{.ArtifactsTaskrunFormat}}
+  artifacts.taskrun.storage: {{.ArtifactsTaskrunStorage}}
+  targetNamespace: {{.TargetNamespace}}
+  transparency.enabled: {{.TransparencyEnabled}}
