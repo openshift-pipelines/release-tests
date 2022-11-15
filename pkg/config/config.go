@@ -58,6 +58,9 @@ const (
 	// Name of tkn deployment
 	TknDeployment = "tkn-cli-serve"
 
+	// Name of Chains deployment
+	ChainsControllerName = "tekton-chains-controller"
+
 	// Community Clustertasks
 	CommunityClustertasks = "jib-maven,helm-upgrade-from-source,helm-upgrade-from-repo,trigger-jenkins-job,git-cli,pull-request,kubeconfig-creator,argocd-task-sync-and-wait"
 )

@@ -16,3 +16,6 @@ Importance: Critical
 Steps:
   * Verify ServiceAccount "pipeline" exist
   * Create Chains CR with format "in-toto", storage "oci" and transparency enabled "true"
+  * Validate Chains CR ready status
+  * Validate Chains deployment
+  * Validate Chains config maps

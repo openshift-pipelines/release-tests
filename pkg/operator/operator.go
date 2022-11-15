@@ -61,6 +61,16 @@ func ValidateOperatorInstallStatus(cs *clients.Clients, rnames utils.ResourceNam
 	log.Printf("Operator is up\n")
 }
 
+func ValidateChainsConfigMaps(cs *clients.Clients, rnames utils.ResourceNames) {
+	AssertConfigMapPresent(cs, rnames.TargetNamespace, "chains-config")
+	AssertConfigMapPresent(cs, rnames.TargetNamespace, "chains-info")
+}
+
+func ValidateChainsDeployments(cs *clients.Clients, rnames utils.ResourceNames) {
+	EnsureTektonChainExists(cs.TektonChain(), rnames)
+	k8s.ValidateDeployments(cs, rnames.TargetNamespace, config.ChainsControllerName)
+}
+
 func ValidateChainsNotEnabled(cs *clients.Clients, rnames utils.ResourceNames) {
 	VerifyNoTektonChainCR(cs)
 
