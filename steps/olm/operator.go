@@ -72,3 +72,11 @@ var _ = gauge.Step("Validate tkn server cli deployment", func() {
 	cs := store.Clients()
 	k8s.ValidateDeployments(cs, rnames.TargetNamespace, config.TknDeployment)
 })
+
+var _ = gauge.Step("Validate tektoninstallersets", func() {
+	k8s.ValidateTektonInstallersets(store.Clients())
+})
+
+var _ = gauge.Step("Validate tektoninstallersets names", func() {
+	k8s.ValidateTektonInstallersetNames(store.Clients())
+})

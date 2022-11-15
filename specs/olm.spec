@@ -20,6 +20,8 @@ Steps:
   * Verify TektonAddons Install status
   * Validate RBAC
   * Validate default auto prune cronjob in target namespace
+  * Validate tektoninstallersets
+  * Validate tektoninstallersets names
 
 ## Upgrade openshift-pipelines operator: PIPELINES-09-TC02
 Tags: upgrade, admin
