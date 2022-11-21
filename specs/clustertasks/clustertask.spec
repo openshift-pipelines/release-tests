@@ -115,7 +115,7 @@ Steps:
       |S.NO|pipeline_run_name          |status    |check_label_propagation|
       |----|---------------------------|----------|-----------------------|
       |1   |git-cli-read-private-sa-run|successful|no                     |
-
+      
 ## maven pipelinerun: PIPELINES-16-TC06
 Tags: e2e, clustertasks, non-admin, maven
 Component: Pipelines
@@ -226,3 +226,57 @@ Steps:
       |S.NO|pipeline_run_name|status    |check_label_propagation|
       |----|-----------------|----------|-----------------------|
       |1   |tkn-version-run  |successful|no                     |
+      
+## git-clone read private repo taskrun PIPELINES-16-TC12
+Tags: e2e, clustertasks, non-admin, git-clone
+Component: Pipelines
+Level: Integration
+Type: Functional
+Importance: Critical
+CustomerScenario: yes
+
+Steps:
+  * Verify ServiceAccount "pipeline" exist
+  * Create
+      | S.NO | resource_dir                                                       |
+      |------|--------------------------------------------------------------------|
+      | 1    | testdata/v1beta1/clustertask/pipelines/git-clone-read-private.yaml |
+      | 2    | testdata/v1beta1/clustertask/pvc/pvc.yaml                          |
+      | 3    | testdata/v1beta1/clustertask/secrets/ssh-key.yaml                  |
+  * Link secret "ssh-key" to service account "pipeline"
+  * Create
+      | S.NO | resource_dir                                                          |
+      |------|-----------------------------------------------------------------------|
+      | 1    | testdata/v1beta1/clustertask/pipelineruns/git-clone-read-private.yaml |
+  * Verify pipelinerun
+      | S.NO | pipeline_run_name                   | status     | check_label_propagation |
+      |------|-------------------------------------|------------|-------------------------|
+      | 1    | git-clone-read-private-pipeline-run | successful | no                      |
+
+## git-clone read private repo using different service account taskrun PIPELINES-16-TC13
+Tags: e2e, clustertasks, non-admin, git-clone
+Component: Pipelines
+Level: Integration
+Type: Functional
+Importance: Critical
+
+Steps:
+  * Verify ServiceAccount "pipeline" exist
+  * Create
+      | S.NO | resource_dir                                                       |
+      |------|--------------------------------------------------------------------|
+      | 1    | testdata/v1beta1/clustertask/pipelines/git-clone-read-private.yaml |
+      | 2    | testdata/v1beta1/clustertask/pvc/pvc.yaml                          |
+      | 3    | testdata/v1beta1/clustertask/secrets/ssh-key.yaml                  |
+      | 4    | testdata/v1beta1/clustertask/serviceaccount/ssh-sa.yaml            |
+      | 5    | testdata/v1beta1/clustertask/rolebindings/ssh-sa-scc.yaml          |
+  * Link secret "ssh-key" to service account "ssh-sa"
+  * Create
+      | S.NO | resource_dir                                                             |
+      |------|--------------------------------------------------------------------------|
+      | 1    | testdata/v1beta1/clustertask/pipelineruns/git-clone-read-private-sa.yaml |
+  * Verify pipelinerun
+      | S.NO | pipeline_run_name                      | status     | check_label_propagation |
+      |------|----------------------------------------|------------|-------------------------|
+      | 1    | git-clone-read-private-pipeline-sa-run | successful | no                      |
+      
