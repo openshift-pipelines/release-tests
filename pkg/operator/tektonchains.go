@@ -52,7 +52,7 @@ func WaitForTektonChainState(clients operatorv1alpha1.TektonChainInterface, name
 	})
 
 	if waitErr != nil {
-		return lastState, fmt.Errorf("TektonChain %s is not in desired state, got: %+v: %w", name, lastState, waitErr)
+		return lastState, fmt.Errorf("tektonchain %s is not in desired state, got: %+v: %w", name, lastState, waitErr)
 	}
 	return lastState, nil
 }
@@ -72,11 +72,11 @@ func AssertTektonChainCRReadyStatus(clients *clients.Clients, names config.Resou
 
 func VerifyNoTektonChainCR(clients *clients.Clients) error {
 	log.Print("Verifying that TektonChain CR is not available")
-	addons, err := clients.TektonChain().List(context.TODO(), metav1.ListOptions{})
+	chains, err := clients.TektonChain().List(context.TODO(), metav1.ListOptions{})
 	if err != nil {
 		return err
 	}
-	if len(addons.Items) > 0 {
+	if len(chains.Items) > 0 {
 		return errors.New("unable to verify cluster-scoped resources are deleted if any TektonChain exists")
 	}
 	return nil
