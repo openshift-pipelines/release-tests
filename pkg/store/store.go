@@ -5,8 +5,8 @@ import (
 
 	"github.com/getgauge-contrib/gauge-go/gauge"
 	"github.com/openshift-pipelines/release-tests/pkg/clients"
-	"github.com/openshift-pipelines/release-tests/pkg/config"
 	"github.com/openshift-pipelines/release-tests/pkg/tkn"
+	"github.com/tektoncd/operator/test/utils"
 )
 
 func Namespace() string {
@@ -22,12 +22,12 @@ func Clients() *clients.Clients {
 	}
 }
 
-func GetCRNames() config.ResourceNames {
+func GetCRNames() utils.ResourceNames {
 	switch names := gauge.GetScenarioStore()["crnames"].(type) {
-	case config.ResourceNames:
+	case utils.ResourceNames:
 		return names
 	default:
-		return config.ResourceNames{}
+		return utils.ResourceNames{}
 	}
 }
 

@@ -32,12 +32,13 @@ import (
 
 	"github.com/tektoncd/operator/pkg/apis/operator/v1alpha1"
 	triggerv1alpha1 "github.com/tektoncd/operator/pkg/client/clientset/versioned/typed/operator/v1alpha1"
+	"github.com/tektoncd/operator/test/utils"
 	apierrs "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
 // EnsureTektonTriggerExists creates a TektonTrigger with the name names.TektonTrigger, if it does not exist.
-func EnsureTektonTriggerExists(clients triggerv1alpha1.TektonTriggerInterface, names config.ResourceNames) (*v1alpha1.TektonTrigger, error) {
+func EnsureTektonTriggerExists(clients triggerv1alpha1.TektonTriggerInterface, names utils.ResourceNames) (*v1alpha1.TektonTrigger, error) {
 	// If this function is called by the upgrade tests, we only create the custom resource, if it does not exist.
 	ks, err := clients.Get(context.TODO(), names.TektonTrigger, metav1.GetOptions{})
 	err = wait.Poll(config.APIRetry, config.APITimeout, func() (bool, error) {
@@ -80,7 +81,7 @@ func IsTektonTriggerReady(s *v1alpha1.TektonTrigger, err error) (bool, error) {
 }
 
 // AssertTektonTriggerCRReadyStatus verifies if the TektonTrigger reaches the READY status.
-func AssertTektonTriggerCRReadyStatus(clients *clients.Clients, names config.ResourceNames) {
+func AssertTektonTriggerCRReadyStatus(clients *clients.Clients, names utils.ResourceNames) {
 	if _, err := WaitForTektonTriggerState(clients.TektonTrigger(), names.TektonTrigger,
 		IsTektonTriggerReady); err != nil {
 		assert.FailOnError(fmt.Errorf("TektonTriggerCR %q failed to get to the READY status: %v", names.TektonTrigger, err))
@@ -88,7 +89,7 @@ func AssertTektonTriggerCRReadyStatus(clients *clients.Clients, names config.Res
 }
 
 // TektonTriggerCRDelete deletes tha TektonTrigger to see if all resources will be deleted
-func TektonTriggerCRDelete(clients *clients.Clients, crNames config.ResourceNames) {
+func TektonTriggerCRDelete(clients *clients.Clients, crNames utils.ResourceNames) {
 	if err := clients.TektonTrigger().Delete(context.TODO(), crNames.TektonTrigger, metav1.DeleteOptions{}); err != nil {
 		assert.FailOnError(fmt.Errorf("TektonTrigger %q failed to delete: %v", crNames.TektonTrigger, err))
 	}
