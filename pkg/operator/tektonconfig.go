@@ -31,12 +31,13 @@ import (
 
 	"github.com/tektoncd/operator/pkg/apis/operator/v1alpha1"
 	configv1alpha1 "github.com/tektoncd/operator/pkg/client/clientset/versioned/typed/operator/v1alpha1"
+	"github.com/tektoncd/operator/test/utils"
 	apierrs "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
 // EnsureTektonConfigExists creates a TektonConfig with the name names.TektonConfig, if it does not exist.
-func EnsureTektonConfigExists(clients configv1alpha1.TektonConfigInterface, names config.ResourceNames) (*v1alpha1.TektonConfig, error) {
+func EnsureTektonConfigExists(clients configv1alpha1.TektonConfigInterface, names utils.ResourceNames) (*v1alpha1.TektonConfig, error) {
 	// If this function is called by the upgrade tests, we only create the custom resource, if it does not exist.
 	tcCR, err := clients.Get(context.TODO(), names.TektonConfig, metav1.GetOptions{})
 	if err == nil {
@@ -82,7 +83,7 @@ func IsTektonConfigReady(s *v1alpha1.TektonConfig, err error) (bool, error) {
 	return s.Status.IsReady(), err
 }
 
-func EnsureTektonConfigStatusInstalled(clients configv1alpha1.TektonConfigInterface, names config.ResourceNames) {
+func EnsureTektonConfigStatusInstalled(clients configv1alpha1.TektonConfigInterface, names utils.ResourceNames) {
 	err := wait.PollImmediate(config.APIRetry, config.APITimeout, func() (bool, error) {
 		// Refresh Cluster CR
 		cr, err := EnsureTektonConfigExists(clients, names)
@@ -99,14 +100,14 @@ func EnsureTektonConfigStatusInstalled(clients configv1alpha1.TektonConfigInterf
 }
 
 // AssertTektonConfigCRReadyStatus verifies if the TektonConfig reaches the READY status.
-func AssertTektonConfigCRReadyStatus(clients *clients.Clients, names config.ResourceNames) {
+func AssertTektonConfigCRReadyStatus(clients *clients.Clients, names utils.ResourceNames) {
 	if _, err := WaitForTektonConfigState(clients.TektonConfig(), names.TektonConfig, IsTektonConfigReady); err != nil {
 		assert.FailOnError(fmt.Errorf("TektonConfigCR %q failed to get to the READY status: %v", names.TektonConfig, err))
 	}
 }
 
 // TektonConfigCRDelete deletes tha TektonConfig to see if all resources will be deleted
-func TektonConfigCRDelete(clients *clients.Clients, crNames config.ResourceNames) {
+func TektonConfigCRDelete(clients *clients.Clients, crNames utils.ResourceNames) {
 	if err := clients.TektonConfig().Delete(context.TODO(), crNames.TektonConfig, metav1.DeleteOptions{}); err != nil {
 		assert.FailOnError(fmt.Errorf("TektonConfigCR %q failed to delete: %v", crNames.TektonConfig, err))
 	}

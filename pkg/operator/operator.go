@@ -8,13 +8,14 @@ import (
 	"github.com/openshift-pipelines/release-tests/pkg/k8s"
 	"github.com/openshift-pipelines/release-tests/pkg/olm"
 	"github.com/openshift-pipelines/release-tests/pkg/store"
+	"github.com/tektoncd/operator/test/utils"
 )
 
-func WaitForTektonConfigCR(cs *clients.Clients, rnames config.ResourceNames) {
+func WaitForTektonConfigCR(cs *clients.Clients, rnames utils.ResourceNames) {
 	EnsureTektonConfigExists(cs.TektonConfig(), rnames)
 }
 
-func ValidateRBAC(cs *clients.Clients, rnames config.ResourceNames) {
+func ValidateRBAC(cs *clients.Clients, rnames utils.ResourceNames) {
 	log.Printf("Verifying that TektonConfig status is \"installed\"\n")
 	EnsureTektonConfigStatusInstalled(cs.TektonConfig(), rnames)
 
@@ -26,7 +27,7 @@ func ValidateRBAC(cs *clients.Clients, rnames config.ResourceNames) {
 	AssertRoleBindingPresent(cs, store.Namespace(), "pipelines-scc-rolebinding")
 }
 
-func ValidateRBACAfterDisable(cs *clients.Clients, rnames config.ResourceNames) {
+func ValidateRBACAfterDisable(cs *clients.Clients, rnames utils.ResourceNames) {
 	EnsureTektonConfigStatusInstalled(cs.TektonConfig(), rnames)
 	//Verify `pipelineSa` exists in the existing namespace
 	AssertServiceAccountPesent(cs, store.Namespace(), "pipeline")
@@ -40,31 +41,31 @@ func ValidateRBACAfterDisable(cs *clients.Clients, rnames config.ResourceNames) 
 	AssertRoleBindingNotPresent(cs, store.Namespace(), "pipelines-scc-rolebinding")
 }
 
-func ValidatePipelineDeployments(cs *clients.Clients, rnames config.ResourceNames) {
+func ValidatePipelineDeployments(cs *clients.Clients, rnames utils.ResourceNames) {
 	EnsureTektonPipelineExists(cs.TektonPipeline(), rnames)
 	k8s.ValidateDeployments(cs, rnames.TargetNamespace,
 		config.PipelineControllerName, config.PipelineWebhookName)
 }
 
-func ValidateTriggerDeployments(cs *clients.Clients, rnames config.ResourceNames) {
+func ValidateTriggerDeployments(cs *clients.Clients, rnames utils.ResourceNames) {
 	EnsureTektonTriggerExists(cs.TektonTrigger(), rnames)
 	k8s.ValidateDeployments(cs, rnames.TargetNamespace,
 		config.TriggerControllerName, config.TriggerWebhookName)
 }
 
-func ValidateOperatorInstallStatus(cs *clients.Clients, rnames config.ResourceNames) {
+func ValidateOperatorInstallStatus(cs *clients.Clients, rnames utils.ResourceNames) {
 	log.Printf("Waiting for operator to be up and running....\n")
 	EnsureTektonConfigStatusInstalled(cs.TektonConfig(), rnames)
 	log.Printf("Operator is up\n")
 }
 
-func DeleteTektonConfigCR(cs *clients.Clients, rnames config.ResourceNames) {
+func DeleteTektonConfigCR(cs *clients.Clients, rnames utils.ResourceNames) {
 	EnsureTektonConfigStatusInstalled(cs.TektonConfig(), rnames)
 	TektonConfigCRDelete(cs, rnames)
 }
 
 // Unistall helps you to delete operator and it's traces if any from cluster
-func Uninstall(cs *clients.Clients, rnames config.ResourceNames) {
+func Uninstall(cs *clients.Clients, rnames utils.ResourceNames) {
 	DeleteTektonConfigCR(cs, rnames)
 	k8s.ValidateDeploymentDeletion(cs,
 		rnames.TargetNamespace,
