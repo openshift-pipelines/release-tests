@@ -14,6 +14,7 @@ import (
 	"github.com/openshift-pipelines/release-tests/pkg/k8s"
 	"github.com/openshift-pipelines/release-tests/pkg/oc"
 	"github.com/openshift-pipelines/release-tests/pkg/store"
+	operatorapi "github.com/tektoncd/operator/pkg/apis/operator/v1alpha1"
 	"github.com/tektoncd/operator/test/utils"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
@@ -22,10 +23,10 @@ import (
 var _ = gauge.BeforeScenario(func(exInfo *gauge_messages.ExecutionInfo) {
 	cs, namespace, cleanup := k8s.NewClientSet()
 	crNames := utils.ResourceNames{
-		TektonPipeline:  "pipeline",
-		TektonTrigger:   "trigger",
-		TektonAddon:     "addon",
-		TektonConfig:    config.TektonConfigName,
+		TektonPipeline:  operatorapi.PipelineResourceName,
+		TektonTrigger:   operatorapi.TriggerResourceName,
+		TektonAddon:     operatorapi.AddonResourceName,
+		TektonConfig:    operatorapi.ConfigResourceName,
 		Namespace:       "",
 		TargetNamespace: config.TargetNamespace,
 	}
@@ -56,7 +57,7 @@ var _ = gauge.AfterScenario(func(exInfo *gauge_messages.ExecutionInfo) {
 var _ = gauge.BeforeSpec(func(exInfo *gauge_messages.ExecutionInfo) {
 	cs, _, _ := k8s.NewClientSet()
 
-	tc, err := cs.TektonConfig().Get(context.TODO(), config.TektonConfigName, metav1.GetOptions{})
+	tc, err := cs.TektonConfig().Get(context.TODO(), operatorapi.ConfigResourceName, metav1.GetOptions{})
 	if err != nil {
 		testsuit.T.Errorf("Error: could not get TektonConfig")
 	}
