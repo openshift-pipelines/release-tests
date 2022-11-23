@@ -32,12 +32,13 @@ import (
 
 	"github.com/tektoncd/operator/pkg/apis/operator/v1alpha1"
 	pipelinev1alpha1 "github.com/tektoncd/operator/pkg/client/clientset/versioned/typed/operator/v1alpha1"
+	"github.com/tektoncd/operator/test/utils"
 	apierrs "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
 // EnsureTektonPipelineExists creates a TektonPipeline with the name names.TektonPipeline, if it does not exist.
-func EnsureTektonPipelineExists(clients pipelinev1alpha1.TektonPipelineInterface, names config.ResourceNames) (*v1alpha1.TektonPipeline, error) {
+func EnsureTektonPipelineExists(clients pipelinev1alpha1.TektonPipelineInterface, names utils.ResourceNames) (*v1alpha1.TektonPipeline, error) {
 	// If this function is called by the upgrade tests, we only create the custom resource, if it does not exist.
 	tpCR, err := clients.Get(context.TODO(), names.TektonPipeline, metav1.GetOptions{})
 	if err == nil {
@@ -83,7 +84,7 @@ func IsTektonPipelineReady(s *v1alpha1.TektonPipeline, err error) (bool, error) 
 }
 
 // AssertTektonPipelineCRReadyStatus verifies if the TektonPipeline reaches the READY status.
-func AssertTektonPipelineCRReadyStatus(clients *clients.Clients, names config.ResourceNames) {
+func AssertTektonPipelineCRReadyStatus(clients *clients.Clients, names utils.ResourceNames) {
 	if _, err := WaitForTektonPipelineState(clients.TektonPipeline(), names.TektonPipeline,
 		IsTektonPipelineReady); err != nil {
 		assert.FailOnError(fmt.Errorf("TektonPipelineCR %q failed to get to the READY status: %v", names.TektonPipeline, err))
@@ -91,7 +92,7 @@ func AssertTektonPipelineCRReadyStatus(clients *clients.Clients, names config.Re
 }
 
 // TektonPipelineCRDelete deletes tha TektonPipeline to see if all resources will be deleted
-func TektonPipelineCRDelete(clients *clients.Clients, crNames config.ResourceNames) {
+func TektonPipelineCRDelete(clients *clients.Clients, crNames utils.ResourceNames) {
 	if err := clients.TektonPipeline().Delete(context.TODO(), crNames.TektonPipeline, metav1.DeleteOptions{}); err != nil {
 		assert.FailOnError(fmt.Errorf("TektonPipeline %q failed to delete: %v", crNames.TektonPipeline, err))
 	}

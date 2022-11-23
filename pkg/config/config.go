@@ -199,14 +199,3 @@ func ReadBytes(elem string) ([]byte, error) {
 	}
 	return bytes, nil
 }
-
-// ResourceNames holds names of various resources.
-type ResourceNames struct {
-	TektonPipeline  string
-	TektonTrigger   string
-	TektonDashboard string
-	TektonAddon     string
-	TektonConfig    string
-	Namespace       string
-	TargetNamespace string
-}

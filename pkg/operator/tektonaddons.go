@@ -32,12 +32,13 @@ import (
 
 	"github.com/tektoncd/operator/pkg/apis/operator/v1alpha1"
 	operatorv1alpha1 "github.com/tektoncd/operator/pkg/client/clientset/versioned/typed/operator/v1alpha1"
+	"github.com/tektoncd/operator/test/utils"
 	apierrs "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
 // EnsureTektonAddonExists creates a TektonAddon with the name names.TektonAddon, if it does not exist.
-func EnsureTektonAddonExists(clients operatorv1alpha1.TektonAddonInterface, names config.ResourceNames) (*v1alpha1.TektonAddon, error) {
+func EnsureTektonAddonExists(clients operatorv1alpha1.TektonAddonInterface, names utils.ResourceNames) (*v1alpha1.TektonAddon, error) {
 	// If this function is called by the upgrade tests, we only create the custom resource, if it does not exist.
 	ks, err := clients.Get(context.TODO(), names.TektonAddon, metav1.GetOptions{})
 	err = wait.Poll(config.APIRetry, config.APITimeout, func() (bool, error) {
@@ -79,7 +80,7 @@ func IsTektonAddonReady(s *v1alpha1.TektonAddon, err error) (bool, error) {
 	return s.Status.IsReady(), err
 }
 
-func EnsureTektonAddonsStatusInstalled(clients operatorv1alpha1.TektonAddonInterface, names config.ResourceNames) {
+func EnsureTektonAddonsStatusInstalled(clients operatorv1alpha1.TektonAddonInterface, names utils.ResourceNames) {
 	err := wait.PollImmediate(config.APIRetry, config.APITimeout, func() (bool, error) {
 		// Refresh Cluster CR
 		cr, err := EnsureTektonAddonExists(clients, names)
@@ -96,7 +97,7 @@ func EnsureTektonAddonsStatusInstalled(clients operatorv1alpha1.TektonAddonInter
 }
 
 // AssertTektonAddonCRReadyStatus verifies if the TektonAddon reaches the READY status.
-func AssertTektonAddonCRReadyStatus(clients *clients.Clients, names config.ResourceNames) {
+func AssertTektonAddonCRReadyStatus(clients *clients.Clients, names utils.ResourceNames) {
 	if _, err := WaitForTektonAddonState(clients.TektonAddon(), names.TektonAddon,
 		IsTektonAddonReady); err != nil {
 		assert.FailOnError(fmt.Errorf("TektonAddonCR %q failed to get to the READY status: %v", names.TektonAddon, err))
@@ -104,7 +105,7 @@ func AssertTektonAddonCRReadyStatus(clients *clients.Clients, names config.Resou
 }
 
 // TektonAddonCRDelete deletes tha TektonAddon to see if all resources will be deleted
-func TektonAddonCRDelete(clients *clients.Clients, crNames config.ResourceNames) {
+func TektonAddonCRDelete(clients *clients.Clients, crNames utils.ResourceNames) {
 	if err := clients.TektonAddon().Delete(context.TODO(), crNames.TektonAddon, metav1.DeleteOptions{}); err != nil {
 		assert.FailOnError(fmt.Errorf("TektonAddon %q failed to delete: %v", crNames.TektonAddon, err))
 	}

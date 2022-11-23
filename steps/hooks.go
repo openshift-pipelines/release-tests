@@ -14,13 +14,14 @@ import (
 	"github.com/openshift-pipelines/release-tests/pkg/k8s"
 	"github.com/openshift-pipelines/release-tests/pkg/oc"
 	"github.com/openshift-pipelines/release-tests/pkg/store"
+	"github.com/tektoncd/operator/test/utils"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
 // Runs Before every Secenario
 var _ = gauge.BeforeScenario(func(exInfo *gauge_messages.ExecutionInfo) {
 	cs, namespace, cleanup := k8s.NewClientSet()
-	crNames := config.ResourceNames{
+	crNames := utils.ResourceNames{
 		TektonPipeline:  "pipeline",
 		TektonTrigger:   "trigger",
 		TektonAddon:     "addon",
