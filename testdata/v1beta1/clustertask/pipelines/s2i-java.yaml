@@ -43,3 +43,4 @@ spec:
       value: "true"
     - name: VERSION
       value: $(params.VERSION)
+    retries: 1
