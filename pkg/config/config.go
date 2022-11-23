@@ -31,9 +31,6 @@ const (
 
 	ResourceTimeout = 60 * time.Second
 
-	//TektonConfigName specify the name of tekton config
-	TektonConfigName = "config"
-
 	//TargetNamespace specify the name of Target namespace
 	TargetNamespace = "openshift-pipelines"
 
