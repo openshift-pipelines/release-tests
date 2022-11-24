@@ -62,6 +62,9 @@ const (
 	CommunityClustertasks = "jib-maven,helm-upgrade-from-source,helm-upgrade-from-repo,trigger-jenkins-job,git-cli,pull-request,kubeconfig-creator,argocd-task-sync-and-wait"
 )
 
+// Name prefixes of installerset
+var TektonInstallersetNamePrefixes [14]string = [14]string{"addon-clustertasks", "addon-communityclustertasks", "addon-consolecli", "addon-openshift", "addon-pac", "addon-pipelines", "addon-triggers", "addon-versioned-clustertasks", "pipeline", "postpipeline", "prepipeline", "rhosp-rbac", "trigger", "validating-mutating-webhoook"}
+
 var PrefixesOfDefaultPipelines [9]string = [9]string{"buildah", "s2i-dotnet", "s2i-go", "s2i-java", "s2i-nodejs", "s2i-perl", "s2i-php", "s2i-python", "s2i-ruby"}
 
 // Flags holds the command line flags or defaults for settings in the user's environment.
