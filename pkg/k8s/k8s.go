@@ -394,3 +394,50 @@ func AssertCronjobNotPresent(c *clients.Clients, cronJobName, namespace string) 
 	}
 	fmt.Printf("Cronjob with prefix %v is present in namespace %v", cronJobName, namespace)
 }
+
+func ValidateTektonInstallersetStatus(c *clients.Clients) {
+	tis, err := c.Operator.TektonInstallerSets().List(c.Ctx, metav1.ListOptions{})
+	failedInstallersets := make([]string, 0)
+	if err != nil {
+		assert.FailOnError(fmt.Errorf("Error getting tektoninstallersets: %v", err))
+	}
+
+	for _, is := range tis.Items {
+		log.Printf("Verifying if the installerset %s is in ready state", is.Name)
+		if !is.Status.IsReady() {
+			failedInstallersets = append(failedInstallersets, is.Name)
+		}
+	}
+
+	if len(failedInstallersets) > 0 {
+		assert.FailOnError(fmt.Errorf("The installersets %s is/are not in ready status", strings.Join(failedInstallersets, ",")))
+	}
+	fmt.Print("All the installersets are in ready state")
+}
+
+func ValidateTektonInstallersetNames(c *clients.Clients) {
+	tis, err := c.Operator.TektonInstallerSets().List(c.Ctx, metav1.ListOptions{})
+	if err != nil {
+		assert.FailOnError(fmt.Errorf("Error getting tektoninstallersets: %v", err))
+	}
+	missingInstallersets := make([]string, 0)
+	for _, isp := range config.TektonInstallersetNamePrefixes {
+		log.Printf("Verifying if the installerset with prefix %s is present\n", isp)
+		found := false
+		for _, is := range tis.Items {
+			if strings.HasPrefix(is.Name, isp) {
+				found = true
+				fmt.Printf("Installerset with prefix %s is present\n", isp)
+				break
+			}
+		}
+
+		if !found {
+			missingInstallersets = append(missingInstallersets, isp)
+		}
+	}
+
+	if len(missingInstallersets) > 0 {
+		assert.FailOnError(fmt.Errorf("Installersets with prefix %s is not found", strings.Join(missingInstallersets, ",")))
+	}
+}
