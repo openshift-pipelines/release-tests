@@ -5,7 +5,7 @@ Pre condition:
   * Validate Operator should be installed
 
 ## Disable RBAC resource creation: PIPELINES-11-TC01
-Tags: rbac-disable, admin
+Tags: rbac-disable, admin, e2e, interop, sanity
 Component: Operator
 Level: Integration
 Type: Functional

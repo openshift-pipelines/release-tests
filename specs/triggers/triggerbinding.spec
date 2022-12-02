@@ -5,7 +5,7 @@ Pre condition:
   * Validate Operator should be installed
 
 ## Verify CEL marshaljson function Test: PIPELINES-10-TC01
-Tags: e2e,triggers,non-admin
+Tags: e2e, triggers, non-admin, 
 Component: Triggers
 Level: Integration
 Type: Functional

@@ -5,7 +5,7 @@ Pre condition:
   * Validate Operator should be installed
 
 ## Run sample pipeline: PIPELINES-03-TC01
-Tags: e2e, integration, pipelines, non-admin
+Tags: e2e, pipelines, non-admin, sanity, interop
 Component: Pipelines
 Level: Integration
 Type: Functional
@@ -29,7 +29,7 @@ Steps:
       |1   |output-pipeline-run-v1b1|successful|yes                    |
 
 ## Pipelinerun Timeout failure Test: PIPELINES-03-TC04
-Tags: e2e, integration, pipelines, non-admin
+Tags: e2e, pipelines, non-admin, sanity, interop
 Component: Pipelines
 Level: Integration
 Type: Functional

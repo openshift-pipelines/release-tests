@@ -5,7 +5,7 @@ Pre condition:
   * Validate Operator should be installed
 
 ## buildah pipelinerun: PIPELINES-16-TC01
-Tags: e2e, clustertasks, non-admin, buildah
+Tags: e2e, clustertasks, non-admin, buildah, sanity, interop
 Component: Pipelines
 Level: Integration
 Type: Functional

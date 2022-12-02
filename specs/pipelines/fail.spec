@@ -7,7 +7,7 @@ Precondition:
   * Validate Operator should be installed
 
 ## Run Pipeline with a non-existent ServiceAccount: PIPELINES-02-TC01
-Tags: e2e, pipeline, negative, non-admin
+Tags: e2e, pipeline, negative, non-admin, interop, sanity
 Component: Pipelines
 Pos/Neg: Negative
 Level: Integration

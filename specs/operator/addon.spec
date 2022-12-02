@@ -5,7 +5,7 @@ Pre condition:
   * Validate Operator should be installed
 
 ## Disable/Enable community clustertasks: PIPELINES-15-TC01
-Tags: e2e, integration, clustertasks, admin, addon
+Tags: e2e, integration, clustertasks, admin, addon, sanity, interop
 Component: Pipelines
 Level: Integration
 Type: Functional

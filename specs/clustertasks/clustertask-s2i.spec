@@ -6,7 +6,7 @@ Pre condition:
 
 
 ## S2I nodejs pipelinerun: PIPELINES-14-TC01
-Tags: e2e, clustertasks, non-admin, s2i
+Tags: e2e, clustertasks, non-admin, s2i, sanity, interop
 Component: Pipelines
 Level: Integration
 Type: Functional

@@ -7,7 +7,7 @@ Pre condition:
   * Validate Operator should be installed
 
 ## Verify auto prune for taskrun: PIPELINES-12-TC01
-Tags: e2e, integration, auto-prune, admin
+Tags: e2e, integration, auto-prune, admin, sanity, interop
 Component: Operator
 Level: Integration
 Type: Functional

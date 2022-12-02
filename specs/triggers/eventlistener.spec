@@ -136,7 +136,7 @@ Steps:
   * Verify pipelinerun is "successful"
 
 ## Create Eventlistener with TLS enabled: PIPELINES-05-TC07
-Tags: tls, triggers, admin
+Tags: tls, triggers, admin, interop, e2e, sanity
 Component: Triggers
 Level: Integration
 Type: Functional
