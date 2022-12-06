@@ -168,7 +168,7 @@ func AssertClusterRoleNotPresent(clients *clients.Clients, clusterRoleName strin
 func AssertSCCPresent(clients *clients.Clients, sccName string) {
 	s := scc.NewForConfigOrDie(clients.KubeConfig)
 	err := wait.Poll(config.APIRetry, config.APITimeout, func() (bool, error) {
-		log.Printf("Verifying that security context contstraint %s exists\n", sccName)
+		log.Printf("Verifying that security context constraint %s exists\n", sccName)
 		sccList, err := s.SecurityV1().SecurityContextConstraints().List(clients.Ctx, metav1.ListOptions{})
 		if err != nil {
 			return false, err
@@ -181,7 +181,7 @@ func AssertSCCPresent(clients *clients.Clients, sccName string) {
 		return false, nil
 	})
 	if err != nil {
-		assert.FailOnError(fmt.Errorf("Expected: security context constraint %q present, Actual: secirity context constraint %q not present , Error: %v", sccName, sccName, err))
+		assert.FailOnError(fmt.Errorf("Expected: security context constraint %q present, Actual: security context constraint %q not present , Error: %v", sccName, sccName, err))
 	}
 }
 
@@ -201,6 +201,6 @@ func AssertSCCNotPresent(clients *clients.Clients, sccName string) {
 		return true, err
 	})
 	if err != nil {
-		assert.FailOnError(fmt.Errorf("Expected, secuirty context constraint %q not present, Actual: securit context constraint %q present, Error: %v", sccName, sccName, err))
+		assert.FailOnError(fmt.Errorf("Expected: secuirty context constraint %q not present, Actual: security context constraint %q present, Error: %v", sccName, sccName, err))
 	}
 }
