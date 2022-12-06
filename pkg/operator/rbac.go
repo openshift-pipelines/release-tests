@@ -8,6 +8,7 @@ import (
 	"github.com/openshift-pipelines/release-tests/pkg/assert"
 	"github.com/openshift-pipelines/release-tests/pkg/clients"
 	"github.com/openshift-pipelines/release-tests/pkg/config"
+	scc "github.com/openshift/client-go/security/clientset/versioned"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/util/wait"
 )
@@ -161,5 +162,45 @@ func AssertClusterRoleNotPresent(clients *clients.Clients, clusterRoleName strin
 	})
 	if err != nil {
 		assert.FailOnError(fmt.Errorf("Expected, Clusterrole %v not present, Actual: Clusterrole %v present, Error: %v", clusterRoleName, clusterRoleName, err))
+	}
+}
+
+func AssertSCCPresent(clients *clients.Clients, sccName string) {
+	s := scc.NewForConfigOrDie(clients.KubeConfig)
+	err := wait.Poll(config.APIRetry, config.APITimeout, func() (bool, error) {
+		log.Printf("Verifying that security context contstraint %s exists\n", sccName)
+		sccList, err := s.SecurityV1().SecurityContextConstraints().List(clients.Ctx, metav1.ListOptions{})
+		if err != nil {
+			return false, err
+		}
+		for _, item := range sccList.Items {
+			if item.Name == sccName {
+				return true, nil
+			}
+		}
+		return false, nil
+	})
+	if err != nil {
+		assert.FailOnError(fmt.Errorf("Expected: security context constraint %q present, Actual: secirity context constraint %q not present , Error: %v", sccName, sccName, err))
+	}
+}
+
+func AssertSCCNotPresent(clients *clients.Clients, sccName string) {
+	s := scc.NewForConfigOrDie(clients.KubeConfig)
+	err := wait.Poll(config.APIRetry, config.APITimeout, func() (bool, error) {
+		log.Printf("Verifying that security context constraint %s doesn't exist\n", sccName)
+		sccList, err := s.SecurityV1().SecurityContextConstraints().List(clients.Ctx, metav1.ListOptions{})
+		if err != nil {
+			return false, err
+		}
+		for _, item := range sccList.Items {
+			if item.Name == sccName {
+				return false, nil
+			}
+		}
+		return true, err
+	})
+	if err != nil {
+		assert.FailOnError(fmt.Errorf("Expected, secuirty context constraint %q not present, Actual: securit context constraint %q present, Error: %v", sccName, sccName, err))
 	}
 }
