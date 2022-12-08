@@ -25,6 +25,7 @@ func ValidateRBAC(cs *clients.Clients, rnames utils.ResourceNames) {
 	AssertConfigMapPresent(cs, store.Namespace(), "config-trusted-cabundle")
 	AssertRoleBindingPresent(cs, store.Namespace(), "openshift-pipelines-edit")
 	AssertRoleBindingPresent(cs, store.Namespace(), "pipelines-scc-rolebinding")
+	AssertSCCPresent(cs, "pipelines-scc")
 }
 
 func ValidateRBACAfterDisable(cs *clients.Clients, rnames utils.ResourceNames) {
@@ -39,6 +40,7 @@ func ValidateRBACAfterDisable(cs *clients.Clients, rnames utils.ResourceNames) {
 	//Verify roleBindings is not created in any namespace
 	AssertRoleBindingNotPresent(cs, store.Namespace(), "edit")
 	AssertRoleBindingNotPresent(cs, store.Namespace(), "pipelines-scc-rolebinding")
+	AssertSCCNotPresent(cs, "pipelines-scc")
 }
 
 func ValidatePipelineDeployments(cs *clients.Clients, rnames utils.ResourceNames) {
