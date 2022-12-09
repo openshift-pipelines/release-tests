@@ -92,7 +92,7 @@ func VerifyHealthStatusMetric(cs *clients.Clients, targetService TargetService) 
 		if len(vec) < 1 {
 			return false, nil
 		}
-		log.Printf("Target Job: [%v] ready/up staus, Actual: [%v], Expected: [%+v]", targetService.Job, vec[0].Value.String(), targetService.ExpectedValue)
+		log.Printf("Target Job: [%v] ready/up status, Actual: [%v], Expected: [%+v]", targetService.Job, vec[0].Value.String(), targetService.ExpectedValue)
 		return vec[0].Value.String() == targetService.ExpectedValue, nil
 	}); err != nil {
 		return fmt.Errorf("failed to access the Prometheus API endpoint and get the metric value expected: %w", err)
