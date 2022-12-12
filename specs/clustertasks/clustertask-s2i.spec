@@ -58,7 +58,7 @@ Steps:
   * Start and verify pipeline "s2i-go-pipeline" with param "VERSION" with values stored in variable "golang-tags" with workspace "name=source,claimName=shared-pvc"
 
 ## S2I java pipelinerun: PIPELINES-14-TC04
-Tags: e2e, clustertasks, non-admin, s2i
+Tags: e2e, clustertasks, non-admin, s2i, sanity, interop
 Component: Pipelines
 Level: Integration
 Type: Functional

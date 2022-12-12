@@ -60,7 +60,7 @@ Steps:
 
 
 ## Verify auto prune for pipelinerun and taskrun: PIPELINES-12-TC03
-Tags: e2e, integration, auto-prune, admin
+Tags: e2e, integration, auto-prune, admin, sanity, interop
 Component: Operator
 Level: Integration
 Type: Functional
@@ -86,7 +86,7 @@ Steps:
   * Assert if cronjob with prefix "tekton-resource-pruner" is "not present" in target namespace
 
 ## Verify auto prune with keep-since: PIPELINES-12-TC04
-Tags: e2e, integration, auto-prune, admin
+Tags: e2e, integration, auto-prune, admin, sanity
 Component: Operator
 Level: Integration
 Type: Functional
@@ -118,7 +118,7 @@ Steps:
   * Assert if cronjob with prefix "tekton-resource-pruner" is "not present" in target namespace
 
 ## Verify auto prune skip namespace with annotation: PIPELINES-12-TC05
-Tags: e2e, integration, auto-prune, admin
+Tags: e2e, integration, auto-prune, admin, sanity
 Component: Operator
 Level: Integration
 Type: Functional
@@ -182,7 +182,7 @@ Steps:
 
 
 ## Verify auto prune add resources taskrun and pipelinerun per namespace with annotation: PIPELINES-12-TC07
-Tags: e2e, integration, auto-prune, admin
+Tags: e2e, integration, auto-prune, admin, sanity, interop
 Component: Operator
 Level: Integration
 Type: Functional
@@ -353,7 +353,7 @@ Steps:
   * Assert if cronjob with prefix "tekton-resource-pruner" is "not present" in target namespace
 
 ## Verify auto prune validation: PIPELINES-12-TC12
-Tags: e2e, integration, auto-prune, admin
+Tags: e2e, integration, auto-prune, admin, sanity, interop
 Component: Operator
 Level: Integration
 Type: Functional
@@ -397,7 +397,7 @@ Steps:
   * Assert if values stored in variable "pre-annotation-name" and variable "post-label-removal-name" are "equal"
 
 ## Verify auto prune cronjob contains single container: PIPELINES-12-TC14
-Tags: e2e, integration, auto-prune, admin, cronjob
+Tags: e2e, integration, auto-prune, admin, cronjob, sanity, interop
 Component: Operator
 Level: Integration
 Type: Functional
