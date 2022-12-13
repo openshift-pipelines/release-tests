@@ -21,13 +21,11 @@ Steps:
   * Create
       |S.NO|resource_dir                      |
       |----|----------------------------------|
-      |1   |testdata/negative/v1alpha1/pipelinerun.yaml|
-      |2   |testdata/negative/v1beta1/pipelinerun.yaml |
+      |1   |testdata/negative/v1beta1/pipelinerun.yaml |
   * Verify pipelinerun
        |S.NO|pipeline_run_name     |status |check_label_propagation|
        |----|----------------------|-------|-----------------------|
-       |1   |output-pipeline-run-va|Failure|no                     |
-       |2   |output-pipeline-run-vb|Failure|no                     |
+       |1   |output-pipeline-run-vb|Failure|no                     |
 
 ## Run Task with a non-existent ServiceAccount: PIPELINES-02-TC02
 Tags: e2e, tasks, negative, non-admin
@@ -44,10 +42,8 @@ Steps:
   * Create
       |S.NO|resource_dir                                |
       |----|--------------------------------------------|
-      |1   |testdata/negative/v1alpha1/pull-request.yaml|
-      |2   |testdata/negative/v1beta1/pull-request.yaml |
+      |1   |testdata/negative/v1beta1/pull-request.yaml |
   * Verify taskrun
        |S.NO|task_run_name |status |
        |----|--------------|-------|
-       |1   |pullrequest-va|Failure|
-       |2   |pullrequest-vb|Failure|
+       |1   |pullrequest-vb|Failure|
