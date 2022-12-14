@@ -6,7 +6,7 @@ Pre condition:
 
 
 ## S2I nodejs pipelinerun: PIPELINES-14-TC01
-Tags: e2e, clustertasks, non-admin, s2i, sanity, interop
+Tags: e2e, clustertasks, non-admin, s2i, sanity, interop, skip_linux/amd64
 Component: Pipelines
 Level: Integration
 Type: Functional
@@ -24,7 +24,7 @@ Steps:
       |1   |nodejs-ex-git-pr |successful |no                     |
 
 ## S2I dotnet pipelinerun: PIPELINES-14-TC02
-Tags: e2e, clustertasks, non-admin, s2i
+Tags: e2e, clustertasks, non-admin, s2i, skip_linux/amd64
 Component: Pipelines
 Level: Integration
 Type: Functional
