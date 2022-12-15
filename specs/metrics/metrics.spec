@@ -7,7 +7,7 @@ Precondition:
   * Validate Operator should be installed
 
 ## Openshift pipelines metrics acceptance tests: PIPELINES-01-TC01
-Tags: e2e, metrics, admin, sanity, interop
+Tags: e2e, metrics, admin, sanity
 Component: Operator
 Level: Integration
 Type: Functional

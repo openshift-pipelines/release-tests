@@ -5,7 +5,7 @@ Pre condition:
   * Validate Operator should be installed
 
 ## Create Triggers using k8s cronJob: PIPELINES-04-TC01
-Tags: e2e,triggers,non-admin, sanity, interop
+Tags: e2e,triggers,non-admin, sanity
 Component: Triggers
 Level: Integration
 Type: Functional

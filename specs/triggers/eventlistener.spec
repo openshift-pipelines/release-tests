@@ -136,7 +136,7 @@ Steps:
   * Verify pipelinerun is "successful"
 
 ## Create Eventlistener with TLS enabled: PIPELINES-05-TC07
-Tags: tls, triggers, admin, interop, e2e, sanity
+Tags: tls, triggers, admin, e2e, sanity
 Component: Triggers
 Level: Integration
 Type: Functional
@@ -164,7 +164,7 @@ Steps:
   * Cleanup Triggers
 
 ## Create Eventlistener embedded TriggersBindings specs: PIPELINES-05-TC08
-Tags: e2e, triggers, non-admin, sanity, interop
+Tags: e2e, triggers, non-admin, sanity
 Component: Triggers
 Level: Integration
 Type: Functional
@@ -191,7 +191,7 @@ Steps:
   * Cleanup Triggers
 
 ## Create embedded TriggersTemplate: PIPELINES-05-TC09
-Tags: e2e, triggers, non-admin, sanity, interop
+Tags: e2e, triggers, non-admin, sanity
 Component: Triggers
 Level: Integration
 Type: Functional
@@ -217,7 +217,7 @@ Steps:
   * Cleanup Triggers
 
 ## Create Eventlistener with gitlab interceptor: PIPELINES-05-TC10
-Tags: e2e, triggers, non-admin, sanity, interop
+Tags: e2e, triggers, non-admin, sanity
 Component: Triggers
 Level: Integration
 Type: Functional
@@ -243,7 +243,7 @@ Steps:
   * Cleanup Triggers
 
 ## Create Eventlistener with bitbucket interceptor: PIPELINES-05-TC11
-Tags: e2e, triggers, non-admin, sanity, interop
+Tags: e2e, triggers, non-admin, sanity
 Component: Triggers
 Level: Integration
 Type: Functional
@@ -269,7 +269,7 @@ Steps:
   * Cleanup Triggers
 
 ## Verify Github push event with Embbeded TriggerTemplate using Github-CTB: PIPELINES-05-TC12
-Tags: e2e, triggers, non-admin, sanity, interop
+Tags: e2e, triggers, non-admin, sanity
 Component: Triggers
 Level: Integration
 Type: Functional
@@ -296,7 +296,7 @@ Steps:
   * Cleanup Triggers
 
 ## Verify Github pull_request event with Embbeded TriggerTemplate using Github-CTB: PIPELINES-05-TC13
-Tags: e2e, triggers, non-admin, sanity, interop
+Tags: e2e, triggers, non-admin, sanity
 Component: Triggers
 Level: Integration
 Type: Functional
@@ -350,7 +350,7 @@ Steps:
   * Cleanup Triggers
 
 ## Create TriggersCRD resource with CEL interceptors (overlays): PIPELINES-05-TC15
-Tags: e2e, triggers, non-admin, sanity, interop
+Tags: e2e, triggers, non-admin, sanity
 Component: Triggers
 Level: Integration
 Type: Functional
@@ -380,7 +380,7 @@ Steps:
   * Cleanup Triggers
 
 ## Create multiple Eventlistener with TLS enabled: PIPELINES-05-TC16
-Tags: e2e, tls, triggers, admin, sanity, interop
+Tags: e2e, tls, triggers, admin, sanity
 Component: Triggers
 Level: Integration
 Type: Functional
@@ -421,7 +421,7 @@ Steps:
   * Cleanup Triggers
 
 ## Create Eventlistener with github interceptor And verify Kuberenetes Events: PIPELINES-05-TC17
-Tags: e2e, events, triggers, admin, sanity, interop
+Tags: e2e, events, triggers, admin, sanity
 Component: Triggers
 Level: Integration
 Type: Functional

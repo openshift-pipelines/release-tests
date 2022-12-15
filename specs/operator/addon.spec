@@ -5,7 +5,7 @@ Pre condition:
   * Validate Operator should be installed
 
 ## Disable/Enable community clustertasks: PIPELINES-15-TC01
-Tags: e2e, integration, clustertasks, admin, addon, sanity, interop
+Tags: e2e, integration, clustertasks, admin, addon, sanity
 Component: Pipelines
 Level: Integration
 Type: Functional
@@ -23,7 +23,7 @@ Steps:
   * "tkn,openshift-client" clustertasks are "present"
 
 ## Disable/Enable clustertasks: PIPELINES-15-TC02
-Tags: e2e, integration, clustertasks, admin, addon, sanity, interop
+Tags: e2e, integration, clustertasks, admin, addon, sanity
 Component: Pipelines
 Level: Integration
 Type: Functional
@@ -44,7 +44,7 @@ Steps:
   * Assert pipelines are "present" in "openshift" namespace
 
 ## Disable/Enable pipeline templates: PIPELINES-15-TC03
-Tags: e2e, integration, clustertasks, admin, addon, sanity, interop
+Tags: e2e, integration, clustertasks, admin, addon, sanity
 Component: Pipelines
 Level: Integration
 Type: Functional
@@ -59,7 +59,7 @@ Steps:
   * Assert pipelines are "present" in "openshift" namespace
 
 ## Enable community cluster tasks when clustertask is disabled: PIPELINES-15-TC04
-Tags: e2e, integration, negative, admin, addon, sanity, interop
+Tags: e2e, integration, negative, admin, addon, sanity
 Component: Pipelines
 Level: Integration
 Type: Functional
@@ -70,7 +70,7 @@ Steps:
   * Update addon config with clusterTasks as "false" communityClustertasks as "true" and pipelineTemplates as "false" and expect message "validation failed: communityClusterTasks cannot be true if clusterTask is false"
 
 ## Enable pipeline templates when clustertask is disabled: PIPELINES-15-TC05
-Tags: e2e, integration, negative, admin, addon, sanity, interop
+Tags: e2e, integration, negative, admin, addon, sanity
 Component: Pipelines
 Level: Integration
 Type: Functional

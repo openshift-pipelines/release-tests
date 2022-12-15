@@ -5,7 +5,7 @@ Pre condition:
   * Validate Operator should be installed
 
 ## Verify CEL marshaljson function Test: PIPELINES-10-TC01
-Tags: e2e, triggers, non-admin, sanity, interop
+Tags: e2e, triggers, non-admin, sanity
 Component: Triggers
 Level: Integration
 Type: Functional
@@ -27,7 +27,7 @@ Steps:
   * Cleanup Triggers
 
 ## Verify event message body parsing with old annotation Test: PIPELINES-10-TC02
-Tags: e2e, triggers, non-admin, sanity, interop
+Tags: e2e, triggers, non-admin, sanity
 Component: Triggers
 Level: Integration
 Type: Functional
@@ -49,7 +49,7 @@ Steps:
   * Cleanup Triggers
 
 ## Verify event message body marshalling error Test: PIPELINES-10-TC03
-Tags: e2e, non-admin, sanity, interop
+Tags: e2e, non-admin, sanity
 Component: Triggers
 Level: Integration
 Type: Functional
