@@ -5,7 +5,7 @@
     "PIPELINES-04": "specs/triggers/cron.spec",
     "PIPELINES-05": "specs/triggers/eventlistener.spec",
     "PIPELINES-06": "specs/triggers/tutorial.spec",
-    "PIPELINES-07": "specs/triggers/v1alpha1.spec",
+    "PIPELINES-07": "specs/triggers/v1alpha1.spec (removed)",
     "PIPELINES-08": "specs/icon.spec",
     "PIPELINES-09": "specs/olm.spec",
     "PIPELINES-10": "specs/triggers/triggerbinding.spec",
