@@ -107,8 +107,8 @@ func validatePipelineRunTimeoutFailure(c *clients.Clients, prname, namespace str
 		wg.Add(1)
 		go func(name string) {
 			defer wg.Done()
-			err := wait.WaitForTaskRunState(c, name, wait.FailedWithReason(v1beta1.TaskRunReasonTimedOut.String(), name), "TaskRunTimeout")
-			assert.NoError(err, fmt.Sprintf("Error waiting for TaskRun %s to timeout: %s", name, err))
+			err := wait.WaitForTaskRunState(c, name, wait.FailedWithReason(v1beta1.TaskRunReasonCancelled.String(), name), v1beta1.TaskRunReasonCancelled.String())
+			assert.NoError(err, fmt.Sprintf("Error waiting for TaskRun %s to be cancelled on pipeline timeout: %s", name, err))
 		}(taskrunItem.Name)
 	}
 	wg.Wait()
