@@ -18,6 +18,7 @@ and verify that it runs succesfully
 
 Steps:
   * Verify ServiceAccount "pipeline" exist
+  * Verify that image stream "golang" exists
   * Create
       |S.NO|resource_dir                                  |
       |----|----------------------------------------------|

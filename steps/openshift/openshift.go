@@ -10,3 +10,7 @@ var _ = gauge.Step("Get tags of the imagestream <imageStream> from namespace <na
 	tagNames := openshift.GetImageStreamTags(store.Clients(), namespace, imageStream)
 	store.PutScenarioDataSlice(variableName, tagNames)
 })
+
+var _ = gauge.Step("Verify that image stream <is> exists", func(is string) {
+	openshift.VerifyImageStreamExists(store.Clients(), is, "openshift")
+})
