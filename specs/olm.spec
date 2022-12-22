@@ -2,7 +2,7 @@ PIPELINES-09
 # Olm Openshift Pipelines operator specs
 
 ## Install openshift-pipelines operator: PIPELINES-09-TC01
-Tags: install, admin
+Tags: install, admin, sanity
 Component: Operator
 Level: Integration
 Type: Functional

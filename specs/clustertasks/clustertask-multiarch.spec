@@ -5,7 +5,7 @@ Pre condition:
   * Validate Operator should be installed
 
 ## jib-maven pipelinerun: PIPELINES-17-TC01
-Tags: linux/amd64, clustertasks, non-admin, jib-maven
+Tags: e2e, linux/amd64, clustertasks, non-admin, jib-maven
 Component: Pipelines
 Level: Integration
 Type: Functional
@@ -25,7 +25,7 @@ Steps:
       |1   |jib-maven-run |successful|no                        |
 
 ## jib-maven P&Z pipelinerun: PIPELINES-17-TC02
-Tags: linux/ppc64le, linux/s390x, linux/arm64, clustertasks, non-admin, jib-maven
+Tags: e2e, linux/ppc64le, linux/s390x, linux/arm64, clustertasks, non-admin, jib-maven
 Component: Pipelines
 Level: Integration
 Type: Functional
@@ -45,7 +45,7 @@ Steps:
       |1   |jib-maven-pz-run |successful|no                     |
 
 ## kn-apply pipelinerun: PIPELINES-17-TC03
-Tags: linux/amd64, clustertasks, non-admin, kn-apply
+Tags: e2e, linux/amd64, clustertasks, non-admin, kn-apply, sanity
 Component: Pipelines
 Level: Integration
 Type: Functional
@@ -63,7 +63,7 @@ Steps:
       |1   |kn-apply-run     |successful|no                     |
 
 ## kn-apply p&z pipelinerun: PIPELINES-17-TC04
-Tags: linux/ppc64le, linux/s390x, clustertasks, non-admin, kn-apply
+Tags: e2e, linux/ppc64le, linux/s390x, clustertasks, non-admin, kn-apply, sanity
 Component: Pipelines
 Level: Integration
 Type: Functional
@@ -81,7 +81,7 @@ Steps:
       |1   |kn-apply-pz-run  |successful|no                     |
 
 ## kn pipelinerun: PIPELINES-17-TC05
-Tags: linux/amd64, clustertasks, non-admin, kn
+Tags: e2e, linux/amd64, clustertasks, non-admin, kn, sanity
 Component: Pipelines
 Level: Integration
 Type: Functional
@@ -99,7 +99,7 @@ Steps:
       |1   |kn-run           |successful|no                     |
 
 ## kn p&z pipelinerun: PIPELINES-17-TC06
-Tags: linux/ppc64le, linux/s390x, clustertasks, non-admin, kn
+Tags: e2e, linux/ppc64le, linux/s390x, clustertasks, non-admin, kn, sanity
 Component: Pipelines
 Level: Integration
 Type: Functional
