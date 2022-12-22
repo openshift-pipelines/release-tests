@@ -5,7 +5,7 @@ Pre condition:
   * Validate Operator should be installed
 
 ## buildah pipelinerun: PIPELINES-16-TC01
-Tags: e2e, clustertasks, non-admin, buildah
+Tags: e2e, clustertasks, non-admin, buildah, sanity
 Component: Pipelines
 Level: Integration
 Type: Functional
@@ -228,7 +228,7 @@ Steps:
       |1   |tkn-version-run  |successful|no                     |
       
 ## git-clone read private repo taskrun PIPELINES-16-TC12
-Tags: e2e, clustertasks, non-admin, git-clone
+Tags: e2e, clustertasks, non-admin, git-clone, sanity
 Component: Pipelines
 Level: Integration
 Type: Functional

@@ -7,7 +7,7 @@ Precondition:
   * Validate Operator should be installed
 
 ## Run Pipeline with a non-existent ServiceAccount: PIPELINES-02-TC01
-Tags: e2e, pipeline, negative, non-admin
+Tags: e2e, pipeline, negative, non-admin, sanity
 Component: Pipelines
 Pos/Neg: Negative
 Level: Integration
@@ -30,7 +30,7 @@ Steps:
        |2   |output-pipeline-run-vb|Failure|no                     |
 
 ## Run Task with a non-existent ServiceAccount: PIPELINES-02-TC02
-Tags: e2e, tasks, negative, non-admin
+Tags: e2e, tasks, negative, non-admin, sanity
 Component: Pipelines
 Pos/Neg: Negative
 Level: Integration
