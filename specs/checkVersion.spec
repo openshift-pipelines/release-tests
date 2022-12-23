@@ -2,14 +2,14 @@
 
 ## Scenarion for testing pipeline version
 
-tags: allversioncheck
+tags: e2e
 
 This is the a comment for the scenario
 we are passing a spec table for the verification.
 
-* All tkn version should be as below 
+* Verify component versions 
 
-   |Tool      |Version    |
+   |component |Version    |
    |----------|-----------|
    |Client    |0.26.1     |
    |Pipeline  |0.37.5     |

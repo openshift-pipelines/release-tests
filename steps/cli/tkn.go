@@ -58,15 +58,13 @@ var _ = gauge.Step("Start and verify dotnet pipeline <pipelineName> with values 
 	}
 })
 
-var _ = gauge.Step("All tkn version should be as below <table>", func(tbl *m.Table) {
+var _ = gauge.Step("Verify component versions <table>", func(tbl *m.Table) {
+	tkn_version_map := tkn.UpdateVersionsMap()
 	for _, row := range tbl.Rows {
 		tool := strings.ToLower(row.Cells[0])
 		expectedVersion := strings.ReplaceAll(strings.ToLower(row.Cells[1]), `v`, ``)
-		if tkn.Tkn_version_map[tool] == `` {
-			tkn.UpdateVersionsMap()
-		}
-		if tkn.Tkn_version_map[tool] != expectedVersion {
-			testsuit.T.Fail(fmt.Errorf("version mismatch for tool :  %v - got: %v, want: %v", tool, tkn.Tkn_version_map[tool], expectedVersion))
+		if tkn_version_map[tool] != expectedVersion {
+			testsuit.T.Fail(fmt.Errorf("version mismatch for tool :  %v - got: %v, want: %v", tool, tkn_version_map[tool], expectedVersion))
 		}
 	}
 })

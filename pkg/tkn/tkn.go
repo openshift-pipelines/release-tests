@@ -149,20 +149,15 @@ func StartPipeline(pipelineName string, params map[string]string, workspaces map
 	return pipelineRunName
 }
 
-var Tkn_version_map map[string]string
-
-func UpdateVersionsMap() {
-	out, err := exec.Command("tkn", "version").Output()
-	// tkn_version_map := map[string]string{}
-	if err != nil {
-		testsuit.T.Fail(fmt.Errorf("Error getting tkn version : %s", err))
-	} else {
-		temp_string_list := []string{}
-		re := regexp.MustCompile(`([a-zA-Z ]*)\s*:\s*v*([0-9\.]*)`)
-		op_temp := re.FindAllString(strings.ToLower(string(out)), -1)
-		for _, s1 := range op_temp {
-			temp_string_list = strings.Split(s1, `:`)
-			Tkn_version_map[strings.Trim(strings.Split(temp_string_list[0], ` `)[0], ` `)] = strings.Trim(strings.ReplaceAll(temp_string_list[1], `v`, ``), ` `)
-		}
+func UpdateVersionsMap() map[string]string {
+	var tkn_version_map map[string]string
+	out := cmd.MustSucceed("tkn", "version").Stdout()
+	temp_string_list := []string{}
+	re := regexp.MustCompile(`([a-zA-Z ]*)\s*:\s*v*([0-9\.]*)`)
+	op_temp := re.FindAllString(strings.ToLower(string(out)), -1)
+	for _, s1 := range op_temp {
+		temp_string_list = strings.Split(s1, `:`)
+		tkn_version_map[strings.Trim(strings.Split(temp_string_list[0], ` `)[0], ` `)] = strings.Trim(strings.ReplaceAll(temp_string_list[1], `v`, ``), ` `)
 	}
+	return tkn_version_map
 }
