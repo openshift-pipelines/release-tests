@@ -1,6 +1,7 @@
 package cli
 
 import (
+	"fmt"
 	"log"
 	"strconv"
 	"strings"
@@ -8,6 +9,8 @@ import (
 	"regexp"
 
 	"github.com/getgauge-contrib/gauge-go/gauge"
+	m "github.com/getgauge-contrib/gauge-go/models"
+	"github.com/getgauge-contrib/gauge-go/testsuit"
 	"github.com/openshift-pipelines/release-tests/pkg/pipelines"
 	"github.com/openshift-pipelines/release-tests/pkg/store"
 	"github.com/openshift-pipelines/release-tests/pkg/tkn"
@@ -52,5 +55,18 @@ var _ = gauge.Step("Start and verify dotnet pipeline <pipelineName> with values 
 		log.Printf("Starting pipeline %s with param %s=%s and EXAMPLE_REVISION=%s", pipelineName, paramName, value, params["EXAMPLE_REVISION"])
 		pipelineRunName := tkn.StartPipeline(pipelineName, params, workspaces, "--use-param-defaults")
 		pipelines.ValidatePipelineRun(store.Clients(), pipelineRunName, "successful", "no", store.Namespace())
+	}
+})
+
+var _ = gauge.Step("All tkn version should be as below <table>", func(tbl *m.Table) {
+	for _, row := range tbl.Rows {
+		tool := strings.ToLower(row.Cells[0])
+		expectedVersion := strings.ReplaceAll(strings.ToLower(row.Cells[1]), `v`, ``)
+		if tkn.Tkn_version_map[tool] == `` {
+			tkn.UpdateVersionsMap()
+		}
+		if tkn.Tkn_version_map[tool] != expectedVersion {
+			testsuit.T.Fail(fmt.Errorf("version mismatch for tool :  %v - got: %v, want: %v", tool, tkn.Tkn_version_map[tool], expectedVersion))
+		}
 	}
 })
