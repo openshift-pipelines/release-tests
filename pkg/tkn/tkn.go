@@ -150,7 +150,7 @@ func StartPipeline(pipelineName string, params map[string]string, workspaces map
 }
 
 func UpdateVersionsMap() map[string]string {
-	var tkn_version_map map[string]string
+	tkn_version_map := map[string]string{}
 	out := cmd.MustSucceed("tkn", "version").Stdout()
 	temp_string_list := []string{}
 	re := regexp.MustCompile(`([a-zA-Z ]*)\s*:\s*v*([0-9\.]*)`)
