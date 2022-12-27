@@ -49,7 +49,7 @@ Steps:
   * Cleanup Triggers
 
 ## Verify event message body marshalling error Test: PIPELINES-10-TC03
-Tags: e2e, non-admin, sanity
+Tags: bug-to-fix, non-admin
 Component: Triggers
 Level: Integration
 Type: Functional
