@@ -1,7 +1,6 @@
 package openshift
 
 import (
-	"fmt"
 	"log"
 
 	"github.com/getgauge-contrib/gauge-go/testsuit"
@@ -14,7 +13,7 @@ import (
 )
 
 func GetImageStreamTags(c *clients.Clients, namespace, name string) []string {
-	fmt.Printf("Getting imagestream from the namespace %s", namespace)
+	log.Printf("Getting imagestream from the namespace %s", namespace)
 	is := imageStream.NewForConfigOrDie(c.KubeConfig)
 	isRequired, err := is.ImageV1().ImageStreams(namespace).Get(c.Ctx, name, v1.GetOptions{})
 	if err != nil {

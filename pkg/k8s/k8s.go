@@ -33,8 +33,8 @@ import (
 )
 
 // NewClientSet is a setup function which helps you
-// 	1. to creates clientSet instance to `client`
-// 	2. creates Random namespace
+// 1. to create clientSet instance to `client`
+// 2. to create a namespace with random name
 func NewClientSet() (*clients.Clients, string, func()) {
 	// TODO: fix this; method is in k8s but returns client.Clients
 	ns := names.SimpleNameGenerator.RestrictLengthWithRandomSuffix("releasetest")
@@ -372,7 +372,7 @@ func AssertCronjobPresent(c *clients.Clients, cronJobName, namespace string) {
 	if err != nil {
 		assert.FailOnError(fmt.Errorf("Expected: cronjob with prefix %v present in namespace %v, Actual: cronjob with prefix %v not present in namespace %v", cronJobName, namespace, cronJobName, namespace))
 	}
-	fmt.Printf("Cronjob with prefix %v is present in namespace %v", cronJobName, namespace)
+	log.Printf("Cronjob with prefix %v is present in namespace %v", cronJobName, namespace)
 }
 
 func AssertCronjobNotPresent(c *clients.Clients, cronJobName, namespace string) {
@@ -392,7 +392,7 @@ func AssertCronjobNotPresent(c *clients.Clients, cronJobName, namespace string) 
 	if err != nil {
 		assert.FailOnError(fmt.Errorf("Expected: cronjob with prefix %v present in namespace %v, Actual: cronjob with prefix %v not present in namespace %v", cronJobName, namespace, cronJobName, namespace))
 	}
-	fmt.Printf("Cronjob with prefix %v is present in namespace %v", cronJobName, namespace)
+	log.Printf("Cronjob with prefix %v is present in namespace %v", cronJobName, namespace)
 }
 
 func ValidateTektonInstallersetStatus(c *clients.Clients) {
@@ -412,7 +412,7 @@ func ValidateTektonInstallersetStatus(c *clients.Clients) {
 	if len(failedInstallersets) > 0 {
 		assert.FailOnError(fmt.Errorf("The installersets %s is/are not in ready status", strings.Join(failedInstallersets, ",")))
 	}
-	fmt.Print("All the installersets are in ready state")
+	log.Print("All the installersets are in ready state")
 }
 
 func ValidateTektonInstallersetNames(c *clients.Clients) {
@@ -427,7 +427,7 @@ func ValidateTektonInstallersetNames(c *clients.Clients) {
 		for _, is := range tis.Items {
 			if strings.HasPrefix(is.Name, isp) {
 				found = true
-				fmt.Printf("Installerset with prefix %s is present\n", isp)
+				log.Printf("Installerset with prefix %s is present\n", isp)
 				break
 			}
 		}
