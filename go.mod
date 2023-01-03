@@ -6,8 +6,8 @@ require (
 	github.com/Netflix/go-expect v0.0.0-20201125194554-85d881c3777e
 	github.com/getgauge-contrib/gauge-go v0.3.1
 	github.com/google/go-cmp v0.5.9
-	github.com/openshift/api v0.0.0-20210910062324-a41d3573a3ba
-	github.com/openshift/client-go v0.0.0-20210521082421-73d9475a9142
+	github.com/openshift/api v0.0.0-20220525145417-ee5b62754c68
+	github.com/openshift/client-go v0.0.0-20220603133046-984ee5ebedcf
 	github.com/operator-framework/api v0.10.3
 	github.com/operator-framework/operator-lifecycle-manager v0.18.3
 	github.com/pkg/errors v0.9.1
