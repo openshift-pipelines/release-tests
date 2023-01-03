@@ -2,6 +2,7 @@ package olm
 
 import (
 	"fmt"
+	"log"
 	"sync"
 
 	"github.com/getgauge-contrib/gauge-go/gauge"
@@ -9,6 +10,7 @@ import (
 	"github.com/openshift-pipelines/release-tests/pkg/config"
 	"github.com/openshift-pipelines/release-tests/pkg/k8s"
 	"github.com/openshift-pipelines/release-tests/pkg/olm"
+	"github.com/openshift-pipelines/release-tests/pkg/openshift"
 	"github.com/openshift-pipelines/release-tests/pkg/operator"
 	"github.com/openshift-pipelines/release-tests/pkg/store"
 )
@@ -70,7 +72,12 @@ var _ = gauge.Step("Validate PAC deployment", func() {
 var _ = gauge.Step("Validate tkn server cli deployment", func() {
 	rnames := store.GetCRNames()
 	cs := store.Clients()
-	k8s.ValidateDeployments(cs, rnames.TargetNamespace, config.TknDeployment)
+
+	if openshift.IsCapabilityEnabled(cs, "Console") {
+		k8s.ValidateDeployments(cs, rnames.TargetNamespace, config.TknDeployment)
+	} else {
+		log.Printf("OpenShift Console is not enabled, skipping validation of tkn serve CLI deployment")
+	}
 })
 
 var _ = gauge.Step("Validate tektoninstallersets status", func() {

@@ -40,6 +40,7 @@ type Clients struct {
 	OLM                    olmversioned.Interface
 	Route                  routev1.RouteV1Interface
 	ProxyConfig            configV1.ConfigV1Interface
+	ClusterVersion         configV1.ClusterVersionInterface
 	ConsoleCLIDownload     consolev1.ConsoleCLIDownloadInterface
 	MonitoringClient       monclientv1.MonitoringV1Interface
 	Tekton                 pversioned.Interface
@@ -109,6 +110,7 @@ func NewClients(configPath string, clusterName, namespace string) (*Clients, err
 	clients.PipelineResourceClient = rcs.TektonV1alpha1().PipelineResources(namespace)
 	clients.Route = routev1.NewForConfigOrDie(clients.KubeConfig)
 	clients.ProxyConfig = configV1.NewForConfigOrDie(clients.KubeConfig)
+	clients.ClusterVersion = configV1.NewForConfigOrDie(clients.KubeConfig).ClusterVersions()
 	clients.ConsoleCLIDownload = consolev1.NewForConfigOrDie(clients.KubeConfig).ConsoleCLIDownloads()
 	clients.ClustertaskClient = clients.Tekton.TektonV1beta1().ClusterTasks()
 	if err != nil {
