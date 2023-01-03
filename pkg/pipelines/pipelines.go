@@ -282,7 +282,7 @@ func AssertPipelinesPresent(c *clients.Clients, namespace string) {
 		p, _ := pclient.List(c.Ctx, metav1.ListOptions{})
 		assert.FailOnError(fmt.Errorf("Expected: %v pipelines present in namespace %v, Actual: %v pipelines present in namespace %v , Error: %v", expectedNumberOfPipelines, namespace, len(p.Items), namespace, err))
 	}
-	fmt.Printf("Pipelines are present in namespace %v", namespace)
+	log.Printf("Pipelines are present in namespace %v", namespace)
 }
 
 func AssertPipelinesNotPresent(c *clients.Clients, namespace string) {
@@ -299,5 +299,5 @@ func AssertPipelinesNotPresent(c *clients.Clients, namespace string) {
 		p, _ := pclient.List(c.Ctx, metav1.ListOptions{})
 		assert.FailOnError(fmt.Errorf("Expected: %v number of pipelines present in namespace %v, Actual: %v number of pipelines present in namespace %v , Error: %v", 0, namespace, len(p.Items), namespace, err))
 	}
-	fmt.Printf("Pipelines are present in namespace %v", namespace)
+	log.Printf("Pipelines are present in namespace %v", namespace)
 }
