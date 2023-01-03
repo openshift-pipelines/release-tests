@@ -14,6 +14,7 @@ import (
 	"github.com/openshift-pipelines/release-tests/pkg/clients"
 	"github.com/openshift-pipelines/release-tests/pkg/config"
 	"github.com/openshift-pipelines/release-tests/pkg/oc"
+	"github.com/openshift-pipelines/release-tests/pkg/openshift"
 	"github.com/openshift-pipelines/release-tests/pkg/store"
 	w "github.com/openshift-pipelines/release-tests/pkg/wait"
 	secv1 "github.com/openshift/api/security/v1"
@@ -422,6 +423,12 @@ func ValidateTektonInstallersetNames(c *clients.Clients) {
 	}
 	missingInstallersets := make([]string, 0)
 	for _, isp := range config.TektonInstallersetNamePrefixes {
+		if !openshift.IsCapabilityEnabled(c, "Console") &&
+			(isp == "addon-custom-consolecli" || isp == "addon-custom-openshiftconsole") {
+			log.Printf("OpenShift Console is not enabled, skipping validation of installer set %s", isp)
+			continue
+		}
+
 		log.Printf("Verifying if the installerset with prefix %s is present\n", isp)
 		found := false
 		for _, is := range tis.Items {

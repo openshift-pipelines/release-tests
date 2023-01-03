@@ -45,8 +45,6 @@ func VerifyImageStreamExists(c *clients.Clients, name, namespace string) {
 }
 
 func IsCapabilityEnabled(c *clients.Clients, name string) bool {
-	log.Printf("Checking if OpenShift capability %s is enabled", name)
-
 	cv, err := c.ClusterVersion.Get(c.Ctx, "version", metav1.GetOptions{})
 	assert.NoError(err, "Could not get ClusterVersion instance\n")
 
