@@ -6,7 +6,6 @@ import (
 	"time"
 
 	"github.com/getgauge-contrib/gauge-go/testsuit"
-	"github.com/openshift-pipelines/release-tests/pkg/assert"
 	"github.com/openshift-pipelines/release-tests/pkg/clients"
 	"github.com/tektoncd/pipeline/pkg/apis/pipeline"
 	"github.com/tektoncd/pipeline/pkg/apis/pipeline/v1beta1"
@@ -57,10 +56,14 @@ func checkLabelPropagation(c *clients.Clients, namespace string, pipelineRunName
 
 	// Check label propagation to PipelineRuns.
 	pr, err := c.PipelineRunClient.Get(c.Ctx, pipelineRunName, metav1.GetOptions{})
-	assert.NoError(err, fmt.Sprintf("Couldn't get expected PipelineRun for %s: %s", tr.Name, err))
+	if err != nil {
+		testsuit.T.Errorf("failed to get pipeline run for task run %s \n %v", tr.Name, err)
+	}
 
 	p, err := c.PipelineClient.Get(c.Ctx, pr.Spec.PipelineRef.Name, metav1.GetOptions{})
-	assert.NoError(err, fmt.Sprintf("Couldn't get expected Pipeline for %s: %s", pr.Name, err))
+	if err != nil {
+		testsuit.T.Errorf("failed to get pipeline for pipeline run %s \n %v", pr.Name, err)
+	}
 
 	// By default, controller doesn't add any labels to Pipelines
 	for key, val := range p.ObjectMeta.Labels {
@@ -79,7 +82,10 @@ func checkLabelPropagation(c *clients.Clients, namespace string, pipelineRunName
 	labels[pipeline.PipelineRunLabelKey] = pr.Name
 	if tr.Spec.TaskRef != nil {
 		task, err := c.TaskClient.Get(c.Ctx, tr.Spec.TaskRef.Name, metav1.GetOptions{})
-		assert.NoError(err, fmt.Sprintf("Couldn't get expected Task for %s: %s", tr.Name, err))
+		if err != nil {
+			testsuit.T.Errorf("failed to get task for task run %s \n %v", tr.Name, err)
+		}
+
 		// By default, controller doesn't add any labels to Tasks
 		for key, val := range task.ObjectMeta.Labels {
 			labels[key] = val
@@ -107,9 +113,15 @@ func checkAnnotationPropagation(c *clients.Clients, namespace string, pipelineRu
 
 	// Check annotation propagation to PipelineRuns.
 	pr, err := c.PipelineRunClient.Get(c.Ctx, pipelineRunName, metav1.GetOptions{})
-	assert.NoError(err, fmt.Sprintf("Couldn't get expected PipelineRun for %s: %s", tr.Name, err))
+	if err != nil {
+		testsuit.T.Errorf("failed to get pipeline run for task run %s \n %v", tr.Name, err)
+	}
+
 	p, err := c.PipelineClient.Get(c.Ctx, pr.Spec.PipelineRef.Name, metav1.GetOptions{})
-	assert.NoError(err, fmt.Sprintf("Couldn't get expected Pipeline for %s: %s", pr.Name, err))
+	if err != nil {
+		testsuit.T.Errorf("failed to get pipeline for pipeline run %s \n %v", pr.Name, err)
+	}
+
 	for key, val := range p.ObjectMeta.Annotations {
 		annotations[key] = val
 	}
@@ -121,7 +133,9 @@ func checkAnnotationPropagation(c *clients.Clients, namespace string, pipelineRu
 	}
 	if tr.Spec.TaskRef != nil {
 		task, err := c.TaskClient.Get(c.Ctx, tr.Spec.TaskRef.Name, metav1.GetOptions{})
-		assert.NoError(err, fmt.Sprintf("Couldn't get expected Task for %s: %s", tr.Name, err))
+		if err != nil {
+			testsuit.T.Errorf("failed to get task for task run %s \n %v", tr.Name, err)
+		}
 		for key, val := range task.ObjectMeta.Annotations {
 			annotations[key] = val
 		}
@@ -138,9 +152,12 @@ func GetPodForTaskRun(c *clients.Clients, namespace string, tr *v1beta1.TaskRun)
 	pods, err := c.KubeClient.Kube.CoreV1().Pods(namespace).List(c.Ctx, metav1.ListOptions{
 		LabelSelector: pipeline.TaskRunLabelKey + " = " + tr.Name,
 	})
-	assert.NoError(err, fmt.Sprintf("Couldn't get expected Pod for %s: %s", tr.Name, err))
+	if err != nil {
+		testsuit.T.Errorf("failed to get pod for task run %s \n %v", tr.Name, err)
+	}
+
 	if numPods := len(pods.Items); numPods != 1 {
-		testsuit.T.Errorf(fmt.Sprintf("Expected 1 Pod for %s, but got %d Pods", tr.Name, numPods))
+		testsuit.T.Errorf("Expected 1 pod for task run %s, but got %d pods", tr.Name, numPods)
 	}
 	return &pods.Items[0]
 }
@@ -148,7 +165,7 @@ func GetPodForTaskRun(c *clients.Clients, namespace string, tr *v1beta1.TaskRun)
 func AssertLabelsMatch(expectedLabels, actualLabels map[string]string) {
 	for key, expectedVal := range expectedLabels {
 		if actualVal := actualLabels[key]; actualVal != expectedVal {
-			testsuit.T.Errorf(fmt.Sprintf("Expected labels containing %s=%s but labels were %v", key, expectedVal, actualLabels))
+			testsuit.T.Errorf("Expected labels containing %s=%s but labels were %v", key, expectedVal, actualLabels)
 		}
 	}
 }
@@ -156,7 +173,7 @@ func AssertLabelsMatch(expectedLabels, actualLabels map[string]string) {
 func AssertAnnotationsMatch(expectedAnnotations, actualAnnotations map[string]string) {
 	for key, expectedVal := range expectedAnnotations {
 		if actualVal := actualAnnotations[key]; actualVal != expectedVal {
-			testsuit.T.Errorf(fmt.Sprintf("Expected annotations containing %s=%s but annotations were %v", key, expectedVal, actualAnnotations))
+			testsuit.T.Errorf("Expected annotations containing %s=%s but annotations were %v", key, expectedVal, actualAnnotations)
 		}
 	}
 }

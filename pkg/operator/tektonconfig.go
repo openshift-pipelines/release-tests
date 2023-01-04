@@ -24,7 +24,7 @@ import (
 
 	"knative.dev/pkg/test/logging"
 
-	"github.com/openshift-pipelines/release-tests/pkg/assert"
+	"github.com/getgauge-contrib/gauge-go/testsuit"
 	"github.com/openshift-pipelines/release-tests/pkg/clients"
 	"github.com/openshift-pipelines/release-tests/pkg/config"
 	"k8s.io/apimachinery/pkg/util/wait"
@@ -87,7 +87,9 @@ func EnsureTektonConfigStatusInstalled(clients configv1alpha1.TektonConfigInterf
 	err := wait.PollImmediate(config.APIRetry, config.APITimeout, func() (bool, error) {
 		// Refresh Cluster CR
 		cr, err := EnsureTektonConfigExists(clients, names)
-		assert.FailOnError(err)
+		if err != nil {
+			testsuit.T.Fail(err)
+		}
 		for _, cc := range cr.Status.Conditions {
 			if cc.Type != "InstallSucceeded" && cc.Status != "True" {
 				log.Printf("Waiting for %s cr InstalledStatus Actual: [%s] Expected: [True]\n", names.TektonConfig, cc.Status)
@@ -96,20 +98,22 @@ func EnsureTektonConfigStatusInstalled(clients configv1alpha1.TektonConfigInterf
 		}
 		return true, nil
 	})
-	assert.FailOnError(err)
+	if err != nil {
+		testsuit.T.Fail(err)
+	}
 }
 
 // AssertTektonConfigCRReadyStatus verifies if the TektonConfig reaches the READY status.
 func AssertTektonConfigCRReadyStatus(clients *clients.Clients, names utils.ResourceNames) {
 	if _, err := WaitForTektonConfigState(clients.TektonConfig(), names.TektonConfig, IsTektonConfigReady); err != nil {
-		assert.FailOnError(fmt.Errorf("TektonConfigCR %q failed to get to the READY status: %v", names.TektonConfig, err))
+		testsuit.T.Fail(fmt.Errorf("TektonConfigCR %q failed to get to the READY status: %v", names.TektonConfig, err))
 	}
 }
 
 // TektonConfigCRDelete deletes tha TektonConfig to see if all resources will be deleted
 func TektonConfigCRDelete(clients *clients.Clients, crNames utils.ResourceNames) {
 	if err := clients.TektonConfig().Delete(context.TODO(), crNames.TektonConfig, metav1.DeleteOptions{}); err != nil {
-		assert.FailOnError(fmt.Errorf("TektonConfigCR %q failed to delete: %v", crNames.TektonConfig, err))
+		testsuit.T.Fail(fmt.Errorf("TektonConfigCR %q failed to delete: %v", crNames.TektonConfig, err))
 	}
 	err := wait.PollImmediate(config.APIRetry, config.APITimeout, func() (bool, error) {
 		_, err := clients.TektonConfig().Get(context.TODO(), crNames.TektonConfig, metav1.GetOptions{})
@@ -119,10 +123,12 @@ func TektonConfigCRDelete(clients *clients.Clients, crNames utils.ResourceNames)
 		return false, err
 	})
 	if err != nil {
-		assert.FailOnError(fmt.Errorf("Timed out waiting on TektonConfigCR to delete, Error: %v", err))
+		testsuit.T.Fail(fmt.Errorf("Timed out waiting on TektonConfigCR to delete, Error: %v", err))
 	}
 	err = verifyNoTektonConfigCR(clients)
-	assert.FailOnError(err)
+	if err != nil {
+		testsuit.T.Fail(err)
+	}
 }
 
 func verifyNoTektonConfigCR(clients *clients.Clients) error {

@@ -14,7 +14,6 @@ import (
 	"time"
 
 	"github.com/getgauge-contrib/gauge-go/testsuit"
-	"github.com/openshift-pipelines/release-tests/pkg/assert"
 	resource "github.com/openshift-pipelines/release-tests/pkg/config"
 	"github.com/openshift-pipelines/release-tests/pkg/store"
 )
@@ -70,7 +69,9 @@ func GetSignature(input []byte, key string) string {
 	keyForSign := []byte(key)
 	h := hmac.New(sha1.New, keyForSign)
 	_, err := h.Write(input)
-	assert.NoError(err, "Couldn't generate signature")
+	if err != nil {
+		testsuit.T.Errorf("could not generate signature \n %v", err)
+	}
 	return hex.EncodeToString(h.Sum(nil))
 }
 
