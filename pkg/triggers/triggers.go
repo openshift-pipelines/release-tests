@@ -114,12 +114,8 @@ func ExposeEventListnerForTLS(c *clients.Clients, elname, namespace string) stri
 
 // This function returns the formatted hostname.
 func getDomain() string {
-	/* each cluster have different domain so below logic is to extract domain from existing route
-	each openshift installation have `console` route in `openshift-console` namespace.
-	ex: http://console-openshift-console.apps.tt3.testing */
-	route_url := cmd.MustSucceed("oc", "-n", "openshift-console", "get", "route", "console", "--template=http://{{.spec.host}}").Stdout()
-	splittedValue := strings.SplitAfter(route_url, ".apps")
-	routeDomainName := "apps" + splittedValue[1]
+	// extract cluster's domain from ingress config, e.g. apps.mycluster.example.com
+	routeDomainName := cmd.MustSucceed("oc", "get", "ingresses.config/cluster", "-o", "jsonpath={.spec.domain}").Stdout()
 	randomName := names.SimpleNameGenerator.RestrictLengthWithRandomSuffix("releasetest")
 	return "tls." + randomName + "." + routeDomainName
 }
