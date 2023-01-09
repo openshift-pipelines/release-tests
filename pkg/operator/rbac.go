@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/openshift-pipelines/release-tests/pkg/assert"
+	"github.com/getgauge-contrib/gauge-go/testsuit"
 	"github.com/openshift-pipelines/release-tests/pkg/clients"
 	"github.com/openshift-pipelines/release-tests/pkg/config"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -28,7 +28,7 @@ func AssertServiceAccountPesent(clients *clients.Clients, ns, targetSA string) {
 		return false, nil
 	})
 	if err != nil {
-		assert.FailOnError(fmt.Errorf("Expected: Service account %v present in the namespace %v, Actual: Service account %v not present in the namespace %v, Error: %v", targetSA, ns, targetSA, ns, err))
+		testsuit.T.Fail(fmt.Errorf("Expected: Service account %v present in the namespace %v, Actual: Service account %v not present in the namespace %v, Error: %v", targetSA, ns, targetSA, ns, err))
 	}
 }
 func AssertRoleBindingPresent(clients *clients.Clients, ns, roleBindingName string) {
@@ -46,7 +46,7 @@ func AssertRoleBindingPresent(clients *clients.Clients, ns, roleBindingName stri
 		return false, nil
 	})
 	if err != nil {
-		assert.FailOnError(fmt.Errorf("Expected: Rolebinding %v present in the namespace %v, Actual: Rolebinding %v not present in the namespace %v, Error: %v", roleBindingName, ns, roleBindingName, ns, err))
+		testsuit.T.Fail(fmt.Errorf("Expected: Rolebinding %v present in the namespace %v, Actual: Rolebinding %v not present in the namespace %v, Error: %v", roleBindingName, ns, roleBindingName, ns, err))
 	}
 }
 
@@ -65,7 +65,7 @@ func AssertConfigMapPresent(clients *clients.Clients, ns, configMapName string) 
 		return false, nil
 	})
 	if err != nil {
-		assert.FailOnError(fmt.Errorf("Expected: Configmap %v present in the namespace %v, Actual: Configmap %v not present in the namespace %v, Error: %v", configMapName, ns, configMapName, ns, err))
+		testsuit.T.Fail(fmt.Errorf("Expected: Configmap %v present in the namespace %v, Actual: Configmap %v not present in the namespace %v, Error: %v", configMapName, ns, configMapName, ns, err))
 	}
 }
 
@@ -84,7 +84,7 @@ func AssertClusterRolePresent(clients *clients.Clients, clusterRoleName string) 
 		return false, nil
 	})
 	if err != nil {
-		assert.FailOnError(fmt.Errorf("Expected: Clusterrole %v present, Actual: Clusterrole %v not present, Error: %v", clusterRoleName, clusterRoleName, err))
+		testsuit.T.Fail(fmt.Errorf("Expected: Clusterrole %v present, Actual: Clusterrole %v not present, Error: %v", clusterRoleName, clusterRoleName, err))
 	}
 }
 
@@ -103,7 +103,7 @@ func AssertServiceAccountNotPresent(clients *clients.Clients, ns, targetSA strin
 		return true, nil
 	})
 	if err != nil {
-		assert.FailOnError(fmt.Errorf("Expected: Service account %v not present in the namespace %v, Actual: Service account %v is present in the namespace %v, Error: %v", targetSA, ns, targetSA, ns, err))
+		testsuit.T.Fail(fmt.Errorf("Expected: Service account %v not present in the namespace %v, Actual: Service account %v is present in the namespace %v, Error: %v", targetSA, ns, targetSA, ns, err))
 	}
 }
 
@@ -122,7 +122,7 @@ func AssertRoleBindingNotPresent(clients *clients.Clients, ns, roleBindingName s
 		return true, nil
 	})
 	if err != nil {
-		assert.FailOnError(fmt.Errorf("Expected: Rolebinding %v not present in the namespace %v, Actual: Rolebinding %v present in the namespace %v, Error: %v", roleBindingName, ns, roleBindingName, ns, err))
+		testsuit.T.Fail(fmt.Errorf("Expected: Rolebinding %v not present in the namespace %v, Actual: Rolebinding %v present in the namespace %v, Error: %v", roleBindingName, ns, roleBindingName, ns, err))
 	}
 }
 
@@ -141,7 +141,7 @@ func AssertConfigMapNotPresent(clients *clients.Clients, ns, configMapName strin
 		return true, nil
 	})
 	if err != nil {
-		assert.FailOnError(fmt.Errorf("Expected: Configmap %v not present in the namespace %v, Expected: Configmap %v present in the namespace %v, Error: %v", configMapName, ns, configMapName, ns, err))
+		testsuit.T.Fail(fmt.Errorf("Expected: Configmap %v not present in the namespace %v, Expected: Configmap %v present in the namespace %v, Error: %v", configMapName, ns, configMapName, ns, err))
 	}
 }
 
@@ -160,6 +160,6 @@ func AssertClusterRoleNotPresent(clients *clients.Clients, clusterRoleName strin
 		return true, err
 	})
 	if err != nil {
-		assert.FailOnError(fmt.Errorf("Expected, Clusterrole %v not present, Actual: Clusterrole %v present, Error: %v", clusterRoleName, clusterRoleName, err))
+		testsuit.T.Fail(fmt.Errorf("Expected, Clusterrole %v not present, Actual: Clusterrole %v present, Error: %v", clusterRoleName, clusterRoleName, err))
 	}
 }
