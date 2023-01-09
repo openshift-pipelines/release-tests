@@ -11,7 +11,7 @@ spec:
         kind: ClusterTask
       params:
       - name: srcImageURL
-        value: "docker://quay.io/fedora/fedora:38"
+        value: "docker://image-registry.openshift-image-registry.svc:5000/openshift/golang"
       - name: destImageURL
         value: "docker://image-registry.openshift-image-registry.svc:5000/$(context.pipelineRun.namespace)/fedora:38skopeo"
       - name: destTLSverify
