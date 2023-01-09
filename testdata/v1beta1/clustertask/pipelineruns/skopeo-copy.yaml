@@ -13,7 +13,7 @@ spec:
       - name: srcImageURL
         value: "docker://image-registry.openshift-image-registry.svc:5000/openshift/golang"
       - name: destImageURL
-        value: "docker://image-registry.openshift-image-registry.svc:5000/$(context.pipelineRun.namespace)/fedora:38skopeo"
+        value: "docker://image-registry.openshift-image-registry.svc:5000/$(context.pipelineRun.namespace)/golang:skopeo"
       - name: destTLSverify
         value: "true"
       workspaces:
