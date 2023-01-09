@@ -9,6 +9,7 @@ import (
 	"path"
 	"path/filepath"
 	"runtime"
+	"strconv"
 	"strings"
 	"time"
 
@@ -85,6 +86,7 @@ type EnvironmentFlags struct {
 	OperatorVersion  string
 	TknVersion       string
 	ClusterArch      string // Architecture of the cluster
+	IsDisconnected   bool
 }
 
 func initializeFlags() *EnvironmentFlags {
@@ -141,6 +143,13 @@ func initializeFlags() *EnvironmentFlags {
 	flag.StringVar(&f.ClusterArch, "clusterarch", defaultClusterArch,
 		"Provide the architecture of testing cluster. By default `amd64` will be used.")
 
+	isDiconnectedEnv := os.Getenv("IS_DISCONNECTED")
+	defaultIsDiconnected, err := strconv.ParseBool(isDiconnectedEnv)
+	if err != nil {
+		defaultIsDiconnected = false
+	}
+	flag.BoolVar(&f.IsDisconnected, "isdisconnected", defaultIsDiconnected,
+		"Provide the info if the testing cluster is disconnected. By default `false` will be used.")
 	return &f
 }
 

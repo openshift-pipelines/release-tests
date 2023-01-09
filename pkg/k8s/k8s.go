@@ -451,6 +451,11 @@ func ValidateTektonInstallersetNames(c *clients.Clients) {
 			continue
 		}
 
+		if config.Flags.IsDisconnected && isp == "addon-custom-communityclustertask" {
+			log.Printf("Testing on a disconnected cluster, skipping validation of installer set %s", isp)
+			continue
+		}
+
 		log.Printf("Verifying if the installerset with prefix %s is present\n", isp)
 		found := false
 		for _, is := range tis.Items {
