@@ -12,7 +12,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/openshift-pipelines/release-tests/pkg/assert"
+	"github.com/getgauge-contrib/gauge-go/testsuit"
 )
 
 const (
@@ -181,13 +181,15 @@ func RemoveTempDir() {
 	var err error
 	tmp, _ := TempDir()
 	err = os.RemoveAll(tmp)
-	assert.NoError(err, fmt.Sprintf("Error: In deleting directory: %+v ", tmp))
+	if err != nil {
+		testsuit.T.Errorf("Error: In deleting directory %s: %+v ", tmp, err)
+	}
 }
 
 func Path(elem ...string) string {
 	td := filepath.Join(Dir(), "..")
 	if _, err := os.Stat(td); os.IsNotExist(err) {
-		assert.NoError(err, fmt.Sprintf("Error: in identifying test data path %+v ", td))
+		testsuit.T.Errorf("Error: in identifying test data path %s: %+v", td, err)
 	}
 	return filepath.Join(append([]string{td}, elem...)...)
 }

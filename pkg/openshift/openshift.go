@@ -4,7 +4,6 @@ import (
 	"log"
 
 	"github.com/getgauge-contrib/gauge-go/testsuit"
-	"github.com/openshift-pipelines/release-tests/pkg/assert"
 	"github.com/openshift-pipelines/release-tests/pkg/clients"
 	"github.com/openshift-pipelines/release-tests/pkg/config"
 	imageStream "github.com/openshift/client-go/image/clientset/versioned"
@@ -45,7 +44,9 @@ func VerifyImageStreamExists(c *clients.Clients, name, namespace string) {
 
 func IsCapabilityEnabled(c *clients.Clients, name string) bool {
 	cv, err := c.ClusterVersion.Get(c.Ctx, "version", metav1.GetOptions{})
-	assert.FailOnError(err)
+	if err != nil {
+		testsuit.T.Fail(err)
+	}
 
 	for _, capability := range cv.Status.Capabilities.EnabledCapabilities {
 		if string(capability) == name {

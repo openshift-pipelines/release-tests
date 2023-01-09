@@ -3,13 +3,12 @@ package olm
 import (
 	"bytes"
 	"context"
-	"fmt"
 	"html/template"
 	"io/ioutil"
 	"log"
 	"time"
 
-	"github.com/openshift-pipelines/release-tests/pkg/assert"
+	"github.com/getgauge-contrib/gauge-go/testsuit"
 	"github.com/openshift-pipelines/release-tests/pkg/clients"
 	"github.com/openshift-pipelines/release-tests/pkg/cmd"
 	"github.com/openshift-pipelines/release-tests/pkg/config"
@@ -70,7 +69,9 @@ func UptadeSubscriptionAndWaitForOperatorToBeReady(cs *clients.Clients, subscrip
 
 func getSubcription(cs *clients.Clients, name string) *v1alpha1.Subscription {
 	subscription, err := cs.OLM.OperatorsV1alpha1().Subscriptions(OperatorsNamespace).Get(context.Background(), name, metav1.GetOptions{})
-	assert.NoError(err, fmt.Sprintf("Unable to retrive Subscription: [%s] from namespace [%s]\n", name, OperatorsNamespace))
+	if err != nil {
+		testsuit.T.Errorf("failed to get subscription %s in namespace %s \n %v", name, OperatorsNamespace, err)
+	}
 	return subscription
 }
 
@@ -90,28 +91,30 @@ func createSubscription(name, channel, catalogsource string) {
 	}
 
 	if _, err := config.TempDir(); err != nil {
-		assert.FailOnError(err)
+		testsuit.T.Fail(err)
 	}
 	defer config.RemoveTempDir()
 
 	tmpl, err := config.Read("subscription.yaml.tmp")
 	if err != nil {
-		assert.FailOnError(err)
+		testsuit.T.Fail(err)
 	}
 
 	sub, err := template.New("subscription").Parse(string(tmpl))
 	if err != nil {
-		assert.FailOnError(err)
+		testsuit.T.Fail(err)
 	}
 
 	var buffer bytes.Buffer
 	if err = sub.Execute(&buffer, subscription); err != nil {
-		assert.FailOnError(err)
+		testsuit.T.Fail(err)
 	}
 	file, err := config.TempFile("subscription.yaml")
-	assert.FailOnError(err)
+	if err != nil {
+		testsuit.T.Fail(err)
+	}
 	if err = ioutil.WriteFile(file, buffer.Bytes(), 0666); err != nil {
-		assert.FailOnError(err)
+		testsuit.T.Fail(err)
 	}
 
 	log.Printf("output: %s\n", cmd.MustSucceed("oc", "apply", "-f", file).Stdout())
@@ -124,7 +127,7 @@ func OperatorCleanup(cs *clients.Clients, name string) {
 	//Delete CSV
 	err := cs.OLM.OperatorsV1alpha1().ClusterServiceVersions(OperatorsNamespace).DeleteCollection(context.Background(), metav1.DeleteOptions{}, metav1.ListOptions{})
 	if err != nil {
-		assert.NoError(err, fmt.Sprintf("failed deleting CSVs in Namespace: %s, %v", OperatorsNamespace, err))
+		testsuit.T.Errorf("failed to delete CSVs in namespace %s \n %v", OperatorsNamespace, err)
 	}
 
 	log.Printf("Output %s \n", cmd.MustSucceed(

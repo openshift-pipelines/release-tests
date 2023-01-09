@@ -22,7 +22,7 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/openshift-pipelines/release-tests/pkg/assert"
+	"github.com/getgauge-contrib/gauge-go/testsuit"
 	"github.com/openshift-pipelines/release-tests/pkg/clients"
 	"github.com/openshift-pipelines/release-tests/pkg/config"
 
@@ -87,14 +87,14 @@ func IsTektonPipelineReady(s *v1alpha1.TektonPipeline, err error) (bool, error) 
 func AssertTektonPipelineCRReadyStatus(clients *clients.Clients, names utils.ResourceNames) {
 	if _, err := WaitForTektonPipelineState(clients.TektonPipeline(), names.TektonPipeline,
 		IsTektonPipelineReady); err != nil {
-		assert.FailOnError(fmt.Errorf("TektonPipelineCR %q failed to get to the READY status: %v", names.TektonPipeline, err))
+		testsuit.T.Fail(fmt.Errorf("TektonPipelineCR %q failed to get to the READY status: %v", names.TektonPipeline, err))
 	}
 }
 
 // TektonPipelineCRDelete deletes tha TektonPipeline to see if all resources will be deleted
 func TektonPipelineCRDelete(clients *clients.Clients, crNames utils.ResourceNames) {
 	if err := clients.TektonPipeline().Delete(context.TODO(), crNames.TektonPipeline, metav1.DeleteOptions{}); err != nil {
-		assert.FailOnError(fmt.Errorf("TektonPipeline %q failed to delete: %v", crNames.TektonPipeline, err))
+		testsuit.T.Fail(fmt.Errorf("TektonPipeline %q failed to delete: %v", crNames.TektonPipeline, err))
 	}
 	err := wait.PollImmediate(config.APIRetry, config.APITimeout, func() (bool, error) {
 		_, err := clients.TektonPipeline().Get(context.TODO(), crNames.TektonPipeline, metav1.GetOptions{})
@@ -104,10 +104,10 @@ func TektonPipelineCRDelete(clients *clients.Clients, crNames utils.ResourceName
 		return false, err
 	})
 	if err != nil {
-		assert.FailOnError(fmt.Errorf("Timed out waiting on TektonPipeline to delete, Error: %v", err))
+		testsuit.T.Fail(fmt.Errorf("Timed out waiting on TektonPipeline to delete, Error: %v", err))
 	}
 	if err := verifyNoTektonPipelineCR(clients); err != nil {
-		assert.FailOnError(err)
+		testsuit.T.Fail(err)
 	}
 }
 

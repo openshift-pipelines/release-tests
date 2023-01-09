@@ -22,7 +22,7 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/openshift-pipelines/release-tests/pkg/assert"
+	"github.com/getgauge-contrib/gauge-go/testsuit"
 	"github.com/openshift-pipelines/release-tests/pkg/clients"
 	"github.com/openshift-pipelines/release-tests/pkg/config"
 
@@ -84,14 +84,14 @@ func IsTektonTriggerReady(s *v1alpha1.TektonTrigger, err error) (bool, error) {
 func AssertTektonTriggerCRReadyStatus(clients *clients.Clients, names utils.ResourceNames) {
 	if _, err := WaitForTektonTriggerState(clients.TektonTrigger(), names.TektonTrigger,
 		IsTektonTriggerReady); err != nil {
-		assert.FailOnError(fmt.Errorf("TektonTriggerCR %q failed to get to the READY status: %v", names.TektonTrigger, err))
+		testsuit.T.Fail(fmt.Errorf("TektonTriggerCR %q failed to get to the READY status: %v", names.TektonTrigger, err))
 	}
 }
 
 // TektonTriggerCRDelete deletes tha TektonTrigger to see if all resources will be deleted
 func TektonTriggerCRDelete(clients *clients.Clients, crNames utils.ResourceNames) {
 	if err := clients.TektonTrigger().Delete(context.TODO(), crNames.TektonTrigger, metav1.DeleteOptions{}); err != nil {
-		assert.FailOnError(fmt.Errorf("TektonTrigger %q failed to delete: %v", crNames.TektonTrigger, err))
+		testsuit.T.Fail(fmt.Errorf("TektonTrigger %q failed to delete: %v", crNames.TektonTrigger, err))
 	}
 	err := wait.PollImmediate(config.APIRetry, config.APITimeout, func() (bool, error) {
 		_, err := clients.TektonTrigger().Get(context.TODO(), crNames.TektonTrigger, metav1.GetOptions{})
@@ -101,11 +101,11 @@ func TektonTriggerCRDelete(clients *clients.Clients, crNames utils.ResourceNames
 		return false, err
 	})
 	if err != nil {
-		assert.FailOnError(fmt.Errorf("Timed out waiting on TektonTrigger to delete, Error: %v", err))
+		testsuit.T.Fail(fmt.Errorf("Timed out waiting on TektonTrigger to delete, Error: %v", err))
 	}
 
 	if err := verifyNoTektonTriggerCR(clients); err != nil {
-		assert.FailOnError(err)
+		testsuit.T.Fail(err)
 	}
 }
 
