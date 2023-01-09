@@ -84,7 +84,7 @@ func WaitForServiceAccount(cs *clients.Clients, ns, targetSA string) *corev1.Ser
 		return false, err
 	})
 	if err != nil {
-		testsuit.T.Errorf("service account %s not found in namespace %s \n %v", targetSA, ns)
+		testsuit.T.Errorf("service account %s not found in namespace %s", targetSA, ns)
 	}
 	return ret
 }
