@@ -6,7 +6,7 @@ import (
 	"sync"
 
 	"github.com/getgauge-contrib/gauge-go/gauge"
-	"github.com/openshift-pipelines/release-tests/pkg/assert"
+	"github.com/getgauge-contrib/gauge-go/testsuit"
 	"github.com/openshift-pipelines/release-tests/pkg/config"
 	"github.com/openshift-pipelines/release-tests/pkg/k8s"
 	"github.com/openshift-pipelines/release-tests/pkg/olm"
@@ -25,7 +25,7 @@ var _ = gauge.Step("Validate Operator should be installed", func() {
 var _ = gauge.Step("Subscribe to operator", func() {
 	// Creates subscription yaml with configured details from env/test/test.properties
 	if _, err := olm.SubscribeAndWaitForOperatorToBeReady(store.Clients(), config.Flags.SubscriptionName, config.Flags.Channel, config.Flags.CatalogSource); err != nil {
-		assert.FailOnError(fmt.Errorf("failed to Subscribe :%s", err))
+		testsuit.T.Fail(fmt.Errorf("operator not ready after creating subscription \n %v", err))
 	}
 })
 
@@ -36,7 +36,7 @@ var _ = gauge.Step("Wait for TektonConfig CR availability", func() {
 var _ = gauge.Step("Upgrade operator subscription", func() {
 	// Creates subscription yaml with configured details from env/test/test.properties
 	if _, err := olm.UptadeSubscriptionAndWaitForOperatorToBeReady(store.Clients(), config.Flags.SubscriptionName, config.Flags.Channel); err != nil {
-		assert.FailOnError(fmt.Errorf("failed to update Subscribscription :%s", err))
+		testsuit.T.Fail(fmt.Errorf("failed to update subscription \n %v", err))
 	}
 })
 

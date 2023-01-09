@@ -10,7 +10,6 @@ import (
 	"time"
 
 	"github.com/getgauge-contrib/gauge-go/testsuit"
-	"github.com/openshift-pipelines/release-tests/pkg/assert"
 	"github.com/openshift-pipelines/release-tests/pkg/clients"
 	"github.com/openshift-pipelines/release-tests/pkg/config"
 	"github.com/openshift-pipelines/release-tests/pkg/oc"
@@ -40,7 +39,10 @@ func NewClientSet() (*clients.Clients, string, func()) {
 	// TODO: fix this; method is in k8s but returns client.Clients
 	ns := names.SimpleNameGenerator.RestrictLengthWithRandomSuffix("releasetest")
 	cs, err := clients.NewClients(config.Flags.Kubeconfig, config.Flags.Cluster, ns)
-	assert.FailOnError(err)
+	if err != nil {
+		testsuit.T.Fail(err)
+	}
+
 	oc.CreateNewProject(ns)
 	return cs, ns, func() {
 		oc.DeleteProjectIgnoreErors(ns)
@@ -62,7 +64,9 @@ func WaitForDeploymentDeletion(cs *clients.Clients, namespace, name string) erro
 		log.Printf("Waiting for deletion of %s deployment\n", name)
 		return false, nil
 	})
-	assert.NoError(err, fmt.Sprintf("%s Deployment deletion failed\n", name))
+	if err != nil {
+		testsuit.T.Errorf("failed to delete deployment %s \n %v", name, err)
+	}
 	return err
 }
 
@@ -79,7 +83,9 @@ func WaitForServiceAccount(cs *clients.Clients, ns, targetSA string) *corev1.Ser
 		}
 		return false, err
 	})
-	assert.NoError(err, fmt.Sprintf("ServiceAccount: %s, not found in namespace %s\n", targetSA, ns))
+	if err != nil {
+		testsuit.T.Errorf("service account %s not found in namespace %s", targetSA, ns)
+	}
 	return ret
 }
 
@@ -95,7 +101,9 @@ func ValidateSCCAdded(cs *clients.Clients, ns, sa string) {
 		ctrlSA := fmt.Sprintf("system:serviceaccount:%s:%s", ns, sa)
 		return inList(privileged.Users, ctrlSA), nil
 	})
-	assert.NoError(err, fmt.Sprintf("failed to Add privilaged scc: %s\n", sa))
+	if err != nil {
+		testsuit.T.Errorf("failed to add privileged SCC to the service account %s \n %v", sa, err)
+	}
 }
 
 func ValidateSCCRemoved(cs *clients.Clients, ns, sa string) {
@@ -108,7 +116,9 @@ func ValidateSCCRemoved(cs *clients.Clients, ns, sa string) {
 		ctrlSA := fmt.Sprintf("system:serviceaccount:%s:%s", ns, sa)
 		return !inList(privileged.Users, ctrlSA), nil
 	})
-	assert.NoError(err, fmt.Sprintf("failed to Remove privilaged scc: %s\n", sa))
+	if err != nil {
+		testsuit.T.Errorf("failed to remove privileged SCC from service account %s \n %v", sa, err)
+	}
 }
 
 func inList(list []string, item string) bool {
@@ -129,7 +139,9 @@ func ValidateDeployments(cs *clients.Clients, ns string, deployments ...string) 
 			config.APIRetry,
 			config.APITimeout,
 		)
-		assert.NoError(err, fmt.Sprintf("Deployments: %+v, failed to create\n", deployments))
+		if err != nil {
+			testsuit.T.Errorf("failed to create deployment %+v \n %v", d, err)
+		}
 	}
 }
 
@@ -144,7 +156,9 @@ func GetPrivilegedSCC(cs *clients.Clients) (*secv1.SecurityContextConstraints, e
 func ValidateDeploymentDeletion(cs *clients.Clients, ns string, deployments ...string) {
 	for _, d := range deployments {
 		err := WaitForDeploymentDeletion(cs, ns, d)
-		assert.NoError(err, fmt.Sprintf("Deployments: %+v, failed to delete\n", deployments))
+		if err != nil {
+			testsuit.T.Errorf("failed to delete deployment %+v \n %v", d, err)
+		}
 	}
 }
 
@@ -162,7 +176,7 @@ func WaitForDeployment(ctx context.Context, kc kubernetes.Interface, namespace, 
 		if int(deployment.Status.AvailableReplicas) == replicas {
 			return true, nil
 		}
-		log.Printf("Waiting for full availability of %s deployment (%d/%d)\n", name, deployment.Status.AvailableReplicas, replicas)
+		log.Printf("Waiting for full availability of deployment %s (%d/%d)\n", name, deployment.Status.AvailableReplicas, replicas)
 		return false, nil
 	})
 	return err
@@ -191,7 +205,7 @@ func VerifyServiceAccountExists(ctx context.Context, kc *clients.KubeClient, sa,
 		}
 		return true, err
 	}); err != nil {
-		testsuit.T.Errorf("Failed to get SA %q in namespace %q for tests: %s", sa, ns, err)
+		testsuit.T.Errorf("failed to get SA %s in namespace %s for tests: %v", sa, ns, err)
 	}
 }
 
@@ -225,7 +239,9 @@ func CreateCronJob(c *clients.Clients, args []string, schedule, namespace string
 		},
 	}
 	cj, err := c.KubeClient.Kube.BatchV1().CronJobs(namespace).Create(c.Ctx, cronjob, metav1.CreateOptions{})
-	assert.NoError(err, fmt.Sprintf("CronJob: %+s, failed to create\n", cj.Name))
+	if err != nil {
+		testsuit.T.Errorf("failed to create cron job %s \n %v", cj.Name, err)
+	}
 	log.Printf("Cronjob: %s created in namespace: %s", cj.Name, namespace)
 	store.PutScenarioData("cronjob", cj.Name)
 }
@@ -242,7 +258,9 @@ func WaitForActiveCronJobs(c *clients.Clients, active int, cronJobName, ns strin
 
 func WaitForCronJobToBeSceduled(c *clients.Clients, activejobs int, job, namespace string) {
 	err := w.WaitFor(c.Ctx, WaitForActiveCronJobs(c, activejobs, job, namespace))
-	assert.NoError(err, fmt.Sprintf("Error: Waiting for cron job %s to be scheduled on namespace %s ", job, namespace))
+	if err != nil {
+		testsuit.T.Errorf("failed to schedule cron job %s in namespace %s \n %v", job, namespace, err)
+	}
 }
 
 func GetCronJob(c *clients.Clients, ns, name string) (*batchv1.CronJob, error) {
@@ -296,7 +314,9 @@ func GetGroupVersionResource(gr schema.GroupVersionResource, discovery discovery
 
 func AssertIfDefaultCronjobExists(c *clients.Clients, namespace string) {
 	cronJobs, err := c.KubeClient.Kube.BatchV1().CronJobs(namespace).List(c.Ctx, metav1.ListOptions{})
-	assert.NoError(err, fmt.Sprintf("Failed to get cronjob from namespace %v", namespace))
+	if err != nil {
+		testsuit.T.Errorf("failed to get default cron job in namespace %s \n %v", namespace, err)
+	}
 	if len(cronJobs.Items) == 0 {
 		testsuit.T.Errorf("No cronjobs present in the namespace %v", namespace)
 	}
@@ -318,7 +338,9 @@ func AssertIfDefaultCronjobExists(c *clients.Clients, namespace string) {
 func GetCronjobNameWithSchedule(c *clients.Clients, namespace, schedule string) string {
 	name := ""
 	cronJobs, err := c.KubeClient.Kube.BatchV1().CronJobs(namespace).List(c.Ctx, metav1.ListOptions{})
-	assert.NoError(err, fmt.Sprintf("Failed to get cronjob from namespace %v", namespace))
+	if err != nil {
+		testsuit.T.Errorf("failed to get cron job from namespace %s \n %v", namespace, err)
+	}
 	if len(cronJobs.Items) == 0 {
 		testsuit.T.Errorf("No cronjobs present in the namespace %v", namespace)
 	}
@@ -371,7 +393,7 @@ func AssertCronjobPresent(c *clients.Clients, cronJobName, namespace string) {
 		return false, nil
 	})
 	if err != nil {
-		assert.FailOnError(fmt.Errorf("Expected: cronjob with prefix %v present in namespace %v, Actual: cronjob with prefix %v not present in namespace %v", cronJobName, namespace, cronJobName, namespace))
+		testsuit.T.Fail(fmt.Errorf("Expected: cronjob with prefix %v present in namespace %v, Actual: cronjob with prefix %v not present in namespace %v", cronJobName, namespace, cronJobName, namespace))
 	}
 	log.Printf("Cronjob with prefix %v is present in namespace %v", cronJobName, namespace)
 }
@@ -391,7 +413,7 @@ func AssertCronjobNotPresent(c *clients.Clients, cronJobName, namespace string) 
 		return true, nil
 	})
 	if err != nil {
-		assert.FailOnError(fmt.Errorf("Expected: cronjob with prefix %v present in namespace %v, Actual: cronjob with prefix %v not present in namespace %v", cronJobName, namespace, cronJobName, namespace))
+		testsuit.T.Fail(fmt.Errorf("Expected: cronjob with prefix %v present in namespace %v, Actual: cronjob with prefix %v not present in namespace %v", cronJobName, namespace, cronJobName, namespace))
 	}
 	log.Printf("Cronjob with prefix %v is present in namespace %v", cronJobName, namespace)
 }
@@ -400,7 +422,7 @@ func ValidateTektonInstallersetStatus(c *clients.Clients) {
 	tis, err := c.Operator.TektonInstallerSets().List(c.Ctx, metav1.ListOptions{})
 	failedInstallersets := make([]string, 0)
 	if err != nil {
-		assert.FailOnError(fmt.Errorf("Error getting tektoninstallersets: %v", err))
+		testsuit.T.Fail(fmt.Errorf("Error getting tektoninstallersets: %v", err))
 	}
 
 	for _, is := range tis.Items {
@@ -411,7 +433,7 @@ func ValidateTektonInstallersetStatus(c *clients.Clients) {
 	}
 
 	if len(failedInstallersets) > 0 {
-		assert.FailOnError(fmt.Errorf("The installersets %s is/are not in ready status", strings.Join(failedInstallersets, ",")))
+		testsuit.T.Fail(fmt.Errorf("The installersets %s is/are not in ready status", strings.Join(failedInstallersets, ",")))
 	}
 	log.Print("All the installersets are in ready state")
 }
@@ -419,7 +441,7 @@ func ValidateTektonInstallersetStatus(c *clients.Clients) {
 func ValidateTektonInstallersetNames(c *clients.Clients) {
 	tis, err := c.Operator.TektonInstallerSets().List(c.Ctx, metav1.ListOptions{})
 	if err != nil {
-		assert.FailOnError(fmt.Errorf("Error getting tektoninstallersets: %v", err))
+		testsuit.T.Fail(fmt.Errorf("Error getting tektoninstallersets: %v", err))
 	}
 	missingInstallersets := make([]string, 0)
 	for _, isp := range config.TektonInstallersetNamePrefixes {
@@ -445,6 +467,6 @@ func ValidateTektonInstallersetNames(c *clients.Clients) {
 	}
 
 	if len(missingInstallersets) > 0 {
-		assert.FailOnError(fmt.Errorf("Installersets with prefix %s is not found", strings.Join(missingInstallersets, ",")))
+		testsuit.T.Fail(fmt.Errorf("Installersets with prefix %s is not found", strings.Join(missingInstallersets, ",")))
 	}
 }
