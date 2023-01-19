@@ -34,7 +34,7 @@ func (ta testsuitAdaptor) Log(args ...interface{}) {
 }
 
 func Run(cmd ...string) *icmd.Result {
-	return icmd.RunCmd(icmd.Cmd{Command: cmd, Timeout: config.Timeout})
+	return icmd.RunCmd(icmd.Cmd{Command: cmd, Timeout: config.CLITimeout})
 }
 
 // MustSucceed asserts that the command ran with 0 exit code

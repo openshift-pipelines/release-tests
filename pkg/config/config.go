@@ -24,8 +24,8 @@ const (
 	// APITimeout defines the amount of time we should spend querying the k8s api
 	// when waiting for a specific condition to be true.
 	APITimeout = time.Minute * 10
-	// Timeout httpClient
-	Timeout = time.Second * 10
+	// CLITimeout defines the amount of maximum execution time for CLI commands
+	CLITimeout = time.Second * 15
 
 	// ConsistentlyDuration sets  the default duration for Consistently. Consistently will verify that your condition is satisfied for this long.
 	ConsistentlyDuration = 30 * time.Second
