@@ -163,6 +163,7 @@ func MockPostEvent(routeurl, interceptor, eventType, payload string, isTLS bool)
 	}
 
 	req = buildHeaders(req, interceptor, eventType)
+	log.Print(req)
 
 	if isTLS {
 		resp, err = CreateHTTPSClient().Do(req)

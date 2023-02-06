@@ -19,8 +19,6 @@ import (
 	operatorv1alpha1 "github.com/tektoncd/operator/pkg/client/clientset/versioned/typed/operator/v1alpha1"
 	pversioned "github.com/tektoncd/pipeline/pkg/client/clientset/versioned"
 	"github.com/tektoncd/pipeline/pkg/client/clientset/versioned/typed/pipeline/v1beta1"
-	resourceversioned "github.com/tektoncd/pipeline/pkg/client/resource/clientset/versioned"
-	resourcev1alpha1 "github.com/tektoncd/pipeline/pkg/client/resource/clientset/versioned/typed/resource/v1alpha1"
 	triggersclientset "github.com/tektoncd/triggers/pkg/client/clientset/versioned"
 )
 
@@ -48,7 +46,6 @@ type Clients struct {
 	TaskClient             v1beta1.TaskInterface
 	TaskRunClient          v1beta1.TaskRunInterface
 	PipelineRunClient      v1beta1.PipelineRunInterface
-	PipelineResourceClient resourcev1alpha1.PipelineResourceInterface
 	TriggersClient         triggersclientset.Interface
 	ClustertaskClient      v1beta1.ClusterTaskInterface
 }
@@ -93,7 +90,6 @@ func NewClients(configPath string, clusterName, namespace string) (*Clients, err
 		return nil, fmt.Errorf("failed to create pipeline clientset from config file at %s: %s", configPath, err)
 	}
 
-	rcs, err := resourceversioned.NewForConfig(clients.KubeConfig)
 	if err != nil {
 		return nil, fmt.Errorf("Failed to create resource clientset from config file at %s: %s", configPath, err)
 	}
@@ -102,22 +98,7 @@ func NewClients(configPath string, clusterName, namespace string) (*Clients, err
 	if err != nil {
 		return nil, fmt.Errorf("Failed to create triggers clientset from config file at %s: %s", configPath, err)
 	}
-
-	clients.PipelineClient = clients.Tekton.TektonV1beta1().Pipelines(namespace)
-	clients.TaskClient = clients.Tekton.TektonV1beta1().Tasks(namespace)
-	clients.TaskRunClient = clients.Tekton.TektonV1beta1().TaskRuns(namespace)
-	clients.PipelineRunClient = clients.Tekton.TektonV1beta1().PipelineRuns(namespace)
-	clients.PipelineResourceClient = rcs.TektonV1alpha1().PipelineResources(namespace)
-	clients.Route = routev1.NewForConfigOrDie(clients.KubeConfig)
-	clients.ProxyConfig = configV1.NewForConfigOrDie(clients.KubeConfig)
-	clients.ClusterVersion = configV1.NewForConfigOrDie(clients.KubeConfig).ClusterVersions()
-	clients.ConsoleCLIDownload = consolev1.NewForConfigOrDie(clients.KubeConfig).ConsoleCLIDownloads()
-	clients.ClustertaskClient = clients.Tekton.TektonV1beta1().ClusterTasks()
-	if err != nil {
-		return nil, err
-	}
-	clients.MonitoringClient = monclientv1.NewForConfigOrDie(clients.KubeConfig)
-
+	clients.CreateOrUpdateClients(namespace)
 	return clients, nil
 }
 
@@ -174,4 +155,18 @@ func (c *Clients) TektonAddon() operatorv1alpha1.TektonAddonInterface {
 
 func (c *Clients) TektonConfig() operatorv1alpha1.TektonConfigInterface {
 	return c.Operator.TektonConfigs()
+}
+
+func (c *Clients) CreateOrUpdateClients(namespace string) {
+	c.PipelineClient = c.Tekton.TektonV1beta1().Pipelines(namespace)
+	c.TaskClient = c.Tekton.TektonV1beta1().Tasks(namespace)
+	c.TaskRunClient = c.Tekton.TektonV1beta1().TaskRuns(namespace)
+	c.PipelineRunClient = c.Tekton.TektonV1beta1().PipelineRuns(namespace)
+	c.Route = routev1.NewForConfigOrDie(c.KubeConfig)
+	c.ProxyConfig = configV1.NewForConfigOrDie(c.KubeConfig)
+	c.ClusterVersion = configV1.NewForConfigOrDie(c.KubeConfig).ClusterVersions()
+	c.ConsoleCLIDownload = consolev1.NewForConfigOrDie(c.KubeConfig).ConsoleCLIDownloads()
+	c.ClustertaskClient = c.Tekton.TektonV1beta1().ClusterTasks()
+	c.MonitoringClient = monclientv1.NewForConfigOrDie(c.KubeConfig)
+
 }

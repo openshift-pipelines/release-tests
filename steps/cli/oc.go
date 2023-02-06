@@ -118,3 +118,9 @@ var _ = gauge.Step("Delete project <projectName>", func(projectName string) {
 var _ = gauge.Step("Link secret <secret> to service account <sa>", func(secret, sa string) {
 	oc.LinkSecretToSA(secret, sa, store.Namespace())
 })
+
+var _ = gauge.Step("Create project <projectName> and update clients", func(projectName string){
+	oc.CreateNewProject(projectName)
+	store.Clients().CreateOrUpdateClients(projectName)
+	gauge.GetScenarioStore()["namespace"] = projectName
+})
