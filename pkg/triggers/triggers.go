@@ -55,13 +55,7 @@ func ExposeEventListner(c *clients.Clients, elname, namespace string) string {
 	svcName, _ := getServiceNameAndPort(c, elname, namespace)
 	cmd.MustSucceed("oc", "expose", "service", svcName, "-n", namespace)
 
-	route := cmd.MustSucceed("oc", "-n", namespace, "get", "route", "--selector=eventlistener="+elname, "-o", "jsonpath='{range .items[*]}{.metadata.name}'").Stdout()
-
-	route_url := cmd.MustSucceed("oc", "-n", namespace, "get", "route", strings.Trim(route, "'"), "--template='http://{{.spec.host}}'").Stdout()
-	log.Printf("Route url: %s", route_url)
-
-	time.Sleep(5 * time.Second)
-	return strings.Trim(route_url, "'")
+	return GetRoute(elname, namespace)
 }
 
 func ExposeEventListnerForTLS(c *clients.Clients, elname, namespace string) string {
@@ -163,7 +157,6 @@ func MockPostEvent(routeurl, interceptor, eventType, payload string, isTLS bool)
 	}
 
 	req = buildHeaders(req, interceptor, eventType)
-	log.Print(req)
 
 	if isTLS {
 		resp, err = CreateHTTPSClient().Do(req)
@@ -255,4 +248,14 @@ func CleanupTriggers(c *clients.Clients, elName, namespace string) {
 
 	// This is required when EL runs as TLS
 	cmd.MustSucceed("rm", "-rf", os.Getenv("GOPATH")+"/src/github.com/openshift-pipelines/release-tests/testdata/triggers/certs")
+}
+
+func GetRoute(elname, namespace string) string {
+	route := cmd.MustSucceed("oc", "-n", namespace, "get", "route", "--selector=eventlistener="+elname, "-o", "jsonpath='{range .items[*]}{.metadata.name}'").Stdout()
+
+	route_url := cmd.MustSucceed("oc", "-n", namespace, "get", "route", strings.Trim(route, "'"), "--template='http://{{.spec.host}}'").Stdout()
+	log.Printf("Route url: %s", route_url)
+
+	time.Sleep(5 * time.Second)
+	return strings.Trim(route_url, "'")
 }

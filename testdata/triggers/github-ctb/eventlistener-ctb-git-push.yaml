@@ -2,7 +2,7 @@
 apiVersion: triggers.tekton.dev/v1alpha1
 kind: EventListener
 metadata:
-  name: listener-clustertriggerbinding-github-push
+  name: listener-ctb-github-push
 spec:
   serviceAccountName: pipeline
   triggers:

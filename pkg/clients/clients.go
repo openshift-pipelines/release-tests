@@ -98,7 +98,7 @@ func NewClients(configPath string, clusterName, namespace string) (*Clients, err
 	if err != nil {
 		return nil, fmt.Errorf("Failed to create triggers clientset from config file at %s: %s", configPath, err)
 	}
-	clients.CreateOrUpdateClients(namespace)
+	clients.NewClients(namespace)
 	return clients, nil
 }
 
@@ -157,7 +157,7 @@ func (c *Clients) TektonConfig() operatorv1alpha1.TektonConfigInterface {
 	return c.Operator.TektonConfigs()
 }
 
-func (c *Clients) CreateOrUpdateClients(namespace string) {
+func (c *Clients) NewClients(namespace string) {
 	c.PipelineClient = c.Tekton.TektonV1beta1().Pipelines(namespace)
 	c.TaskClient = c.Tekton.TektonV1beta1().Tasks(namespace)
 	c.TaskRunClient = c.Tekton.TektonV1beta1().TaskRuns(namespace)

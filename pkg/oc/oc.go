@@ -8,6 +8,7 @@ import (
 	"github.com/getgauge-contrib/gauge-go/testsuit"
 	"github.com/openshift-pipelines/release-tests/pkg/cmd"
 	resource "github.com/openshift-pipelines/release-tests/pkg/config"
+	"github.com/openshift-pipelines/release-tests/pkg/store"
 )
 
 // Create resources using oc command
@@ -20,12 +21,12 @@ func Delete(path_dir, namespace string) {
 	log.Printf("output: %s\n", cmd.MustSucceed("oc", "delete", "-f", resource.Path(path_dir), "-n", namespace).Stdout())
 }
 
-//CreateNewProject Helps you to create new project
+// CreateNewProject Helps you to create new project
 func CreateNewProject(ns string) {
 	log.Printf("output: %s\n", cmd.MustSucceed("oc", "new-project", ns).Stdout())
 }
 
-//DeleteProject Helps you to delete new project
+// DeleteProject Helps you to delete new project
 func DeleteProject(ns string) {
 	log.Printf("output: %s\n", cmd.MustSucceed("oc", "delete", "project", ns).Stdout())
 }
@@ -85,4 +86,8 @@ func RemovePrunerConfig() {
 
 func LabelNamespace(namespace, label string) {
 	log.Printf("output: %s\n", cmd.MustSucceed("oc", "label", "namespace", namespace, label).Stdout())
+}
+
+func DeleteResource(resourceType, name string) {
+	log.Printf("output: %s\n", cmd.MustSucceed("oc", "delete", resourceType, name, "-n", store.Namespace()).Stdout())
 }

@@ -32,3 +32,8 @@ var _ = gauge.Step("Assert if values stored in variable <variable1> and variable
 		}
 	}
 })
+
+var _ = gauge.Step("Switch to project <projectName>", func(projectName string) {
+	store.Clients().NewClients(projectName)
+	gauge.GetScenarioStore()["namespace"] = projectName
+})

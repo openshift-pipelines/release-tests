@@ -108,6 +108,8 @@ var _ = gauge.Step("Update addon config with clusterTasks as <clusterTaskStatus>
 var _ = gauge.Step("Create project <projectName>", func(projectName string) {
 	log.Printf("Creating project %v", projectName)
 	oc.CreateNewProject(projectName)
+	store.Clients().NewClients(projectName)
+	gauge.GetScenarioStore()["namespace"] = projectName
 })
 
 var _ = gauge.Step("Delete project <projectName>", func(projectName string) {
@@ -119,8 +121,6 @@ var _ = gauge.Step("Link secret <secret> to service account <sa>", func(secret, 
 	oc.LinkSecretToSA(secret, sa, store.Namespace())
 })
 
-var _ = gauge.Step("Create project <projectName> and update clients", func(projectName string){
-	oc.CreateNewProject(projectName)
-	store.Clients().CreateOrUpdateClients(projectName)
-	gauge.GetScenarioStore()["namespace"] = projectName
+var _ = gauge.Step("Delete resource <name> of type <resourceType>", func(name, resourceType string) {
+	oc.DeleteResource(resourceType, name)
 })
