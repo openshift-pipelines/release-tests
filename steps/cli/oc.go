@@ -108,7 +108,7 @@ var _ = gauge.Step("Update addon config with clusterTasks as <clusterTaskStatus>
 var _ = gauge.Step("Create project <projectName>", func(projectName string) {
 	log.Printf("Creating project %v", projectName)
 	oc.CreateNewProject(projectName)
-	store.Clients().NewClients(projectName)
+	store.Clients().NewClientSet(projectName)
 	gauge.GetScenarioStore()["namespace"] = projectName
 })
 
