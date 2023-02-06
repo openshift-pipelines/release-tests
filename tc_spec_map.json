@@ -16,5 +16,6 @@
     "PIPELINES-15": "specs/operator/addon.spec",
     "PIPELINES-16": "specs/clustertasks/clustertask.spec",
     "PIPELINES-17": "specs/clustertasks/clustertask-multiarch.spec",
-    "PIPELINES-18": "specs/operator/upgrade.spec"
+    "PIPELINES-18": "specs/operator/pre-upgrade.spec",
+    "PIPELINES-19": "specs/operator/post-upgrade.spec"
 }
