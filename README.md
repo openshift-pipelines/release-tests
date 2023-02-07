@@ -20,7 +20,7 @@ Install Gauge to `/usr/local/bin` by running
 
 ```curl -SsL https://downloads.gauge.org/stable | sh```
 
-Or Install Gauge to a `<custom path>` using
+or install Gauge to a `<custom path>` using
 
 ```curl -SsL https://downloads.gauge.org/stable | sh -s -- --location-[custom path]```
 
@@ -88,10 +88,10 @@ gauge run --env "default, test" --log-level=debug --verbose --tags "e2e & !skip_
 
 ## Authoring a new test specification
 
-# Create or update a spec file in `specs` directory using `Markdown` syntax.
-# If necessary, create steps in a new or appropriate existing `Go` file in `steps` directory.
-# If necessary, create test resources in `YAML` in `testdata` directory.
-# If necessary, implement new steps using `Go` in new or appropriate existing file in `pkg` directory.
+1. Create or update a spec file in `specs` directory using `Markdown` syntax.
+2. If necessary, create steps in a new or appropriate existing `Go` file in `steps` directory.
+3. If necessary, create test resources in `YAML` in `testdata` directory.
+4. If necessary, implement new steps using `Go` in new or appropriate existing file in `pkg` directory.
 
 ## Running tests in a container
 
