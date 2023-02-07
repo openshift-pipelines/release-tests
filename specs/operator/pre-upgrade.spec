@@ -1,5 +1,5 @@
 PIPELINES-18
-# Olm Openshift Pipelines operator pre upgrade specs
+# Openshift Pipelines pre upgrade specs
 
 ## Setup environment for upgrade test: PIPELINES-18-TC01
 Tags: pre-upgrade, admin
@@ -55,3 +55,44 @@ Steps:
     |----|-----------------|-------|
     |1   |bitbucket-run    |Failure|
   * Delete resource "bitbucket-run" of type "taskrun"
+
+## Setup S2I nodejs pipeline pre upgrade: PIPELINES-18-TC02
+Tags: pre-upgrade, e2e, clustertasks, non-admin, s2i
+Component: Pipelines
+Level: Integration
+Type: Functional
+Importance: Critical
+
+Steps:
+  * Create project "releasetest-upgrade-s2i"
+  * Create
+      |S.NO|resource_dir                                          |
+      |----|------------------------------------------------------|
+      |1   |testdata/v1beta1/clustertask/pipelines/s2i-nodejs.yaml|
+      |2   |testdata/v1beta1/clustertask/pvc/pvc.yaml             |
+
+## Setup Eventlistener with TLS enabled pre upgrade: PIPELINES-18-TC03
+Tags: pre-upgrade, tls, triggers, admin, e2e, sanity
+Component: Triggers
+Level: Integration
+Type: Functional
+Importance: Critical
+
+Steps:
+  * Create project "releasetest-upgrade-tls"
+  * Enable TLS config for eventlisteners
+  * Create
+    |S.NO|resource_dir                                                        |
+    |----|--------------------------------------------------------------------|
+    |1   |testdata/triggers/sample-pipeline.yaml                              |
+    |2   |testdata/triggers/triggerbindings/triggerbinding.yaml               |
+    |3   |testdata/triggers/triggertemplate/triggertemplate.yaml              |
+    |4   |testdata/triggers/eventlisteners/eventlistener-embeded-binding.yaml |
+  * Expose Event listener for TLS "listener-embed-binding"
+  * Mock post event to "github" interceptor with event-type "push", payload "testdata/push.json", with TLS "true"
+  * Assert eventlistener response
+  * Verify pipelinerun
+    |S.NO|pipeline_run_name  |status    |check_label_propagation|
+    |----|-------------------|----------|-----------------------|
+    |1   |simple-pipeline-run|successful|no                     |
+  * Delete resource "simple-pipeline-run" of type "pipelinerun"
