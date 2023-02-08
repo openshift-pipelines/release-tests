@@ -11,7 +11,7 @@ Importance: Critical
 Creates Openshift Pipelines resources before upgrade
 
 Steps:
-  * Create project "releasetest-upgrade"
+  * Create project "releasetest-upgrade-triggers"
   * Create
     |S.NO|resource_dir                                                      |
     |----|------------------------------------------------------------------|
@@ -96,3 +96,31 @@ Steps:
     |----|-------------------|----------|-----------------------|
     |1   |simple-pipeline-run|successful|no                     |
   * Delete "pipelinerun" named "simple-pipeline-run"
+
+## Setup link secret to pipeline SA PIPELINES-18-TC04
+Tags: pre-upgrade, e2e, clustertasks, non-admin, git-clone, sanity
+Component: Pipelines
+Level: Integration
+Type: Functional
+Importance: Critical
+CustomerScenario: yes
+
+Steps:
+  * Create project "releasetest-upgrade-pipelines"
+  * Verify ServiceAccount "pipeline" exist
+  * Create
+      | S.NO | resource_dir                                                       |
+      |------|--------------------------------------------------------------------|
+      | 1    | testdata/v1beta1/clustertask/pipelines/git-clone-read-private.yaml |
+      | 2    | testdata/v1beta1/clustertask/pvc/pvc.yaml                          |
+      | 3    | testdata/v1beta1/clustertask/secrets/ssh-key.yaml                  |
+  * Link secret "ssh-key" to service account "pipeline"
+  * Create
+      | S.NO | resource_dir                                                          |
+      |------|-----------------------------------------------------------------------|
+      | 1    | testdata/v1beta1/clustertask/pipelineruns/git-clone-read-private.yaml |
+  * Verify pipelinerun
+      | S.NO | pipeline_run_name                   | status     | check_label_propagation |
+      |------|-------------------------------------|------------|-------------------------|
+      | 1    | git-clone-read-private-pipeline-run | successful | no                      |
+  * Delete "pipelinerun" named "git-clone-read-private-pipeline-run"

@@ -11,7 +11,7 @@ Importance: Critical
 Creates Openshift Pipelines resources before upgrade
 
 Steps:
-  * Switch to project "releasetest-upgrade"
+  * Switch to project "releasetest-upgrade-triggers"
   * Get route for eventlistener "listener-ctb-github-push"
   * Mock post event to "github" interceptor with event-type "push", payload "testdata/triggers/github-ctb/push.json", with TLS "false"
   * Assert eventlistener response
@@ -62,3 +62,23 @@ Steps:
     |S.NO|pipeline_run_name  |status    |check_label_propagation|
     |----|-------------------|----------|-----------------------|
     |1   |simple-pipeline-run|successful|no                     |
+
+## Verify secret is linked to SA even after upgrade: PIPELINES-19-TC04
+Tags: post-upgrade, e2e, clustertasks, non-admin, git-clone, sanity
+Component: Pipelines
+Level: Integration
+Type: Functional
+Importance: Critical
+CustomerScenario: yes
+
+Steps:
+  * Switch to project "releasetest-upgrade-pipelines"
+  * Verify ServiceAccount "pipeline" exist
+  * Create
+      | S.NO | resource_dir                                                          |
+      |------|-----------------------------------------------------------------------|
+      | 1    | testdata/v1beta1/clustertask/pipelineruns/git-clone-read-private.yaml |
+  * Verify pipelinerun
+      | S.NO | pipeline_run_name                   | status     | check_label_propagation |
+      |------|-------------------------------------|------------|-------------------------|
+      | 1    | git-clone-read-private-pipeline-run | successful | no                      |
