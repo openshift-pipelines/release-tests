@@ -2,8 +2,6 @@ package config
 
 import (
 	"flag"
-	"fmt"
-	"io/ioutil"
 	"os"
 	"os/user"
 	"path"
@@ -165,7 +163,7 @@ func File(elem ...string) string {
 }
 
 func Read(path string) ([]byte, error) {
-	return ioutil.ReadFile(File(path))
+	return os.ReadFile(File(path))
 }
 
 func TempDir() (string, error) {
@@ -201,12 +199,4 @@ func Path(elem ...string) string {
 		testsuit.T.Errorf("Error: in identifying test data path %s: %+v", td, err)
 	}
 	return filepath.Join(append([]string{td}, elem...)...)
-}
-
-func ReadBytes(elem string) ([]byte, error) {
-	bytes, err := ioutil.ReadFile(Path(elem))
-	if err != nil {
-		return nil, fmt.Errorf("couldn't load test data example PullRequest event data: %v", err)
-	}
-	return bytes, nil
 }
