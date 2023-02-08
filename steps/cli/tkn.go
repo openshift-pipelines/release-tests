@@ -24,7 +24,7 @@ var _ = gauge.Step("Start and verify pipeline <pipelineName> with param <paramNa
 		}
 		log.Printf("Starting pipeline %s with param %s=%s", pipelineName, paramName, value)
 		params[paramName] = value
-		pipelineRunName := tkn.StartPipeline(pipelineName, params, workspaces, "--use-param-defaults")
+		pipelineRunName := tkn.StartPipeline(pipelineName, params, workspaces, store.Namespace(), "--use-param-defaults")
 		pipelines.ValidatePipelineRun(store.Clients(), pipelineRunName, "successful", "no", store.Namespace())
 	}
 })
@@ -50,7 +50,7 @@ var _ = gauge.Step("Start and verify dotnet pipeline <pipelineName> with values 
 			params["EXAMPLE_REVISION"] = "dotnetcore-" + exampleRevision
 		}
 		log.Printf("Starting pipeline %s with param %s=%s and EXAMPLE_REVISION=%s", pipelineName, paramName, value, params["EXAMPLE_REVISION"])
-		pipelineRunName := tkn.StartPipeline(pipelineName, params, workspaces, "--use-param-defaults")
+		pipelineRunName := tkn.StartPipeline(pipelineName, params, workspaces, store.Namespace(), "--use-param-defaults")
 		pipelines.ValidatePipelineRun(store.Clients(), pipelineRunName, "successful", "no", store.Namespace())
 	}
 })

@@ -22,7 +22,7 @@ spec:
     - apiVersion: tekton.dev/v1beta1
       kind: TaskRun
       metadata:
-        generateName: bitbucket-run-
+        name: bitbucket-run
       spec:
         taskSpec:
           resources:

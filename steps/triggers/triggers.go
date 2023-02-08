@@ -36,3 +36,9 @@ var _ = gauge.Step("Mock post event to <interceptor> interceptor with event-type
 	isTLS, _ := strconv.ParseBool(tls)
 	gauge.GetScenarioStore()["response"] = triggers.MockPostEvent(store.GetScenarioData("route"), interceptor, eventType, payload, isTLS)
 })
+
+var _ = gauge.Step("Get route for eventlistener <elname>", func(elname string) {
+	routeurl := triggers.GetRoute(elname, store.Namespace())
+	store.PutScenarioData("route", routeurl)
+	store.PutScenarioData("elname", elname)
+})
