@@ -25,7 +25,7 @@ Steps:
     |S.NO|pipeline_run_name       |status    |check_label_propagation|
     |----|------------------------|----------|-----------------------|
     |1   |pipelinerun-git-push-ctb|successful|no                     |
-  * Delete resource "pipelinerun-git-push-ctb" of type "pipelinerun"
+  * Delete "pipelinerun" named "pipelinerun-git-push-ctb"
   * Create
     |S.NO|resource_dir                                               |
     |----|-----------------------------------------------------------|
@@ -41,7 +41,7 @@ Steps:
     |S.NO|pipeline_run_name       |status    |check_label_propagation|
     |----|------------------------|----------|-----------------------|
     |1   |parallel-pipelinerun    |successful|no                     |
-  * Delete resource "parallel-pipelinerun" of type "pipelinerun"
+  * Delete "pipelinerun" named "parallel-pipelinerun"
   * Create
     |S.NO|resource_dir                                                        |
     |----|--------------------------------------------------------------------|
@@ -54,7 +54,7 @@ Steps:
     |S.NO|task_run_name    |status |
     |----|-----------------|-------|
     |1   |bitbucket-run    |Failure|
-  * Delete resource "bitbucket-run" of type "taskrun"
+  * Delete "taskrun" named "bitbucket-run"
 
 ## Setup S2I nodejs pipeline pre upgrade: PIPELINES-18-TC02
 Tags: pre-upgrade, e2e, clustertasks, non-admin, s2i
@@ -95,4 +95,4 @@ Steps:
     |S.NO|pipeline_run_name  |status    |check_label_propagation|
     |----|-------------------|----------|-----------------------|
     |1   |simple-pipeline-run|successful|no                     |
-  * Delete resource "simple-pipeline-run" of type "pipelinerun"
+  * Delete "pipelinerun" named "simple-pipeline-run"

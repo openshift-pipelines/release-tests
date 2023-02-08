@@ -47,7 +47,7 @@ Steps:
   * Start and verify pipeline "s2i-nodejs-pipeline" with param "VERSION" with values stored in variable "nodejs-tags" with workspace "name=source,claimName=shared-pvc"
 
 ## Verify Event listener with TLS after upgrade: PIPELINES-19-TC03
-Tags: pre-upgrade, tls, triggers, admin, e2e, sanity
+Tags: post-upgrade, tls, triggers, admin, e2e, sanity
 Component: Triggers
 Level: Integration
 Type: Functional

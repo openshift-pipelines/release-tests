@@ -121,6 +121,6 @@ var _ = gauge.Step("Link secret <secret> to service account <sa>", func(secret, 
 	oc.LinkSecretToSA(secret, sa, store.Namespace())
 })
 
-var _ = gauge.Step("Delete resource <name> of type <resourceType>", func(name, resourceType string) {
+var _ = gauge.Step("Delete <resourceType> named <name>", func(resourceType, name string) {
 	oc.DeleteResource(resourceType, name)
 })
