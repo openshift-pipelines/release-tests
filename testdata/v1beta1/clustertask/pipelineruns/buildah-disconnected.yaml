@@ -7,7 +7,7 @@ spec:
     name: buildah-pipeline
   params:
   - name: REVISION
-    value: fedora-34-dis-1
+    value: fedora-38-dis
   - name: SUBDIR
     value: buildah-disconnected
   timeout: 10m
