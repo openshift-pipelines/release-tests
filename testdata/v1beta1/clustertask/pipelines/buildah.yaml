@@ -5,7 +5,7 @@ metadata:
 spec:
   params:
   - name: REVISION
-    default: fedora-34
+    default: fedora-38
   - name: SUBDIR
     description: where to clone the git repo
     default: buildah
