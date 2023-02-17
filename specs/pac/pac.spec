@@ -58,24 +58,6 @@ Steps:
   * Create a new repo in github
   * Verify that repo cr is not created
 
-## Enable/Disable auto-configure-new-github-repo: PIPELINES-20-TC03
-Tags: pac, sanity, to-do
-Component: PAC
-Level: Integration
-Type: Functional
-Importance: Critical
-
-This scenario tests if a new repo cr is getting created after enabling auto-configure-new-github-repo
-
-Steps:
-  * Set "auto-configure-new-github-repo" section under "pipelinesAsCode" to "true"
-  * Configure PAC using github app
-  * Create a new repo in github
-  * Verify that a new repo cr got created
-  * Set "auto-configure-new-github-repo" section under "pipelinesAsCode" to "false"
-  * Create a new repo in github
-  * Verify that repo cr is not created
-
 ## Enable/Disable error-log-snippet: PIPELINES-20-TC04
 Tags: pac, sanity, to-do
 Component: PAC
