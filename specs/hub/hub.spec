@@ -1,7 +1,7 @@
-PIPELINES-20
+PIPELINES-21
 # HUB tests tests
 
-## Install HUB without authentication: PIPELINES-20-TC01
+## Install HUB without authentication: PIPELINES-21-TC01
 Tags: hub, sanity, to-do
 Component: HUB
 Level: Integration
