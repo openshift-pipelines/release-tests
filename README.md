@@ -1,227 +1,105 @@
-# release-tests
+# OpenShift Pipelines E2E tests
+
 Validation of OpenShift Pipeline releases using [Gauge](https://docs.gauge.org/getting_started/installing-gauge.html)
 
-
-### ***Prerequisite***
+### Prerequisites
 
 * [Go](https://golang.org/)
 
 * [Gauge](https://docs.gauge.org/getting_started/installing-gauge.html?os=linux&language=python&ide=vscode)
 
-* Clone this repository into [GOPATH](https://github.com/golang/go/wiki/GOPATH).
+* Clone this repository
 
-* Need [OCP](https://gitlab.cee.redhat.com/tekton/plumbing/) cluster (4.4 and above)
+* Need [OpenShift](https://gitlab.cee.redhat.com/tekton/plumbing/) cluster
 
-* Download [OC](https://mirror.openshift.com/pub/openshift-v4/clients/oc/latest/) latest binary executable for your operating system
+* Download latest [OpenShift Client](https://mirror.openshift.com/pub/openshift-v4/clients/oc/latest/) for your operating system
 
-#### Installation Instructions
-
-* *Install using DNF Package Manager*
-
-```> sudo dnf install gauge```
-
-* *Install using Curl*
+### Installation instructions
 
 Install Gauge to `/usr/local/bin` by running
 
-```> curl -SsL https://downloads.gauge.org/stable | sh```
+```curl -SsL https://downloads.gauge.org/stable | sh```
 
-Or Install Gauge to a `<custom path>` using
+or install Gauge to a `<custom path>` using
 
-```> curl -SsL https://downloads.gauge.org/stable | sh -s -- --location-[custom path]```
+```curl -SsL https://downloads.gauge.org/stable | sh -s -- --location-[custom path]```
 
-### Alternative Installation Methods
+For other installation methods, refer to the [Gauge documentation.](https://docs.gauge.org/getting_started/installing-gauge.html)
 
-* Refer [Doc.](https://docs.gauge.org/getting_started/installing-gauge.html)
-
-* Follow the steps to add the Gauge VS Code plugin from the IDE
-
-  * Install Gauge extension for [VS Code](https://marketplace.visualstudio.com/items?itemName=getgauge.gauge).
-
-#### Install Plugins
-
-* Install go plugin
+### Install plugins
 
 ```
-> gauge install go
+GO111MODULE=off gauge install go
+GO111MODULE=off gauge install html-report
+GO111MODULE=off gauge install screenshot
+GO111MODULE=off gauge install xml-report
 ```
 
-* Install html plugin
+(optional)
 
 ```
-> gauge install html-report
-```
-
-* Install xml-report
-
-```
-> gauge install xml-report
-```
-
-* (optional) Install reportportal
-
-```
-> gauge install reportportal
+GO111MODULE=off gauge install reportportal
 ```
 
 ## Run a specification
 
-* You can run a Gauge specification by using the gauge run command. When this command is run, Gauge scans the directories and sub-directories at `<project_root>` (location at which the Gauge project is created) and picks up valid specification files.
+Refer to the [Gauge documentation](https://docs.gauge.org/execution.html) for general information about how to run specifications (aka `specs`).
+
+## Run tests for OpenShift Pipelines
+
+Majority of tests assume that they run on an OpenShift cluster with already installed OpenShift Pipelines operator (e.g. latest release of a nightly build).
+
+### Operator installation, upgrade and uninstallation
+
+Operator installation tests have to run as `admin` user
 
 ```
-> gauge run [args] [flags]
-```
-   * `<project_root>` - location at which a Gauge project is created
-   * `[args]` - directories in which specifications are stored, location of specification files and scenarios
-   * `[flags]` - options that can be used with this command such as --tags, -e, -f, and so on
-
-> Note:
-Gauge specifications can also be run from within the IDE (VS Code)
-
-* Run multiple specifications
-```
-> gauge run <path_to_spec1> <path_to_spec2> <path_to_spec3>
-```
-
-* Run multiple directories
-```
-> gauge run specs test_specs
-```
-* Filter Specifications by `Tags`
-
-```
-> gauge run --tags "search" specs
-```
-
-* Tag Expressions (Useful stuff):
-
-
-Tags                         | Selects specs/scenarios that
------------------------------|-------------------------------
-!TagA                        |do not have TagA
-TagA & TagB (or) TagA,TagB   |have both TagA and TagB.
-TagA & !TagB                 |have TagA and not TagB.
-Tag\|TagB                    |have either TagA or TagB.
-(TagA & TagB) \| TagC        |have either TagC or both TagA and TagB
-!(TagA & TagB) \| TagC       |have either TagC or do not have both TagA and TagB
-(TagA \| TagB) & TagC        |have either [TagA and TagC] or [TagB and TagC]
-
-## Gauge Commands for reference
-- Synopsis
-  - Gauge is a light-weight cross-platform test automation tool with the ability to author test cases in the business language.
-
-- `gauge <command> [flags] [args]`
-
-- Examples:
-```
- > gauge run specs/
- > gauge run --parallel specs/
-```
-
-  Short hand notation       | Description
-----------------------------|-------------------------------
-  -d, --dir string          | Set the working directory for the current command, accepts a path relative to current directory (default ".")
-  -h, --help                |  help for gauge
-  -l, --log-level string    | Set level of logging to debug, info, warning, error or critical (default "info")
-  -m, --machine-readable    | Prints output in JSON format
-  -v, --version             | Print Gauge and plugin versions
-
-## Run openshift-pipeline tests
-
-```
-> gauge run --env "default, test" --log-level=debug  --verbose specs/pipelines specs/triggers
-```
-
-## Run pipelines tests
-
-```
-> gauge run --env "default, test" --log-level=debug  --verbose specs/pipelines/
-```
-
-## Run openshift-pipelines monitoring acceptance tests
-
-```
-> gauge run --env "default, test" --log-level=debug --tags "e2e" --verbose specs/metrics/
-```
-
-## Run olm tests
-
-### Fresh installation
-```
-> CATALOG_SOURCE=pre-stage-operators CHANNEL=preview gauge run --env "default, test" --tags "install" --log-level=debug --verbose   specs/olm.spec
+CATALOG_SOURCE=custom-operators CHANNEL=latest gauge run --env "default, test" --log-level=debug --verbose --tags "install" specs/olm.spec
+CATALOG_SOURCE=custom-operators CHANNEL=latest gauge run --env "default, test" --log-level=debug --verbose --tags "upgrade" specs/olm.spec
+gauge run --env "default, test" --log-level=debug --verbose --tags "uninstall" specs/olm.spec
 ```
 
 > Notes: 
-> - set `CATALOG_SOURCE` eg: `pre-stage-operators`
-> - set `CHANNEL` env variable Eg: `ocp-4.6`, 
-> - helps user to install operator by subscribing to `CHANNEL` (Assumption: pipelines operator shouldn't be installed) for `redhat-operators` or user defined catalog sources
+> - `CATALOG_SOURCE` - catalog source name, `redhat-operators` for released versions, `custom-operators` for nightly builds
+> - `CHANNEL` - channel to which the installation test is supposed to subscribe, e.g. `latest` or `pipelines-1.9`
 
-### Upgrade operator
-```
-> CATALOG_SOURCE=$CATALOG_SOURCE CHANNEL=$CHANNEL gauge run --env "default, test" --tags "upgrade" --log-level=debug --verbose   specs/olm.spec
-```
-> Notes:
-> - helps user to upgrade operator by updating subscription to latest `CHANNEL` (Assumption: cluster should have pipelines operator installed)
+### Most common test sub-suites
 
-### Uninstall Operator
-```
-> gauge run --env "default, test" --tags "uninstall" --log-level=debug --verbose   specs/olm.spec
-```
- 
-## Package structures
-
-- `specs` directory contains only specification written `Markdown` syntax.
-
-- Any validation/automation
- of a particular feature/component will need to be in the `pkg` directory
-
-- `env` Directory where we store gauge/framework related configurations.
-
-- `logs` directory where logs gets stored on each execution
-
-- `reports` directory contains reports generated on each execution
-- `specs` directory is divided into the following
-  -  `pipelines` :  contains specs related to the component pipeline
-  -  `triggers` :  contains specs related to the component triggers
-  - `metrics` : contains specs related to the openshift-pipelines metrics
-
-  -  `olm` : containse sepcs related to olm
-       *  install: contains specs related to olm install operator
-       *  uninstall: contains specs related to olm uninstall operator
-       *  upgrade: contains specs related to olm upgrade operator
-
-## Docker Build
-
-- Build docker file
+The following tests have to run as `admin` user
 
 ```
-> podman build . -t <username>/release-tests:v0.1
-```
-> Note:
-> 1. Docker file have pre-requisites like go, gauge installed to run release-tests
-
-- It's decoupled from code changes, try to use `gitvolumes` or `pipeline-resources(git)` to pass `release-tests` code
-
-- Needs `OC` login before we execute `gauge run` instructions
-
-## Workaround to run docker image locally
-
-```
-> podman run --rm --it <username>/release-tests:v0.1 /bin/sh
+gauge run --env "default, test" --log-level=debug --verbose --tags "e2e" specs/metrics
+gauge run --env "default, test" --log-level=debug --verbose --tags "e2e & tls" specs/triggers/eventlistener.spec
+gauge run --env "default, test" --log-level=debug --verbose --tags "e2e" specs/clustertasks/clustertask.spec
+gauge run --env "default, test" --log-level=debug --verbose --tags "e2e & linux/amd64" specs/clustertasks/clustertask-multiarch.spec
+gauge run --env "default, test" --log-level=debug --verbose --tags "e2e" specs/operator/rbac.spec
+gauge run --env "default, test" --log-level=debug --verbose --tags "e2e" specs/operator/auto-prune.spec
+gauge run --env "default, test" --log-level=debug --verbose --tags "e2e" specs/operator/addon.spec
 ```
 
-```
-> git clone <release-tests> repo to GOPATH
-```
+The following tests can run as both `admin` and regular/non-admin user
 
 ```
-> oc login
+gauge run --env "default, test" --log-level=debug --verbose --tags "e2e" specs/pipelines
+gauge run --env "default, test" --log-level=debug --verbose --tags "e2e & !tls" specs/triggers
+gauge run --env "default, test" --log-level=debug --verbose --tags "disconnected-e2e" specs/clustertasks/clustertask.spec
+gauge run --env "default, test" --log-level=debug --verbose --tags "e2e & !skip_linux/amd64" specs/clustertasks/clustertask-s2i.spec
 ```
 
+## Authoring a new test specification
+
+1. Create or update a spec file in `specs` directory using `Markdown` syntax.
+2. If necessary, create steps in a new or appropriate existing `Go` file in `steps` directory.
+3. If necessary, create test resources in `YAML` in `testdata` directory.
+4. If necessary, implement new steps using `Go` in new or appropriate existing file in `pkg` directory.
+
+## Running tests in a container
+
+CI system is running these tests inside a container using image [quay.io/openshift-pipeline/ci](https://quay.io/repository/openshift-pipeline/ci?tab=tags&tag=latest) built using a [Dockerfile](https://gitlab.cee.redhat.com/tekton/plumbing/-/blob/master/images/ci/Dockerfile) hosted in a non-public repository. 
+
 ```
-> gauge run --env "test" --log-level=debug  --verbose specs/pipelines/
+cd <path_with_content_of_this_repo>
+podman run --rm -it -v $KUBECONFIG:/root/.kube/config:z -v .:/root/release-tests:z -w /root/release-tests quay.io/openshift-pipeline/ci /bin/bash
+gauge run ...
 ```
 
-## Dogfooding own product
-
-- See Real usecase of `release-tests` in [CI](https://gitlab.cee.redhat.com/tekton/plumbing/ci) system
