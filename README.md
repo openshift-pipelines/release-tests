@@ -54,9 +54,9 @@ Majority of tests assume that they run on an OpenShift cluster with already inst
 Operator installation tests have to run as `admin` user
 
 ```
-CATALOG_SOURCE=custom-operators CHANNEL=latest gauge run --env "default, test" --log-level=debug --verbose --tags "install" specs/olm.spec
-CATALOG_SOURCE=custom-operators CHANNEL=latest gauge run --env "default, test" --log-level=debug --verbose --tags "upgrade" specs/olm.spec
-gauge run --env "default, test" --log-level=debug --verbose --tags "uninstall" specs/olm.spec
+CATALOG_SOURCE=custom-operators CHANNEL=latest gauge run --log-level=debug --verbose --tags install specs/olm.spec
+CATALOG_SOURCE=custom-operators CHANNEL=latest gauge run --log-level=debug --verbose --tags upgrade specs/olm.spec
+gauge run --log-level=debug --verbose --tags uninstall specs/olm.spec
 ```
 
 > Notes: 
@@ -68,22 +68,22 @@ gauge run --env "default, test" --log-level=debug --verbose --tags "uninstall" s
 The following tests have to run as `admin` user
 
 ```
-gauge run --env "default, test" --log-level=debug --verbose --tags "e2e" specs/metrics
-gauge run --env "default, test" --log-level=debug --verbose --tags "e2e & tls" specs/triggers/eventlistener.spec
-gauge run --env "default, test" --log-level=debug --verbose --tags "e2e" specs/clustertasks/clustertask.spec
-gauge run --env "default, test" --log-level=debug --verbose --tags "e2e & linux/amd64" specs/clustertasks/clustertask-multiarch.spec
-gauge run --env "default, test" --log-level=debug --verbose --tags "e2e" specs/operator/rbac.spec
-gauge run --env "default, test" --log-level=debug --verbose --tags "e2e" specs/operator/auto-prune.spec
-gauge run --env "default, test" --log-level=debug --verbose --tags "e2e" specs/operator/addon.spec
+gauge run --log-level=debug --verbose --tags e2e specs/metrics
+gauge run --log-level=debug --verbose --tags 'e2e & tls' specs/triggers/eventlistener.spec
+gauge run --log-level=debug --verbose --tags e2e specs/clustertasks/clustertask.spec
+gauge run --log-level=debug --verbose --tags 'e2e & linux/amd64' specs/clustertasks/clustertask-multiarch.spec
+gauge run --log-level=debug --verbose --tags e2e specs/operator/rbac.spec
+gauge run --log-level=debug --verbose --tags e2e specs/operator/auto-prune.spec
+gauge run --log-level=debug --verbose --tags e2e specs/operator/addon.spec
 ```
 
 The following tests can run as both `admin` and regular/non-admin user
 
 ```
-gauge run --env "default, test" --log-level=debug --verbose --tags "e2e" specs/pipelines
-gauge run --env "default, test" --log-level=debug --verbose --tags "e2e & !tls" specs/triggers
-gauge run --env "default, test" --log-level=debug --verbose --tags "disconnected-e2e" specs/clustertasks/clustertask.spec
-gauge run --env "default, test" --log-level=debug --verbose --tags "e2e & !skip_linux/amd64" specs/clustertasks/clustertask-s2i.spec
+gauge run --log-level=debug --verbose --tags e2e specs/pipelines
+gauge run --log-level=debug --verbose --tags 'e2e & !tls' specs/triggers
+gauge run --log-level=debug --verbose --tags disconnected-e2e specs/clustertasks/clustertask.spec
+gauge run --log-level=debug --verbose --tags 'e2e & !skip_linux/amd64' specs/clustertasks/clustertask-s2i.spec
 ```
 
 ## Authoring a new test specification
