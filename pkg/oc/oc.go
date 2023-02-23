@@ -2,11 +2,11 @@ package oc
 
 import (
 	"log"
-	"os"
 	"strings"
 
 	"github.com/getgauge-contrib/gauge-go/testsuit"
 	"github.com/openshift-pipelines/release-tests/pkg/cmd"
+	"github.com/openshift-pipelines/release-tests/pkg/config"
 	resource "github.com/openshift-pipelines/release-tests/pkg/config"
 )
 
@@ -20,12 +20,12 @@ func Delete(path_dir, namespace string) {
 	log.Printf("output: %s\n", cmd.MustSucceed("oc", "delete", "-f", resource.Path(path_dir), "-n", namespace).Stdout())
 }
 
-//CreateNewProject Helps you to create new project
+// CreateNewProject Helps you to create new project
 func CreateNewProject(ns string) {
 	log.Printf("output: %s\n", cmd.MustSucceed("oc", "new-project", ns).Stdout())
 }
 
-//DeleteProject Helps you to delete new project
+// DeleteProject Helps you to delete new project
 func DeleteProject(ns string) {
 	log.Printf("output: %s\n", cmd.MustSucceed("oc", "delete", "project", ns).Stdout())
 }
@@ -39,7 +39,7 @@ func LinkSecretToSA(secretname, sa, namespace string) {
 }
 
 func CreateSecretWithSecretToken(secretname, namespace string) {
-	log.Printf("output: %s\n", cmd.MustSucceed("oc", "create", "secret", "generic", secretname, "--from-literal=secretToken="+os.Getenv("SECRET_TOKEN"), "-n", namespace).Stdout())
+	log.Printf("output: %s\n", cmd.MustSucceed("oc", "create", "secret", "generic", secretname, "--from-literal=secretToken="+config.TriggersSecretToken, "-n", namespace).Stdout())
 }
 
 func EnableTLSConfigForEventlisteners(namespace string) {
