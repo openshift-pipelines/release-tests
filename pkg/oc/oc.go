@@ -2,11 +2,11 @@ package oc
 
 import (
 	"log"
-	"os"
 	"strings"
 
 	"github.com/getgauge-contrib/gauge-go/testsuit"
 	"github.com/openshift-pipelines/release-tests/pkg/cmd"
+	"github.com/openshift-pipelines/release-tests/pkg/config"
 	resource "github.com/openshift-pipelines/release-tests/pkg/config"
 	"github.com/openshift-pipelines/release-tests/pkg/store"
 )
@@ -40,7 +40,7 @@ func LinkSecretToSA(secretname, sa, namespace string) {
 }
 
 func CreateSecretWithSecretToken(secretname, namespace string) {
-	log.Printf("output: %s\n", cmd.MustSucceed("oc", "create", "secret", "generic", secretname, "--from-literal=secretToken="+os.Getenv("SECRET_TOKEN"), "-n", namespace).Stdout())
+	log.Printf("output: %s\n", cmd.MustSucceed("oc", "create", "secret", "generic", secretname, "--from-literal=secretToken="+config.TriggersSecretToken, "-n", namespace).Stdout())
 }
 
 func EnableTLSConfigForEventlisteners(namespace string) {
