@@ -9,11 +9,11 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
-	"os"
 	"strings"
 	"time"
 
 	"github.com/getgauge-contrib/gauge-go/testsuit"
+	"github.com/openshift-pipelines/release-tests/pkg/config"
 	resource "github.com/openshift-pipelines/release-tests/pkg/config"
 	"github.com/openshift-pipelines/release-tests/pkg/store"
 )
@@ -81,19 +81,19 @@ func buildHeaders(req *http.Request, interceptor, eventType string) *http.Reques
 		log.Printf("Building headers for github interceptor..")
 		req.Header.Add("Accept", "application/json")
 		req.Header.Add("Content-Type", "application/json")
-		req.Header.Add("X-Hub-Signature", "sha1="+GetSignature(store.GetPayload(), os.Getenv("SECRET_TOKEN")))
+		req.Header.Add("X-Hub-Signature", "sha1="+GetSignature(store.GetPayload(), config.TriggersSecretToken))
 		req.Header.Add("X-GitHub-Event", eventType)
 	case "gitlab":
 		log.Printf("Building headers for gitlab interceptor..")
 		req.Header.Add("Accept", "application/json")
 		req.Header.Add("Content-Type", "application/json")
-		req.Header.Add("X-GitLab-Token", os.Getenv("SECRET_TOKEN"))
+		req.Header.Add("X-GitLab-Token", config.TriggersSecretToken)
 		req.Header.Add("X-Gitlab-Event", eventType)
 	case "bitbucket":
 		log.Printf("Building headers for bitbucket interceptor..")
 		req.Header.Add("Accept", "application/json")
 		req.Header.Add("Content-Type", "application/json")
-		req.Header.Add("X-Hub-Signature", "sha1="+GetSignature(store.GetPayload(), os.Getenv("SECRET_TOKEN")))
+		req.Header.Add("X-Hub-Signature", "sha1="+GetSignature(store.GetPayload(), config.TriggersSecretToken))
 		req.Header.Add("X-Event-Key", "repo:"+eventType)
 	default:
 		testsuit.T.Errorf("Error: %s ", "Please provide valid event_listener type eg: (github, gitlab, bitbucket)")
