@@ -1,5 +1,7 @@
 PIPELINES-19
 # Olm Openshift Pipelines operator post upgrade tests
+Pre condition:
+  * Validate Operator should be installed
 
 ## Verify environment after upgrade: PIPELINES-19-TC01
 Tags: post-upgrade, admin
