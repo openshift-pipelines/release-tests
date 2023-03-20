@@ -29,25 +29,25 @@ type KubeClient struct {
 
 // Clients holds instances of interfaces for making requests to Tekton Pipelines.
 type Clients struct {
-	KubeClient             *KubeClient
-	Ctx                    context.Context
-	Dynamic                dynamic.Interface
-	Operator               operatorv1alpha1.OperatorV1alpha1Interface
-	KubeConfig             *rest.Config
-	Scheme                 *runtime.Scheme
-	OLM                    olmversioned.Interface
-	Route                  routev1.RouteV1Interface
-	ProxyConfig            configV1.ConfigV1Interface
-	ClusterVersion         configV1.ClusterVersionInterface
-	ConsoleCLIDownload     consolev1.ConsoleCLIDownloadInterface
-	MonitoringClient       monclientv1.MonitoringV1Interface
-	Tekton                 pversioned.Interface
-	PipelineClient         v1beta1.PipelineInterface
-	TaskClient             v1beta1.TaskInterface
-	TaskRunClient          v1beta1.TaskRunInterface
-	PipelineRunClient      v1beta1.PipelineRunInterface
-	TriggersClient         triggersclientset.Interface
-	ClustertaskClient      v1beta1.ClusterTaskInterface
+	KubeClient         *KubeClient
+	Ctx                context.Context
+	Dynamic            dynamic.Interface
+	Operator           operatorv1alpha1.OperatorV1alpha1Interface
+	KubeConfig         *rest.Config
+	Scheme             *runtime.Scheme
+	OLM                olmversioned.Interface
+	Route              routev1.RouteV1Interface
+	ProxyConfig        configV1.ConfigV1Interface
+	ClusterVersion     configV1.ClusterVersionInterface
+	ConsoleCLIDownload consolev1.ConsoleCLIDownloadInterface
+	MonitoringClient   monclientv1.MonitoringV1Interface
+	Tekton             pversioned.Interface
+	PipelineClient     v1beta1.PipelineInterface
+	TaskClient         v1beta1.TaskInterface
+	TaskRunClient      v1beta1.TaskRunInterface
+	PipelineRunClient  v1beta1.PipelineRunInterface
+	TriggersClient     triggersclientset.Interface
+	ClustertaskClient  v1beta1.ClusterTaskInterface
 }
 
 // NewClients instantiates and returns several clientsets required for making request to the
@@ -155,6 +155,10 @@ func (c *Clients) TektonAddon() operatorv1alpha1.TektonAddonInterface {
 
 func (c *Clients) TektonConfig() operatorv1alpha1.TektonConfigInterface {
 	return c.Operator.TektonConfigs()
+}
+
+func (c *Clients) TektonHub() operatorv1alpha1.TektonHubInterface {
+	return c.Operator.TektonHubs()
 }
 
 func (c *Clients) NewClientSet(namespace string) {

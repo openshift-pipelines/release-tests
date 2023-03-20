@@ -54,6 +54,12 @@ const (
 	PacWatcherName    = "pipelines-as-code-watcher"
 	PacWebhookName    = "pipelines-as-code-webhook"
 
+	// Names of the hub deployment
+	TektonHubName    = "hub"
+	TektonHubApiName = "tekton-hub-api"
+	TektonHubDbName  = "tekton-hub-db"
+	TektonHubUiName  = "tekton-hub-db"
+
 	// Name of tkn deployment
 	TknDeployment = "tkn-cli-serve"
 

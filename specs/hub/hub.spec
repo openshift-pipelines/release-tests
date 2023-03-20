@@ -11,12 +11,12 @@ Importance: Critical
 This scenario tests HUB installation without authentication
 
 Steps:
-  * Create resource "testdata/hub/tektonhub.yaml"
-  * Verify the the hub cr is in True state
-  * Verify that the hub UI deployment is up and running
-  * Verify that the hub api deployment is up and running
-  * Verify that the hub db deployment is up and running
+  * Verify ServiceAccount "pipeline" exist
+  * Create TektinHub CR
+  * Verify that the hub CR is in True state
+  * Verify that the TektonHub deployment is up and running
   * Verify that the HUB UI is accessbile
-  * Verify that the HUB UI contains tasks which are present in "https://github.com/VeereshAradhya/catalog" 
-  * Update task in "https://github.com/VeereshAradhya/catalog"  repo
-  * Verify the updates are visible in HUB UI
+  * Verify that the TektonHub elements like Kind, Platform, Catalog, Category are available
+  Verify that the HUB UI contains tasks which are present in "https://github.com/manojbison/catalog" 
+  Update task in "https://github.com/manojbison/catalog" repo
+  Verify the updates are visible in HUB UI
