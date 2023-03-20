@@ -1,4 +1,4 @@
-apiVersion: triggers.tekton.dev/v1alpha1
+apiVersion: triggers.tekton.dev/v1beta1
 kind: TriggerTemplate
 metadata:
   name: gitlab-echo-template
@@ -7,7 +7,7 @@ spec:
     - name: gitrevision
     - name: gitrepositoryurl
   resourcetemplates:
-    - apiVersion: tekton.dev/v1beta1
+    - apiVersion: tekton.dev/v1
       kind: TaskRun
       metadata:
         generateName: gitlab-run-
@@ -35,7 +35,7 @@ spec:
                   - name: url
                     value: $(tt.params.gitrepositoryurl)
 ---
-apiVersion: triggers.tekton.dev/v1alpha1
+apiVersion: triggers.tekton.dev/v1beta1
 kind: TriggerBinding
 metadata:
   name: gitlab-push-binding
@@ -46,7 +46,7 @@ spec:
     - name: gitrepositoryurl
       value: $(body.repository.git_http_url)
 ---
-apiVersion: triggers.tekton.dev/v1alpha1
+apiVersion: triggers.tekton.dev/v1beta1
 kind: EventListener
 metadata:
   name: gitlab-listener

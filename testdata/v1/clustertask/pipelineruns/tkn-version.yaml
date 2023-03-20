@@ -1,7 +1,7 @@
-apiVersion: tekton.dev/v1beta1
+apiVersion: tekton.dev/v1
 kind: PipelineRun
 metadata:
-  name: tkn-pac-run
+  name: tkn-version-run
 spec:
   pipelineSpec:
     tasks:
@@ -12,6 +12,6 @@ spec:
       params:
       - name: ARGS
         value:
-          - "pac"
           - "version"
-  timeout: 5m
+  timeouts: 
+    pipeline: 5m

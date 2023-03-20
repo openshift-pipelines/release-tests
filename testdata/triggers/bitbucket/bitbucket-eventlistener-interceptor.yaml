@@ -1,5 +1,5 @@
 ---
-apiVersion: triggers.tekton.dev/v1alpha1
+apiVersion: triggers.tekton.dev/v1beta1
 kind: TriggerBinding
 metadata:
  name: bitbucket-binding
@@ -10,7 +10,7 @@ spec:
   - name: gitrepositoryurl
     value: $(body.repository.links.clone[0].href)
 ---
-apiVersion: triggers.tekton.dev/v1alpha1
+apiVersion: triggers.tekton.dev/v1beta1
 kind: TriggerTemplate
 metadata:
   name: bitbucket-template
@@ -47,7 +47,7 @@ spec:
                   - name: url
                     value: $(tt.params.gitrepositoryurl)   
 ---    
-apiVersion: triggers.tekton.dev/v1alpha1
+apiVersion: triggers.tekton.dev/v1beta1
 kind: EventListener
 metadata:
     name: bitbucket-listener

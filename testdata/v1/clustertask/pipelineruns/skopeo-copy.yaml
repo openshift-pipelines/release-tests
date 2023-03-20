@@ -1,4 +1,4 @@
-apiVersion: tekton.dev/v1beta1
+apiVersion: tekton.dev/v1
 kind: PipelineRun
 metadata:
   name: skopeo-copy-run
@@ -21,7 +21,8 @@ spec:
           workspace: images-url
     workspaces:
     - name: images-url
-  timeout: 5m
+  timeouts: 
+    pipeline: 5m
   workspaces:
   - name: images-url
     emptyDir: {}

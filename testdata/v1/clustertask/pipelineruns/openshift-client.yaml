@@ -1,4 +1,4 @@
-apiVersion: tekton.dev/v1beta1
+apiVersion: tekton.dev/v1
 kind: PipelineRun
 metadata:
   name: openshift-client-run
@@ -13,4 +13,5 @@ spec:
       - name: SCRIPT
         value: |
           oc get pipeline -n openshift
-  timeout: 5m
+  timeouts: 
+    pipeline: 5m

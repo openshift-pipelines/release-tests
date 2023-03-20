@@ -1,41 +1,19 @@
-apiVersion: tekton.dev/v1alpha1
-kind: PipelineResource
-metadata:
-  name: skaffold-git-output-pipelinerun-vb
-spec:
-  type: git
-  params:
-  - name: revision
-    value: v0.32.0
-  - name: url
-    value: https://github.com/GoogleContainerTools/skaffold
----
-# Task writes "some stuff" to a predefined path in the workspace git PipelineResource
-apiVersion: tekton.dev/v1beta1
+# Task writes "some stuff" to a predefined path in the workspace
+apiVersion: tekton.dev/v1
 kind: Task
 metadata:
   name: create-file-vb
 spec:
-  resources:
-    inputs:
-    - name: workspace
-      type: git
-      targetPath: damnworkspace
-    outputs:
-    - name: workspace
-      type: git
+  workspaces:
+    - name: damnworkspace
   steps:
-  - name: read-docs-old
-    image: image-registry.openshift-image-registry.svc:5000/openshift/golang
-    command: ["/bin/bash"]
-    args: ['-c', 'ls -la /workspace/damnworkspace/docs/README.md']  # tests that targetpath works
-  - name: write-new-stuff
-    image: image-registry.openshift-image-registry.svc:5000/openshift/golang
-    command: ['bash']
-    args: ['-c', 'ln -s /workspace/damnworkspace /workspace/output/workspace && echo some stuff > /workspace/output/workspace/stuff']
+    - name: write-new-stuff
+      image: image-registry.openshift-image-registry.svc:5000/openshift/golang
+      command: ['bash']
+      args: ['-c', 'echo some stuff > /workspace/damnworkspace/stuff']
 ---
-# Reads a file from a predefined path in the workspace git PipelineResource
-apiVersion: tekton.dev/v1beta1
+# Reads a file from a predefined path in the workspace
+apiVersion: tekton.dev/v1
 kind: Task
 metadata:
   name: check-stuff-file-exists-vb
@@ -43,11 +21,8 @@ spec:
   params:
   - name: args
     type: array
-  resources:
-    inputs:
-    - name: workspace
-      type: git
-      targetPath: newworkspace
+  workspaces:
+    - name: newworkspace
   steps:
   - name: read
     image: image-registry.openshift-image-registry.svc:5000/openshift/golang
@@ -57,38 +32,47 @@ spec:
 # The Output of the first Task (git resource) create-file is given as an `Input`
 # to the next `Task` check-stuff-file-exists using`from` clause.
 
-apiVersion: tekton.dev/v1beta1
+apiVersion: tekton.dev/v1
 kind: Pipeline
 metadata:
   name: output-pipeline-vb
 spec:
-  resources:
-  - name: source-repo
-    type: git
+  workspaces:
+    - name: source
   tasks:
-  - name: first-create-file          # 1. create file
-    taskRef:
-      name: create-file-vb
-    resources:
-      inputs:
-      - name: workspace
-        resource: source-repo
-      outputs:
-      - name: workspace
-        resource: source-repo
-  - name: then-check                 # 2.  check file exists
-    taskRef:
-      name: check-stuff-file-exists-vb
-    params:
-    - name: args
-      value:
-      - '-c'
-      - 'cat /workspace/newworkspace/stuff'
-    resources:
-      inputs:
-      - name: workspace
-        resource: source-repo
-        from: [first-create-file]
+    - name: fetch-repository
+      taskRef:
+        name: git-clone
+        kind: ClusterTask
+      params:
+        - name: url
+          value: https://github.com/GoogleContainerTools/skaffold
+        - name: revision
+          value: v0.32.0
+      workspaces:
+        - name: output
+          workspace: source
+    - name: first-create-file          # 1. create file
+      taskRef:
+        name: create-file-vb
+      workspaces:
+        - name: damnworkspace
+          workspace: source
+      runAfter:
+        - fetch-repository
+    - name: then-check                 # 2.  check file exists
+      taskRef:
+        name: check-stuff-file-exists-vb
+      params:
+        - name: args
+          value:
+            - '-c'
+            - 'cat /workspace/newworkspace/stuff'
+      workspaces:
+        - name: newworkspace
+          workspace: source
+      runAfter:
+        - first-create-file
 ---
 apiVersion: tekton.dev/v1beta1
 kind: PipelineRun
@@ -97,8 +81,13 @@ metadata:
 spec:
   pipelineRef:
     name: output-pipeline-vb
-  serviceAccountName: 'foobar'  
-  resources:
-  - name: source-repo
-    resourceRef:
-      name: skaffold-git-output-pipelinerun-vb
+  # serviceAccountName: 'foobar'
+  workspaces:
+    - name: source
+      volumeClaimTemplate:
+        spec:
+          accessModes:
+            - ReadWriteOnce
+          resources:
+            requests:
+              storage: 100Mi

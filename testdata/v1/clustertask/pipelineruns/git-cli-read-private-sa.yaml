@@ -1,11 +1,13 @@
-apiVersion: tekton.dev/v1beta1
+apiVersion: tekton.dev/v1
 kind: PipelineRun
 metadata:
-  name: git-cli-read-private-run
+  name: git-cli-read-private-sa-run
 spec:
+  serviceAccountName: ssh-sa
   pipelineRef:
     name: git-cli-read-private-pipeline
-  timeout: 5m
+  timeouts: 
+    pipeline: 5m
   workspaces:
     - name: shared-workspace
       persistentVolumeClaim:

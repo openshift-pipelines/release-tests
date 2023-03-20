@@ -1,7 +1,7 @@
-apiVersion: tekton.dev/v1beta1
+apiVersion: tekton.dev/v1
 kind: PipelineRun
 metadata:
-  name: kn-apply-run
+  name: kn-apply-pz-run
 spec:
   pipelineSpec:
     tasks:
@@ -13,5 +13,6 @@ spec:
       - name: SERVICE
         value: "hello-apply"
       - name: IMAGE
-        value: "gcr.io/knative-samples/helloworld-go:latest"
-  timeout: 5m
+        value: "quay.io/multi-arch/knative-samples-helloworld-go:latest"
+  timeouts: 
+    pipeline: 5m

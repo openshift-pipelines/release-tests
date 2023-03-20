@@ -14,11 +14,11 @@ Importance: Critical
 Steps:
   * Verify ServiceAccount "pipeline" exist
   * Create
-      |S.NO|resource_dir                                          |
-      |----|------------------------------------------------------|
-      |1   |testdata/v1beta1/clustertask/pipelines/buildah.yaml   |
-      |2   |testdata/v1beta1/clustertask/pvc/pvc.yaml             |
-      |3   |testdata/v1beta1/clustertask/pipelineruns/buildah.yaml|
+      |S.NO|resource_dir                                     |
+      |----|-------------------------------------------------|
+      |1   |testdata/v1/clustertask/pipelines/buildah.yaml   |
+      |2   |testdata/v1/clustertask/pvc/pvc.yaml             |
+      |3   |testdata/v1/clustertask/pipelineruns/buildah.yaml|
   * Verify pipelinerun
       |S.NO|pipeline_run_name|status    |check_label_propagation|
       |----|-----------------|----------|-----------------------|
@@ -34,11 +34,11 @@ Importance: Critical
 Steps:
   * Verify ServiceAccount "pipeline" exist
   * Create
-      |S.NO|resource_dir                                                       |
-      |----|-------------------------------------------------------------------|
-      |1   |testdata/v1beta1/clustertask/pipelines/buildah.yaml                |
-      |2   |testdata/v1beta1/clustertask/pvc/pvc.yaml                          |
-      |3   |testdata/v1beta1/clustertask/pipelineruns/buildah-disconnected.yaml|
+      |S.NO|resource_dir                                                  |
+      |----|--------------------------------------------------------------|
+      |1   |testdata/v1/clustertask/pipelines/buildah.yaml                |
+      |2   |testdata/v1/clustertask/pvc/pvc.yaml                          |
+      |3   |testdata/v1/clustertask/pipelineruns/buildah-disconnected.yaml|
   * Verify pipelinerun
       |S.NO|pipeline_run_name       |status    |check_label_propagation|
       |----|------------------------|----------|-----------------------|
@@ -54,11 +54,11 @@ Importance: Critical
 Steps:
   * Verify ServiceAccount "pipeline" exist
   * Create
-      |S.NO|resource_dir                                          |
-      |----|------------------------------------------------------|
-      |1   |testdata/v1beta1/clustertask/pipelines/git-cli.yaml   |
-      |2   |testdata/v1beta1/clustertask/pvc/pvc.yaml             |
-      |3   |testdata/v1beta1/clustertask/pipelineruns/git-cli.yaml|
+      |S.NO|resource_dir                                     |
+      |----|-------------------------------------------------|
+      |1   |testdata/v1/clustertask/pipelines/git-cli.yaml   |
+      |2   |testdata/v1/clustertask/pvc/pvc.yaml             |
+      |3   |testdata/v1/clustertask/pipelineruns/git-cli.yaml|
   * Verify pipelinerun
       |S.NO|pipeline_run_name|status    |check_label_propagation|
       |----|-----------------|----------|-----------------------|
@@ -74,16 +74,16 @@ Importance: Critical
 Steps:
   * Verify ServiceAccount "pipeline" exist
   * Create
-      |S.NO|resource_dir                                                    |
-      |----|----------------------------------------------------------------|
-      |1   |testdata/v1beta1/clustertask/pipelines/git-cli-read-private.yaml|
-      |2   |testdata/v1beta1/clustertask/pvc/pvc.yaml                       |
-      |3   |testdata/v1beta1/clustertask/secrets/ssh-key.yaml               |
+      |S.NO|resource_dir                                               |
+      |----|-----------------------------------------------------------|
+      |1   |testdata/v1/clustertask/pipelines/git-cli-read-private.yaml|
+      |2   |testdata/v1/clustertask/pvc/pvc.yaml                       |
+      |3   |testdata/v1/clustertask/secrets/ssh-key.yaml               |
   * Link secret "ssh-key" to service account "pipeline"
   * Create
-      |S.NO|resource_dir                                                       |
-      |----|-------------------------------------------------------------------|
-      |1   |testdata/v1beta1/clustertask/pipelineruns/git-cli-read-private.yaml|
+      |S.NO|resource_dir                                                  |
+      |----|--------------------------------------------------------------|
+      |1   |testdata/v1/clustertask/pipelineruns/git-cli-read-private.yaml|
   * Verify pipelinerun
       |S.NO|pipeline_run_name       |status    |check_label_propagation|
       |----|------------------------|----------|-----------------------|
@@ -99,18 +99,18 @@ Importance: Critical
 Steps:
   * Verify ServiceAccount "pipeline" exist
   * Create
-      |S.NO|resource_dir                                                    |
-      |----|----------------------------------------------------------------|
-      |1   |testdata/v1beta1/clustertask/pipelines/git-cli-read-private.yaml|
-      |2   |testdata/v1beta1/clustertask/pvc/pvc.yaml                       |
-      |3   |testdata/v1beta1/clustertask/secrets/ssh-key.yaml               |
-      |4   |testdata/v1beta1/clustertask/serviceaccount/ssh-sa.yaml         |
-      |5   |testdata/v1beta1/clustertask/rolebindings/ssh-sa-scc.yaml       |
+      |S.NO|resource_dir                                               |
+      |----|-----------------------------------------------------------|
+      |1   |testdata/v1/clustertask/pipelines/git-cli-read-private.yaml|
+      |2   |testdata/v1/clustertask/pvc/pvc.yaml                       |
+      |3   |testdata/v1/clustertask/secrets/ssh-key.yaml               |
+      |4   |testdata/v1/clustertask/serviceaccount/ssh-sa.yaml         |
+      |5   |testdata/v1/clustertask/rolebindings/ssh-sa-scc.yaml       |
   * Link secret "ssh-key" to service account "ssh-sa"
   * Create
-      |S.NO|resource_dir                                                          |
-      |----|----------------------------------------------------------------------|
-      |1   |testdata/v1beta1/clustertask/pipelineruns/git-cli-read-private-sa.yaml|
+      |S.NO|resource_dir                                                     |
+      |----|-----------------------------------------------------------------|
+      |1   |testdata/v1/clustertask/pipelineruns/git-cli-read-private-sa.yaml|
   * Verify pipelinerun
       |S.NO|pipeline_run_name          |status    |check_label_propagation|
       |----|---------------------------|----------|-----------------------|
@@ -126,12 +126,12 @@ Importance: Critical
 Steps:
   * Verify ServiceAccount "pipeline" exist
   * Create
-      |S.NO|resource_dir                                               |
-      |----|-----------------------------------------------------------|
-      |1   |testdata/v1beta1/clustertask/pipelines/maven.yaml          |
-      |2   |testdata/v1beta1/clustertask/pvc/pvc.yaml                  |
-      |3   |testdata/v1beta1/clustertask/configmaps/maven-settings.yaml|
-      |4   |testdata/v1beta1/clustertask/pipelineruns/maven.yaml       |
+      |S.NO|resource_dir                                          |
+      |----|------------------------------------------------------|
+      |1   |testdata/v1/clustertask/pipelines/maven.yaml          |
+      |2   |testdata/v1/clustertask/pvc/pvc.yaml                  |
+      |3   |testdata/v1/clustertask/configmaps/maven-settings.yaml|
+      |4   |testdata/v1/clustertask/pipelineruns/maven.yaml       |
   * Verify pipelinerun
       |S.NO|pipeline_run_name|status    |check_label_propagation|
       |----|-----------------|----------|-----------------------|
@@ -147,9 +147,9 @@ Importance: Critical
 Steps:
   * Verify ServiceAccount "pipeline" exist
   * Create
-      |S.NO|resource_dir                                                   |
-      |----|---------------------------------------------------------------|
-      |1   |testdata/v1beta1/clustertask/pipelineruns/openshift-client.yaml|
+      |S.NO|resource_dir                                              |
+      |----|----------------------------------------------------------|
+      |1   |testdata/v1/clustertask/pipelineruns/openshift-client.yaml|
   * Verify pipelinerun
       |S.NO|pipeline_run_name   |status    |check_label_propagation|
       |----|--------------------|----------|-----------------------|
@@ -165,9 +165,9 @@ Importance: Critical
 Steps:
   * Verify ServiceAccount "pipeline" exist
   * Create
-      |S.NO|resource_dir                                              |
-      |----|----------------------------------------------------------|
-      |1   |testdata/v1beta1/clustertask/pipelineruns/skopeo-copy.yaml|
+      |S.NO|resource_dir                                         |
+      |----|-----------------------------------------------------|
+      |1   |testdata/v1/clustertask/pipelineruns/skopeo-copy.yaml|
   * Verify pipelinerun
       |S.NO|pipeline_run_name|status    |check_label_propagation|
       |----|-----------------|----------|-----------------------|
@@ -183,9 +183,9 @@ Importance: Critical
 Steps:
   * Verify ServiceAccount "pipeline" exist
   * Create
-      |S.NO|resource_dir                                      |
-      |----|--------------------------------------------------|
-      |1   |testdata/v1beta1/clustertask/pipelineruns/tkn.yaml|
+      |S.NO|resource_dir                                 |
+      |----|---------------------------------------------|
+      |1   |testdata/v1/clustertask/pipelineruns/tkn.yaml|
   * Verify pipelinerun
       |S.NO|pipeline_run_name|status    |check_label_propagation|
       |----|-----------------|----------|-----------------------|
@@ -201,9 +201,9 @@ Importance: Critical
 Steps:
   * Verify ServiceAccount "pipeline" exist
   * Create
-      |S.NO|resource_dir                                          |
-      |----|------------------------------------------------------|
-      |1   |testdata/v1beta1/clustertask/pipelineruns/tkn-pac.yaml|
+      |S.NO|resource_dir                                     |
+      |----|-------------------------------------------------|
+      |1   |testdata/v1/clustertask/pipelineruns/tkn-pac.yaml|
   * Verify pipelinerun
       |S.NO|pipeline_run_name|status    |check_label_propagation|
       |----|-----------------|----------|-----------------------|
@@ -219,9 +219,9 @@ Importance: Critical
 Steps:
   * Verify ServiceAccount "pipeline" exist
   * Create
-      |S.NO|resource_dir                                              |
-      |----|----------------------------------------------------------|
-      |1   |testdata/v1beta1/clustertask/pipelineruns/tkn-version.yaml|
+      |S.NO|resource_dir                                         |
+      |----|-----------------------------------------------------|
+      |1   |testdata/v1/clustertask/pipelineruns/tkn-version.yaml|
   * Verify pipelinerun
       |S.NO|pipeline_run_name|status    |check_label_propagation|
       |----|-----------------|----------|-----------------------|
@@ -238,16 +238,16 @@ CustomerScenario: yes
 Steps:
   * Verify ServiceAccount "pipeline" exist
   * Create
-      | S.NO | resource_dir                                                       |
-      |------|--------------------------------------------------------------------|
-      | 1    | testdata/v1beta1/clustertask/pipelines/git-clone-read-private.yaml |
-      | 2    | testdata/v1beta1/clustertask/pvc/pvc.yaml                          |
-      | 3    | testdata/v1beta1/clustertask/secrets/ssh-key.yaml                  |
+      | S.NO | resource_dir                                                  |
+      |------|---------------------------------------------------------------|
+      | 1    | testdata/v1/clustertask/pipelines/git-clone-read-private.yaml |
+      | 2    | testdata/v1/clustertask/pvc/pvc.yaml                          |
+      | 3    | testdata/v1/clustertask/secrets/ssh-key.yaml                  |
   * Link secret "ssh-key" to service account "pipeline"
   * Create
-      | S.NO | resource_dir                                                          |
-      |------|-----------------------------------------------------------------------|
-      | 1    | testdata/v1beta1/clustertask/pipelineruns/git-clone-read-private.yaml |
+      | S.NO | resource_dir                                                    |
+      |------|-----------------------------------------------------------------|
+      | 1    | testdata/v1/clustertask/pipelineruns/git-clone-read-private.yaml|
   * Verify pipelinerun
       | S.NO | pipeline_run_name                   | status     | check_label_propagation |
       |------|-------------------------------------|------------|-------------------------|
@@ -263,20 +263,19 @@ Importance: Critical
 Steps:
   * Verify ServiceAccount "pipeline" exist
   * Create
-      | S.NO | resource_dir                                                       |
-      |------|--------------------------------------------------------------------|
-      | 1    | testdata/v1beta1/clustertask/pipelines/git-clone-read-private.yaml |
-      | 2    | testdata/v1beta1/clustertask/pvc/pvc.yaml                          |
-      | 3    | testdata/v1beta1/clustertask/secrets/ssh-key.yaml                  |
-      | 4    | testdata/v1beta1/clustertask/serviceaccount/ssh-sa.yaml            |
-      | 5    | testdata/v1beta1/clustertask/rolebindings/ssh-sa-scc.yaml          |
+      | S.NO | resource_dir                                                  |
+      |------|---------------------------------------------------------------|
+      | 1    | testdata/v1/clustertask/pipelines/git-clone-read-private.yaml |
+      | 2    | testdata/v1/clustertask/pvc/pvc.yaml                          |
+      | 3    | testdata/v1/clustertask/secrets/ssh-key.yaml                  |
+      | 4    | testdata/v1/clustertask/serviceaccount/ssh-sa.yaml            |
+      | 5    | testdata/v1/clustertask/rolebindings/ssh-sa-scc.yaml          |
   * Link secret "ssh-key" to service account "ssh-sa"
   * Create
-      | S.NO | resource_dir                                                             |
-      |------|--------------------------------------------------------------------------|
-      | 1    | testdata/v1beta1/clustertask/pipelineruns/git-clone-read-private-sa.yaml |
+      | S.NO | resource_dir                                                       |
+      |------|--------------------------------------------------------------------|
+      | 1    | testdata/v1/clustertask/pipelineruns/git-clone-read-private-sa.yaml|
   * Verify pipelinerun
       | S.NO | pipeline_run_name                      | status     | check_label_propagation |
       |------|----------------------------------------|------------|-------------------------|
       | 1    | git-clone-read-private-pipeline-sa-run | successful | no                      |
-      

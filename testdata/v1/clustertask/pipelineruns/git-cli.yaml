@@ -1,4 +1,4 @@
-apiVersion: tekton.dev/v1beta1
+apiVersion: tekton.dev/v1
 kind: PipelineRun
 metadata:
   name: git-cli-run
@@ -6,7 +6,8 @@ spec:
   # serviceAccountName: git-service-account
   pipelineRef:
     name: git-cli-pipeline
-  timeout: 5m
+  timeouts: 
+    pipeline: 5m
   workspaces:
     - name: shared-workspace
       persistentVolumeClaim:

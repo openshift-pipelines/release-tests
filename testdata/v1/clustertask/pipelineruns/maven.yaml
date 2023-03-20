@@ -1,11 +1,12 @@
-apiVersion: tekton.dev/v1beta1
+apiVersion: tekton.dev/v1
 kind: PipelineRun
 metadata:
   name: maven-run
 spec:
   pipelineRef:
     name: maven-pipeline
-  timeout: 15m
+  timeouts: 
+    pipeline: 15m
   workspaces:
   - name: source
     persistentVolumeClaim:
