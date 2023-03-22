@@ -3,7 +3,9 @@ kind: PipelineRun
 metadata:
   name: git-cli-read-private-sa-run
 spec:
-  serviceAccountName: ssh-sa
+  taskRunSpecs:
+    - pipelineTaskName: git-cli
+      serviceAccountName: ssh-sa
   pipelineRef:
     name: git-cli-read-private-pipeline
   timeouts: 

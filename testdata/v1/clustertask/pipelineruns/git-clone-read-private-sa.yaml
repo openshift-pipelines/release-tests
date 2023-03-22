@@ -3,7 +3,9 @@ kind: PipelineRun
 metadata:
   name: git-clone-read-private-pipeline-sa-run
 spec:
-  serviceAccountName: ssh-sa
+  taskRunSpecs:
+    - pipelineTaskName: git-clone
+      serviceAccountName: ssh-sa
   pipelineRef:
     name: git-clone-read-private-pipeline
   timeouts: 
