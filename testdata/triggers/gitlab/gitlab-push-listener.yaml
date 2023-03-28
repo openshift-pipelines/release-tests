@@ -8,19 +8,19 @@ spec:
     - name: gitrepositoryurl
   resourcetemplates:
     - apiVersion: tekton.dev/v1
-      kind: TaskRun
+      kind: PipelineRun
       metadata:
         generateName: gitlab-run-
       spec:
         workspaces:
           - name: shared-pvc
             volumeClaimTemplate:
-            spec:
-              accessModes:
-                - ReadWriteOnce
-              resources:
-                requests:
-                  storage: 100Mi
+              spec:
+                accessModes:
+                  - ReadWriteOnce
+                resources:
+                  requests:
+                    storage: 100Mi
         pipelineSpec:
           tasks:
             - name: git-clone
