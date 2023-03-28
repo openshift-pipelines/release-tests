@@ -81,7 +81,7 @@ metadata:
 spec:
   pipelineRef:
     name: output-pipeline-vb
-  # serviceAccountName: 'foobar'
+  serviceAccountName: 'foobar'
   workspaces:
     - name: source
       volumeClaimTemplate:
