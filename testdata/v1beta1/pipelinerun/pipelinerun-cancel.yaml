@@ -18,6 +18,7 @@ spec:
       image: image-registry.openshift-image-registry.svc:5000/openshift/golang
       script: |
         #!/usr/bin/env bash
+        sleep 120 # Sleeping for 2 mins to give time for the test to canel the pipelinerun
         OUTPUT_FILE=$(context.task.name)-$RANDOM
         echo "some stuff" > $(workspaces.test.path)/${OUTPUT_FILE}
         echo -n ${OUTPUT_FILE} | tee $(results.output-file.path)
@@ -74,7 +75,7 @@ spec:
 apiVersion: tekton.dev/v1beta1
 kind: PipelineRun
 metadata:
-  name: output-pipeline-run-v1b1
+  name: output-pipeline-run-v1b1-cancel
 spec:
   pipelineRef:
     name: output-pipeline-v1b1

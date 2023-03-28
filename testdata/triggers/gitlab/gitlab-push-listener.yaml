@@ -12,28 +12,40 @@ spec:
       metadata:
         generateName: gitlab-run-
       spec:
-        taskSpec:
-          resources:
-            inputs:
-            - name: source
-              type: git
-          steps:
-            - image: image-registry.openshift-image-registry.svc:5000/openshift/golang
-              script: |
-                #! /bin/bash
-                echo "git revision: $(tt.params.gitrevision)"
-                echo "git repositoryurl: $(tt.params.gitrepositoryurl)"
-                ls -al $(resources.inputs.source.path)
-        resources:        
-            inputs:
-            - name: source
-              resourceSpec:
-                type: git
-                params:
-                  - name: revision
-                    value: $(tt.params.gitrevision)
-                  - name: url
-                    value: $(tt.params.gitrepositoryurl)
+        workspaces:
+          - name: shared-pvc
+            volumeClaimTemplate:
+            spec:
+              accessModes:
+                - ReadWriteOnce
+              resources:
+                requests:
+                  storage: 100Mi
+        pipelineSpec:
+          tasks:
+            - name: git-clone
+              taskRef:
+                name: git-clone
+                kind: ClusterTask
+              params:
+                - name: url
+                  value: $(tt.params.gitrepositoryurl)
+                - name: revision
+                  value: $(tt.params.gitrevision)
+              workspaces:
+                - name: output
+                  workspace: shared-pvc
+            - name: print-params
+              taskSpec:
+                steps:
+                  - image: image-registry.openshift-image-registry.svc:5000/openshift/golang
+                    script: |
+                      #! /bin/bash
+                      echo "git revision: $(tt.params.gitrevision)"
+                      echo "git repositoryurl: $(tt.params.gitrepositoryurl)"
+                      ls -al $(resources.inputs.source.path)
+              runAfter:
+                - git-clone
 ---
 apiVersion: triggers.tekton.dev/v1beta1
 kind: TriggerBinding

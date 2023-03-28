@@ -22,7 +22,7 @@ Steps:
   * Create
       |S.NO|resource_dir                                  |
       |----|----------------------------------------------|
-      |1   |testdata/pvc.yaml                             |
+      |1   |testdata/pvc/pvc.yaml                         |
       |2   |testdata/v1beta1/pipelinerun/pipelinerun.yaml |
   * Verify pipelinerun
       |S.NO|pipeline_run_name       |status    |check_label_propagation|
@@ -75,14 +75,14 @@ Importance: Critical
 Steps:
   * Verify ServiceAccount "pipeline" exist
   * Create
-      |S.NO|resource_dir                                 |
-      |----|---------------------------------------------|
-      |1   |testdata/pvc.yaml                            |
-      |2   |testdata/v1beta1/pipelinerun/pipelinerun.yaml|
+      |S.NO|resource_dir                                        |
+      |----|----------------------------------------------------|
+      |1   |testdata/pvc/pvc.yaml                               |
+      |2   |testdata/v1beta1/pipelinerun/pipelinerun-cancel.yaml|
   * Verify pipelinerun
-      |S.NO|pipeline_run_name       |status   |check_label_propagation|
-      |----|------------------------|---------|-----------------------|
-      |1   |output-pipeline-run-v1b1|cancelled|no                     |
+      |S.NO|pipeline_run_name              |status   |check_label_propagation|
+      |----|-------------------------------|---------|-----------------------|
+      |1   |output-pipeline-run-v1b1-cancel|cancelled|no                     |
 
 ## Pipelinerun with pipelinespec and taskspec(embedded pipelinerun tests): PIPELINES-03-TC07
 Tags: e2e, integration, pipelines, non-admin, sanity

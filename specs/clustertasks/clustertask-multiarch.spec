@@ -17,7 +17,7 @@ Steps:
       |S.NO|resource_dir                                          |
       |----|------------------------------------------------------|
       |1   |testdata/v1/clustertask/pipelines/jib-maven.yaml      |
-      |2   |testdata/v1/clustertask/pvc/pvc.yaml                  |
+      |2   |testdata/pvc/pvc.yaml                                 |
       |3   |testdata/v1/clustertask/pipelineruns/jib-maven.yaml   |
   * Verify pipelinerun
       |S.NO|pipeline_run_name|status    |check_label_propagation|
@@ -37,7 +37,7 @@ Steps:
       |S.NO|resource_dir                                          |
       |----|------------------------------------------------------|
       |1   |testdata/v1/clustertask/pipelines/jib-maven-pz.yaml   |
-      |2   |testdata/v1/clustertask/pvc/pvc.yaml                  |
+      |2   |testdata/pvc/pvc.yaml                                 |
       |3   |testdata/v1/clustertask/pipelineruns/jib-maven-pz.yaml|
   * Verify pipelinerun
       |S.NO|pipeline_run_name|status    |check_label_propagation|

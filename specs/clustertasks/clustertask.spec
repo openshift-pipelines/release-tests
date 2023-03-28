@@ -17,7 +17,7 @@ Steps:
       |S.NO|resource_dir                                     |
       |----|-------------------------------------------------|
       |1   |testdata/v1/clustertask/pipelines/buildah.yaml   |
-      |2   |testdata/v1/clustertask/pvc/pvc.yaml             |
+      |2   |testdata/pvc/pvc.yaml                            |
       |3   |testdata/v1/clustertask/pipelineruns/buildah.yaml|
   * Verify pipelinerun
       |S.NO|pipeline_run_name|status    |check_label_propagation|
@@ -37,7 +37,7 @@ Steps:
       |S.NO|resource_dir                                                  |
       |----|--------------------------------------------------------------|
       |1   |testdata/v1/clustertask/pipelines/buildah.yaml                |
-      |2   |testdata/v1/clustertask/pvc/pvc.yaml                          |
+      |2   |testdata/pvc/pvc.yaml                                         |
       |3   |testdata/v1/clustertask/pipelineruns/buildah-disconnected.yaml|
   * Verify pipelinerun
       |S.NO|pipeline_run_name       |status    |check_label_propagation|
@@ -57,7 +57,7 @@ Steps:
       |S.NO|resource_dir                                     |
       |----|-------------------------------------------------|
       |1   |testdata/v1/clustertask/pipelines/git-cli.yaml   |
-      |2   |testdata/v1/clustertask/pvc/pvc.yaml             |
+      |2   |testdata/pvc/pvc.yaml                            |
       |3   |testdata/v1/clustertask/pipelineruns/git-cli.yaml|
   * Verify pipelinerun
       |S.NO|pipeline_run_name|status    |check_label_propagation|
@@ -77,7 +77,7 @@ Steps:
       |S.NO|resource_dir                                               |
       |----|-----------------------------------------------------------|
       |1   |testdata/v1/clustertask/pipelines/git-cli-read-private.yaml|
-      |2   |testdata/v1/clustertask/pvc/pvc.yaml                       |
+      |2   |testdata/pvc/pvc.yaml                                      |
       |3   |testdata/v1/clustertask/secrets/ssh-key.yaml               |
   * Link secret "ssh-key" to service account "pipeline"
   * Create
@@ -102,7 +102,7 @@ Steps:
       |S.NO|resource_dir                                               |
       |----|-----------------------------------------------------------|
       |1   |testdata/v1/clustertask/pipelines/git-cli-read-private.yaml|
-      |2   |testdata/v1/clustertask/pvc/pvc.yaml                       |
+      |2   |testdata/pvc/pvc.yaml                                      |
       |3   |testdata/v1/clustertask/secrets/ssh-key.yaml               |
       |4   |testdata/v1/clustertask/serviceaccount/ssh-sa.yaml         |
       |5   |testdata/v1/clustertask/rolebindings/ssh-sa-scc.yaml       |
@@ -129,7 +129,7 @@ Steps:
       |S.NO|resource_dir                                          |
       |----|------------------------------------------------------|
       |1   |testdata/v1/clustertask/pipelines/maven.yaml          |
-      |2   |testdata/v1/clustertask/pvc/pvc.yaml                  |
+      |2   |testdata/pvc/pvc.yaml                                 |
       |3   |testdata/v1/clustertask/configmaps/maven-settings.yaml|
       |4   |testdata/v1/clustertask/pipelineruns/maven.yaml       |
   * Verify pipelinerun
@@ -241,7 +241,7 @@ Steps:
       | S.NO | resource_dir                                                  |
       |------|---------------------------------------------------------------|
       | 1    | testdata/v1/clustertask/pipelines/git-clone-read-private.yaml |
-      | 2    | testdata/v1/clustertask/pvc/pvc.yaml                          |
+      | 2    | testdata/pvc/pvc.yaml                                         |
       | 3    | testdata/v1/clustertask/secrets/ssh-key.yaml                  |
   * Link secret "ssh-key" to service account "pipeline"
   * Create
@@ -266,7 +266,7 @@ Steps:
       | S.NO | resource_dir                                                  |
       |------|---------------------------------------------------------------|
       | 1    | testdata/v1/clustertask/pipelines/git-clone-read-private.yaml |
-      | 2    | testdata/v1/clustertask/pvc/pvc.yaml                          |
+      | 2    | testdata/pvc/pvc.yaml                                         |
       | 3    | testdata/v1/clustertask/secrets/ssh-key.yaml                  |
       | 4    | testdata/v1/clustertask/serviceaccount/ssh-sa.yaml            |
       | 5    | testdata/v1/clustertask/rolebindings/ssh-sa-scc.yaml          |

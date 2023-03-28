@@ -69,7 +69,7 @@ Steps:
       |S.NO|resource_dir                                          |
       |----|------------------------------------------------------|
       |1   |testdata/v1beta1/clustertask/pipelines/s2i-nodejs.yaml|
-      |2   |testdata/v1beta1/clustertask/pvc/pvc.yaml             |
+      |2   |testdata/pvc/pvc.yaml                                 |
 
 ## Setup Eventlistener with TLS enabled pre upgrade: PIPELINES-18-TC03
 Tags: pre-upgrade, tls, triggers, admin, e2e, sanity
@@ -112,7 +112,7 @@ Steps:
       | S.NO | resource_dir                                                       |
       |------|--------------------------------------------------------------------|
       | 1    | testdata/v1beta1/clustertask/pipelines/git-clone-read-private.yaml |
-      | 2    | testdata/v1beta1/clustertask/pvc/pvc.yaml                          |
+      | 2    | testdata/pvc/pvc.yaml                                              |
       | 3    | testdata/v1beta1/clustertask/secrets/ssh-key.yaml                  |
   * Link secret "ssh-key" to service account "pipeline"
   * Create
