@@ -14,7 +14,6 @@ import (
 	consolev1 "github.com/openshift/client-go/console/clientset/versioned/typed/console/v1"
 	routev1 "github.com/openshift/client-go/route/clientset/versioned/typed/route/v1"
 	olmversioned "github.com/operator-framework/operator-lifecycle-manager/pkg/api/client/clientset/versioned"
-	monclientv1 "github.com/prometheus-operator/prometheus-operator/pkg/client/versioned/typed/monitoring/v1"
 	"github.com/tektoncd/operator/pkg/client/clientset/versioned"
 	operatorv1alpha1 "github.com/tektoncd/operator/pkg/client/clientset/versioned/typed/operator/v1alpha1"
 	pversioned "github.com/tektoncd/pipeline/pkg/client/clientset/versioned"
@@ -29,25 +28,24 @@ type KubeClient struct {
 
 // Clients holds instances of interfaces for making requests to Tekton Pipelines.
 type Clients struct {
-	KubeClient             *KubeClient
-	Ctx                    context.Context
-	Dynamic                dynamic.Interface
-	Operator               operatorv1alpha1.OperatorV1alpha1Interface
-	KubeConfig             *rest.Config
-	Scheme                 *runtime.Scheme
-	OLM                    olmversioned.Interface
-	Route                  routev1.RouteV1Interface
-	ProxyConfig            configV1.ConfigV1Interface
-	ClusterVersion         configV1.ClusterVersionInterface
-	ConsoleCLIDownload     consolev1.ConsoleCLIDownloadInterface
-	MonitoringClient       monclientv1.MonitoringV1Interface
-	Tekton                 pversioned.Interface
-	PipelineClient         v1beta1.PipelineInterface
-	TaskClient             v1beta1.TaskInterface
-	TaskRunClient          v1beta1.TaskRunInterface
-	PipelineRunClient      v1beta1.PipelineRunInterface
-	TriggersClient         triggersclientset.Interface
-	ClustertaskClient      v1beta1.ClusterTaskInterface
+	KubeClient         *KubeClient
+	Ctx                context.Context
+	Dynamic            dynamic.Interface
+	Operator           operatorv1alpha1.OperatorV1alpha1Interface
+	KubeConfig         *rest.Config
+	Scheme             *runtime.Scheme
+	OLM                olmversioned.Interface
+	Route              routev1.RouteV1Interface
+	ProxyConfig        configV1.ConfigV1Interface
+	ClusterVersion     configV1.ClusterVersionInterface
+	ConsoleCLIDownload consolev1.ConsoleCLIDownloadInterface
+	Tekton             pversioned.Interface
+	PipelineClient     v1beta1.PipelineInterface
+	TaskClient         v1beta1.TaskInterface
+	TaskRunClient      v1beta1.TaskRunInterface
+	PipelineRunClient  v1beta1.PipelineRunInterface
+	TriggersClient     triggersclientset.Interface
+	ClustertaskClient  v1beta1.ClusterTaskInterface
 }
 
 // NewClients instantiates and returns several clientsets required for making request to the
@@ -167,6 +165,4 @@ func (c *Clients) NewClientSet(namespace string) {
 	c.ClusterVersion = configV1.NewForConfigOrDie(c.KubeConfig).ClusterVersions()
 	c.ConsoleCLIDownload = consolev1.NewForConfigOrDie(c.KubeConfig).ConsoleCLIDownloads()
 	c.ClustertaskClient = c.Tekton.TektonV1beta1().ClusterTasks()
-	c.MonitoringClient = monclientv1.NewForConfigOrDie(c.KubeConfig)
-
 }
