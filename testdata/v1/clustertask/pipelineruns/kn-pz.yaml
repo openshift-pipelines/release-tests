@@ -1,7 +1,7 @@
-apiVersion: tekton.dev/v1beta1
+apiVersion: tekton.dev/v1
 kind: PipelineRun
 metadata:
-  name: kn-run
+  name: kn-pz-run
 spec:
   pipelineSpec:
     tasks:
@@ -16,6 +16,7 @@ spec:
         - "create"
         - "hello"
         - "--force"
-        - "--image=gcr.io/knative-samples/helloworld-go:latest"
+        - "--image=quay.io/multi-arch/knative-samples-helloworld-go:latest"
         - "-eTARGET=Pipeline"
-  timeout: 10m
+  timeouts: 
+    pipeline: 10m

@@ -19,8 +19,8 @@ Running a pipeline using a ServiceAccount that does not exist must fail
 Steps:
   * Verify ServiceAccount "foobar" does not exist
   * Create
-      |S.NO|resource_dir                      |
-      |----|----------------------------------|
+      |S.NO|resource_dir                               |
+      |----|-------------------------------------------|
       |1   |testdata/negative/v1beta1/pipelinerun.yaml |
   * Verify pipelinerun
        |S.NO|pipeline_run_name     |status |check_label_propagation|

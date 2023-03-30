@@ -1,103 +1,72 @@
-apiVersion: tekton.dev/v1beta1
+apiVersion: tekton.dev/v1
 kind: Task
 metadata:
   name: say-hello
 spec:
   params:
-  - name: contenttype
-    description: The Content-Type of the event
-    type: string
-  resources:
-    inputs:
-      - name: git-source
-        type: git
+    - name: contenttype
+      description: The Content-Type of the event
   steps:
-  - name: say-hi
-    image: image-registry.openshift-image-registry.svc:5000/openshift/golang
-    command: ["bash", "-c"]
-    args:
-      - echo -e 'Hello Triggers!\nContent-Type is $(params.contenttype)'
+    - name: say-hi
+      image: image-registry.openshift-image-registry.svc:5000/openshift/golang
+      command: ["bash", "-c"]
+      args:
+        - echo -e 'Hello Triggers!\nContent-Type is $(params.contenttype)'
 ---
-apiVersion: tekton.dev/v1beta1
+apiVersion: tekton.dev/v1
 kind: Task
 metadata:
   name: say-message
 spec:
   params:
-  - name: message
-    description: The message to print
-    default: This is the default message
-    type: string
-  resources:
-    inputs:
-    - name: git-source
-      type: git
+    - name: message
+      description: The message to print
+      default: This is the default message
   steps:
-  - name: say-message
-    image: image-registry.openshift-image-registry.svc:5000/openshift/golang
-    command: ["bash", "-c"]
-    args:
-      - echo '$(params.message)'
+    - name: say-message
+      image: image-registry.openshift-image-registry.svc:5000/openshift/golang
+      command: ["bash", "-c"]
+      args:
+        - echo '$(params.message)'
 ---
-apiVersion: tekton.dev/v1beta1
+apiVersion: tekton.dev/v1
 kind: Task
 metadata:
   name: say-bye
 spec:
-  resources:
-    inputs:
-    - name: git-source
-      type: git
   steps:
-  - name: say-bye
-    image: image-registry.openshift-image-registry.svc:5000/openshift/golang
-    command: ["bash", "-c"]
-    args:
-    - echo 'Goodbye Triggers!'
+    - name: say-bye
+      image: image-registry.openshift-image-registry.svc:5000/openshift/golang
+      command: ["bash", "-c"]
+      args:
+      - echo 'Goodbye Triggers!'
 ---
-apiVersion: tekton.dev/v1beta1
+apiVersion: tekton.dev/v1
 kind: Pipeline
 metadata:
   name: simple-pipeline
 spec:
   params:
-  - name: message
-    description: The message to print
-    default: This is the default message
-    type: string
-  - name: contenttype
-    description: The Content-Type of the event
-    type: string
-  resources:
-  - name: git-source
-    type: git
-  tasks:
-  - name: say-hello
-    taskRef:
-      name: say-hello
-    params:
-    - name: contenttype
-      value: $(params.contenttype)
-    resources:
-      inputs:
-      - name: git-source
-        resource: git-source
-  - name: say-message
-    runAfter: [say-hello]
-    taskRef:
-      name: say-message
-    params:
     - name: message
-      value: $(params.message)
-    resources:
-      inputs:
-      - name: git-source
-        resource: git-source
-  - name: say-bye
-    runAfter: [say-message]
-    taskRef:
-      name: say-bye
-    resources:
-      inputs:
-      - name: git-source
-        resource: git-source
+      description: The message to print
+      default: This is the default message
+    - name: contenttype
+      description: The Content-Type of the event
+  tasks:
+    - name: say-hello
+      taskRef:
+        name: say-hello
+      params:
+      - name: contenttype
+        value: $(params.contenttype)
+    - name: say-message
+      runAfter: [say-hello]
+      taskRef:
+        name: say-message
+      params:
+      - name: message
+        value: $(params.message)
+    - name: say-bye
+      runAfter: [say-message]
+      taskRef:
+        name: say-bye

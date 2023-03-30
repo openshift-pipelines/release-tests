@@ -81,4 +81,4 @@ spec:
   workspaces:
     - name: test
       persistentVolumeClaim:
-        claimName: testdata
+        claimName: shared-pvc

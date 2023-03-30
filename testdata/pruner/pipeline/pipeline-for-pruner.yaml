@@ -1,4 +1,4 @@
-apiVersion: tekton.dev/v1beta1
+apiVersion: tekton.dev/v1
 kind: Task
 metadata:
   name: echo-task-pipeline
@@ -11,7 +11,7 @@ spec:
       script: |
         echo $(params.message)
 ---
-apiVersion: tekton.dev/v1beta1
+apiVersion: tekton.dev/v1
 kind: Pipeline
 metadata:
   name: echo-pipeline

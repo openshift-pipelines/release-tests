@@ -1,4 +1,4 @@
-apiVersion: triggers.tekton.dev/v1alpha1
+apiVersion: triggers.tekton.dev/v1beta1
 kind: TriggerTemplate
 metadata:
   name: taskrun-with-annotation
@@ -20,7 +20,7 @@ spec:
               #!/usr/bin/env bash
               echo "parsed json body output : $(tt.params.body)."
 ---              
-apiVersion: triggers.tekton.dev/v1alpha1
+apiVersion: triggers.tekton.dev/v1beta1
 kind: EventListener
 metadata:
   name: parse-json-body-with-annotation

@@ -1,4 +1,4 @@
-apiVersion: triggers.tekton.dev/v1alpha1
+apiVersion: triggers.tekton.dev/v1beta1
 kind: EventListener
 metadata:
   name: parse-json-body
@@ -14,7 +14,7 @@ spec:
           params:
             - name: body
           resourcetemplates:
-            - apiVersion: tekton.dev/v1beta1
+            - apiVersion: tekton.dev/v1
               kind: TaskRun
               metadata:
                 name: trig-parse-json-body

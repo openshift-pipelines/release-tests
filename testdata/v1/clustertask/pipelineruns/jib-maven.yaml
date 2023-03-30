@@ -1,4 +1,4 @@
-apiVersion: tekton.dev/v1beta1
+apiVersion: tekton.dev/v1
 kind: PipelineRun
 metadata:
   name: jib-maven-run
@@ -9,4 +9,5 @@ spec:
   - name: source
     persistentVolumeClaim:
       claimName: shared-pvc
-  timeout: 15m
+  timeouts: 
+    pipeline: 15m

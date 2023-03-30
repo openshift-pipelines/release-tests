@@ -1,11 +1,12 @@
-apiVersion: tekton.dev/v1beta1
+apiVersion: tekton.dev/v1
 kind: PipelineRun
 metadata:
   name: buildah-run
 spec:
   pipelineRef:
     name: buildah-pipeline
-  timeout: 10m
+  timeouts: 
+    pipeline: 10m
   workspaces:
   - name: source
     persistentVolumeClaim:

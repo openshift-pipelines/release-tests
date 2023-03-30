@@ -1,4 +1,4 @@
-apiVersion: tekton.dev/v1beta1
+apiVersion: tekton.dev/v1
 kind: TaskRun
 metadata:
   generateName: echo-task-run-
@@ -9,7 +9,7 @@ spec:
   taskRef:
     name: echo-task
 ---
-apiVersion: tekton.dev/v1beta1
+apiVersion: tekton.dev/v1
 kind: TaskRun
 metadata:
   generateName: echo-task-run-
@@ -20,7 +20,7 @@ spec:
   taskRef:
     name: echo-task
 ---
-apiVersion: tekton.dev/v1beta1
+apiVersion: tekton.dev/v1
 kind: TaskRun
 metadata:
   generateName: echo-task-run-
@@ -31,7 +31,7 @@ spec:
   taskRef:
     name: echo-task
 ---
-apiVersion: tekton.dev/v1beta1
+apiVersion: tekton.dev/v1
 kind: TaskRun
 metadata:
   generateName: echo-task-run-
@@ -42,7 +42,7 @@ spec:
   taskRef:
     name: echo-task
 ---
-apiVersion: tekton.dev/v1beta1
+apiVersion: tekton.dev/v1
 kind: TaskRun
 metadata:
   generateName: echo-task-run-

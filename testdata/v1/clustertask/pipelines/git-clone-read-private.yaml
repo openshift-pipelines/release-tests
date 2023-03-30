@@ -1,0 +1,23 @@
+apiVersion: tekton.dev/v1
+kind: Pipeline
+metadata:
+  name: git-clone-read-private-pipeline
+spec:
+  workspaces:
+    - name: input
+      optional: true
+    - name: shared-workspace
+  tasks:
+    - name: git-clone
+      taskRef:
+        name: git-clone
+        kind: ClusterTask
+      workspaces:
+        - name: output
+          workspace: shared-workspace
+      params:
+        - name: url
+          value: git@github.com:ppitonak/topsecret.git
+  results:
+    - name: commit
+      value: $(tasks.git-clone.results.commit)

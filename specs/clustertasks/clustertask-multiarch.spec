@@ -14,15 +14,15 @@ Importance: Critical
 Steps:
   * Verify ServiceAccount "pipeline" exist
   * Create
-      |S.NO|resource_dir                                               |
-      |----|-----------------------------------------------------------|
-      |1   |testdata/v1beta1/clustertask/pipelines/jib-maven.yaml      |
-      |2   |testdata/v1beta1/clustertask/pvc/pvc.yaml                  |
-      |3   |testdata/v1beta1/clustertask/pipelineruns/jib-maven.yaml   |
+      |S.NO|resource_dir                                          |
+      |----|------------------------------------------------------|
+      |1   |testdata/v1/clustertask/pipelines/jib-maven.yaml      |
+      |2   |testdata/pvc/pvc.yaml                                 |
+      |3   |testdata/v1/clustertask/pipelineruns/jib-maven.yaml   |
   * Verify pipelinerun
       |S.NO|pipeline_run_name|status    |check_label_propagation|
       |----|-----------------|----------|-----------------------|
-      |1   |jib-maven-run |successful|no                        |
+      |1   |jib-maven-run    |successful|no                     |
 
 ## jib-maven P&Z pipelinerun: PIPELINES-17-TC02
 Tags: e2e, linux/ppc64le, linux/s390x, linux/arm64, clustertasks, non-admin, jib-maven
@@ -34,11 +34,11 @@ Importance: Critical
 Steps:
   * Verify ServiceAccount "pipeline" exist
   * Create
-      |S.NO|resource_dir                                               |
-      |----|-----------------------------------------------------------|
-      |1   |testdata/v1beta1/clustertask/pipelines/jib-maven-pz.yaml   |
-      |2   |testdata/v1beta1/clustertask/pvc/pvc.yaml                  |
-      |3   |testdata/v1beta1/clustertask/pipelineruns/jib-maven-pz.yaml|
+      |S.NO|resource_dir                                          |
+      |----|------------------------------------------------------|
+      |1   |testdata/v1/clustertask/pipelines/jib-maven-pz.yaml   |
+      |2   |testdata/pvc/pvc.yaml                                 |
+      |3   |testdata/v1/clustertask/pipelineruns/jib-maven-pz.yaml|
   * Verify pipelinerun
       |S.NO|pipeline_run_name|status    |check_label_propagation|
       |----|-----------------|----------|-----------------------|
@@ -54,9 +54,9 @@ Importance: Critical
 Steps:
   * Verify ServiceAccount "pipeline" exist
   * Create
-      |S.NO|resource_dir                                           |
-      |----|-------------------------------------------------------|
-      |1   |testdata/v1beta1/clustertask/pipelineruns/kn-apply.yaml|
+      |S.NO|resource_dir                                      |
+      |----|--------------------------------------------------|
+      |1   |testdata/v1/clustertask/pipelineruns/kn-apply.yaml|
   * Verify pipelinerun
       |S.NO|pipeline_run_name|status    |check_label_propagation|
       |----|-----------------|----------|-----------------------|
@@ -72,9 +72,9 @@ Importance: Critical
 Steps:
   * Verify ServiceAccount "pipeline" exist
   * Create
-      |S.NO|resource_dir                                                     |
-      |----|-----------------------------------------------------------------|
-      |1   |testdata/v1beta1/clustertask/pipelineruns/kn-apply-multiarch.yaml|
+      |S.NO|resource_dir                                                |
+      |----|------------------------------------------------------------|
+      |1   |testdata/v1/clustertask/pipelineruns/kn-apply-multiarch.yaml|
   * Verify pipelinerun
       |S.NO|pipeline_run_name|status    |check_label_propagation|
       |----|-----------------|----------|-----------------------|
@@ -90,9 +90,9 @@ Importance: Critical
 Steps:
   * Verify ServiceAccount "pipeline" exist
   * Create
-      |S.NO|resource_dir                                     |
-      |----|-------------------------------------------------|
-      |1   |testdata/v1beta1/clustertask/pipelineruns/kn.yaml|
+      |S.NO|resource_dir                                |
+      |----|--------------------------------------------|
+      |1   |testdata/v1/clustertask/pipelineruns/kn.yaml|
   * Verify pipelinerun
       |S.NO|pipeline_run_name|status    |check_label_propagation|
       |----|-----------------|----------|-----------------------|
@@ -108,9 +108,9 @@ Importance: Critical
 Steps:
   * Verify ServiceAccount "pipeline" exist
   * Create
-      |S.NO|resource_dir                                        |
-      |----|----------------------------------------------------|
-      |1   |testdata/v1beta1/clustertask/pipelineruns/kn-pz.yaml|
+      |S.NO|resource_dir                                   |
+      |----|-----------------------------------------------|
+      |1   |testdata/v1/clustertask/pipelineruns/kn-pz.yaml|
   * Verify pipelinerun
       |S.NO|pipeline_run_name|status    |check_label_propagation|
       |----|-----------------|----------|-----------------------|
