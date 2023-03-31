@@ -113,7 +113,7 @@ Steps:
       |------|--------------------------------------------------------------------|
       | 1    | testdata/v1beta1/clustertask/pipelines/git-clone-read-private.yaml |
       | 2    | testdata/pvc/pvc.yaml                                              |
-      | 3    | testdata/v1beta1/clustertask/secrets/ssh-key.yaml                  |
+      | 3    | testdata/v1/clustertask/secrets/ssh-key.yaml                  |
   * Link secret "ssh-key" to service account "pipeline"
   * Create
       | S.NO | resource_dir                                                          |
