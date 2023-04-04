@@ -17,6 +17,7 @@ Steps:
     |----|------------------------------------------------------------------|
     |1   |testdata/triggers/github-ctb/Embeddedtriggertemplate-git-push.yaml|
     |2   |testdata/triggers/github-ctb/eventlistener-ctb-git-push.yaml      |
+  * Verify ServiceAccount "pipeline" exist
   * Create & Link secret "github-secret" to service account "pipeline"
   * Expose Event listener "listener-ctb-github-push"
   * Mock post event to "github" interceptor with event-type "push", payload "testdata/triggers/github-ctb/push.json", with TLS "false"
