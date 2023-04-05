@@ -10,7 +10,7 @@ spec:
     - apiVersion: tekton.dev/v1
       kind: PipelineRun
       metadata:
-        generateName: gitlab-run-
+        name: gitlab-run
       spec:
         workspaces:
           - name: shared-pvc

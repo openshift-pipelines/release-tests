@@ -236,10 +236,10 @@ Steps:
   * Expose Event listener "gitlab-listener"
   * Mock post event to "gitlab" interceptor with event-type "Push Hook", payload "testdata/triggers/gitlab/gitlab-push-event.json", with TLS "false"
   * Assert eventlistener response
-  * Verify taskrun
-    |S.NO|task_run_name |status    |
-    |----|--------------|----------|
-    |1   |gitlab-run    |successful|
+  * Verify pipelinerun
+    |S.NO|pipeline_run_name |status    |check_label_propagation|
+    |----|------------------|----------|-----------------------|
+    |1   |gitlab-run        |successful|no                     |
   * Cleanup Triggers
 
 ## Create Eventlistener with bitbucket interceptor: PIPELINES-05-TC11
