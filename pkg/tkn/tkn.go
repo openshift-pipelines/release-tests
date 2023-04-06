@@ -29,6 +29,27 @@ func New(tknPath string) Cmd {
 	}
 }
 
+// Verify the versions of Openshift Pipelines components
+func AssertComponentVersion(version string, component string) {
+    switch component {
+    case "pipeline", "triggers", "operator":
+        var commandResult string = cmd.MustSucceed("tkn", "version", "--component", component).Stdout()
+        if !strings.Contains(commandResult, version){
+            testsuit.T.Errorf("Component " + component + " has an unexpected version: " + commandResult + " expected version is: " + version)
+        }
+    case "config":
+        var commandResult string = cmd.MustSucceed("oc", "get", "tektonconfig", "config", "-o", "jsonpath={.status.version}").Stdout()
+        if !strings.Contains(commandResult, version){
+            testsuit.T.Errorf(component + " has an unexpected version: " + commandResult + " expected version is: " + version)
+        }
+    case "pipelines-as-code":
+        var commandResult string = cmd.MustSucceed("oc", "get", "pac", "pipelines-as-code", "-o", "jsonpath={.status.version}").Stdout()
+        if !strings.Contains(commandResult, version){
+            testsuit.T.Errorf("Pac has an unexpected version: " + commandResult + " expected version is: " + version)
+        }
+    }
+}
+
 // Run tkn with given arguments
 func (tkn Cmd) MustSucceed(args ...string) string {
 	return tkn.Assert(icmd.Success, args...)
