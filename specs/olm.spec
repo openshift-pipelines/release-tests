@@ -49,3 +49,12 @@ Uninstalls `openshift-pipelines` operator using olm
 Steps:
   * Validate Operator should be installed
   * Uninstall Operator
+
+##Check server side components versions
+Tags: install, upgrade, tkn
+Steps:
+    * Check version of component "pipeline"
+    * Check version of component "triggers"
+    * Check version of component "operator"
+    * Check version of component "pipelines-as-code"
+    * Check version of component "config"
