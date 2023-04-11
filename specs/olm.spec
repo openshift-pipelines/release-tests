@@ -51,7 +51,7 @@ Steps:
   * Uninstall Operator
 
 ##Check server side components versions
-Tags: install, upgrade, tkn
+Tags: install, upgrade
 Steps:
     * Check version of component "pipeline"
     * Check version of component "triggers"

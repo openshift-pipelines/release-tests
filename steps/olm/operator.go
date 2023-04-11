@@ -95,5 +95,3 @@ var _ = gauge.Step("Check version of component <component>", func(component stri
 	defaultVersion := os.Getenv(strings.ToUpper(component+"_version"))
 	tkn.AssertComponentVersion(defaultVersion, component)
 })
-
-
