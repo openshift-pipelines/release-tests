@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/getgauge-contrib/gauge-go/testsuit"
 	"github.com/openshift-pipelines/release-tests/pkg/config"
@@ -49,3 +50,20 @@ func Assert(exp icmd.Expected, args ...string) *icmd.Result {
 	res.Assert(t, exp)
 	return res
 }
+
+func MustSuccedIncreasedTimeout(timeout time.Duration, args ...string) *icmd.Result {
+    return AssertIncreasedTimeout(icmd.Success, timeout, args...)
+}
+
+func AssertIncreasedTimeout(exp icmd.Expected, timeout time.Duration, args ...string) *icmd.Result {
+    res := RunIncreasedTimeout(timeout, args...)
+    t := &testsuitAdaptor{}
+    res.Assert(t, exp)
+    return res
+}
+
+func RunIncreasedTimeout(timeout time.Duration, cmd ...string) *icmd.Result {
+    return icmd.RunCmd(icmd.Cmd{Command: cmd, Timeout: timeout})
+}
+
+

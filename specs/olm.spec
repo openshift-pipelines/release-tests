@@ -58,3 +58,13 @@ Steps:
     * Check version of component "operator"
     * Check version of component "pipelines-as-code"
     * Check version of component "config"
+
+##Check client versions
+Tags: install, upgrade
+Steps: 
+    * Download and extract CLI from cluster
+    * Check "Client" version in "tkn"
+    * Check "PAC" version in "tkn"
+    * Check "Client" version in "opc"
+    * Check "Tekton" version in "opc"
+    * Check "PAC" version in "opc"

@@ -10,6 +10,7 @@ import (
 	"runtime/debug"
 	"strings"
 	"sync"
+	"time"
 
 	"github.com/Netflix/go-expect"
 	"github.com/getgauge-contrib/gauge-go/testsuit"
@@ -52,6 +53,56 @@ func AssertComponentVersion(version string, component string) {
 =======
 }
 
+func InstallRequiredBinary (){
+    var architecture = strings.Trim(cmd.MustSucceed("uname").Stdout(), "\n")+ " " + strings.Trim(cmd.MustSucceed("uname", "-m").Stdout(), "\n")
+    fmt.Println(architecture)
+    var commandResult = cmd.MustSucceed("oc", "get", "consoleclidownloads", "tkn", "-o", "jsonpath={.spec.links[?(@.text==\"Download tkn and tkn-pac for " + architecture + "\")].href}").Stdout()
+    if commandResult == ""{
+        testsuit.T.Errorf("")
+    }
+
+    cmd.MustSuccedIncreasedTimeout(time.Minute*10, "curl", "-o", "/tmp/tkn-binary.tar.gz", "-k", commandResult)
+    cmd.MustSucceed("tar", "-xf", "/tmp/tkn-binary.tar.gz", "-C", "/tmp")
+}
+
+func AssertClientVersion(version string, client string, binary string){
+    var commandResult string
+    var unexpectedVersion string
+    if client == "PAC" && binary == "tkn"{
+        commandResult = cmd.MustSucceed("/tmp/tkn", "pac", "version").Stdout()
+        if !strings.Contains(commandResult, version) {
+            testsuit.T.Errorf(client + " has an unexpected version: " + commandResult + " expected version is: " + version)
+        }
+    }else if client == "Client" && binary == "tkn"{
+        
+        commandResult = cmd.MustSucceed("/tmp/tkn", "version").Stdout()
+        var splittedCommandResult = strings.Split(commandResult, "\n")
+        for i, _ := range splittedCommandResult{
+            if strings.Contains(splittedCommandResult[i], client){
+                if !strings.Contains(splittedCommandResult[i], version){
+                    unexpectedVersion = splittedCommandResult[i]
+                    testsuit.T.Errorf("'" + unexpectedVersion + "'. " + client + " has an unexpected version. Expected version is: " + version)
+                }
+            }
+        }
+    }else if binary == "opc" && (client == "PAC" || client == "Tekton" || client == "Client"){
+        if client == "PAC"{
+            client = "Pipelines as Code CLI"
+        }
+        commandResult = cmd.MustSucceed("/tmp/opc", "version").Stdout()
+        var splittedCommandResult = strings.Split(commandResult, "\n")
+        for i, _ := range splittedCommandResult{
+            if strings.Contains(splittedCommandResult[i], client) {
+                if !strings.Contains(splittedCommandResult[i], version){
+                    unexpectedVersion = splittedCommandResult[i]
+                    testsuit.T.Errorf("'" + unexpectedVersion + "'. " + client + " has an unexpected version. Expected version is: " + version)
+                }
+            }
+        }
+    }else {
+        testsuit.T.Errorf("Unknown binary or client")
+    }
+}
 
 
 >>>>>>> c4f6dec (n)

@@ -95,3 +95,15 @@ var _ = gauge.Step("Check version of component <component>", func(component stri
 	defaultVersion := os.Getenv(strings.ToUpper(component+"_version"))
 	tkn.AssertComponentVersion(defaultVersion, component)
 })
+
+var _ = gauge.Step("Download and extract CLI from cluster", func(){
+    tkn.InstallRequiredBinary()
+})
+
+var _ =gauge.Step("Check <client> version in <binary>", func(client string, binary string){
+    defaultVersion := os.Getenv(strings.ToUpper(binary+"_"+client+"_version"))
+    tkn.AssertClientVersion(defaultVersion, client, binary )
+
+})
+
+
