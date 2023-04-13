@@ -103,7 +103,4 @@ var _ = gauge.Step("Download and extract CLI from cluster", func(){
 var _ =gauge.Step("Check <client> version in <binary>", func(client string, binary string){
     defaultVersion := os.Getenv(strings.ToUpper(binary+"_"+client+"_version"))
     tkn.AssertClientVersion(defaultVersion, client, binary )
-
 })
-
-

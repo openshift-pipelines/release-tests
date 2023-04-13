@@ -46,11 +46,6 @@ func AssertComponentVersion(version string, component string) {
 	if !strings.Contains(commandResult, version){
 		testsuit.T.Errorf(component + " has an unexpected version: " + commandResult + " expected version is: " + version)
 	}
-<<<<<<< HEAD
-
-}
-
-=======
 }
 
 func InstallRequiredBinary (){
@@ -104,8 +99,6 @@ func AssertClientVersion(version string, client string, binary string){
     }
 }
 
-
->>>>>>> c4f6dec (n)
 // Run tkn with given arguments
 func (tkn Cmd) MustSucceed(args ...string) string {
 	return tkn.Assert(icmd.Success, args...)
