@@ -36,7 +36,7 @@ func AssertComponentVersion(version string, component string) {
     switch component {
     case "pipeline", "triggers", "operator":
         commandResult = cmd.MustSucceed("tkn", "version", "--component", component).Stdout()
-    case "config":
+    case "OSP":
         commandResult = cmd.MustSucceed("oc", "get", "tektonconfig", "config", "-o", "jsonpath={.status.version}").Stdout()
     case "pipelines-as-code":
         commandResult = cmd.MustSucceed("oc", "get", "pac", "pipelines-as-code", "-o", "jsonpath={.status.version}").Stdout()
