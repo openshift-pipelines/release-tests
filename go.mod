@@ -3,15 +3,14 @@ module github.com/openshift-pipelines/release-tests
 go 1.18
 
 require (
-	github.com/Netflix/go-expect v0.0.0-20201125194554-85d881c3777e
+	github.com/Netflix/go-expect v0.0.0-20220104043353-73e0943537d2
 	github.com/getgauge-contrib/gauge-go v0.3.1
 	github.com/google/go-cmp v0.5.9
 	github.com/openshift/api v0.0.0-20220525145417-ee5b62754c68
 	github.com/openshift/client-go v0.0.0-20220603133046-984ee5ebedcf
-	github.com/operator-framework/api v0.10.3
-	github.com/operator-framework/operator-lifecycle-manager v0.18.3
+	github.com/operator-framework/api v0.16.0
+	github.com/operator-framework/operator-lifecycle-manager v0.22.0
 	github.com/pkg/errors v0.9.1
-	github.com/prometheus-operator/prometheus-operator/pkg/client v0.45.0
 	github.com/prometheus/client_golang v1.14.0
 	github.com/prometheus/common v0.39.0
 	github.com/tektoncd/operator v0.65.1
@@ -47,6 +46,7 @@ require (
 	github.com/census-instrumentation/opencensus-proto v0.4.1 // indirect
 	github.com/cespare/xxhash/v2 v2.2.0 // indirect
 	github.com/cloudevents/sdk-go/v2 v2.13.0 // indirect
+	github.com/creack/pty v1.1.17 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/dmotylev/goproperties v0.0.0-20140630191356-7cbffbaada47 // indirect
 	github.com/emicklei/go-restful/v3 v3.10.1 // indirect
@@ -75,7 +75,6 @@ require (
 	github.com/josharian/intern v1.0.0 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
 	github.com/kelseyhightower/envconfig v1.4.0 // indirect
-	github.com/kr/pty v1.1.5 // indirect
 	github.com/mailru/easyjson v0.7.7 // indirect
 	github.com/manifestival/manifestival v0.7.2 // indirect
 	github.com/matttproud/golang_protobuf_extensions v1.0.4 // indirect
@@ -84,7 +83,6 @@ require (
 	github.com/munnerz/goautoneg v0.0.0-20191010083416-a7dc8b61c822 // indirect
 	github.com/opencontainers/go-digest v1.0.0 // indirect
 	github.com/openshift-pipelines/pipelines-as-code v0.16.0 // indirect
-	github.com/prometheus-operator/prometheus-operator/pkg/apis/monitoring v0.45.0 // indirect
 	github.com/prometheus/client_model v0.3.0 // indirect
 	github.com/prometheus/procfs v0.9.0 // indirect
 	github.com/prometheus/statsd_exporter v0.23.0 // indirect
