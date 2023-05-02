@@ -96,11 +96,11 @@ var _ = gauge.Step("Check version of component <component>", func(component stri
 	tkn.AssertComponentVersion(defaultVersion, component)
 })
 
-var _ = gauge.Step("Check version of <osp>", func(osp string) {
-	defaultVersion := os.Getenv(strings.ToUpper(osp + "_version"))
-	tkn.AssertComponentVersion(defaultVersion, osp)
+var _ = gauge.Step("Check version of OSP", func() {
+	defaultVersion := os.Getenv("OSP_VERSION")
+	tkn.AssertComponentVersion(defaultVersion, "osp")
 })
-
+ 
 var _ = gauge.Step("Download and extract CLI from cluster", func() {
 	tkn.DownloadCLIFromCluster()
 })

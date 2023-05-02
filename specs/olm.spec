@@ -1,3 +1,4 @@
+PIPELINES-09
 # Olm Openshift Pipelines operator specs
 
 ## Install openshift-pipelines operator: PIPELINES-09-TC01
@@ -49,19 +50,21 @@ Steps:
   * Validate Operator should be installed
   * Uninstall Operator
 
-##Check server side components versions
+PIPELINES-09-TC04
+## Check server side components versions
 Tags: install, upgrade
 Steps:
-* Check version of component "pipeline"
-* Check version of component "triggers"
-* Check version of component "operator"
-* Check version of component "pipelines-as-code"
-* Check version of "OSP"
+  * Check version of component "pipeline"
+  * Check version of component "triggers"
+  * Check version of component "operator"
+  * Check version of component "pipelines-as-code"
+  * Check version of OSP
 
-##Check client versions
+PIPELINES-09-TC05
+## Check client versions
 Tags: install, upgrade
 Steps: 
-    * Download and extract CLI from cluster
-    * Check "tkn" client version
-    * Check "tkn-pac" version
-    * Check "opc" client version
+  * Download and extract CLI from cluster
+  * Check "tkn" client version
+  * Check "tkn-pac" version
+  * Check "opc" client version
