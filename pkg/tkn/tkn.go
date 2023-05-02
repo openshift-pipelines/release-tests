@@ -84,7 +84,7 @@ func AssertClientVersion(binary string) {
 		components := [3]string{"OpenShift Pipelines Client", "Tekton CLI", "Pipelines as Code CLI"}
 		expectedVersions := [3]string{os.Getenv("OSP_VERSION"), os.Getenv("TKN_CLIENT_VERSION"), os.Getenv("PAC_VERSION")}
 		var splittedCommandResult = strings.Split(commandResult, "\n")
-		for i := 0; i < 4; i++ {
+		for i := 0; i < 3; i++ {
 			if strings.Contains(splittedCommandResult[i], components[i]) {
 				if !strings.Contains(splittedCommandResult[i], expectedVersions[i]) {
 					unexpectedVersion = splittedCommandResult[i]
