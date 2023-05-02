@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"sync"
 	"strings"
+	"sync"
 
 	"github.com/getgauge-contrib/gauge-go/gauge"
 	"github.com/getgauge-contrib/gauge-go/testsuit"
@@ -92,20 +92,23 @@ var _ = gauge.Step("Validate tektoninstallersets names", func() {
 })
 
 var _ = gauge.Step("Check version of component <component>", func(component string) {
-	defaultVersion := os.Getenv(strings.ToUpper(component+"_version"))
+	defaultVersion := os.Getenv(strings.ToUpper(component + "_version"))
 	tkn.AssertComponentVersion(defaultVersion, component)
 })
 
-var _ = gauge.Step("Download and extract CLI from cluster", func(){
-    tkn.InstallRequiredBinary()
+var _ = gauge.Step("Check version of <osp>", func(osp string) {
+	defaultVersion := os.Getenv(strings.ToUpper(osp + "_version"))
+	tkn.AssertComponentVersion(defaultVersion, osp)
 })
 
-var _ = gauge.Step("Check <client> version in <binary>", func(client string, binary string){
-    defaultVersion := os.Getenv(strings.ToUpper(binary+"_"+client+"_version"))
-    tkn.AssertClientVersion(defaultVersion, client, binary )
+var _ = gauge.Step("Download and extract CLI from cluster", func() {
+	tkn.DownloadCLIFromCluster()
 })
 
-var _ = gauge.Step("Check version of <component>", func(component string){
-	defaultVersion := os.Getenv(strings.ToUpper(component+"_version"))
-	tkn.AssertComponentVersion(defaultVersion, component)
+var _ = gauge.Step("Check <binary> client version", func(binary string){
+	tkn.AssertClientVersion(binary); 
+})
+
+var _ = gauge.Step("Check <binary> version", func(binary string){
+	tkn.AssertClientVersion(binary); 
 })

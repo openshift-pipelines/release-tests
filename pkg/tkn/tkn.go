@@ -33,70 +33,68 @@ func New(tknPath string) Cmd {
 // Verify the versions of Openshift Pipelines components
 func AssertComponentVersion(version string, component string) {
 	var commandResult string
-    switch component {
-    case "pipeline", "triggers", "operator":
-        commandResult = cmd.MustSucceed("tkn", "version", "--component", component).Stdout()
-    case "OSP":
-        commandResult = cmd.MustSucceed("oc", "get", "tektonconfig", "config", "-o", "jsonpath={.status.version}").Stdout()
-    case "pipelines-as-code":
-        commandResult = cmd.MustSucceed("oc", "get", "pac", "pipelines-as-code", "-o", "jsonpath={.status.version}").Stdout()
+	switch component {
+	case "pipeline", "triggers", "operator":
+		commandResult = cmd.MustSucceed("tkn", "version", "--component", component).Stdout()
+	case "OSP":
+		commandResult = cmd.MustSucceed("oc", "get", "tektonconfig", "config", "-o", "jsonpath={.status.version}").Stdout()
+	case "pipelines-as-code":
+		commandResult = cmd.MustSucceed("oc", "get", "pac", "pipelines-as-code", "-o", "jsonpath={.status.version}").Stdout()
 	default:
 		testsuit.T.Errorf("Unknown component")
 	}
-	if !strings.Contains(commandResult, version){
+	if !strings.Contains(commandResult, version) {
 		testsuit.T.Errorf(component + " has an unexpected version: " + commandResult + " expected version is: " + version)
 	}
 }
 
-func InstallRequiredBinary (){
-    var architecture = strings.Trim(cmd.MustSucceed("uname").Stdout(), "\n")+ " " + strings.Trim(cmd.MustSucceed("uname", "-m").Stdout(), "\n")
-    fmt.Println(architecture)
-    var commandResult = cmd.MustSucceed("oc", "get", "consoleclidownloads", "tkn", "-o", "jsonpath={.spec.links[?(@.text==\"Download tkn and tkn-pac for " + architecture + "\")].href}").Stdout()
-    if commandResult == ""{
-        testsuit.T.Errorf("")
-    }
-
-    cmd.MustSuccedIncreasedTimeout(time.Minute*10, "curl", "-o", "/tmp/tkn-binary.tar.gz", "-k", commandResult)
-    cmd.MustSucceed("tar", "-xf", "/tmp/tkn-binary.tar.gz", "-C", "/tmp")
+func DownloadCLIFromCluster() {
+	var architecture = strings.Trim(cmd.MustSucceed("uname").Stdout(), "\n") + " " + strings.Trim(cmd.MustSucceed("uname", "-m").Stdout(), "\n")
+	var cliDownloadURL = cmd.MustSucceed("oc", "get", "consoleclidownloads", "tkn", "-o", "jsonpath={.spec.links[?(@.text==\"Download tkn and tkn-pac for "+architecture+"\")].href}").Stdout()
+	if cliDownloadURL == "" {
+		testsuit.T.Errorf("")
+	}
+	cmd.MustSuccedIncreasedTimeout(time.Minute*10, "curl", "-o", "/tmp/tkn-binary.tar.gz", "-k", cliDownloadURL)
+	cmd.MustSucceed("tar", "-xf", "/tmp/tkn-binary.tar.gz", "-C", "/tmp")
 }
 
-func AssertClientVersion(version string, client string, binary string){
-    var commandResult string
-    var unexpectedVersion string
-    if client == "PAC" && binary == "tkn"{
-        commandResult = cmd.MustSucceed("/tmp/tkn", "pac", "version").Stdout()
-        if !strings.Contains(commandResult, version) {
-            testsuit.T.Errorf(client + " has an unexpected version: " + commandResult + " expected version is: " + version)
-        }
-    }else if client == "Client" && binary == "tkn"{
-        
-        commandResult = cmd.MustSucceed("/tmp/tkn", "version").Stdout()
-        var splittedCommandResult = strings.Split(commandResult, "\n")
-        for i, _ := range splittedCommandResult{
-            if strings.Contains(splittedCommandResult[i], client){
-                if !strings.Contains(splittedCommandResult[i], version){
-                    unexpectedVersion = splittedCommandResult[i]
-                    testsuit.T.Errorf("'" + unexpectedVersion + "'. " + client + " has an unexpected version. Expected version is: " + version)
-                }
-            }
-        }
-    }else if binary == "opc" && (client == "PAC" || client == "Tekton" || client == "Client"){
-        if client == "PAC"{
-            client = "Pipelines as Code CLI"
-        }
-        commandResult = cmd.MustSucceed("/tmp/opc", "version").Stdout()
-        var splittedCommandResult = strings.Split(commandResult, "\n")
-        for i, _ := range splittedCommandResult{
-            if strings.Contains(splittedCommandResult[i], client) {
-                if !strings.Contains(splittedCommandResult[i], version){
-                    unexpectedVersion = splittedCommandResult[i]
-                    testsuit.T.Errorf("'" + unexpectedVersion + "'. " + client + " has an unexpected version. Expected version is: " + version)
-                }
-            }
-        }
-    }else {
-        testsuit.T.Errorf("Unknown binary or client")
-    }
+func AssertClientVersion(binary string) {
+	var commandResult string
+	var unexpectedVersion string
+	if binary == "tkn-pac" {
+		commandResult = cmd.MustSucceed("/tmp/tkn-pac", "version").Stdout()
+		expectedVersion := os.Getenv("PAC_VERSION")
+		if !strings.Contains(commandResult, expectedVersion) {
+			testsuit.T.Errorf("tkn-pac has an unexpected version: " + commandResult + ". Expected: " + expectedVersion)
+		}
+	} else if binary == "tkn" {
+		expectedVersion := os.Getenv("TKN_CLIENT_VERSION")
+		commandResult = cmd.MustSucceed("/tmp/tkn", "version").Stdout()
+		var splittedCommandResult = strings.Split(commandResult, "\n")
+		for i, _ := range splittedCommandResult {
+			if strings.Contains(splittedCommandResult[i], "Client") {
+				if !strings.Contains(splittedCommandResult[i], expectedVersion) {
+					unexpectedVersion = splittedCommandResult[i]
+					testsuit.T.Errorf("tkn client has an unexpected version: " + unexpectedVersion + " Expeced: " + expectedVersion)
+				}
+			}
+		}
+	} else if binary == "opc" {
+		commandResult = cmd.MustSucceed("/tmp/opc", "version").Stdout()
+		components := [3]string{"OpenShift Pipelines Client", "Tekton CLI", "Pipelines as Code CLI"}
+		expectedVersions := [3]string{os.Getenv("OSP_VERSION"), os.Getenv("TKN_CLIENT_VERSION"), os.Getenv("PAC_VERSION")}
+		var splittedCommandResult = strings.Split(commandResult, "\n")
+		for i := 0; i < 4; i++ {
+			if strings.Contains(splittedCommandResult[i], components[i]) {
+				if !strings.Contains(splittedCommandResult[i], expectedVersions[i]) {
+					unexpectedVersion = splittedCommandResult[i]
+					testsuit.T.Errorf(components[i] + " has an unexpected version: \"" + unexpectedVersion + "\". Expected: " + expectedVersions[i])
+				}
+			}
+		}
+	} else {
+		testsuit.T.Errorf("Unknown binary or client")
+	}
 }
 
 // Run tkn with given arguments
