@@ -37,12 +37,13 @@ func AssertComponentVersion(version string, component string) {
 	case "pipeline", "triggers", "operator":
 		commandResult = cmd.MustSucceed("tkn", "version", "--component", component).Stdout()
 	case "OSP":
-		commandResult = cmd.MustSucceed("oc", "get", "tektonconfig", "config", "-o", "jsonpath={.status.version}").Stdout()
+		commandResult = cmd.MustSucceed("oc","get","tektonconfig","config", "-o", "jsonpath={.status.version}").Stdout()
 	case "pipelines-as-code":
 		commandResult = cmd.MustSucceed("oc", "get", "pac", "pipelines-as-code", "-o", "jsonpath={.status.version}").Stdout()
 	default:
 		testsuit.T.Errorf("Unknown component")
 	}
+	fmt.Println(commandResult)
 	if !strings.Contains(commandResult, version) {
 		testsuit.T.Errorf(component + " has an unexpected version: " + commandResult + " expected version is: " + version)
 	}
@@ -51,9 +52,6 @@ func AssertComponentVersion(version string, component string) {
 func DownloadCLIFromCluster() {
 	var architecture = strings.Trim(cmd.MustSucceed("uname").Stdout(), "\n") + " " + strings.Trim(cmd.MustSucceed("uname", "-m").Stdout(), "\n")
 	var cliDownloadURL = cmd.MustSucceed("oc", "get", "consoleclidownloads", "tkn", "-o", "jsonpath={.spec.links[?(@.text==\"Download tkn and tkn-pac for "+architecture+"\")].href}").Stdout()
-	if cliDownloadURL == "" {
-		testsuit.T.Errorf("")
-	}
 	cmd.MustSuccedIncreasedTimeout(time.Minute*10, "curl", "-o", "/tmp/tkn-binary.tar.gz", "-k", cliDownloadURL)
 	cmd.MustSucceed("tar", "-xf", "/tmp/tkn-binary.tar.gz", "-C", "/tmp")
 }
