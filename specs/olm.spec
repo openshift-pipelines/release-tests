@@ -50,8 +50,7 @@ Steps:
   * Validate Operator should be installed
   * Uninstall Operator
 
-PIPELINES-09-TC04
-## Check server side components versions
+## Check server side components versions: PIPELINES-09-TC04
 Tags: install, upgrade
 Steps:
   * Check version of component "pipeline"
@@ -60,8 +59,7 @@ Steps:
   * Check version of component "pipelines-as-code"
   * Check version of OSP
 
-PIPELINES-09-TC05
-## Check client versions
+## Check client versions: PIPELINES-09-TC05
 Tags: install, upgrade
 Steps: 
   * Download and extract CLI from cluster
