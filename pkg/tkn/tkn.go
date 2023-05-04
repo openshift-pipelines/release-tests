@@ -37,15 +37,14 @@ func AssertComponentVersion(version string, component string) {
 	case "pipeline", "triggers", "operator":
 		commandResult = cmd.MustSucceed("tkn", "version", "--component", component).Stdout()
 	case "OSP":
-		commandResult = cmd.MustSucceed("oc","get","tektonconfig","config", "-o", "jsonpath={.status.version}").Stdout()
+		commandResult = cmd.MustSucceed("oc", "get", "tektonconfig", "config", "-o", "jsonpath={.status.version}").Stdout()
 	case "pipelines-as-code":
 		commandResult = cmd.MustSucceed("oc", "get", "pac", "pipelines-as-code", "-o", "jsonpath={.status.version}").Stdout()
 	default:
 		testsuit.T.Errorf("Unknown component")
 	}
-	fmt.Println(commandResult)
 	if !strings.Contains(commandResult, version) {
-		testsuit.T.Errorf(component + " has an unexpected version: " + commandResult + " expected version is: " + version)
+		testsuit.T.Errorf("The " + component + " has an unexpected version: " + commandResult + ", expected: " + version)
 	}
 }
 
