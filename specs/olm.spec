@@ -19,6 +19,7 @@ Steps:
   * Validate tkn server cli deployment
   * Verify TektonAddons Install status
   * Validate RBAC
+  * Validate quickstarts
   * Validate default auto prune cronjob in target namespace
   * Validate tektoninstallersets status
   * Validate tektoninstallersets names
@@ -37,6 +38,7 @@ Steps:
   * Wait for TektonConfig CR availability
   * Validate Operator should be installed
   * Validate RBAC
+  * Validate quickstarts
 
 ## Uninstall openshift-pipelines operator: PIPELINES-09-TC03
 Tags: uninstall, admin
