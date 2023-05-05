@@ -100,15 +100,19 @@ var _ = gauge.Step("Check version of OSP", func() {
 	defaultVersion := os.Getenv("OSP_VERSION")
 	tkn.AssertComponentVersion(defaultVersion, "OSP")
 })
- 
+
 var _ = gauge.Step("Download and extract CLI from cluster", func() {
 	tkn.DownloadCLIFromCluster()
 })
 
-var _ = gauge.Step("Check <binary> client version", func(binary string){
-	tkn.AssertClientVersion(binary); 
+var _ = gauge.Step("Check <binary> client version", func(binary string) {
+	tkn.AssertClientVersion(binary)
 })
 
-var _ = gauge.Step("Check <binary> version", func(binary string){
-	tkn.AssertClientVersion(binary); 
+var _ = gauge.Step("Check <binary> version", func(binary string) {
+	tkn.AssertClientVersion(binary)
+})
+
+var _ = gauge.Step("Validate quickstarts", func() {
+	tkn.ValidateQuickstarts()
 })

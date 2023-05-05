@@ -94,6 +94,11 @@ func AssertClientVersion(binary string) {
 	}
 }
 
+func ValidateQuickstarts(){
+	cmd.MustSucceed("oc","get","consolequickstart","install-app-and-associate-pipeline").Stdout()
+	cmd.MustSucceed("oc","get","consolequickstart", "configure-pipeline-metrics").Stdout()
+}
+
 // Run tkn with given arguments
 func (tkn Cmd) MustSucceed(args ...string) string {
 	return tkn.Assert(icmd.Success, args...)
