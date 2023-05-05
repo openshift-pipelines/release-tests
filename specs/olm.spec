@@ -52,6 +52,10 @@ Steps:
 
 ## Check server side components versions: PIPELINES-09-TC04
 Tags: install, upgrade
+Component: Operator
+Level: Integration
+Type: Functional
+Importance: Critical
 Steps:
   * Check version of component "pipeline"
   * Check version of component "triggers"
@@ -61,6 +65,10 @@ Steps:
 
 ## Check client versions: PIPELINES-09-TC05
 Tags: install, upgrade
+Component: Operator
+Level: Integration
+Type: Functional
+Importance: Critical
 Steps: 
   * Download and extract CLI from cluster
   * Check "tkn" client version
