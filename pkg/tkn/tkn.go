@@ -10,6 +10,7 @@ import (
 	"runtime/debug"
 	"strings"
 	"sync"
+	"time"
 
 	"github.com/Netflix/go-expect"
 	"github.com/getgauge-contrib/gauge-go/testsuit"
@@ -26,6 +27,70 @@ type Cmd struct {
 func New(tknPath string) Cmd {
 	return Cmd{
 		Path: tknPath,
+	}
+}
+
+// Verify the versions of Openshift Pipelines components
+func AssertComponentVersion(version string, component string) {
+	var commandResult string
+	switch component {
+	case "pipeline", "triggers", "operator":
+		commandResult = cmd.MustSucceed("tkn", "version", "--component", component).Stdout()
+	case "OSP":
+		commandResult = cmd.MustSucceed("oc", "get", "tektonconfig", "config", "-o", "jsonpath={.status.version}").Stdout()
+	case "pipelines-as-code":
+		commandResult = cmd.MustSucceed("oc", "get", "pac", "pipelines-as-code", "-o", "jsonpath={.status.version}").Stdout()
+	default:
+		testsuit.T.Errorf("Unknown component")
+	}
+	if !strings.Contains(commandResult, version) {
+		testsuit.T.Errorf("The " + component + " has an unexpected version: " + commandResult + ", expected: " + version)
+	}
+}
+
+func DownloadCLIFromCluster() {
+	var architecture = strings.Trim(cmd.MustSucceed("uname").Stdout(), "\n") + " " + strings.Trim(cmd.MustSucceed("uname", "-m").Stdout(), "\n")
+	var cliDownloadURL = cmd.MustSucceed("oc", "get", "consoleclidownloads", "tkn", "-o", "jsonpath={.spec.links[?(@.text==\"Download tkn and tkn-pac for "+architecture+"\")].href}").Stdout()
+	cmd.MustSuccedIncreasedTimeout(time.Minute*10, "curl", "-o", "/tmp/tkn-binary.tar.gz", "-k", cliDownloadURL)
+	cmd.MustSucceed("tar", "-xf", "/tmp/tkn-binary.tar.gz", "-C", "/tmp")
+}
+
+func AssertClientVersion(binary string) {
+	var commandResult string
+	var unexpectedVersion string
+	if binary == "tkn-pac" {
+		commandResult = cmd.MustSucceed("/tmp/tkn-pac", "version").Stdout()
+		expectedVersion := os.Getenv("PAC_VERSION")
+		if !strings.Contains(commandResult, expectedVersion) {
+			testsuit.T.Errorf("tkn-pac has an unexpected version: " + commandResult + ". Expected: " + expectedVersion)
+		}
+	} else if binary == "tkn" {
+		expectedVersion := os.Getenv("TKN_CLIENT_VERSION")
+		commandResult = cmd.MustSucceed("/tmp/tkn", "version").Stdout()
+		var splittedCommandResult = strings.Split(commandResult, "\n")
+		for i, _ := range splittedCommandResult {
+			if strings.Contains(splittedCommandResult[i], "Client") {
+				if !strings.Contains(splittedCommandResult[i], expectedVersion) {
+					unexpectedVersion = splittedCommandResult[i]
+					testsuit.T.Errorf("tkn client has an unexpected version: " + unexpectedVersion + " Expeced: " + expectedVersion)
+				}
+			}
+		}
+	} else if binary == "opc" {
+		commandResult = cmd.MustSucceed("/tmp/opc", "version").Stdout()
+		components := [3]string{"OpenShift Pipelines Client", "Tekton CLI", "Pipelines as Code CLI"}
+		expectedVersions := [3]string{os.Getenv("OSP_VERSION"), os.Getenv("TKN_CLIENT_VERSION"), os.Getenv("PAC_VERSION")}
+		var splittedCommandResult = strings.Split(commandResult, "\n")
+		for i := 0; i < 3; i++ {
+			if strings.Contains(splittedCommandResult[i], components[i]) {
+				if !strings.Contains(splittedCommandResult[i], expectedVersions[i]) {
+					unexpectedVersion = splittedCommandResult[i]
+					testsuit.T.Errorf(components[i] + " has an unexpected version: \"" + unexpectedVersion + "\". Expected: " + expectedVersions[i])
+				}
+			}
+		}
+	} else {
+		testsuit.T.Errorf("Unknown binary or client")
 	}
 }
 

@@ -3,6 +3,8 @@ package olm
 import (
 	"fmt"
 	"log"
+	"os"
+	"strings"
 	"sync"
 
 	"github.com/getgauge-contrib/gauge-go/gauge"
@@ -13,6 +15,7 @@ import (
 	"github.com/openshift-pipelines/release-tests/pkg/openshift"
 	"github.com/openshift-pipelines/release-tests/pkg/operator"
 	"github.com/openshift-pipelines/release-tests/pkg/store"
+	"github.com/openshift-pipelines/release-tests/pkg/tkn"
 )
 
 var once sync.Once
@@ -86,4 +89,26 @@ var _ = gauge.Step("Validate tektoninstallersets status", func() {
 
 var _ = gauge.Step("Validate tektoninstallersets names", func() {
 	k8s.ValidateTektonInstallersetNames(store.Clients())
+})
+
+var _ = gauge.Step("Check version of component <component>", func(component string) {
+	defaultVersion := os.Getenv(strings.ToUpper(component + "_version"))
+	tkn.AssertComponentVersion(defaultVersion, component)
+})
+
+var _ = gauge.Step("Check version of OSP", func() {
+	defaultVersion := os.Getenv("OSP_VERSION")
+	tkn.AssertComponentVersion(defaultVersion, "OSP")
+})
+ 
+var _ = gauge.Step("Download and extract CLI from cluster", func() {
+	tkn.DownloadCLIFromCluster()
+})
+
+var _ = gauge.Step("Check <binary> client version", func(binary string){
+	tkn.AssertClientVersion(binary); 
+})
+
+var _ = gauge.Step("Check <binary> version", func(binary string){
+	tkn.AssertClientVersion(binary); 
 })
