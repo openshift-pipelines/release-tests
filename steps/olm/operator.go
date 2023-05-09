@@ -21,7 +21,7 @@ import (
 var once sync.Once
 var _ = gauge.Step("Validate Operator should be installed", func() {
 	once.Do(func() {
-		operator.ValidateOperatorInstallStatus(store.Clients(), store.GetCRNames())
+		operator.ValidateOperatorInstallStatus()
 	})
 })
 

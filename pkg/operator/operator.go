@@ -2,8 +2,11 @@ package operator
 
 import (
 	"log"
+	"strings"
 
+	"github.com/getgauge-contrib/gauge-go/testsuit"
 	"github.com/openshift-pipelines/release-tests/pkg/clients"
+	"github.com/openshift-pipelines/release-tests/pkg/cmd"
 	"github.com/openshift-pipelines/release-tests/pkg/config"
 	"github.com/openshift-pipelines/release-tests/pkg/k8s"
 	"github.com/openshift-pipelines/release-tests/pkg/olm"
@@ -55,10 +58,11 @@ func ValidateTriggerDeployments(cs *clients.Clients, rnames utils.ResourceNames)
 		config.TriggerControllerName, config.TriggerWebhookName)
 }
 
-func ValidateOperatorInstallStatus(cs *clients.Clients, rnames utils.ResourceNames) {
-	log.Printf("Waiting for operator to be up and running....\n")
-	EnsureTektonConfigStatusInstalled(cs.TektonConfig(), rnames)
-	log.Printf("Operator is up\n")
+func ValidateOperatorInstallStatus() {
+	operatorVersion := cmd.MustSucceed("tkn", "version", "--component", "operator").Stdout()
+	if strings.Contains(operatorVersion, "unknown"){
+		testsuit.T.Errorf("Operator is not installed")
+	}
 }
 
 func DeleteTektonConfigCR(cs *clients.Clients, rnames utils.ResourceNames) {
