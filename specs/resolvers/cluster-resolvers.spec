@@ -1,7 +1,7 @@
-PIPELINES-22
+PIPELINES-23
 # Cluster resolvers spec
 
-## Checking the functionality of cluster resolvers: PIPELINES-22-TC01
+## Checking the functionality of cluster resolvers: PIPELINES-23-TC01
 Steps:
     * Validate Operator should be installed
     * Create project "resolver-test-tasks"
