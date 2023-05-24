@@ -8,10 +8,10 @@ import (
 
 // This function checks if the project we need exists: if the project does not exist, then the function creates it
 func CheckProjectExists(project string){
-	commandResult := cmd.MustSucceed("oc", "projects").Stdout()
-	splittedCommandResult := strings.Fields(commandResult)
-	for i, _ := range splittedCommandResult{
-		if strings.Contains(splittedCommandResult[i], project){
+	availableProjects := cmd.MustSucceed("oc", "projects").Stdout()
+	splittedAvailableProjects := strings.Fields(availableProjects)
+	for i, _ := range splittedAvailableProjects{
+		if strings.Contains(splittedAvailableProjects[i], project){
 			cmd.MustSucceed("oc", "project", project)
 			return
 		}
