@@ -2,15 +2,9 @@ package resolvers
 
 import (
 	"github.com/getgauge-contrib/gauge-go/gauge"
-	"github.com/openshift-pipelines/release-tests/pkg/oc"
+	"github.com/openshift-pipelines/release-tests/pkg/resolvers"
 )
 
-
-
-var _ = gauge.Step("Delete projects", func(){
-	oc.DeleteProject("resolver-test-tasks")
-	oc.DeleteProject("resolver-test-pipelines")
-	oc.DeleteProject("resolver-test-pipelineruns")
+var _ = gauge.Step("Check if project <project> exists", func(project string){
+	resolvers.CheckProjectExists(project)
 })
-
-
