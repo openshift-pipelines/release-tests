@@ -1,11 +1,11 @@
 apiVersion: tekton.dev/v1beta1
 kind: Task
 metadata:
-  name: resolver-test-task
+  name: resolver-task
 spec:
   steps:
     - name: echo
-      image: alpine
+      image: image-registry.openshift-image-registry.svc:5000/openshift/golang
       script: |
         #!/bin/sh
         echo "Hello World"

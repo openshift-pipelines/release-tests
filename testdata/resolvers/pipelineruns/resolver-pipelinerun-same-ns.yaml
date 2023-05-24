@@ -1,10 +1,10 @@
 apiVersion: tekton.dev/v1beta1
 kind: PipelineRun
 metadata:
-  name: resolver-test-pipelinerun-same-ns
+  name: resolver-pipelinerun-same-ns
 spec:
   pipelineRef:
-    name: resolver-test-pipeline-same-ns
+    name: resolver-pipeline-same-ns
     
 
 

@@ -1,16 +1,16 @@
 apiVersion: tekton.dev/v1beta1
 kind: Pipeline
 metadata:
-  name: resolver-test-pipeline-same-ns
+  name: resolver-pipeline-same-ns
 spec:
   tasks:
-    - name: resolver-test-task
+    - name: resolver-task
       taskRef:
         resolver: cluster
         params:
         - name: kind
           value: task
         - name: name
-          value: resolver-test-task
+          value: resolver-task
         - name: namespace
-          value: resolver-test-tasks
+          value: resolver-tasks

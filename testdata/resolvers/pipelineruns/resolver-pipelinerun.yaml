@@ -1,7 +1,7 @@
 apiVersion: tekton.dev/v1beta1
 kind: PipelineRun
 metadata:
-  name: resolver-test-pipelinerun
+  name: resolver-pipelinerun
 spec:
   pipelineRef:
     resolver: cluster
@@ -9,8 +9,8 @@ spec:
     - name: kind
       value: pipeline
     - name: name
-      value: resolver-test-pipeline
+      value: resolver-pipeline
     - name: namespace
-      value: resolver-test-pipelines
+      value: resolver-pipelines
 
 
