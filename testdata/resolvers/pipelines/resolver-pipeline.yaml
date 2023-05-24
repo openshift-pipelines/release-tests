@@ -14,4 +14,3 @@ spec:
           value: resolver-task2
         - name: namespace
           value: resolver-tasks
-

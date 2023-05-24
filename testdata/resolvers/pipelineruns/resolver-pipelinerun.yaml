@@ -12,5 +12,3 @@ spec:
       value: resolver-pipeline
     - name: namespace
       value: resolver-pipelines
-
-

@@ -5,6 +5,3 @@ metadata:
 spec:
   pipelineRef:
     name: resolver-pipeline-same-ns
-    
-
-

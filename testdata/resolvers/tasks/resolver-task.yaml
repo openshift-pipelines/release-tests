@@ -9,4 +9,3 @@ spec:
       script: |
         #!/bin/sh
         echo "Hello World"
-
