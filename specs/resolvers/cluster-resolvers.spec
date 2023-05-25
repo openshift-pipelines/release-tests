@@ -28,9 +28,13 @@ Steps:
       |S.NO|pipeline_run_name                  |status      |check_label_propagation  |
       |----|-----------------------------------|--------------------------------------|
       |1   |resolver-pipelinerun               |successful  |no                       |
-    * Delete project "resolver-tasks"
-    * Delete project "resolver-pipelines"
-    * Delete project "resolver-pipelineruns"
+    * Delete projects
+      |S.NO|project_name          |         
+      |----|----------------------|
+      |1   |resolver-tasks        |  
+      |2   |resolver-pipelines    |
+      |3   |resolver-pipelineruns |          
+
 
 ## Checking the functionality of cluster resolvers#2: PIPELINES-23-TC02
 Tags: e2e, sanity
@@ -55,5 +59,8 @@ Steps:
       |S.NO|pipeline_run_name                  |status      |check_label_propagation  |
       |----|-----------------------------------|--------------------------------------|
       |1   |resolver-pipelinerun-same-ns       |successful  |no                       |
-    * Delete project "resolver-tasks"
-    * Delete project "resolver-pipelineruns"
+    * Delete projects
+      |S.NO|project_name          |         
+      |----|----------------------|
+      |1   |resolver-tasks        |  
+      |2   |resolver-pipelineruns | 
