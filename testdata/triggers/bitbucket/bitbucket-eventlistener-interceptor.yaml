@@ -24,28 +24,17 @@ spec:
       metadata:
         name: bitbucket-run
       spec:
-        taskSpec:
-          resources:
-            inputs:
-            - name: source
-              type: git
-          steps:
-            - image: image-registry.openshift-image-registry.svc:5000/openshift/golang
-              script: |
-                #! /bin/bash
-                echo "git revision: $(tt.params.gitrevision)"
-                echo "git repositoryurl: $(tt.params.gitrepositoryurl)"
-                ls -al $(resources.inputs.source.path)
-        resources:
-          inputs:
-            - name: source
-              resourceSpec:
-                type: git
-                params:
-                  - name: revision
-                    value: $(tt.params.gitrevision)
-                  - name: url
-                    value: $(tt.params.gitrepositoryurl)   
+        taskRef: 
+          name: git-clone
+          kind: ClusterTask
+        params:
+          - name: url
+            value: $(tt.params.gitrepositoryurl)
+          - name: revision
+            value: $(tt.params.gitrevision)
+        workspaces:
+          - name: output
+            emptyDir: {}
 ---    
 apiVersion: triggers.tekton.dev/v1beta1
 kind: EventListener
