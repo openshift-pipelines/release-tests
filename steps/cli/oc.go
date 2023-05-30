@@ -18,6 +18,10 @@ var _ = gauge.Step("Create <table>", func(table *m.Table) {
 	}
 })
 
+var _ = gauge.Step("Create resource <resource>", func(resource string) {
+	oc.Create(resource, store.Namespace())
+})
+
 var _ = gauge.Step("Enable TLS config for eventlisteners", func() {
 	oc.EnableTLSConfigForEventlisteners(store.Namespace())
 
