@@ -34,7 +34,7 @@ func New(tknPath string) Cmd {
 func AssertComponentVersion(version string, component string) {
 	var commandResult string
 	switch component {
-	case "pipeline", "triggers", "operator":
+	case "pipeline", "triggers", "operator", "chains":
 		commandResult = cmd.MustSucceed("tkn", "version", "--component", component).Stdout()
 	case "OSP":
 		commandResult = cmd.MustSucceed("oc", "get", "tektonconfig", "config", "-o", "jsonpath={.status.version}").Stdout()
