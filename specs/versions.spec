@@ -14,6 +14,7 @@ Steps:
   * Check version of component "chains"
   * Check version of component "pipelines-as-code"
   * Check version of OSP
+  * Validate the hub version
 
 ## Check client versions: PIPELINES-22-TC02
 Tags: e2e, sanity
