@@ -131,7 +131,7 @@ func checkAnnotationPropagation(c *clients.Clients, namespace string, pipelineRu
 	// Check annotation propagation to TaskRuns.
 	for key, val := range pr.ObjectMeta.Annotations {
 		// Annotations created by Chains are created after task runs finish
-		if !strings.HasPrefix(key, "chains.tekton.dev") {
+		if !strings.HasPrefix(key, "chains.tekton.dev") && !strings.HasPrefix(key, "results.tekton.dev") {
 			annotations[key] = val
 		}
 	}
