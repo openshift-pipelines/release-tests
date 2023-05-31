@@ -3,6 +3,7 @@ package pipelines
 import (
 	"bytes"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/getgauge-contrib/gauge-go/testsuit"
@@ -129,7 +130,10 @@ func checkAnnotationPropagation(c *clients.Clients, namespace string, pipelineRu
 
 	// Check annotation propagation to TaskRuns.
 	for key, val := range pr.ObjectMeta.Annotations {
-		annotations[key] = val
+		// Annotations created by Chains are created after task runs finish
+		if !strings.HasPrefix(key, "chains.tekton.dev") {
+			annotations[key] = val
+		}
 	}
 	if tr.Spec.TaskRef != nil {
 		task, err := c.TaskClient.Get(c.Ctx, tr.Spec.TaskRef.Name, metav1.GetOptions{})
