@@ -57,3 +57,7 @@ Steps:
       |1   |resolver-pipelinerun-same-ns       |successful  |no                       |
     * Delete project "resolver-tasks"
     * Delete project "resolver-pipelineruns"
+
+      
+
+
