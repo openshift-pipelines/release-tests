@@ -29,6 +29,8 @@ apiVersion: tekton.dev/v1beta1
 kind: Task
 metadata:
   name: check-file-exists-v1b1
+  annotations:
+    release-tests-task: "test"
 spec:
   params:
     - name: FILE
@@ -49,6 +51,8 @@ apiVersion: tekton.dev/v1beta1
 kind: Pipeline
 metadata:
   name: output-pipeline-v1b1
+  annotations:
+    release-tests-pipeline: "test"
 spec:
   tasks:
     - name: create-file
@@ -75,6 +79,8 @@ apiVersion: tekton.dev/v1beta1
 kind: PipelineRun
 metadata:
   name: output-pipeline-run-v1b1
+  annotations:
+    release-tests-pipelinerun: "test"
 spec:
   pipelineRef:
     name: output-pipeline-v1b1
