@@ -12,7 +12,8 @@ Installs `openshift-pipelines` operator using olm
 
 Steps:
   * Subscribe to operator
-  * Wait for TektonConfig CR availability
+  * Wait for TektonConfig CR availability  
+  * Change enable-api-fields to "beta"
   * Validate pipelines deployment
   * Validate triggers deployment
   * Validate PAC deployment
@@ -23,7 +24,6 @@ Steps:
   * Validate default auto prune cronjob in target namespace
   * Validate tektoninstallersets status
   * Validate tektoninstallersets names
-  * Change enable-api-fields to "beta"
 
 ## Upgrade openshift-pipelines operator: PIPELINES-09-TC02
 Tags: upgrade, admin

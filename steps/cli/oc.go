@@ -126,7 +126,6 @@ var _ = gauge.Step("Delete <resourceType> named <name>", func(resourceType, name
 })
 
 var _ = gauge.Step("Change enable-api-fields to <version>", func(version string){
-	patch_data := ""
-	patch_data = fmt.Sprintf("{\"spec\":{\"pipeline\":{\"enable-api-fields\":\"%s\"}}}", version)
+	patch_data := fmt.Sprintf("{\"spec\":{\"pipeline\":{\"enable-api-fields\":\"%s\"}}}", version)
 	oc.UpdateTektonConfig(patch_data)
 })
