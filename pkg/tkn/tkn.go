@@ -33,7 +33,6 @@ func New(tknPath string) Cmd {
 //Verify the hub version
 func AssertHubVersion(defaultVersion string){
 	actualVersion := cmd.MustSucceed("oc", "get", "tektonhub", "hub", "-o", "jsonpath={.status.version}").Stdout()
-	fmt.Println(actualVersion)
 	if !strings.Contains(actualVersion, defaultVersion) {
 		testsuit.T.Errorf("The Hub has an unexpected version: " + actualVersion + ", expected: " + defaultVersion)
 	}
