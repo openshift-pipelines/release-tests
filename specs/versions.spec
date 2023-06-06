@@ -12,10 +12,10 @@ Steps:
   * Check version of component "triggers"
   * Check version of component "operator"
   * Check version of component "chains"
-  * Check version of component "pipelines-as-code"
+  * Check version of component "pipelines-as-code" 
+  * Check version of component "hub"
   * Check version of OSP
-  * Check version of the hub
-
+ 
 ## Check client versions: PIPELINES-22-TC02
 Tags: e2e, sanity
 Component: Operator

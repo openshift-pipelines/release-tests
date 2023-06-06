@@ -113,11 +113,6 @@ var _ = gauge.Step("Check <binary> version", func(binary string) {
 	tkn.AssertClientVersion(binary)
 })
 
-var _ = gauge.Step("Check version of the hub", func(){
-	defaultVersion := os.Getenv("HUB_VERSION")
-	tkn.AssertHubVersion(defaultVersion)
-})
-
 var _ = gauge.Step("Validate quickstarts", func() {
 	tkn.ValidateQuickstarts()
 })

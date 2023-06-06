@@ -30,29 +30,23 @@ func New(tknPath string) Cmd {
 	}
 }
 
-//Verify the hub version
-func AssertHubVersion(defaultVersion string){
-	actualVersion := cmd.MustSucceed("oc", "get", "tektonhub", "hub", "-o", "jsonpath={.status.version}").Stdout()
-	if !strings.Contains(actualVersion, defaultVersion) {
-		testsuit.T.Errorf("The Hub has an unexpected version: " + actualVersion + ", expected: " + defaultVersion)
-	}
-}
-
 // Verify the versions of Openshift Pipelines components
 func AssertComponentVersion(version string, component string) {
-	var commandResult string
+	var actualVersion string
 	switch component {
 	case "pipeline", "triggers", "operator", "chains":
-		commandResult = cmd.MustSucceed("tkn", "version", "--component", component).Stdout()
+		actualVersion = cmd.MustSucceed("tkn", "version", "--component", component).Stdout()
 	case "OSP":
-		commandResult = cmd.MustSucceed("oc", "get", "tektonconfig", "config", "-o", "jsonpath={.status.version}").Stdout()
+		actualVersion = cmd.MustSucceed("oc", "get", "tektonconfig", "config", "-o", "jsonpath={.status.version}").Stdout()
 	case "pipelines-as-code":
-		commandResult = cmd.MustSucceed("oc", "get", "pac", "pipelines-as-code", "-o", "jsonpath={.status.version}").Stdout()
+		actualVersion = cmd.MustSucceed("oc", "get", "pac", "pipelines-as-code", "-o", "jsonpath={.status.version}").Stdout()
+	case "hub":
+		actualVersion = cmd.MustSucceed("oc", "get", "tektonhub", "hub", "-o", "jsonpath={.status.version}").Stdout()
 	default:
 		testsuit.T.Errorf("Unknown component")
 	}
-	if !strings.Contains(commandResult, version) {
-		testsuit.T.Errorf("The " + component + " has an unexpected version: " + commandResult + ", expected: " + version)
+	if !strings.Contains(actualVersion, version) {
+		testsuit.T.Errorf("The " + component + " has an unexpected version: " + actualVersion + ", expected: " + version)
 	}
 }
 
