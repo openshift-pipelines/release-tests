@@ -9,17 +9,18 @@ Type: Functional
 Importance: High
 
 Steps:
-    * Create project "resolver-tasks"
+    * Create project "releasetest-tasks"
     * Create
       |S.NO|resource_dir                                                |
       |----|------------------------------------------------------------|
       |1   |testdata/resolvers/tasks/resolver-task2.yaml                |
-    * Create project "resolver-pipelines"
+    * Create project "releasetest-pipelines"
     * Create
       |S.NO|resource_dir                                                |
       |----|------------------------------------------------------------|
       |1   |testdata/resolvers/pipelines/resolver-pipeline.yaml         |
-    * Create project "resolver-pipelineruns"
+    * Create project "releasetest-pipelineruns"
+    * Verify ServiceAccount "pipeline" exist
     * Create
       |S.NO|resource_dir                                                              |
       |----|--------------------------------------------------------------------------|
@@ -28,9 +29,9 @@ Steps:
       |S.NO|pipeline_run_name                  |status      |check_label_propagation  |
       |----|-----------------------------------|--------------------------------------|
       |1   |resolver-pipelinerun               |successful  |no                       |
-    * Delete project "resolver-tasks"
-    * Delete project "resolver-pipelines"
-    * Delete project "resolver-pipelineruns"          
+    * Delete project "releasetest-tasks"
+    * Delete project "releasetest-pipelines"
+    * Delete project "releasetest-pipelineruns"          
 
 ## Checking the functionality of cluster resolvers#2: PIPELINES-23-TC02
 Tags: e2e, sanity
@@ -40,12 +41,13 @@ Type: Functional
 Importance: High
 
 Steps: 
-    * Create project "resolver-tasks"
+    * Create project "releasetest-tasks"
     * Create 
       |S.NO|resource_dir                                                |
       |----|------------------------------------------------------------|            
       |1   |testdata/resolvers/tasks/resolver-task.yaml                 |
-    * Create project "resolver-pipelineruns"
+    * Create project "releasetest-pipelineruns"
+    * Verify ServiceAccount "pipeline" exist
     * Create
       |S.NO|resource_dir                                                              |
       |----|--------------------------------------------------------------------------|
@@ -55,5 +57,5 @@ Steps:
       |S.NO|pipeline_run_name                  |status      |check_label_propagation  |
       |----|-----------------------------------|--------------------------------------|
       |1   |resolver-pipelinerun-same-ns       |successful  |no                       |
-    * Delete project "resolver-tasks"
-    * Delete project "resolver-pipelineruns"
+    * Delete project "releasetest-tasks"
+    * Delete project "releasetest-pipelineruns"
