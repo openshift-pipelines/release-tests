@@ -13,4 +13,4 @@ spec:
         - name: name
           value: resolver-task2
         - name: namespace
-          value: resolver-tasks
+          value: releasetest-tasks

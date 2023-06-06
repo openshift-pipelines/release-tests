@@ -11,4 +11,4 @@ spec:
     - name: name
       value: resolver-pipeline
     - name: namespace
-      value: resolver-pipelines
+      value: releasetest-pipelines
