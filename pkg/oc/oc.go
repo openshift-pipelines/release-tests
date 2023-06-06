@@ -1,6 +1,7 @@
 package oc
 
 import (
+	"fmt"
 	"log"
 	"strings"
 
@@ -90,4 +91,13 @@ func LabelNamespace(namespace, label string) {
 
 func DeleteResource(resourceType, name string) {
 	log.Printf("output: %s\n", cmd.MustSucceed("oc", "delete", resourceType, name, "-n", store.Namespace()).Stdout())
+}
+
+func CheckProjectExists(projectName string) bool{
+	if strings.Contains(cmd.Run("oc", "project", projectName).String(), "error:"){
+		fmt.Println("******************************")
+		return true
+	}
+	fmt.Println("_______________________________________________")
+	return false
 }

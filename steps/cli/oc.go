@@ -106,10 +106,16 @@ var _ = gauge.Step("Update addon config with clusterTasks as <clusterTaskStatus>
 })
 
 var _ = gauge.Step("Create project <projectName>", func(projectName string) {
-	log.Printf("Creating project %v", projectName)
-	oc.CreateNewProject(projectName)
-	store.Clients().NewClientSet(projectName)
-	gauge.GetScenarioStore()["namespace"] = projectName
+	log.Printf("Check if project %v already exists", projectName)
+	if oc.CheckProjectExists(projectName) == true{
+		log.Printf("Creating project %v", projectName)
+		oc.CreateNewProject(projectName)
+		store.Clients().NewClientSet(projectName)
+		gauge.GetScenarioStore()["namespace"] = projectName
+	}else {
+		store.Clients().NewClientSet(projectName)
+		gauge.GetScenarioStore()["namespace"] = projectName
+	}
 })
 
 var _ = gauge.Step("Delete project <projectName>", func(projectName string) {
