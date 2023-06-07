@@ -1,0 +1,16 @@
+apiVersion: tekton.dev/v1
+kind: Pipeline
+metadata:
+  name: resolver-pipeline-same-ns
+spec:
+  tasks:
+    - name: resolver-task
+      taskRef:
+        resolver: cluster
+        params:
+        - name: kind
+          value: task
+        - name: name
+          value: resolver-task
+        - name: namespace
+          value: releasetest-tasks

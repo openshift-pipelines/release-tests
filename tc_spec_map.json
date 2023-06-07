@@ -20,5 +20,6 @@
     "PIPELINES-19": "specs/operator/post-upgrade.spec",
     "PIPELINES-20": "specs/pac/pac.spec",
     "PIPELINES-21": "specs/hub/hub.spec",
-    "PIPELINES-22": "specs/versions.spec"
+    "PIPELINES-22": "specs/versions.spec",
+    "PIPELINES-23": "specs/resolvers/resolvers.spec"
 }
