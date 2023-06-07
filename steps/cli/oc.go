@@ -106,8 +106,13 @@ var _ = gauge.Step("Update addon config with clusterTasks as <clusterTaskStatus>
 })
 
 var _ = gauge.Step("Create project <projectName>", func(projectName string) {
-	log.Printf("Creating project %v", projectName)
-	oc.CreateNewProject(projectName)
+	log.Printf("Check if project %v already exists", projectName)
+	if oc.CheckProjectExists(projectName) {
+		log.Printf("Switch to project %v", projectName)
+	}else {
+		log.Printf("Creating project %v", projectName)
+		oc.CreateNewProject(projectName)
+	}
 	store.Clients().NewClientSet(projectName)
 	gauge.GetScenarioStore()["namespace"] = projectName
 })
@@ -123,4 +128,9 @@ var _ = gauge.Step("Link secret <secret> to service account <sa>", func(secret, 
 
 var _ = gauge.Step("Delete <resourceType> named <name>", func(resourceType, name string) {
 	oc.DeleteResource(resourceType, name)
+})
+
+var _ = gauge.Step("Change enable-api-fields to <version>", func(version string){
+	patch_data := fmt.Sprintf("{\"spec\":{\"pipeline\":{\"enable-api-fields\":\"%s\"}}}", version)
+	oc.UpdateTektonConfig(patch_data)
 })
