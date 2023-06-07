@@ -93,8 +93,8 @@ func DeleteResource(resourceType, name string) {
 }
 
 func CheckProjectExists(projectName string) bool{
-	if strings.Contains(cmd.Run("oc", "project", projectName).String(), "error: A project named \""+projectName+"\" does not exist"){
-		return true
+	if strings.Contains(cmd.Run("oc", "project", projectName).String(), "error"){
+		return false
 	}
-	return false
+	return true
 }
