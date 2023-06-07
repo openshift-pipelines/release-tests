@@ -3,8 +3,6 @@ kind: TektonHub
 metadata:
   name: hub
 spec:
-  targetNamespace:
-  # <namespace> in which you want to install Tekton Hub. Leave it blank if in case you want to install
-  # in default installation namespace ie `openshift-pipelines` in case of OpenShift and `tekton-pipelines` in case of Kubernetes
+  targetNamespace: openshift-pipelines
   api:
-    hubConfigUrl: https://raw.githubusercontent.com/VeereshAradhya/hub/hub-test-1.7/config.yaml # 👈 MUST: Change the file URL here to point to your fork
+    catalogRefreshInterval: 10m
