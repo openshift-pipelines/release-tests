@@ -24,6 +24,11 @@ Steps:
   * Validate default auto prune cronjob in target namespace
   * Validate tektoninstallersets status
   * Validate tektoninstallersets names
+  * Create
+    | S.NO | resource_dir                   |
+    |------|--------------------------------|
+    | 1    | testdata/hub/tektonhub.yaml    |
+
 
 ## Upgrade openshift-pipelines operator: PIPELINES-09-TC02
 Tags: upgrade, admin
