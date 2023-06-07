@@ -12,7 +12,8 @@ Installs `openshift-pipelines` operator using olm
 
 Steps:
   * Subscribe to operator
-  * Wait for TektonConfig CR availability
+  * Wait for TektonConfig CR availability  
+  * Change enable-api-fields to "beta"
   * Validate pipelines deployment
   * Validate triggers deployment
   * Validate PAC deployment
