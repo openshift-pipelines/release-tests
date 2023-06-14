@@ -24,7 +24,7 @@ Steps:
   * Validate default auto prune cronjob in target namespace
   * Validate tektoninstallersets status
   * Validate tektoninstallersets names
-  * Create
+  * Apply
     | S.NO | resource_dir                   |
     |------|--------------------------------|
     | 1    | testdata/hub/tektonhub.yaml    |
