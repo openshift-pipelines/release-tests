@@ -141,3 +141,8 @@ var _ = gauge.Step("Change enable-api-fields to <version>", func(version string)
 	patch_data := fmt.Sprintf("{\"spec\":{\"pipeline\":{\"enable-api-fields\":\"%s\"}}}", version)
 	oc.UpdateTektonConfig(patch_data)
 })
+
+var _ = gauge.Step("Edit git-resolver-config in the TektonConfig", func(){
+	patch_data := fmt.Sprintf("{\"spec\":{\"pipeline\":{\"git-resolver-config\":{\"api-token-secret-key\":\"github-auth-key\", \"api-token-secret-name\":\"github-auth-secret\", \"api-token-secret-namespace\":\"openshift-pipelines\", \"default-revision\":\"main\", \"fetch-timeout\":\"1m\", \"scm-type\":\"github\"}}}}")
+	oc.UpdateTektonConfig(patch_data)
+} )

@@ -28,7 +28,12 @@ Steps:
     | S.NO | resource_dir                   |
     |------|--------------------------------|
     | 1    | testdata/hub/tektonhub.yaml    |
-
+  * Switch to project "openshift-pipelines"
+  * Apply 
+    | S.NO | resource_dir                          |
+    |------|---------------------------------------|
+    | 1    | testdata/resolvers/git-secret.yaml    |
+  * Edit git-resolver-config in the TektonConfig
 
 ## Upgrade openshift-pipelines operator: PIPELINES-09-TC02
 Tags: upgrade, admin
