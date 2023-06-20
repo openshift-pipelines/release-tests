@@ -13,4 +13,4 @@ spec:
     - name: revision
       value: master
     - name: pathInRepo
-      value: testadata/resolver/pipelines/git-resolver-pipeline.yaml
+      value: testdata/resolvers/pipelines/git-resolver-pipeline.yaml
