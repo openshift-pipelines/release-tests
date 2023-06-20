@@ -33,7 +33,7 @@ Steps:
     | S.NO | resource_dir                          |
     |------|---------------------------------------|
     | 1    | testdata/resolvers/git-secret.yaml    |
-  * Edit git-resolver-config in the TektonConfig
+  * Configure GitHub token for git resolver in TektonConfig
 
 ## Upgrade openshift-pipelines operator: PIPELINES-09-TC02
 Tags: upgrade, admin
