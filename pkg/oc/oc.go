@@ -102,3 +102,7 @@ func CheckProjectExists(projectName string) bool{
 	}
 	return true
 }
+
+func CreateSecret(secretData string, namespace string) {
+	cmd.MustSucceed("oc", "create", "secret", "generic", "github-auth-secret", "--from-literal", "github-auth-key="+secretData, "-n", namespace)
+}

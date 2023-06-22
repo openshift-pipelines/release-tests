@@ -29,10 +29,6 @@ Steps:
     |------|--------------------------------|
     | 1    | testdata/hub/tektonhub.yaml    |
   * Switch to project "openshift-pipelines"
-  * Apply 
-    | S.NO | resource_dir                          |
-    |------|---------------------------------------|
-    | 1    | testdata/resolvers/git-secret.yaml    |
   * Configure GitHub token for git resolver in TektonConfig
 
 ## Upgrade openshift-pipelines operator: PIPELINES-09-TC02

@@ -3,10 +3,12 @@ package cli
 import (
 	"fmt"
 	"log"
+	"os"
 	"strings"
 
 	"github.com/getgauge-contrib/gauge-go/gauge"
 	m "github.com/getgauge-contrib/gauge-go/models"
+	"github.com/getgauge-contrib/gauge-go/testsuit"
 	"github.com/openshift-pipelines/release-tests/pkg/oc"
 	"github.com/openshift-pipelines/release-tests/pkg/store"
 )
@@ -143,6 +145,12 @@ var _ = gauge.Step("Change enable-api-fields to <version>", func(version string)
 })
 
 var _ = gauge.Step("Configure GitHub token for git resolver in TektonConfig", func(){
-	patch_data := fmt.Sprintf("{\"spec\":{\"pipeline\":{\"git-resolver-config\":{\"api-token-secret-key\":\"github-auth-key\", \"api-token-secret-name\":\"github-auth-secret\", \"api-token-secret-namespace\":\"openshift-pipelines\", \"default-revision\":\"main\", \"fetch-timeout\":\"1m\", \"scm-type\":\"github\"}}}}")
-	oc.UpdateTektonConfig(patch_data)
+	if os.Getenv("GITHUB_TOKEN") == ""{
+		testsuit.T.Errorf("Token for authorization to the github repository was not exported as a system variable")
+	}else{
+		secretData := os.Getenv("GITHUB_TOKEN")
+		oc.CreateSecret(secretData, store.Namespace())
+		patch_data := fmt.Sprintf("{\"spec\":{\"pipeline\":{\"git-resolver-config\":{\"api-token-secret-key\":\"github-auth-key\", \"api-token-secret-name\":\"github-auth-secret\", \"api-token-secret-namespace\":\"openshift-pipelines\", \"default-revision\":\"main\", \"fetch-timeout\":\"1m\", \"scm-type\":\"github\"}}}}")
+		oc.UpdateTektonConfig(patch_data)
+	}
 } )
