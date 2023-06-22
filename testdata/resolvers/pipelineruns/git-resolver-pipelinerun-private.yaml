@@ -9,9 +9,9 @@ spec:
     - name: name
       value: resolver-pipeline
     - name: repo
-      value: git-resolver-test-private
+      value: test-private
     - name: org
-      value: amisskii
+      value: openshift-pipelines
     - name: revision
       value: main
     - name: pathInRepo
