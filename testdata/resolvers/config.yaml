@@ -1,0 +1,9 @@
+apiVersion: operator.tekton.dev/v1alpha1
+kind: TektonConfig
+metadata:
+  name: config
+spec:
+  pipeline:
+    bundles-resolver-config:
+      default-service-account: pipelines 
+      default-kind: task 
