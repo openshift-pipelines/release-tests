@@ -21,7 +21,7 @@ Steps:
       |----|-----------------------------------|--------------------------------------|
       |1   |git-resolver-pipelinerun           |successful  |no                       |
 
-## Test the functionality of git resolvers with authentication: PIPELINES-24-TC01
+## Test the functionality of git resolvers with autentificacion: PIPELINES-24-TC01
 Tags: e2e
 Component: Resolvers
 Level: Integration
