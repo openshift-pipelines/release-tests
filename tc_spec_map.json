@@ -22,5 +22,6 @@
     "PIPELINES-21": "specs/hub/hub.spec",
     "PIPELINES-22": "specs/versions.spec",
     "PIPELINES-23": "specs/pipelines/cluster-resolvers.spec",
-    "PIPELINES-24": "specs/pipelines/git-resolvers.spec"
+    "PIPELINES-24": "specs/pipelines/git-resolvers.spec",
+    "PIPELINES-25": "specs/pipelines/bundles-resolvers.spec"
 }
