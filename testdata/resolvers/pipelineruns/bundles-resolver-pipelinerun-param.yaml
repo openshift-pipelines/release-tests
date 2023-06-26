@@ -12,3 +12,6 @@ spec:
       value: bundles-resolver-pipeline
     - name: kind
       value: pipeline
+  params:
+  - name: name
+    value: Anton
