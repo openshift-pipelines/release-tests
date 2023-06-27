@@ -155,6 +155,6 @@ var _ = gauge.Step("Configure GitHub token for git resolver in TektonConfig", fu
 	}
 })
 var _ = gauge.Step("Configuring the bundles resolver", func(){
-	patch_data := fmt.Sprintf("{\"spec\":{\"pipeline\":{\"bundles-resolver-config\":{\"default-kind\":\"pipeline\", \"defaut-service-account\":\"pipelines\"}}}}")
+	patch_data := fmt.Sprintf("{\"spec\":{\"pipeline\":{\"bundles-resolver-config\":{\"default-kind\":\"task\", \"defaut-service-account\":\"pipelines\"}}}}")
 	oc.UpdateTektonConfig(patch_data)
 })
