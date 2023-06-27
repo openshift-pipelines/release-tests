@@ -8,6 +8,8 @@ spec:
       taskRef:
         resolver: git
         params:
+        - name: name
+          value: git-resolver-task
         - name: url
           value: https://github.com/openshift-pipelines/release-tests
         - name: revision

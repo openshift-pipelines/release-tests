@@ -1,0 +1,18 @@
+apiVersion: tekton.dev/v1
+kind: PipelineRun
+metadata:
+  name: git-resolver-pipelinerun-private
+spec:
+  pipelineRef:
+    resolver: git
+    params:
+    - name: name
+      value: resolver-pipeline
+    - name: repo
+      value: test-private
+    - name: org
+      value: openshift-pipelines
+    - name: revision
+      value: main
+    - name: pathInRepo
+      value: resolver-pipeline.yaml

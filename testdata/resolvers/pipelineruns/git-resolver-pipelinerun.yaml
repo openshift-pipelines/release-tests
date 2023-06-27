@@ -1,0 +1,16 @@
+apiVersion: tekton.dev/v1
+kind: PipelineRun
+metadata:
+  name: git-resolver-pipelinerun
+spec:
+  pipelineRef:
+    resolver: git
+    params:
+    - name: name
+      value: git-resolver-pipeline
+    - name: url
+      value: https://github.com/openshift-pipelines/release-tests
+    - name: revision
+      value: master
+    - name: pathInRepo
+      value: testdata/resolvers/pipelines/git-resolver-pipeline.yaml
