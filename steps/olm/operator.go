@@ -55,6 +55,10 @@ var _ = gauge.Step("Validate triggers deployment", func() {
 	operator.ValidateTriggerDeployments(store.Clients(), store.GetCRNames())
 })
 
+var _ = gauge.Step("Validate chains deployment", func() {
+	operator.ValidateChainsDeployments(store.Clients(), store.GetCRNames())
+})
+
 var _ = gauge.Step("Uninstall Operator", func() {
 	//cleanup operator Traces
 	operator.Uninstall(store.Clients(), store.GetCRNames())

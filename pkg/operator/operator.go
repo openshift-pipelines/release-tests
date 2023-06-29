@@ -58,6 +58,12 @@ func ValidateTriggerDeployments(cs *clients.Clients, rnames utils.ResourceNames)
 		config.TriggerControllerName, config.TriggerWebhookName)
 }
 
+func ValidateChainsDeployments(cs *clients.Clients, rnames utils.ResourceNames) {
+	EnsureTektonChainsExists(cs.TektonChains(), rnames)
+	k8s.ValidateDeployments(cs, rnames.TargetNamespace,
+		config.ChainsControllerName, config.ChainsWebhookName)
+}
+
 func ValidateOperatorInstallStatus(cs *clients.Clients, rnames utils.ResourceNames) {
 	operatorVersion := cmd.MustSucceed("tkn", "version", "--component", "operator").Stdout()
 	if strings.Contains(operatorVersion, "unknown") {
