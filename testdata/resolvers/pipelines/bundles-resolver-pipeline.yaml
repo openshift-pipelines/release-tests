@@ -1,0 +1,22 @@
+apiVersion: tekton.dev/v1
+kind: Pipeline
+metadata:
+  name: bundles-resolver-pipeline
+spec:
+  params: 
+    - name: name
+      default: "World"
+  tasks: 
+  - name: bundles-resolver-task
+    taskRef: 
+      resolver: bundles
+      params:
+      - name: bundle
+        value: quay.io/openshift-pipeline/resolver-test-bundles:1.0
+      - name: name
+        value: bundles-resolver-task
+      - name: kind
+        value: task
+    params: 
+    - name: name
+      value: $(params.name)
