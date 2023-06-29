@@ -1,0 +1,20 @@
+apiVersion: tekton.dev/v1
+kind: PipelineRun
+metadata:
+  name: bundles-resolver-pipelinerun-param
+spec:
+  pipelineRef:
+    resolver: bundles
+    params:
+    - name: bundle
+      description: |
+        The image was created and pushed to quay.io using the 'tkn bundle push' command,
+        it includes 2 yaml files: testdata/resolvers/tasks/bundles-resolver-task.yaml and testdata/resolvers/pipelines/bundles-resolver-pipeline.yaml.
+      value: quay.io/openshift-pipeline/resolver-test-bundles:1.0
+    - name: name
+      value: bundles-resolver-pipeline
+    - name: kind
+      value: pipeline
+  params:
+  - name: name
+    value: Anton
