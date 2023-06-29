@@ -46,6 +46,7 @@ type Clients struct {
 	PipelineRunClient  v1beta1.PipelineRunInterface
 	TriggersClient     triggersclientset.Interface
 	ClustertaskClient  v1beta1.ClusterTaskInterface
+	TektonHub          operatorv1alpha1.TektonHubInterface
 }
 
 // NewClients instantiates and returns several clientsets required for making request to the
