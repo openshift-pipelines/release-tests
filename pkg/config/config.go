@@ -47,7 +47,6 @@ const (
 
 	// Name of the chains deployment
 	ChainsControllerName = "tekton-chains-controller"
-	ChainsWebhookName    = "tekton-chains-webhook"
 
 	// Default config for auto pruner
 	PrunerSchedule   = "0 8 * * *"
