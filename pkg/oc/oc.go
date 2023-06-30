@@ -103,6 +103,13 @@ func CheckProjectExists(projectName string) bool {
 	return true
 }
 
+func SecretExists(secretName string, namespace string) bool{
+	if strings.Contains(cmd.Run("oc", "get", "secret", secretName, "-n", namespace).String(), "Error"){
+		return false
+	} 
+	return true
+}
+
 func CreateSecretForGitResolver(secretData string, namespace string) {
 	cmd.MustSucceed("oc", "create", "secret", "generic", "github-auth-secret", "--from-literal", "github-auth-key="+secretData, "-n", namespace)
 }
