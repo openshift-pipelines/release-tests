@@ -45,6 +45,9 @@ const (
 	TriggerControllerName = "tekton-triggers-controller"
 	TriggerWebhookName    = "tekton-triggers-webhook"
 
+	// Name of the chains deployment
+	ChainsControllerName = "tekton-chains-controller"
+
 	// Default config for auto pruner
 	PrunerSchedule   = "0 8 * * *"
 	PrunerNamePrefix = "tekton-resource-pruner-"

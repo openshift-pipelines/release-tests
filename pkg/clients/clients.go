@@ -143,6 +143,10 @@ func (c *Clients) TektonTrigger() operatorv1alpha1.TektonTriggerInterface {
 	return c.Operator.TektonTriggers()
 }
 
+func (c *Clients) TektonChains() operatorv1alpha1.TektonChainInterface {
+	return c.Operator.TektonChains()
+}
+
 func (c *Clients) TektonDashboard() operatorv1alpha1.TektonDashboardInterface {
 	return c.Operator.TektonDashboards()
 }
