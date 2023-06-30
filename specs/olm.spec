@@ -14,9 +14,14 @@ Steps:
   * Subscribe to operator
   * Wait for TektonConfig CR availability  
   * Change enable-api-fields to "beta"
+  * Apply
+    | S.NO | resource_dir                   |
+    |------|--------------------------------|
+    | 1    | testdata/hub/tektonhub.yaml    |
   * Validate pipelines deployment
   * Validate triggers deployment
   * Validate PAC deployment
+  * Validate hub deployment
   * Validate tkn server cli deployment
   * Verify TektonAddons Install status
   * Validate RBAC
@@ -24,10 +29,6 @@ Steps:
   * Validate default auto prune cronjob in target namespace
   * Validate tektoninstallersets status
   * Validate tektoninstallersets names
-  * Apply
-    | S.NO | resource_dir                   |
-    |------|--------------------------------|
-    | 1    | testdata/hub/tektonhub.yaml    |
   * Switch to project "openshift-pipelines"
   * Configure GitHub token for git resolver in TektonConfig
   * Configure the bundles resolver
