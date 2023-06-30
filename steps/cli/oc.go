@@ -138,6 +138,10 @@ var _ = gauge.Step("Delete <resourceType> named <name>", func(resourceType, name
 	oc.DeleteResource(resourceType, name)
 })
 
+var _ = gauge.Step("Uninstall TektonHub", func() {
+	oc.UninstallHub()
+})
+
 var _ = gauge.Step("Change enable-api-fields to <version>", func(version string) {
 	patch_data := fmt.Sprintf("{\"spec\":{\"pipeline\":{\"enable-api-fields\":\"%s\"}}}", version)
 	oc.UpdateTektonConfig(patch_data)

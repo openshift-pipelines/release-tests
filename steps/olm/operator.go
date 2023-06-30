@@ -64,6 +64,10 @@ var _ = gauge.Step("Uninstall Operator", func() {
 	operator.Uninstall(store.Clients(), store.GetCRNames())
 })
 
+var _ = gauge.Step("Uninstall TektonHub", func() {
+	
+})
+
 var _ = gauge.Step("Verify TektonAddons Install status", func() {
 	operator.EnsureTektonAddonsStatusInstalled(store.Clients().TektonAddon(), store.GetCRNames())
 })

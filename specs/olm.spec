@@ -60,5 +60,5 @@ Importance: Critical
 Uninstalls `openshift-pipelines` operator using olm
 Steps:
   * Validate Operator should be installed
+  * Uninstall TektonHub
   * Uninstall Operator
-  * Delete "TektonHub" named "hub"

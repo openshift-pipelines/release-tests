@@ -96,6 +96,10 @@ func DeleteResource(resourceType, name string) {
 	log.Printf("output: %s\n", cmd.MustSucceed("oc", "delete", resourceType, name, "-n", store.Namespace()).Stdout())
 }
 
+func UninstallHub(){
+	log.Printf("output: %s\n", cmd.MustSucceed("oc", "delete", "TektonHub", "hub").Stdout())
+}
+
 func CheckProjectExists(projectName string) bool {
 	if strings.Contains(cmd.Run("oc", "project", projectName).String(), "error") {
 		return false
