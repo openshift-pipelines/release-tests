@@ -61,7 +61,7 @@ func ValidateTriggerDeployments(cs *clients.Clients, rnames utils.ResourceNames)
 func ValidateChainsDeployments(cs *clients.Clients, rnames utils.ResourceNames) {
 	EnsureTektonChainsExists(cs.TektonChains(), rnames)
 	k8s.ValidateDeployments(cs, rnames.TargetNamespace,
-		config.ChainsControllerName, config.ChainsWebhookName)
+		config.ChainsControllerName)
 }
 
 func ValidateOperatorInstallStatus(cs *clients.Clients, rnames utils.ResourceNames) {
@@ -89,6 +89,7 @@ func Uninstall(cs *clients.Clients, rnames utils.ResourceNames) {
 		config.PipelineWebhookName,
 		config.TriggerControllerName,
 		config.TriggerWebhookName,
+		config.ChainsControllerName,
 	)
 	k8s.ValidateSCCRemoved(cs, rnames.TargetNamespace, config.PipelineControllerName)
 	olm.OperatorCleanup(cs, config.Flags.SubscriptionName)
