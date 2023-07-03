@@ -68,7 +68,34 @@ const (
 )
 
 // Name prefixes of installerset
-var TektonInstallersetNamePrefixes [26]string = [26]string{"addon-custom-clustertask", "addon-custom-communityclustertask", "addon-custom-consolecli", "addon-custom-openshiftconsole", "addon-custom-pipelinestemplate", "addon-custom-triggersresources", "addon-versioned-clustertasks", "console-link-hub", "chain", "chain-secret", "openshiftpipelinesascode-main-deployment", "openshiftpipelinesascode-main-static", "openshiftpipelinesascode-post", "pipeline-main-deployment", "pipeline-main-static", "pipeline-post", "pipeline-pre", "rhosp-rbac", "tekton-hub-api", "tekton-hub-db", "tekton-hub-db-migration", "tekton-hub-ui", "tektoncd-pruner", "trigger-main-deployment", "trigger-main-static", "validating-mutating-webhoook"}
+var TektonInstallersetNamePrefixes [26]string = [26]string{
+	"addon-custom-clustertask",
+	"addon-custom-communityclustertask",
+	"addon-custom-consolecli",
+	"addon-custom-openshiftconsole",
+	"addon-custom-pipelinestemplate",
+	"addon-custom-triggersresources",
+	"addon-versioned-clustertasks",
+	"chain",
+	"chain-secret",
+	"console-link-hub",
+	"openshiftpipelinesascode-main-deployment",
+	"openshiftpipelinesascode-main-static",
+	"openshiftpipelinesascode-post",
+	"pipeline-main-deployment",
+	"pipeline-main-static",
+	"pipeline-post",
+	"pipeline-pre",
+	"rhosp-rbac",
+	"tekton-hub-api",
+	"tekton-hub-db",
+	"tekton-hub-db-migration",
+	"tekton-hub-ui",
+	"tektoncd-pruner",
+	"trigger-main-deployment",
+	"trigger-main-static",
+	"validating-mutating-webhoook",
+}
 
 var PrefixesOfDefaultPipelines [9]string = [9]string{"buildah", "s2i-dotnet", "s2i-go", "s2i-java", "s2i-nodejs", "s2i-perl", "s2i-php", "s2i-python", "s2i-ruby"}
 
