@@ -14,12 +14,11 @@ Steps:
   * Subscribe to operator
   * Wait for TektonConfig CR availability  
   * Change enable-api-fields to "beta"
-  * Verify namespace "openshift-pipelines" exist
+  * Verify namespace "openshift-pipelines" exists
   * Apply
     | S.NO | resource_dir                   |
     |------|--------------------------------|
     | 1    | testdata/hub/tektonhub.yaml    |
-  * Switch to project "openshift-pipelines"
   * Configure GitHub token for git resolver in TektonConfig
   * Configure the bundles resolver
   * Validate pipelines deployment

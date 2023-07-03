@@ -15,7 +15,7 @@ var _ = gauge.Step("Verify ServiceAccount <sa> exist", func(sa string) {
 	k8s.VerifyServiceAccountExists(store.Clients().Ctx, store.Clients().KubeClient, sa, store.Namespace())
 })
 
-var _ = gauge.Step("Verify namespace <ns> exist", func(ns string) {
+var _ = gauge.Step("Verify namespace <ns> exists", func(ns string) {
 	k8s.VerifyNamespaceExists(store.Clients().Ctx, store.Clients().KubeClient, ns)
 })
 

@@ -147,9 +147,9 @@ var _ = gauge.Step("Configure GitHub token for git resolver in TektonConfig", fu
 	if os.Getenv("GITHUB_TOKEN") == "" {
 		log.Printf("Token for authorization to the GitHub repository was not exported as a system variable")
 	} else {
-		if !oc.SecretExists("github-auth-secret", store.Namespace()){
+		if !oc.SecretExists("github-auth-secret", "openshfit-pipelines"){
 			secretData := os.Getenv("GITHUB_TOKEN")
-			oc.CreateSecretForGitResolver(secretData, store.Namespace())
+			oc.CreateSecretForGitResolver(secretData, "openshift-pipelines")
 		} else {
 			log.Printf("Secret \"github-auth-secret\" already exists")
 		}
