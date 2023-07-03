@@ -149,7 +149,7 @@ var _ = gauge.Step("Configure GitHub token for git resolver in TektonConfig", fu
 	} else {
 		if !oc.SecretExists("github-auth-secret", "openshfit-pipelines"){
 			secretData := os.Getenv("GITHUB_TOKEN")
-			oc.CreateSecretForGitResolver(secretData, "openshift-pipelines")
+			oc.CreateSecretForGitResolver(secretData)
 		} else {
 			log.Printf("Secret \"github-auth-secret\" already exists")
 		}
