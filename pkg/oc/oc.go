@@ -110,6 +110,6 @@ func SecretExists(secretName string, namespace string) bool{
 	return true
 }
 
-func CreateSecretForGitResolver(secretData string, namespace string) {
-	cmd.MustSucceed("oc", "create", "secret", "generic", "github-auth-secret", "--from-literal", "github-auth-key="+secretData, "-n", namespace)
+func CreateSecretForGitResolver(secretData string) {
+	cmd.MustSucceed("oc", "create", "secret", "generic", "github-auth-secret", "--from-literal", "github-auth-key="+secretData, "-n", "openshift-pipelines")
 }
