@@ -209,20 +209,6 @@ func VerifyServiceAccountExists(ctx context.Context, kc *clients.KubeClient, sa,
 	}
 }
 
-func VerifyNamespaceExists(ctx context.Context, kc *clients.KubeClient, ns string){
-	log.Printf("Verify NS %q is created", ns)
-
-	if err := wait.PollImmediate(config.APIRetry, config.APITimeout, func() (bool, error) {
-		_, err := kc.Kube.CoreV1().Namespaces().Get(ctx, ns, metav1.GetOptions{})
-		if err != nil && errors.IsNotFound(err) {
-			return false, nil
-		}
-		return true, err
-	}); err != nil {
-		testsuit.T.Errorf("failed to get namespace %s for tests: %v", ns, err)
-	}
-}
-
 func CreateCronJob(c *clients.Clients, args []string, schedule, namespace string) {
 	cronjob := &batchv1.CronJob{
 		TypeMeta: metav1.TypeMeta{APIVersion: batchv1.SchemeGroupVersion.String(), Kind: "CronJob"},

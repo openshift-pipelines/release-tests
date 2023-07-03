@@ -14,14 +14,10 @@ Steps:
   * Subscribe to operator
   * Wait for TektonConfig CR availability  
   * Change enable-api-fields to "beta"
-  * Verify namespace "openshift-pipelines" exist
   * Apply
     | S.NO | resource_dir                   |
     |------|--------------------------------|
     | 1    | testdata/hub/tektonhub.yaml    |
-  * Switch to project "openshift-pipelines"
-  * Configure GitHub token for git resolver in TektonConfig
-  * Configure the bundles resolver
   * Validate pipelines deployment
   * Validate triggers deployment
   * Validate PAC deployment
@@ -33,6 +29,9 @@ Steps:
   * Validate default auto prune cronjob in target namespace
   * Validate tektoninstallersets status
   * Validate tektoninstallersets names
+  * Switch to project "openshift-pipelines"
+  * Configure GitHub token for git resolver in TektonConfig
+  * Configure the bundles resolver
 
 ## Upgrade openshift-pipelines operator: PIPELINES-09-TC02
 Tags: upgrade, admin
