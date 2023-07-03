@@ -61,7 +61,7 @@ func ValidateTriggerDeployments(cs *clients.Clients, rnames utils.ResourceNames)
 func ValidateHubDeployments(cs *clients.Clients, rnames utils.ResourceNames) {
 	EnsureTektonHubExists(cs.TektonHub(), rnames)
 	k8s.ValidateDeployments(cs, rnames.TargetNamespace,
-		config.HubControllerName, config.HubWebhookName)
+		config.HubAPIName, config.HubUIName, config.HubDBName)
 }
 
 func ValidateOperatorInstallStatus(cs *clients.Clients, rnames utils.ResourceNames) {
