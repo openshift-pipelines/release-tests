@@ -48,6 +48,11 @@ const (
 	// Name of the chains deployment
 	ChainsControllerName = "tekton-chains-controller"
 
+	// Name of the hub deployment 
+	HubApiName = "tekton-hub-api"
+	HubDbName  = "tekton-hub-db"
+	HubUiName  = "tekton-hub-ui"
+
 	// Default config for auto pruner
 	PrunerSchedule   = "0 8 * * *"
 	PrunerNamePrefix = "tekton-resource-pruner-"
