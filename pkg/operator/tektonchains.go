@@ -37,7 +37,7 @@ func EnsureTektonChainsExists(clients chainv1alpha.TektonChainInterface, names u
 		ks, err = clients.Get(context.TODO(), names.TektonChain, metav1.GetOptions{})
 		if err != nil {
 			if apierrs.IsNotFound(err) {
-				log.Printf("Waiting for availability of triggers cr [%s]\n", names.TektonChain)
+				log.Printf("Waiting for availability of chains cr [%s]\n", names.TektonChain)
 				return false, nil
 			}
 			return false, err
