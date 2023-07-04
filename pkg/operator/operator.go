@@ -82,7 +82,9 @@ func DeleteTektonConfigCR(cs *clients.Clients, rnames utils.ResourceNames) {
 
 // Unistall helps you to delete operator and it's traces if any from cluster
 func Uninstall(cs *clients.Clients, rnames utils.ResourceNames) {
-	log.Printf("output: %s\n", cmd.MustSucceed("oc", "delete", "TektonHub", "hub").Stdout())
+	if !strings.Contains(cmd.Run("oc", "get", "tektonhub", "hub").String(), "Error"){
+		log.Printf("output: %s\n", cmd.MustSucceed("oc", "delete", "TektonHub", "hub").Stdout())
+	}
 	DeleteTektonConfigCR(cs, rnames)
 	k8s.ValidateDeploymentDeletion(cs,
 		rnames.TargetNamespace,
