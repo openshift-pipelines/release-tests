@@ -45,6 +45,11 @@ const (
 	TriggerControllerName = "tekton-triggers-controller"
 	TriggerWebhookName    = "tekton-triggers-webhook"
 
+	// Name of the hub deployment 
+	HubApiName = "tekton-hub-api"
+	HubDbName  = "tekton-hub-db"
+	HubUiName  = "tekton-hub-ui"
+
 	// Default config for auto pruner
 	PrunerSchedule   = "0 8 * * *"
 	PrunerNamePrefix = "tekton-resource-pruner-"
