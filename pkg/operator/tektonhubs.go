@@ -22,7 +22,7 @@ import (
 
 	"github.com/openshift-pipelines/release-tests/pkg/config"
 	"github.com/tektoncd/operator/pkg/apis/operator/v1alpha1"
-	chainv1alpha "github.com/tektoncd/operator/pkg/client/clientset/versioned/typed/operator/v1alpha1"
+	hubv1alpha "github.com/tektoncd/operator/pkg/client/clientset/versioned/typed/operator/v1alpha1"
 	"github.com/tektoncd/operator/test/utils"
 	apierrs "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -30,14 +30,14 @@ import (
 )
 
 
-func EnsureTektonChainsExists(clients chainv1alpha.TektonChainInterface, names utils.ResourceNames) (*v1alpha1.TektonChain, error) {
+func EnsureTektonHubsExists(clients hubv1alpha.TektonHubInterface, names utils.ResourceNames) (*v1alpha1.TektonHub, error) {
 	// If this function is called by the upgrade tests, we only create the custom resource, if it does not exist.
-	ks, err := clients.Get(context.TODO(), names.TektonChain, metav1.GetOptions{})
+	ks, err := clients.Get(context.TODO(), names.TektonHub, metav1.GetOptions{})
 	err = wait.Poll(config.APIRetry, config.APITimeout, func() (bool, error) {
-		ks, err = clients.Get(context.TODO(), names.TektonChain, metav1.GetOptions{})
+		ks, err = clients.Get(context.TODO(), names.TektonHub, metav1.GetOptions{})
 		if err != nil {
 			if apierrs.IsNotFound(err) {
-				log.Printf("Waiting for availability of chains cr [%s]\n", names.TektonChain)
+				log.Printf("Waiting for availability of hub cr [%s]\n", names.TektonHub)
 				return false, nil
 			}
 			return false, err

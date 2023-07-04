@@ -64,6 +64,12 @@ func ValidateChainsDeployments(cs *clients.Clients, rnames utils.ResourceNames) 
 		config.ChainsControllerName)
 }
 
+func ValidateHubDeployments(cs *clients.Clients, rnames utils.ResourceNames) {
+	EnsureTektonHubsExists(cs.TektonHub(), rnames)
+	k8s.ValidateDeployments(cs, rnames.TargetNamespace, 
+		config.HubApiName, config.HubDbName, config.HubUiName)
+}
+
 func ValidateOperatorInstallStatus(cs *clients.Clients, rnames utils.ResourceNames) {
 	operatorVersion := cmd.MustSucceed("tkn", "version", "--component", "operator").Stdout()
 	if strings.Contains(operatorVersion, "unknown") {

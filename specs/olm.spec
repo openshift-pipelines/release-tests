@@ -25,6 +25,7 @@ Steps:
   * Validate triggers deployment
   * Validate PAC deployment
   * Validate chains deployment
+  * Validate hub deployment
   * Validate tkn server cli deployment
   * Verify TektonAddons Install status
   * Validate RBAC
