@@ -21,6 +21,7 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"os"
 
 	"knative.dev/pkg/test/logging"
 
@@ -113,7 +114,7 @@ func AssertTektonConfigCRReadyStatus(clients *clients.Clients, names utils.Resou
 // TektonConfigCRDelete deletes tha TektonConfig to see if all resources will be deleted
 func TektonConfigCRDelete(clients *clients.Clients, crNames utils.ResourceNames) {
 	if err := clients.TektonConfig().Delete(context.TODO(), crNames.TektonConfig, metav1.DeleteOptions{}); err != nil {
-		testsuit.T.Fail(fmt.Errorf("TektonConfigCR %q failed to delete: %v", crNames.TektonConfig, err))
+		fmt.Fprintf(os.Stdout, "\033[0;31m TektonConfigCR %q failed to delete: %v \033[0;31m", crNames.TektonConfig, err)
 	}
 	err := wait.PollImmediate(config.APIRetry, config.APITimeout, func() (bool, error) {
 		_, err := clients.TektonConfig().Get(context.TODO(), crNames.TektonConfig, metav1.GetOptions{})

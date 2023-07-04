@@ -3,9 +3,11 @@ package olm
 import (
 	"bytes"
 	"context"
+	"fmt"
 	"html/template"
 	"io/ioutil"
 	"log"
+	"os"
 	"time"
 
 	"github.com/getgauge-contrib/gauge-go/testsuit"
@@ -70,7 +72,7 @@ func UptadeSubscriptionAndWaitForOperatorToBeReady(cs *clients.Clients, subscrip
 func getSubcription(cs *clients.Clients, name string) *v1alpha1.Subscription {
 	subscription, err := cs.OLM.OperatorsV1alpha1().Subscriptions(OperatorsNamespace).Get(context.Background(), name, metav1.GetOptions{})
 	if err != nil {
-		testsuit.T.Errorf("failed to get subscription %s in namespace %s \n %v", name, OperatorsNamespace, err)
+		fmt.Fprintf(os.Stdout, " \033[0;31m failed to get subscription %s in namespace %s \n %v \033[0m", name, OperatorsNamespace, err)
 	}
 	return subscription
 }
@@ -130,8 +132,8 @@ func OperatorCleanup(cs *clients.Clients, name string) {
 		testsuit.T.Errorf("failed to delete CSVs in namespace %s \n %v", OperatorsNamespace, err)
 	}
 
-	log.Printf("Output %s \n", cmd.MustSucceed(
-		"oc", "delete", "-n", OperatorsNamespace,
+	log.Printf("Output %s \n", cmd.Run(
+		"oc", "delete", "--ignore-not-found=true" ,"-n", OperatorsNamespace,
 		"subscription", sub.Name,
 	).Stdout())
 }

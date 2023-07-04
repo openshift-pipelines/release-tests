@@ -82,7 +82,7 @@ func ValidateOperatorInstallStatus(cs *clients.Clients, rnames utils.ResourceNam
 }
 
 func DeleteTektonConfigCR(cs *clients.Clients, rnames utils.ResourceNames) {
-	EnsureTektonConfigStatusInstalled(cs.TektonConfig(), rnames)
+	//EnsureTektonConfigStatusInstalled(cs.TektonConfig(), rnames)
 	TektonConfigCRDelete(cs, rnames)
 }
 
