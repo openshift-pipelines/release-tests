@@ -39,7 +39,6 @@ type Clients struct {
 	ProxyConfig        configV1.ConfigV1Interface
 	ClusterVersion     configV1.ClusterVersionInterface
 	ConsoleCLIDownload consolev1.ConsoleCLIDownloadInterface
-	MonitoringClient   monclientv1.MonitoringV1Interface
 	Tekton             pversioned.Interface
 	PipelineClient     v1beta1.PipelineInterface
 	TaskClient         v1beta1.TaskInterface
@@ -162,10 +161,6 @@ func (c *Clients) TektonAddon() operatorv1alpha1.TektonAddonInterface {
 
 func (c *Clients) TektonConfig() operatorv1alpha1.TektonConfigInterface {
 	return c.Operator.TektonConfigs()
-}
-
-func (c *Clients) TektonHub() operatorv1alpha1.TektonHubInterface {
-	return c.Operator.TektonHubs()
 }
 
 func (c *Clients) NewClientSet(namespace string) {
