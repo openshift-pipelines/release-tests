@@ -86,7 +86,11 @@ func GetTektonHubElements() {
 	UpdateYAMLAndCommit(
 		"https://github.com/manojbison/catalog.git",
 		"manojbison",
+<<<<<<< HEAD
 		"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",
+=======
+		"",
+>>>>>>> origin/master
 		"task/git-clone/0.9/git-clone.yaml",
 		"git clone test",
 		"manojbison",

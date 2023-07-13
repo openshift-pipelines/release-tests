@@ -5,19 +5,33 @@ go 1.18
 require (
 	github.com/Netflix/go-expect v0.0.0-20220104043353-73e0943537d2
 	github.com/getgauge-contrib/gauge-go v0.3.1
+<<<<<<< HEAD
 	github.com/go-git/go-git/v5 v5.6.1
+=======
+	github.com/go-git/go-git/v5 v5.4.2
+>>>>>>> origin/master
 	github.com/google/go-cmp v0.5.9
 	github.com/openshift/api v0.0.0-20220525145417-ee5b62754c68
 	github.com/openshift/client-go v0.0.0-20220603133046-984ee5ebedcf
 	github.com/operator-framework/api v0.16.0
 	github.com/operator-framework/operator-lifecycle-manager v0.22.0
 	github.com/pkg/errors v0.9.1
+<<<<<<< HEAD
 	github.com/prometheus/client_golang v1.15.0
 	github.com/prometheus/common v0.42.0
 	github.com/tebeka/selenium v0.9.9
 	github.com/tektoncd/operator v0.67.0
 	github.com/tektoncd/pipeline v0.47.0
 	github.com/tektoncd/triggers v0.24.0
+=======
+	github.com/prometheus-operator/prometheus-operator/pkg/client v0.45.0
+	github.com/prometheus/client_golang v1.14.0
+	github.com/prometheus/common v0.37.0
+	github.com/tebeka/selenium v0.9.9
+	github.com/tektoncd/operator v0.63.0
+	github.com/tektoncd/pipeline v0.41.0
+	github.com/tektoncd/triggers v0.22.0
+>>>>>>> origin/master
 	go.opencensus.io v0.24.0
 	gopkg.in/yaml.v2 v2.4.0
 	gotest.tools/v3 v3.4.0
@@ -43,8 +57,13 @@ require (
 	contrib.go.opencensus.io/exporter/ocagent v0.7.1-0.20200907061046-05415f1de66d // indirect
 	contrib.go.opencensus.io/exporter/prometheus v0.4.2 // indirect
 	github.com/Microsoft/go-winio v0.6.0 // indirect
+<<<<<<< HEAD
 	github.com/ProtonMail/go-crypto v0.0.0-20230320150741-8451524ecd7e // indirect
 	github.com/acomagu/bufpipe v1.0.4 // indirect
+=======
+	github.com/ProtonMail/go-crypto v0.0.0-20210428141323-04723f9f07d7 // indirect
+	github.com/acomagu/bufpipe v1.0.3 // indirect
+>>>>>>> origin/master
 	github.com/antlr/antlr4/runtime/Go/antlr v1.4.10 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/blang/semver v3.5.1+incompatible // indirect
@@ -57,13 +76,22 @@ require (
 	github.com/creack/pty v1.1.17 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/dmotylev/goproperties v0.0.0-20140630191356-7cbffbaada47 // indirect
+<<<<<<< HEAD
 	github.com/emicklei/go-restful/v3 v3.10.2 // indirect
 	github.com/emirpasic/gods v1.18.1 // indirect
+=======
+	github.com/emicklei/go-restful/v3 v3.10.0 // indirect
+	github.com/emirpasic/gods v1.12.0 // indirect
+>>>>>>> origin/master
 	github.com/evanphx/json-patch v5.6.0+incompatible // indirect
 	github.com/evanphx/json-patch/v5 v5.6.0 // indirect
 	github.com/getgauge/common v0.0.0-20200824023809-24587c106922 // indirect
 	github.com/go-git/gcfg v1.5.0 // indirect
+<<<<<<< HEAD
 	github.com/go-git/go-billy/v5 v5.4.1 // indirect
+=======
+	github.com/go-git/go-billy/v5 v5.3.1 // indirect
+>>>>>>> origin/master
 	github.com/go-kit/log v0.2.1 // indirect
 	github.com/go-logfmt/logfmt v0.6.0 // indirect
 	github.com/go-logr/logr v1.2.4 // indirect
@@ -82,15 +110,25 @@ require (
 	github.com/hashicorp/errwrap v1.1.0 // indirect
 	github.com/hashicorp/go-multierror v1.1.1 // indirect
 	github.com/hashicorp/golang-lru v0.5.4 // indirect
+<<<<<<< HEAD
 	github.com/imdario/mergo v0.3.14 // indirect
+=======
+	github.com/imdario/mergo v0.3.13 // indirect
+>>>>>>> origin/master
 	github.com/jbenet/go-context v0.0.0-20150711004518-d14ea06fba99 // indirect
 	github.com/josharian/intern v1.0.0 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
 	github.com/kelseyhightower/envconfig v1.4.0 // indirect
+<<<<<<< HEAD
 	github.com/kevinburke/ssh_config v1.2.0 // indirect
+=======
+	github.com/kevinburke/ssh_config v0.0.0-20201106050909-4977a11b4351 // indirect
+	github.com/kr/pty v1.1.5 // indirect
+>>>>>>> origin/master
 	github.com/mailru/easyjson v0.7.7 // indirect
 	github.com/manifestival/manifestival v0.7.2 // indirect
 	github.com/matttproud/golang_protobuf_extensions v1.0.4 // indirect
+	github.com/mitchellh/go-homedir v1.1.0 // indirect
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
 	github.com/modern-go/reflect2 v1.0.2 // indirect
 	github.com/munnerz/goautoneg v0.0.0-20191010083416-a7dc8b61c822 // indirect
@@ -98,8 +136,13 @@ require (
 	github.com/openshift-pipelines/pipelines-as-code v0.19.1 // indirect
 	github.com/pjbgf/sha1cd v0.3.0 // indirect
 	github.com/prometheus/client_model v0.3.0 // indirect
+<<<<<<< HEAD
 	github.com/prometheus/procfs v0.9.0 // indirect
 	github.com/prometheus/statsd_exporter v0.23.1 // indirect
+=======
+	github.com/prometheus/procfs v0.8.0 // indirect
+	github.com/prometheus/statsd_exporter v0.22.8 // indirect
+>>>>>>> origin/master
 	github.com/sergi/go-diff v1.2.0 // indirect
 	github.com/sirupsen/logrus v1.9.0 // indirect
 	github.com/skeema/knownhosts v1.1.0 // indirect
@@ -109,6 +152,7 @@ require (
 	github.com/tidwall/match v1.1.1 // indirect
 	github.com/tidwall/pretty v1.2.0 // indirect
 	github.com/tidwall/sjson v1.2.4 // indirect
+<<<<<<< HEAD
 	github.com/xanzy/ssh-agent v0.3.3 // indirect
 	go.uber.org/atomic v1.10.0 // indirect
 	go.uber.org/multierr v1.9.0 // indirect
@@ -124,6 +168,22 @@ require (
 	golang.org/x/text v0.9.0 // indirect
 	golang.org/x/time v0.3.0 // indirect
 	golang.org/x/tools v0.7.0 // indirect
+=======
+	github.com/xanzy/ssh-agent v0.3.0 // indirect
+	go.uber.org/atomic v1.10.0 // indirect
+	go.uber.org/multierr v1.8.0 // indirect
+	go.uber.org/zap v1.23.0 // indirect
+	golang.org/x/crypto v0.3.0 // indirect
+	golang.org/x/mod v0.7.0 // indirect
+	golang.org/x/net v0.3.1-0.20221206200815-1e63c2f08a10 // indirect
+	golang.org/x/oauth2 v0.2.0 // indirect
+	golang.org/x/sync v0.1.0 // indirect
+	golang.org/x/sys v0.3.0 // indirect
+	golang.org/x/term v0.3.0 // indirect
+	golang.org/x/text v0.5.0 // indirect
+	golang.org/x/time v0.2.0 // indirect
+	golang.org/x/tools v0.1.12 // indirect
+>>>>>>> origin/master
 	golang.org/x/xerrors v0.0.0-20220907171357-04be3eba64a2 // indirect
 	gomodules.xyz/jsonpatch/v2 v2.2.0 // indirect
 	google.golang.org/api v0.119.0 // indirect

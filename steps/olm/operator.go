@@ -99,6 +99,7 @@ var _ = gauge.Step("Validate tektoninstallersets names", func() {
 	k8s.ValidateTektonInstallersetNames(store.Clients())
 })
 
+<<<<<<< HEAD
 var _ = gauge.Step("Check version of component <component>", func(component string) {
 	defaultVersion := os.Getenv(strings.ToUpper(component + "_version"))
 	tkn.AssertComponentVersion(defaultVersion, component)
@@ -124,6 +125,8 @@ var _ = gauge.Step("Check <binary> version", func(binary string) {
 var _ = gauge.Step("Validate quickstarts", func() {
 	tkn.ValidateQuickstarts()
 })
+=======
+>>>>>>> origin/master
 var _ = gauge.Step("Validate TektonHub not enabled", func() {
 	operator.ValidateTektonHubNotEnabled(store.Clients())
 })
