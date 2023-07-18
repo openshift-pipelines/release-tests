@@ -17,7 +17,7 @@ spec:
           workspace: shared-workspace
       params:
         - name: url
-          value: git@github.com:ppitonak/topsecret.git
+          value: git@github.com:openshift-pipelines/test-private.git
   results:
     - name: commit
       value: $(tasks.git-clone.results.commit)
