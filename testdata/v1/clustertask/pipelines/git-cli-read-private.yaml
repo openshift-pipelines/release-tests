@@ -26,9 +26,9 @@ spec:
         - name: GIT_SCRIPT
           value: |
             git_dir=$(context.pipelineRun.name)
-            git clone --config core.sshCommand="ssh -oStrictHostKeyChecking=no" git@github.com:ppitonak/topsecret.git ${git_dir}
+            git clone --config core.sshCommand="ssh -oStrictHostKeyChecking=no" git@github.com:openshift-pipelines/test-private.git ${git_dir}
             cd ${git_dir}
-            cat README
+            cat README.md
   results:
     - name: commit
       value: $(tasks.git-cli.results.commit)
