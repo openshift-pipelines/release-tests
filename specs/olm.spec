@@ -19,8 +19,6 @@ Steps:
     | S.NO | resource_dir                   |
     |------|--------------------------------|
     | 1    | testdata/hub/tektonhub.yaml    |
-  * Configure GitHub token for git resolver in TektonConfig
-  * Configure the bundles resolver
   * Validate pipelines deployment
   * Validate triggers deployment
   * Validate PAC deployment
