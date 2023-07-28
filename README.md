@@ -103,3 +103,6 @@ podman run --rm -it -v $KUBECONFIG:/root/.kube/config:z -v .:/root/release-tests
 gauge run ...
 ```
 
+## Containerised Tests
+
+[Dockerfile](Dockerfile) is added to execute openshift-pipelines tests in a framework that requires that setup and tests be performed from a container.
