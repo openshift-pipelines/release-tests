@@ -97,17 +97,11 @@ func DeleteResource(resourceType, name string) {
 }
 
 func CheckProjectExists(projectName string) bool {
-	if strings.Contains(cmd.Run("oc", "project", projectName).String(), "error") {
-		return false
-	}
-	return true
+	return !strings.Contains(cmd.Run("oc", "project", projectName).String(), "error")
 }
 
-func SecretExists(secretName string, namespace string) bool{
-	if strings.Contains(cmd.Run("oc", "get", "secret", secretName, "-n", namespace).String(), "Error"){
-		return false
-	} 
-	return true
+func SecretExists(secretName string, namespace string) bool {
+	return !strings.Contains(cmd.Run("oc", "get", "secret", secretName, "-n", namespace).String(), "Error")
 }
 
 func CreateSecretForGitResolver(secretData string) {
