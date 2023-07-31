@@ -147,17 +147,17 @@ var _ = gauge.Step("Configure GitHub token for git resolver in TektonConfig", fu
 	if os.Getenv("GITHUB_TOKEN") == "" {
 		log.Printf("Token for authorization to the GitHub repository was not exported as a system variable")
 	} else {
-		if !oc.SecretExists("github-auth-secret", "openshfit-pipelines"){
+		if !oc.SecretExists("github-auth-secret", "openshift-pipelines") {
 			secretData := os.Getenv("GITHUB_TOKEN")
 			oc.CreateSecretForGitResolver(secretData)
 		} else {
 			log.Printf("Secret \"github-auth-secret\" already exists")
 		}
-		patch_data := fmt.Sprintf("{\"spec\":{\"pipeline\":{\"git-resolver-config\":{\"api-token-secret-key\":\"github-auth-key\", \"api-token-secret-name\":\"github-auth-secret\", \"api-token-secret-namespace\":\"openshift-pipelines\", \"default-revision\":\"main\", \"fetch-timeout\":\"1m\", \"scm-type\":\"github\"}}}}")
+		patch_data := "{\"spec\":{\"pipeline\":{\"git-resolver-config\":{\"api-token-secret-key\":\"github-auth-key\", \"api-token-secret-name\":\"github-auth-secret\", \"api-token-secret-namespace\":\"openshift-pipelines\", \"default-revision\":\"main\", \"fetch-timeout\":\"1m\", \"scm-type\":\"github\"}}}}"
 		oc.UpdateTektonConfig(patch_data)
 	}
 })
-var _ = gauge.Step("Configure the bundles resolver", func(){
-	patch_data := fmt.Sprintf("{\"spec\":{\"pipeline\":{\"bundles-resolver-config\":{\"default-kind\":\"task\", \"defaut-service-account\":\"pipelines\"}}}}")
+var _ = gauge.Step("Configure the bundles resolver", func() {
+	patch_data := "{\"spec\":{\"pipeline\":{\"bundles-resolver-config\":{\"default-kind\":\"task\", \"defaut-service-account\":\"pipelines\"}}}}"
 	oc.UpdateTektonConfig(patch_data)
 })
