@@ -3,7 +3,6 @@ kind: PipelineRun
 metadata:
   name: hub-git-cli-run
 spec:
-  # serviceAccountName: git-service-account
   pipelineRef:
     name: hub-git-cli-pipeline
   timeouts: 

@@ -57,7 +57,7 @@ spec:
           value: git_email
         - name: GIT_SCRIPT
           value: |
-            cd git-cli
+            cd git-cli-hub
             git config --global safe.directory "*"
             echo "Hello" > hello
             git add .
