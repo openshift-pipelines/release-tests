@@ -11,28 +11,8 @@ Importance: Critical
 Installs `openshift-pipelines` operator using olm
 
 Steps:
-  * Subscribe to operator
-  * Wait for TektonConfig CR availability  
-  * Change enable-api-fields to "beta"
-  * Verify namespace "openshift-pipelines" exists
-  * Apply
-    | S.NO | resource_dir                   |
-    |------|--------------------------------|
-    | 1    | testdata/hub/tektonhub.yaml    |
-  * Configure GitHub token for git resolver in TektonConfig
-  * Configure the bundles resolver
-  * Validate pipelines deployment
-  * Validate triggers deployment
-  * Validate PAC deployment
-  * Validate chains deployment
-  * Validate hub deployment
-  * Validate tkn server cli deployment
-  * Verify TektonAddons Install status
-  * Validate RBAC
-  * Validate quickstarts
-  * Validate default auto prune cronjob in target namespace
-  * Validate tektoninstallersets status
-  * Validate tektoninstallersets names
+  * Define the tekton-hub-api variable
+
   
 
 ## Upgrade openshift-pipelines operator: PIPELINES-09-TC02
