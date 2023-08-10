@@ -143,6 +143,12 @@ var _ = gauge.Step("Change enable-api-fields to <version>", func(version string)
 	oc.UpdateTektonConfig(patch_data)
 })
 
+var _ = gauge.Step("Define the tekton-hub-api variable", func (){
+	patch_data := "{\"spec\":{\"pipeline\":{\"hub-resolver-config\":{\"tekton-hub-api\":\"https://api.hub.tekton.dev/\"}}}}"
+	oc.UpdateTektonConfig(patch_data)
+
+})
+
 var _ = gauge.Step("Configure GitHub token for git resolver in TektonConfig", func() {
 	if os.Getenv("GITHUB_TOKEN") == "" {
 		log.Printf("Token for authorization to the GitHub repository was not exported as a system variable")
