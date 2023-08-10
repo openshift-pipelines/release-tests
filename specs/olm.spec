@@ -14,6 +14,7 @@ Steps:
   * Subscribe to operator
   * Wait for TektonConfig CR availability  
   * Change enable-api-fields to "beta"
+  * Define the tekton-hub-api variable
   * Verify namespace "openshift-pipelines" exists
   * Apply
     | S.NO | resource_dir                   |
@@ -33,7 +34,6 @@ Steps:
   * Validate default auto prune cronjob in target namespace
   * Validate tektoninstallersets status
   * Validate tektoninstallersets names
-  
 
 ## Upgrade openshift-pipelines operator: PIPELINES-09-TC02
 Tags: upgrade, admin
