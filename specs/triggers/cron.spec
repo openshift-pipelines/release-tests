@@ -22,6 +22,7 @@ Steps:
     |3   |testdata/triggers/cron/triggertemplate.yaml  |
     |4   |testdata/triggers/cron/eventlistener.yaml    |
   * Expose Event listener "cron-listener"
+  * Verify that image stream "golang" exists
   * Create cron job with schedule "*/1 * * * *"
   * Wait for cron job to be active
   * Watch for pipelinerun resources
