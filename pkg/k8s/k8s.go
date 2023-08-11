@@ -15,7 +15,6 @@ import (
 	"github.com/openshift-pipelines/release-tests/pkg/oc"
 	"github.com/openshift-pipelines/release-tests/pkg/openshift"
 	"github.com/openshift-pipelines/release-tests/pkg/store"
-	w "github.com/openshift-pipelines/release-tests/pkg/wait"
 	secv1 "github.com/openshift/api/security/v1"
 	secclient "github.com/openshift/client-go/security/clientset/versioned/typed/security/v1"
 	"github.com/tektoncd/pipeline/pkg/names"
@@ -257,27 +256,6 @@ func CreateCronJob(c *clients.Clients, args []string, schedule, namespace string
 	}
 	log.Printf("Cronjob: %s created in namespace: %s", cj.Name, namespace)
 	store.PutScenarioData("cronjob", cj.Name)
-}
-
-func WaitForActiveCronJobs(c *clients.Clients, active int, cronJobName, ns string) wait.ConditionFunc {
-	return func() (bool, error) {
-		curr, err := GetCronJob(c, ns, cronJobName)
-		if err != nil {
-			return false, err
-		}
-		return len(curr.Status.Active) >= active, nil
-	}
-}
-
-func WaitForCronJobToBeSceduled(c *clients.Clients, activejobs int, job, namespace string) {
-	err := w.WaitFor(c.Ctx, WaitForActiveCronJobs(c, activejobs, job, namespace))
-	if err != nil {
-		testsuit.T.Errorf("failed to schedule cron job %s in namespace %s \n %v", job, namespace, err)
-	}
-}
-
-func GetCronJob(c *clients.Clients, ns, name string) (*batchv1.CronJob, error) {
-	return c.KubeClient.Kube.BatchV1().CronJobs(ns).Get(c.Ctx, name, metav1.GetOptions{})
 }
 
 func DeleteCronJob(c *clients.Clients, name, ns string) error {
