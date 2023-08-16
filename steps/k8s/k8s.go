@@ -24,10 +24,6 @@ var _ = gauge.Step("Create cron job with schedule <schedule>", func(schedule str
 	k8s.CreateCronJob(store.Clients(), args, schedule, store.Namespace())
 })
 
-var _ = gauge.Step("Wait for cron job to be active", func() {
-	k8s.WaitForCronJobToBeSceduled(store.Clients(), 1, store.GetScenarioData("cronjob"), store.Namespace())
-})
-
 var _ = gauge.Step("Delete cron job", func() {
 	k8s.DeleteCronJob(store.Clients(), store.GetScenarioData("cronjob"), store.Namespace())
 })
