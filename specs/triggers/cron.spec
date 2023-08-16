@@ -24,7 +24,6 @@ Steps:
   * Expose Event listener "cron-listener"
   * Verify that image stream "golang" exists
   * Create cron job with schedule "*/1 * * * *"
-  * Wait for cron job to be active
   * Watch for pipelinerun resources
   * Delete cron job
   * Assert no new pipelineruns created
