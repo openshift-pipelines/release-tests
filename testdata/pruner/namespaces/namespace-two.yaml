@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: namespace-two
+  annotations:
+    operator.tekton.dev/prune.keep-since: "2"
+    operator.tekton.dev/prune.resources: taskrun, pipelinerun
+    operator.tekton.dev/prune.schedule: "*/1 * * * *"
+    operator.tekton.dev/prune.strategy: keep-since  

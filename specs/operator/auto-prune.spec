@@ -413,3 +413,33 @@ Steps:
   * Delete project "test-project-1"
   * Delete project "test-project-2"
   * Remove auto pruner configuration from config CR
+
+## Verify that the operator is up and running after deleting namespace with pruner annotation: PIPELINES-12-TC15
+Tags: e2e, integration, auto-prune, admin, cronjob, sanity
+Component: Operator
+Level: Integration
+Type: Functional
+Importance: Critical
+CustomerScenario: yes
+
+Steps:
+  * Verify ServiceAccount "pipeline" exist
+  * Remove auto pruner configuration from config CR
+  * Assert if cronjob with prefix "tekton-resource-pruner" is "not present" in target namespace
+  * Create
+      |S.NO|resource_dir                                 |
+      |----|---------------------------------------------|
+      |1   |testdata/pruner/namespaces/namespace-one.yaml|
+  * Assert if cronjob with prefix "tekton-resource-pruner" is "present" in target namespace
+  * Delete project "namespace-one"
+  * Sleep for "5" seconds
+  * Assert if cronjob with prefix "tekton-resource-pruner" is "not present" in target namespace
+  * Validate Operator should be installed
+  * Create
+      |S.NO|resource_dir                                 |
+      |----|---------------------------------------------|
+      |1   |testdata/pruner/namespaces/namespace-two.yaml|
+  * Assert if cronjob with prefix "tekton-resource-pruner" is "present" in target namespace
+  * Delete project "namespace-two"
+  * Sleep for "5" seconds
+  * Assert if cronjob with prefix "tekton-resource-pruner" is "not present" in target namespace
