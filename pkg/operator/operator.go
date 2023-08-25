@@ -86,6 +86,23 @@ func DeleteTektonConfigCR(cs *clients.Clients, rnames utils.ResourceNames) {
 	TektonConfigCRDelete(cs, rnames)
 }
 
+func ValidateTektonHubDeployments(cs *clients.Clients, rnames utils.ResourceNames) {
+	EnsureTektonHubCRDExists(cs.TektonHub(), rnames)
+	k8s.ValidateDeployments(cs, rnames.TargetNamespace, config.TektonHubApiName,
+		config.TektonHubDbName, config.TektonHubUiName)
+	log.Printf("TektonHub deployment is up and running")
+}
+
+func ValidateTektonHubNotEnabled(cs *clients.Clients) {
+	VerifyNoTektonHubCR(cs)
+	log.Printf("TektonHub not enabled")
+}
+
+func ValidateTektonHubURLs(cs *clients.Clients) {
+	VerifyTektonHubURLs(cs)
+	log.Printf("TektonHub UI is accessible")
+}
+
 // Unistall helps you to delete operator and it's traces if any from cluster
 func Uninstall(cs *clients.Clients, rnames utils.ResourceNames) {
 	log.Printf("output: %s\n", cmd.MustSucceed("oc", "delete", "--ignore-not-found=true", "TektonHub", "hub").Stdout())

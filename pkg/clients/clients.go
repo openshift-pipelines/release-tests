@@ -147,10 +147,6 @@ func (c *Clients) TektonChains() operatorv1alpha1.TektonChainInterface {
 	return c.Operator.TektonChains()
 }
 
-func (c *Clients) TektonHub() operatorv1alpha1.TektonHubInterface {
-	return c.Operator.TektonHubs()
-}
-
 func (c *Clients) TektonDashboard() operatorv1alpha1.TektonDashboardInterface {
 	return c.Operator.TektonDashboards()
 }
@@ -161,6 +157,10 @@ func (c *Clients) TektonAddon() operatorv1alpha1.TektonAddonInterface {
 
 func (c *Clients) TektonConfig() operatorv1alpha1.TektonConfigInterface {
 	return c.Operator.TektonConfigs()
+}
+
+func (c *Clients) TektonHub() operatorv1alpha1.TektonHubInterface {
+	return c.Operator.TektonHubs()
 }
 
 func (c *Clients) NewClientSet(namespace string) {
