@@ -43,7 +43,7 @@ var _ = gauge.BeforeScenario(func(exInfo *gauge_messages.ExecutionInfo) {
 var _ = gauge.AfterScenario(func(exInfo *gauge_messages.ExecutionInfo) {
 	switch c := gauge.GetScenarioStore()["scenario.cleanup"].(type) {
 	case func():
-		if exInfo.CurrentSpec.IsFailed {
+		if exInfo.CurrentScenario.IsFailed {
 			log.Printf("Skipping deletion of the namespace '%s' as the test got failed", store.Namespace())
 		} else {
 			c()
