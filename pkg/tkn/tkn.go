@@ -74,7 +74,7 @@ func AssertClientVersion(binary string) {
 			if strings.Contains(splittedCommandResult[i], "Client") {
 				if !strings.Contains(splittedCommandResult[i], expectedVersion) {
 					unexpectedVersion = splittedCommandResult[i]
-					testsuit.T.Errorf("tkn client has an unexpected version: " + unexpectedVersion + " Expeced: " + expectedVersion)
+					testsuit.T.Errorf("tkn client has an unexpected version: " + unexpectedVersion + " Expected: " + expectedVersion)
 				}
 			}
 		}
@@ -96,9 +96,9 @@ func AssertClientVersion(binary string) {
 	}
 }
 
-func ValidateQuickstarts(){
-	cmd.MustSucceed("oc","get","consolequickstart","install-app-and-associate-pipeline").Stdout()
-	cmd.MustSucceed("oc","get","consolequickstart", "configure-pipeline-metrics").Stdout()
+func ValidateQuickstarts() {
+	cmd.MustSucceed("oc", "get", "consolequickstart", "install-app-and-associate-pipeline").Stdout()
+	cmd.MustSucceed("oc", "get", "consolequickstart", "configure-pipeline-metrics").Stdout()
 }
 
 // Run tkn with given arguments
