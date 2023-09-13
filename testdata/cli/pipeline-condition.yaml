@@ -1,0 +1,34 @@
+apiVersion: tekton.dev/v1alpha1
+kind: Pipeline
+metadata:
+  name: pipeline-to-list-files
+spec:
+  resources:
+    - name: pipeline-git
+      type: git
+  tasks:
+    - name: list-files
+      taskRef:
+        name: task-to-list-files
+      resources:
+        inputs:
+          - name: pipeline-git
+            resource: pipeline-git
+        outputs:
+          - name: pipeline-git
+            resource: pipeline-git
+    - name: conditional-list-files
+      taskRef:
+        name: task-to-list-files
+      conditions:
+        - conditionRef: always-true-sample-condition
+          resources:
+            - name: pipeline-git
+              resource: pipeline-git
+      resources:
+        inputs:
+          - name: pipeline-git
+            resource: pipeline-git
+        outputs:
+          - name: pipeline-git
+            resource: pipeline-git

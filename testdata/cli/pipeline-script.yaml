@@ -1,0 +1,12 @@
+apiVersion: tekton.dev/v1alpha1
+kind: Pipeline
+metadata:
+  name: pipeline-test
+spec:
+  tasks:
+    - name: run-python-script
+      taskRef: 
+        name: python-script-task
+    - name: run-shell-script
+      taskRef:
+        name: shell-script-task
