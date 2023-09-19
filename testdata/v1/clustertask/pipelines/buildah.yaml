@@ -28,33 +28,12 @@ spec:
       value: "true"
     - name: revision
       value: $(params.REVISION)
-  - name: update-dockerfile
-    taskSpec:
-      params:
-      - name: CONTEXT
-      workspaces:
-      - name: source
-      steps:
-      - name: update-dockerfile
-        image: image-registry.openshift-image-registry.svc:5000/openshift/cli
-        script: |
-          #!/usr/bin/env bash
-          sed -i "s|registry.svc:5000/catalog-tests/|registry.svc:5000/$(context.taskRun.namespace)/|" \
-            $(workspaces.source.path)/$(params.CONTEXT)/Dockerfile
-    params:
-    - name: CONTEXT
-      value: $(params.SUBDIR)
-    runAfter:
-    - clone-git-repo
-    workspaces:
-    - name: source
-      workspace: source
   - name: run-buildah
     taskRef:
       name: buildah
       kind: ClusterTask
     runAfter:
-    - update-dockerfile
+    - clone-git-repo
     workspaces:
     - name: source
       workspace: source
