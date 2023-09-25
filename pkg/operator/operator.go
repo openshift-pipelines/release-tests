@@ -66,7 +66,7 @@ func ValidateChainsDeployments(cs *clients.Clients, rnames utils.ResourceNames) 
 
 func ValidateHubDeployments(cs *clients.Clients, rnames utils.ResourceNames) {
 	EnsureTektonHubsExists(cs.TektonHub(), rnames)
-	k8s.ValidateDeployments(cs, rnames.TargetNamespace, 
+	k8s.ValidateDeployments(cs, rnames.TargetNamespace,
 		config.HubApiName, config.HubDbName, config.HubUiName)
 }
 
@@ -84,6 +84,23 @@ func ValidateOperatorInstallStatus(cs *clients.Clients, rnames utils.ResourceNam
 func DeleteTektonConfigCR(cs *clients.Clients, rnames utils.ResourceNames) {
 	EnsureTektonConfigStatusInstalled(cs.TektonConfig(), rnames)
 	TektonConfigCRDelete(cs, rnames)
+}
+
+func ValidateTektonHubDeployments(cs *clients.Clients, rnames utils.ResourceNames) {
+	EnsureTektonHubCRDExists(cs.TektonHub(), rnames)
+	k8s.ValidateDeployments(cs, rnames.TargetNamespace, config.TektonHubApiName,
+		config.TektonHubDbName, config.TektonHubUiName)
+	log.Printf("TektonHub deployment is up and running")
+}
+
+func ValidateTektonHubNotEnabled(cs *clients.Clients) {
+	VerifyNoTektonHubCR(cs)
+	log.Printf("TektonHub not enabled")
+}
+
+func ValidateTektonHubURLs(cs *clients.Clients) {
+	VerifyTektonHubURLs(cs)
+	log.Printf("TektonHub UI is accessible")
 }
 
 // Unistall helps you to delete operator and it's traces if any from cluster

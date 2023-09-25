@@ -27,6 +27,7 @@ var _ = gauge.BeforeScenario(func(exInfo *gauge_messages.ExecutionInfo) {
 		TektonTrigger:   operatorapi.TriggerResourceName,
 		TektonAddon:     operatorapi.AddonResourceName,
 		TektonConfig:    operatorapi.ConfigResourceName,
+		TektonHub:       operatorapi.HubResourceName,
 		Namespace:       "",
 		TargetNamespace: config.TargetNamespace,
 	}

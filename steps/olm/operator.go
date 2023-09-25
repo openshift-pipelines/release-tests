@@ -124,3 +124,19 @@ var _ = gauge.Step("Check <binary> version", func(binary string) {
 var _ = gauge.Step("Validate quickstarts", func() {
 	tkn.ValidateQuickstarts()
 })
+
+var _ = gauge.Step("Validate TektonHub not enabled", func() {
+	operator.ValidateTektonHubNotEnabled(store.Clients())
+})
+
+var _ = gauge.Step("Verify that the hub CR is in True state", func() {
+	operator.AssertTektonHubCRReadyStatus(store.Clients(), store.GetCRNames())
+})
+
+var _ = gauge.Step("Verify that the TektonHub deployment is up and running", func() {
+	operator.ValidateTektonHubDeployments(store.Clients(), store.GetCRNames())
+})
+
+var _ = gauge.Step("Verify that the HUB UI is accessbile", func() {
+	operator.ValidateTektonHubURLs(store.Clients())
+})

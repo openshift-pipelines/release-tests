@@ -1,0 +1,15 @@
+apiVersion: operator.tekton.dev/v1alpha1
+kind: TektonHub
+metadata:
+  name: hub
+spec:
+  targetNamespace: {{.TargetNamespace}}
+  catalogs:                       # 👈 Optional: If user wants to use his catalogs
+   - name: {{.CatalogName}}
+     org: {{.Org}}
+     type: {{.Type}}
+     provider: {{.Provider}}
+     url: {{.URL}}
+     revision: {{.Revision}}
+  api:
+    catalogRefreshInterval: {{.RefreshInterval}}
