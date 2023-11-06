@@ -45,7 +45,7 @@ Steps:
       |1   |jib-maven-pz-run |successful|no                     |
 
 ## kn-apply pipelinerun: PIPELINES-17-TC03
-Tags: e2e, linux/amd64, clustertasks, non-admin, kn-apply, sanity
+Tags: e2e, linux/amd64, clustertasks, non-admin, kn-apply
 Component: Pipelines
 Level: Integration
 Type: Functional
@@ -63,7 +63,7 @@ Steps:
       |1   |kn-apply-run     |successful|no                     |
 
 ## kn-apply p&z pipelinerun: PIPELINES-17-TC04
-Tags: e2e, linux/ppc64le, linux/s390x, clustertasks, non-admin, kn-apply, sanity
+Tags: e2e, linux/ppc64le, linux/s390x, clustertasks, non-admin, kn-apply
 Component: Pipelines
 Level: Integration
 Type: Functional
@@ -81,7 +81,7 @@ Steps:
       |1   |kn-apply-pz-run  |successful|no                     |
 
 ## kn pipelinerun: PIPELINES-17-TC05
-Tags: e2e, linux/amd64, clustertasks, non-admin, kn, sanity
+Tags: e2e, linux/amd64, clustertasks, non-admin, kn
 Component: Pipelines
 Level: Integration
 Type: Functional
@@ -99,7 +99,7 @@ Steps:
       |1   |kn-run           |successful|no                     |
 
 ## kn p&z pipelinerun: PIPELINES-17-TC06
-Tags: e2e, linux/ppc64le, linux/s390x, clustertasks, non-admin, kn, sanity
+Tags: e2e, linux/ppc64le, linux/s390x, clustertasks, non-admin, kn
 Component: Pipelines
 Level: Integration
 Type: Functional
