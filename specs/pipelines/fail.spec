@@ -28,7 +28,7 @@ Steps:
        |1   |output-pipeline-run-vb|Failure|no                     |
 
 ## Run Task with a non-existent ServiceAccount: PIPELINES-02-TC02
-Tags: e2e, tasks, negative, non-admin, sanity
+Tags: e2e, tasks, negative, non-admin
 Component: Pipelines
 Pos/Neg: Negative
 Level: Integration
