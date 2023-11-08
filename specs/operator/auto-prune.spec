@@ -60,7 +60,7 @@ Steps:
 
 
 ## Verify auto prune for pipelinerun and taskrun: PIPELINES-12-TC03
-Tags: e2e, integration, auto-prune, admin, sanity
+Tags: e2e, integration, auto-prune, admin
 Component: Operator
 Level: Integration
 Type: Functional
@@ -118,7 +118,7 @@ Steps:
   * Assert if cronjob with prefix "tekton-resource-pruner" is "not present" in target namespace
 
 ## Verify auto prune skip namespace with annotation: PIPELINES-12-TC05
-Tags: e2e, integration, auto-prune, admin, sanity
+Tags: e2e, integration, auto-prune, admin
 Component: Operator
 Level: Integration
 Type: Functional
@@ -353,7 +353,7 @@ Steps:
   * Assert if cronjob with prefix "tekton-resource-pruner" is "not present" in target namespace
 
 ## Verify auto prune validation: PIPELINES-12-TC12
-Tags: e2e, integration, auto-prune, admin, sanity
+Tags: e2e, integration, auto-prune, admin
 Component: Operator
 Level: Integration
 Type: Functional

@@ -59,7 +59,7 @@ Steps:
   * Assert pipelines are "present" in "openshift" namespace
 
 ## Enable community cluster tasks when clustertask is disabled: PIPELINES-15-TC04
-Tags: e2e, integration, negative, admin, addon, sanity
+Tags: e2e, integration, negative, admin, addon
 Component: Pipelines
 Level: Integration
 Type: Functional
@@ -70,7 +70,7 @@ Steps:
   * Update addon config with clusterTasks as "false" communityClustertasks as "true" and pipelineTemplates as "false" and expect message "validation failed: communityClusterTasks cannot be true if clusterTask is false"
 
 ## Enable pipeline templates when clustertask is disabled: PIPELINES-15-TC05
-Tags: e2e, integration, negative, admin, addon, sanity
+Tags: e2e, integration, negative, admin, addon
 Component: Pipelines
 Level: Integration
 Type: Functional

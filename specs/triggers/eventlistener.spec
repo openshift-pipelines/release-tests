@@ -136,7 +136,7 @@ Steps:
   * Verify pipelinerun is "successful"
 
 ## Create Eventlistener with TLS enabled: PIPELINES-05-TC07
-Tags: tls, triggers, admin, e2e, sanity
+Tags: tls, triggers, admin, e2e
 Component: Triggers
 Level: Integration
 Type: Functional
@@ -217,7 +217,7 @@ Steps:
   * Cleanup Triggers
 
 ## Create Eventlistener with gitlab interceptor: PIPELINES-05-TC10
-Tags: e2e, triggers, non-admin, sanity
+Tags: e2e, triggers, non-admin
 Component: Triggers
 Level: Integration
 Type: Functional
@@ -243,7 +243,7 @@ Steps:
   * Cleanup Triggers
 
 ## Create Eventlistener with bitbucket interceptor: PIPELINES-05-TC11
-Tags: e2e, triggers, non-admin, sanity
+Tags: e2e, triggers, non-admin
 Component: Triggers
 Level: Integration
 Type: Functional
