@@ -34,7 +34,7 @@ Steps:
     * Delete project "releasetest-pipelineruns"          
 
 ## Checking the functionality of cluster resolvers#2: PIPELINES-23-TC02
-Tags: e2e, sanity
+Tags: e2e
 Component: Resolvers
 Level: Integration
 Type: Functional
