@@ -169,3 +169,7 @@ var _ = gauge.Step("Configure the bundles resolver", func() {
 	patch_data := "{\"spec\":{\"pipeline\":{\"bundles-resolver-config\":{\"default-kind\":\"task\", \"defaut-service-account\":\"pipelines\"}}}}"
 	oc.UpdateTektonConfig(patch_data)
 })
+
+var _ = gauge.Step("Create secrets for Tekton Results", func() {
+	oc.CreateSecretsForTektonResults()
+})

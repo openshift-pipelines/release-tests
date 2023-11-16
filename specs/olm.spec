@@ -19,6 +19,16 @@ Steps:
     | S.NO | resource_dir                   |
     |------|--------------------------------|
     | 1    | testdata/hub/tektonhub.yaml    |
+  * Create secrets for Tekton Results
+  * Switch to project "openshift-pipelines"
+  * Apply  
+    | S.NO | resource_dir                   |
+    |------|--------------------------------|
+    | 1    | testdata/pvc/tekton-logs.yaml  |
+  * Apply
+    | S.NO | resource_dir                   |
+    |------|--------------------------------|
+    | 1    | testdata/results/result.yaml   |
   * Configure GitHub token for git resolver in TektonConfig
   * Configure the bundles resolver
   * Validate pipelines deployment
