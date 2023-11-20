@@ -12,7 +12,7 @@ Steps:
   * Check version of component "triggers"
   * Check version of component "operator"
   * Check version of component "chains"
-  * Check version of component "pipelines-as-code" 
+  * Check version of component "pac"
   * Check version of component "hub"
   * Check version of OSP
  
