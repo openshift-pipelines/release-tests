@@ -99,7 +99,7 @@ var TektonInstallersetNamePrefixes [26]string = [26]string{
 	"tektoncd-pruner",
 	"trigger-main-deployment",
 	"trigger-main-static",
-	"validating-mutating-webhoook",
+	"validating-mutating-webhook",
 }
 
 var PrefixesOfDefaultPipelines [9]string = [9]string{"buildah", "s2i-dotnet", "s2i-go", "s2i-java", "s2i-nodejs", "s2i-perl", "s2i-php", "s2i-python", "s2i-ruby"}
