@@ -14,6 +14,7 @@ Steps:
   * Check version of component "chains"
   * Check version of component "pac"
   * Check version of component "hub"
+  * Check verison of component "results"
   * Check version of OSP
  
 ## Check client versions: PIPELINES-22-TC02
