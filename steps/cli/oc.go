@@ -138,11 +138,6 @@ var _ = gauge.Step("Delete <resourceType> named <name>", func(resourceType, name
 	oc.DeleteResource(resourceType, name)
 })
 
-var _ = gauge.Step("Change enable-api-fields to <version>", func(version string) {
-	patch_data := fmt.Sprintf("{\"spec\":{\"pipeline\":{\"enable-api-fields\":\"%s\"}}}", version)
-	oc.UpdateTektonConfig(patch_data)
-})
-
 var _ = gauge.Step("Define the tekton-hub-api variable", func (){
 	patch_data := "{\"spec\":{\"pipeline\":{\"hub-resolver-config\":{\"tekton-hub-api\":\"https://api.hub.tekton.dev/\"}}}}"
 	oc.UpdateTektonConfig(patch_data)
