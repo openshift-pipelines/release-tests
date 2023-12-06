@@ -111,7 +111,6 @@ func CreateSecretForGitResolver(secretData string) {
 func CreateSecretsForTektonResults(){
 	var password string = cmd.MustSucceed("openssl", "rand", "-base64", "20").Stdout()
 	password = strings.Replace(password, "\n", "", -1)
-	log.Println("xxxx"+password+"xxxxx")
 	cmd.MustSucceed("oc", "create", "secret", "-n", "openshift-pipelines", "generic", "tekton-results-postgres", "--from-literal=POSTGRES_USER=result", "--from-literal=POSTGRES_PASSWORD="+password)
 	//generating tls certifiacte
 	cmd.MustSucceed("openssl", "req", "-x509", "-newkey", "rsa:4096", "-keyout", "key.pem", "-out", "cert.pem", "-days", "365", "-nodes", "-subj", "/CN=tekton-results-api-service.openshift-pipelines.svc.cluster.local", "-addext", "subjectAltName=DNS:tekton-results-api-service.openshift-pipelines.svc.cluster.local")
