@@ -12,5 +12,4 @@ updates:
     groups:
       go:
         update-types:
-          - "minor"
           - "patch"
