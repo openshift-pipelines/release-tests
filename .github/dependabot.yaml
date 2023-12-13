@@ -1,1 +1,15 @@
-
+version: 2
+updates:
+  - package-ecosystem: "gomod"
+    directory: "/"  
+    schedule:
+      interval: "daily"
+    allow:
+      - dependency-name: "github.com/tektoncd/operator" 
+      - dependency-name: "github.com/Netflix/go-expect"
+      - dependecy-name: "github.com/getgauge-contrib/gauge-go"
+    groups:
+      go:
+        update-types:
+          - "minor"
+          - "patch"
