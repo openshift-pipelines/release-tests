@@ -7,7 +7,7 @@ updates:
     allow:
       - dependency-name: "github.com/tektoncd/operator" 
       - dependency-name: "github.com/Netflix/go-expect"
-      - dependecy-name: "github.com/getgauge-contrib/gauge-go"
+      - dependency-name: "github.com/getgauge-contrib/gauge-go"
     groups:
       go:
         update-types:
