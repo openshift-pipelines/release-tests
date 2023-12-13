@@ -3,7 +3,8 @@ updates:
   - package-ecosystem: "gomod"
     directory: "/"  
     schedule:
-      interval: "daily"
+      interval: "weekly"
+    open-pull-requests-limit: 5
     allow:
       - dependency-name: "github.com/tektoncd/operator" 
       - dependency-name: "github.com/Netflix/go-expect"
