@@ -15,7 +15,7 @@ Steps:
   * Wait for TektonConfig CR availability  
   * Define the tekton-hub-api variable
   * Verify namespace "openshift-pipelines" exists
-  * Apply in "openshift-pipelines" namespace
+  * Apply
     | S.NO | resource_dir                   |
     |------|--------------------------------|
     | 1    | testdata/hub/tektonhub.yaml    |

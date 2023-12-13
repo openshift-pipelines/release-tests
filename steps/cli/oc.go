@@ -19,14 +19,17 @@ var _ = gauge.Step("Create <table>", func(table *m.Table) {
 	}
 })
 
+var _ = gauge.Step("Apply <table>", func(table *m.Table) {
+	for _, row := range table.Rows {
+		resource := row.Cells[1]
+		oc.Apply(resource, store.Namespace())
+	}
+})
+
 var _ = gauge.Step("Apply in <ns> namespace <table>", func(ns string, table *m.Table) {
 	for _, row := range table.Rows {
 		resource := row.Cells[1]
-		if ns == "default"{
-			oc.Apply(resource, store.Namespace())
-		} else {
-			oc.Apply(resource, ns)
-		}
+		oc.Apply(resource, ns)
 	}
 })
 
