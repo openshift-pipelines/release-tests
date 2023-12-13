@@ -26,6 +26,13 @@ var _ = gauge.Step("Apply <table>", func(table *m.Table) {
 	}
 })
 
+var _ = gauge.Step("Apply <table> in namespace <ns>", func(table *m.Table, ns string) {
+	for _, row := range table.Rows {
+		resource := row.Cells[1]
+		oc.Apply(resource, ns)
+	}
+})
+
 var _ = gauge.Step("Enable TLS config for eventlisteners", func() {
 	oc.EnableTLSConfigForEventlisteners(store.Namespace())
 
