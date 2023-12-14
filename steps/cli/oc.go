@@ -26,7 +26,7 @@ var _ = gauge.Step("Apply <table>", func(table *m.Table) {
 	}
 })
 
-var _ = gauge.Step("Apply <table> in namespace <ns>", func(table *m.Table, ns string) {
+var _ = gauge.Step("Apply in namespace <ns> <table>", func(ns string, table *m.Table) {
 	for _, row := range table.Rows {
 		resource := row.Cells[1]
 		oc.Apply(resource, ns)
