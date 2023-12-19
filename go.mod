@@ -3,7 +3,6 @@ module github.com/openshift-pipelines/release-tests
 go 1.18
 
 require (
-	github.com/Netflix/go-expect v0.0.0-20220104043353-73e0943537d2
 	github.com/getgauge-contrib/gauge-go v0.4.0
 	github.com/google/go-cmp v0.6.0
 	github.com/openshift/api v0.0.0-20230503133300-8bbcb7ca7183
@@ -44,7 +43,6 @@ require (
 	github.com/census-instrumentation/opencensus-proto v0.4.1 // indirect
 	github.com/cespare/xxhash/v2 v2.2.0 // indirect
 	github.com/cloudevents/sdk-go/v2 v2.14.0 // indirect
-	github.com/creack/pty v1.1.17 // indirect
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc // indirect
 	github.com/dmotylev/goproperties v0.0.0-20140630191356-7cbffbaada47 // indirect
 	github.com/emicklei/go-restful/v3 v3.11.0 // indirect
