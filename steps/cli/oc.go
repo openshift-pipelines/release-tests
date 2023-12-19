@@ -26,7 +26,7 @@ var _ = gauge.Step("Apply <table>", func(table *m.Table) {
 	}
 })
 
-var _ = gauge.Step("Apply <table> in namespace <ns>", func(table *m.Table, ns string) {
+var _ = gauge.Step("Apply in namespace <ns> <table>", func(ns string, table *m.Table) {
 	for _, row := range table.Rows {
 		resource := row.Cells[1]
 		oc.Apply(resource, ns)
@@ -168,4 +168,8 @@ var _ = gauge.Step("Configure GitHub token for git resolver in TektonConfig", fu
 var _ = gauge.Step("Configure the bundles resolver", func() {
 	patch_data := "{\"spec\":{\"pipeline\":{\"bundles-resolver-config\":{\"default-kind\":\"task\", \"defaut-service-account\":\"pipelines\"}}}}"
 	oc.UpdateTektonConfig(patch_data)
+})
+
+var _ = gauge.Step("Create secrets for Tekton Results", func() {
+	oc.CreateSecretsForTektonResults()
 })
