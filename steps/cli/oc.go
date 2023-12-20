@@ -177,3 +177,11 @@ var _ = gauge.Step("Create secrets for Tekton Results", func() {
 		log.Printf("\"tekton-results-postgres\" or \"tekton-results-tls\" secrets already exist")
 	}
 })
+
+var _ = gauge.Step("Ensure that tekton results is ready", func() {
+	oc.EnsureResutsReady()
+})
+
+var _ = gauge.Step("Get <resourceType> logs and annotations", func(resourceType string){
+	oc.GetLogsAndAnnotaions(resourceType)
+})

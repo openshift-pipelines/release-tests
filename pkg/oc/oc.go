@@ -3,6 +3,7 @@ package oc
 import (
 	"log"
 	"strings"
+	"time"
 
 	"github.com/getgauge-contrib/gauge-go/testsuit"
 	"github.com/openshift-pipelines/release-tests/pkg/cmd"
@@ -116,4 +117,18 @@ func CreateSecretsForTektonResults(){
 	cmd.MustSucceed("openssl", "req", "-x509", "-newkey", "rsa:4096", "-keyout", "key.pem", "-out", "cert.pem", "-days", "365", "-nodes", "-subj", "/CN=tekton-results-api-service.openshift-pipelines.svc.cluster.local", "-addext", "subjectAltName=DNS:tekton-results-api-service.openshift-pipelines.svc.cluster.local")
 	//creating secret with generated certificate
 	cmd.MustSucceed("oc", "create", "secret", "tls", "-n", "openshift-pipelines", "tekton-results-tls", "--cert=cert.pem", "--key=key.pem")
+}
+
+func EnsureResutsReady(){
+	cmd.MustSucceed("oc", "wait", "--for=condition=Ready", "tektoninstallerset", "-l", "operator.tekton.dev/type=result")
+}
+
+func GetLogsAndAnnotaions(resorceType string) {
+	if resorceType == "pr" {
+		log.Printf(cmd.MustSuccedIncreasedTimeout(time.Minute*10, "tkn", "pipeline", "start", "pipeline-results", "--showlog").Stdout())
+	} 
+	if resorceType == "tr" {
+		log.Printf(cmd.MustSuccedIncreasedTimeout(time.Minute*10, "tkn", "tr", "logs", "-f", "--last").Stdout())
+	}
+	log.Print(cmd.MustSucceed("tkn", resorceType, "describe", "--last", "-o", "jsonpath={.metadata.annotations}").Stdout())
 }
