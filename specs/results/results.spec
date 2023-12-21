@@ -2,22 +2,37 @@ PIPELINES-26
 # Results pvc tests
 
 ## Test Tekton Results: PIPELINES-26-TC01
-Tags: results, sanity
+Tags: results, e2e
 Component: Results
 Level: Integration
 Type: Functional
 Importance: Critical
 
 Steps:
-  * Ensure that tekton results is ready
+  * Create Results route
+  * Ensure that Tekton Results is ready
+  * Configure Results Api
   * Create project "results-testing" 
   * Apply in namespace "results-testing"
     | S.NO | resource_dir                             |
     |------|------------------------------------------|
-    | 1    | testdata/results/task-output-image.yaml  |
-  * Get "tr" logs and annotations
+    | 1    | testdata/results/taskrun.yaml  |
+  * Verify taskrun
+    |S.NO|pipeline_run_name           |status    |
+    |----|----------------------------|----------|
+    |1   |results-task                |successful|
+  * Get "taskrun" annotations
+  * Verify "taskrun" Results records
+  * Verify "taskrun" Results logs 
   * Apply in namespace "results-testing"
-    | S.NO | resource_dir                   |
-    |------|--------------------------------|
-    | 1    | testdata/results/pipeline.yaml |
-  * Get "pr" logs and annotations  
+    | S.NO | resource_dir                      |
+    |------|-----------------------------------|
+    | 1    | testdata/results/pipeline.yaml    |
+    | 2    | testdata/results/pipelinerun.yaml |
+  * Verify pipelinerun
+    |S.NO|pipeline_run_name     |status    |check_label_propagation|
+    |----|----------------------|----------|-----------------------|
+    |1   |pipeline-results      |successful|no                     |
+  * Get "pipelinerun" annotations
+  * Verify "pipelinerun" Results records
+  * Verify "pipelinerun" Results logsgit 

@@ -3,7 +3,6 @@ package oc
 import (
 	"log"
 	"strings"
-	"time"
 
 	"github.com/getgauge-contrib/gauge-go/testsuit"
 	"github.com/openshift-pipelines/release-tests/pkg/cmd"
@@ -123,12 +122,42 @@ func EnsureResutsReady(){
 	cmd.MustSucceed("oc", "wait", "--for=condition=Ready", "tektoninstallerset", "-l", "operator.tekton.dev/type=result")
 }
 
-func GetLogsAndAnnotaions(resorceType string) {
-	if resorceType == "pr" {
-		log.Printf(cmd.MustSuccedIncreasedTimeout(time.Minute*10, "tkn", "pipeline", "start", "pipeline-results", "--showlog").Stdout())
-	} 
-	if resorceType == "tr" {
-		log.Printf(cmd.MustSuccedIncreasedTimeout(time.Minute*10, "tkn", "tr", "logs", "-f", "--last").Stdout())
+func CreateResultsRoute(){
+	cmd.Run("oc", "create", "route", "-n", "openshift-pipelines", "passthrough", "tekton-results-api-service", "--service=tekton-results-api-service", "--port=8080")
+}
+
+func ConfigureResultsApi() string{
+	var results_api string = cmd.MustSucceed("oc", "get", "route", "tekton-results-api-service", "-n", "openshift-pipelines", "--no-headers", "-o", "custom-columns=:spec.host").Stdout()+":443"
+	results_api = strings.ReplaceAll(results_api, "\n", "")
+	return results_api
+}
+
+func GetAnnotaions(resorceType string) (string, string) {
+	var log_uuid string = cmd.MustSucceed("tkn", resorceType, "describe", "--last", "-o", "jsonpath='{.metadata.annotations.results\\.tekton\\.dev/log}'").Stdout()
+	var record_uuid string = cmd.MustSucceed("tkn", resorceType, "describe", "--last", "-o", "jsonpath='{.metadata.annotations.results\\.tekton\\.dev/record}'").Stdout()
+	record_uuid = strings.ReplaceAll(record_uuid, "'", "")
+	log_uuid = strings.ReplaceAll(log_uuid, "'", "")
+	return log_uuid, record_uuid
+}
+
+func VerifyResultsLogs(resorceType string){
+	var log_uuid string
+	var results_api string
+	log_uuid, _  = GetAnnotaions(resorceType)
+	results_api = ConfigureResultsApi()
+	var results_log string = cmd.MustSucceed("opc", "results", "logs", "get", "--insecure", "--addr", results_api, log_uuid).Stdout()
+	if strings.Contains(results_log, "record not found"){
+		testsuit.T.Errorf("Results log nod fond")
 	}
-	log.Print(cmd.MustSucceed("tkn", resorceType, "describe", "--last", "-o", "jsonpath={.metadata.annotations}").Stdout())
+}
+
+func VerifyResultsRecords(resorceType string){
+	var record_uuid string
+	var results_api string
+	_, record_uuid = GetAnnotaions(resorceType)
+	results_api = ConfigureResultsApi()
+	var results_record string = cmd.MustSucceed("opc", "results", "records", "get", "--insecure", "--addr", results_api, record_uuid).Stdout()
+	if strings.Contains(results_record, "record not found"){
+		testsuit.T.Errorf("Results record nod fond")
+	}
 }

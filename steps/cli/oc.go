@@ -178,10 +178,26 @@ var _ = gauge.Step("Create secrets for Tekton Results", func() {
 	}
 })
 
-var _ = gauge.Step("Ensure that tekton results is ready", func() {
+var _ = gauge.Step("Ensure that Tekton Results is ready", func() {
 	oc.EnsureResutsReady()
 })
 
-var _ = gauge.Step("Get <resourceType> logs and annotations", func(resourceType string){
-	oc.GetLogsAndAnnotaions(resourceType)
+var _ = gauge.Step("Create Results route", func(){
+	oc.CreateResultsRoute()
+})
+
+var _ = gauge.Step("Configure Results Api", func(){
+	oc.ConfigureResultsApi()
+})
+
+var _ = gauge.Step("Get <resourceType> annotations", func(resourceType string){
+	oc.GetAnnotaions(resourceType)
+})
+
+var _ = gauge.Step("Verify <resourceType> Results records", func(resourceType string){
+	oc.VerifyResultsRecords(resourceType)
+})
+
+var _ = gauge.Step("Verify <resourceType> Results logs", func(resourceType string){
+	oc.VerifyResultsLogs(resourceType)
 })

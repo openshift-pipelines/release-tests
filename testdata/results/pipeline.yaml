@@ -4,42 +4,25 @@ metadata:
   name: pipeline-results
 spec:
   tasks:
-  - name: generate
+  - name: hello
     taskSpec:
       results:
       - name: url
       steps:
-      - name: generate
+      - name: hello
         image: registry.access.redhat.com/ubi8/ubi-minimal
         script: |
           echo "https://artifacts.mycompany.com/mypipelinerun/210908-111711/" > $(results.url.path)
-          echo "Done"
-  - name: test-suite-1
+          echo "Hello, Results!"
+  - name: goodbye
     runAfter:
-    - generate
+    - hello
     taskSpec:
       steps:
-      - name: test
+      - name: goodbye
         image: registry.access.redhat.com/ubi8/ubi-minimal
         script: |
-          echo "Done"
-  - name: test-suite-2
-    runAfter:
-    - generate
-    taskSpec:
-      steps:
-      - name: test
-        image: registry.access.redhat.com/ubi8/ubi-minimal
-        script: |
-          echo "Done"
-  finally:
-  - name: cleanup
-    taskSpec:
-      steps:
-      - name: cleanup
-        image: registry.access.redhat.com/ubi8/ubi-minimal
-        script: |
-          echo "Done"
+          echo "Goodbye, Results!"
   results:
   - name: artifacts-url
-    value: $(tasks.generate.results.url) 
+    value: $(tasks.hello.results.url) 

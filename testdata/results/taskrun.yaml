@@ -1,7 +1,7 @@
 apiVersion: tekton.dev/v1beta1
 kind: TaskRun
 metadata:
-  name: build-push-run-output-image
+  name: results-task
 spec:
   serviceAccountName: ""
   taskSpec:
@@ -15,5 +15,5 @@ spec:
       image: quay.io/fedora/fedora:38
       script: |-
         #!/usr/bin/env sh
-        echo 'gcr.io/foo/bar' | tee $(results.IMAGE_URL.path)
-        echo 'sha256:05f95b26ed10668b7183c1e2da98610e91372fa9f510046d4ce5812addad86b5' | tee $(results.IMAGE_DIGEST.path)
+        echo "Hello, Results!"
+        echo "Goodbye, Results!"
