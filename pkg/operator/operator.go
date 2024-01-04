@@ -22,7 +22,7 @@ func ValidateRBAC(cs *clients.Clients, rnames utils.ResourceNames) {
 	log.Printf("Verifying that TektonConfig status is \"installed\"\n")
 	EnsureTektonConfigStatusInstalled(cs.TektonConfig(), rnames)
 
-	AssertServiceAccountPesent(cs, store.Namespace(), "pipeline")
+	AssertServiceAccountPresent(cs, store.Namespace(), "pipeline")
 	AssertClusterRolePresent(cs, "pipelines-scc-clusterrole")
 	AssertConfigMapPresent(cs, store.Namespace(), "config-service-cabundle")
 	AssertConfigMapPresent(cs, store.Namespace(), "config-trusted-cabundle")
@@ -34,7 +34,7 @@ func ValidateRBAC(cs *clients.Clients, rnames utils.ResourceNames) {
 func ValidateRBACAfterDisable(cs *clients.Clients, rnames utils.ResourceNames) {
 	EnsureTektonConfigStatusInstalled(cs.TektonConfig(), rnames)
 	//Verify `pipelineSa` exists in the existing namespace
-	AssertServiceAccountPesent(cs, store.Namespace(), "pipeline")
+	AssertServiceAccountPresent(cs, store.Namespace(), "pipeline")
 	//Verify clusterrole does not create
 	AssertClusterRoleNotPresent(cs, "pipelines-scc-clusterrole")
 	//Verify configmaps is not created in any namespace
@@ -66,7 +66,7 @@ func ValidateChainsDeployments(cs *clients.Clients, rnames utils.ResourceNames) 
 
 func ValidateHubDeployments(cs *clients.Clients, rnames utils.ResourceNames) {
 	EnsureTektonHubsExists(cs.TektonHub(), rnames)
-	k8s.ValidateDeployments(cs, rnames.TargetNamespace, 
+	k8s.ValidateDeployments(cs, rnames.TargetNamespace,
 		config.HubApiName, config.HubDbName, config.HubUiName)
 }
 
