@@ -13,7 +13,7 @@ import (
 	"k8s.io/apimachinery/pkg/util/wait"
 )
 
-func AssertServiceAccountPesent(clients *clients.Clients, ns, targetSA string) {
+func AssertServiceAccountPresent(clients *clients.Clients, ns, targetSA string) {
 
 	err := wait.Poll(config.APIRetry, config.APITimeout, func() (bool, error) {
 		log.Printf("Verifying that service account %s exists\n", targetSA)
