@@ -95,7 +95,7 @@ gauge run --log-level=debug --verbose --tags 'e2e & !skip_linux/amd64' specs/clu
 
 ## Running tests in a container
 
-CI system is running these tests inside a container using image [quay.io/openshift-pipeline/ci](https://quay.io/repository/openshift-pipeline/ci?tab=tags&tag=latest) built using a [Dockerfile](https://gitlab.cee.redhat.com/tekton/plumbing/-/blob/master/images/ci/Dockerfile) hosted in a non-public repository. 
+CI system is running these tests inside a container using image [quay.io/openshift-pipeline/ci](https://quay.io/repository/openshift-pipeline/ci?tab=tags&tag=latest) built using a Dockerfile named [Dockerfile.CI](Dockerfile.CI) hosted in a this repository. 
 
 ```
 cd <path_with_content_of_this_repo>
@@ -103,6 +103,6 @@ podman run --rm -it -v $KUBECONFIG:/root/.kube/config:z -v .:/root/release-tests
 gauge run ...
 ```
 
-## Containerised Tests
+## Containerised tests
 
-[Dockerfile](Dockerfile) is added to execute openshift-pipelines tests in a framework that requires that setup and tests be performed from a container.
+[Dockerfile](Dockerfile) is added to execute Openshift Pipelines tests in a framework that requires that setup and tests be performed from a container, e.g. interop testing executed in OpenShift CI.
