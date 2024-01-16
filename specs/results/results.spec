@@ -1,6 +1,9 @@
 PIPELINES-26
 # Results pvc tests
 
+Precondition:
+  * Validate Operator should be installed
+  
 ## Test Tekton Results: PIPELINES-26-TC01
 Tags: results, e2e
 Component: Results
@@ -35,4 +38,4 @@ Steps:
     |1   |pipeline-results      |successful|no                     |
   * Get "pipelinerun" annotations
   * Verify "pipelinerun" Results records
-  * Verify "pipelinerun" Results logsgit 
+  * Verify "pipelinerun" Results logs 

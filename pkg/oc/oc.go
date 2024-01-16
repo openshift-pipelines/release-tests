@@ -4,6 +4,9 @@ import (
 	"log"
 	"strings"
 
+	"encoding/base64"
+	"encoding/json"
+
 	"github.com/getgauge-contrib/gauge-go/testsuit"
 	"github.com/openshift-pipelines/release-tests/pkg/cmd"
 	"github.com/openshift-pipelines/release-tests/pkg/config"
@@ -134,7 +137,9 @@ func ConfigureResultsApi() string{
 
 func GetAnnotaions(resorceType string) (string, string) {
 	var log_uuid string = cmd.MustSucceed("tkn", resorceType, "describe", "--last", "-o", "jsonpath='{.metadata.annotations.results\\.tekton\\.dev/log}'").Stdout()
+	log.Printf(log_uuid)
 	var record_uuid string = cmd.MustSucceed("tkn", resorceType, "describe", "--last", "-o", "jsonpath='{.metadata.annotations.results\\.tekton\\.dev/record}'").Stdout()
+	log.Printf(record_uuid)
 	record_uuid = strings.ReplaceAll(record_uuid, "'", "")
 	log_uuid = strings.ReplaceAll(log_uuid, "'", "")
 	return log_uuid, record_uuid
@@ -144,10 +149,29 @@ func VerifyResultsLogs(resorceType string){
 	var log_uuid string
 	var results_api string
 	log_uuid, _  = GetAnnotaions(resorceType)
+	log.Printf(log_uuid)
 	results_api = ConfigureResultsApi()
 	var results_log string = cmd.MustSucceed("opc", "results", "logs", "get", "--insecure", "--addr", results_api, log_uuid).Stdout()
 	if strings.Contains(results_log, "record not found"){
-		testsuit.T.Errorf("Results log nod fond")
+		testsuit.T.Errorf("Results log nod found")
+	}else {
+		type ResultLogs struct{
+			Name string `json:"name"`
+			Data string `json:"data"`
+		}
+		resultsJsonData := cmd.MustSucceed("opc", "results", "logs", "get", "--insecure", "--addr", results_api, log_uuid).Stdout()
+		var resultLogs ResultLogs
+		err := json.Unmarshal([]byte(resultsJsonData), &resultLogs)
+		if err != nil {
+			testsuit.T.Errorf("Error parsing JSON")
+		}
+		decodedResultsLogs, err := base64.StdEncoding.Strict().DecodeString(resultLogs.Data)
+		if err != nil {
+			testsuit.T.Errorf("Error decoding base64 data")
+		}
+		if !strings.Contains(string(decodedResultsLogs), "Hello, Results!") || !strings.Contains(string(decodedResultsLogs), "Goodbye, Results!"){
+			testsuit.T.Errorf("Logs are incorrect")
+		}
 	}
 }
 
@@ -158,6 +182,6 @@ func VerifyResultsRecords(resorceType string){
 	results_api = ConfigureResultsApi()
 	var results_record string = cmd.MustSucceed("opc", "results", "records", "get", "--insecure", "--addr", results_api, record_uuid).Stdout()
 	if strings.Contains(results_record, "record not found"){
-		testsuit.T.Errorf("Results record nod fond")
+		testsuit.T.Errorf("Results record nod found")
 	}
 }
