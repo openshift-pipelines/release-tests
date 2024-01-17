@@ -137,9 +137,7 @@ func ConfigureResultsApi() string{
 
 func GetAnnotaions(resorceType string) (string, string) {
 	var log_uuid string = cmd.MustSucceed("tkn", resorceType, "describe", "--last", "-o", "jsonpath='{.metadata.annotations.results\\.tekton\\.dev/log}'").Stdout()
-	log.Printf(log_uuid)
 	var record_uuid string = cmd.MustSucceed("tkn", resorceType, "describe", "--last", "-o", "jsonpath='{.metadata.annotations.results\\.tekton\\.dev/record}'").Stdout()
-	log.Printf(record_uuid)
 	record_uuid = strings.ReplaceAll(record_uuid, "'", "")
 	log_uuid = strings.ReplaceAll(log_uuid, "'", "")
 	return log_uuid, record_uuid
@@ -149,7 +147,6 @@ func VerifyResultsLogs(resorceType string){
 	var log_uuid string
 	var results_api string
 	log_uuid, _  = GetAnnotaions(resorceType)
-	log.Printf(log_uuid)
 	results_api = ConfigureResultsApi()
 	var results_log string = cmd.MustSucceed("opc", "results", "logs", "get", "--insecure", "--addr", results_api, log_uuid).Stdout()
 	if strings.Contains(results_log, "record not found"){
