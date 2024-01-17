@@ -1,6 +1,7 @@
 package oc
 
 import (
+	"fmt"
 	"log"
 	"strings"
 
@@ -135,22 +136,22 @@ func ConfigureResultsApi() string{
 	return results_api
 }
 
-func GetAnnotaions(resorceType string) (string, string) {
-	var log_uuid string = cmd.MustSucceed("tkn", resorceType, "describe", "--last", "-o", "jsonpath='{.metadata.annotations.results\\.tekton\\.dev/log}'").Stdout()
-	var record_uuid string = cmd.MustSucceed("tkn", resorceType, "describe", "--last", "-o", "jsonpath='{.metadata.annotations.results\\.tekton\\.dev/record}'").Stdout()
+func GetAnnotaions(resourceType string) (string, string) {
+	var log_uuid string = cmd.MustSucceed("tkn", resourceType, "describe", "--last", "-o", "jsonpath='{.metadata.annotations.results\\.tekton\\.dev/log}'").Stdout()
+	var record_uuid string = cmd.MustSucceed("tkn", resourceType, "describe", "--last", "-o", "jsonpath='{.metadata.annotations.results\\.tekton\\.dev/record}'").Stdout()
 	record_uuid = strings.ReplaceAll(record_uuid, "'", "")
 	log_uuid = strings.ReplaceAll(log_uuid, "'", "")
 	return log_uuid, record_uuid
 }
 
-func VerifyResultsLogs(resorceType string){
+func VerifyResultsLogs(resourceType string){
 	var log_uuid string
 	var results_api string
-	log_uuid, _  = GetAnnotaions(resorceType)
+	log_uuid, _  = GetAnnotaions(resourceType)
 	results_api = ConfigureResultsApi()
 	var results_log string = cmd.MustSucceed("opc", "results", "logs", "get", "--insecure", "--addr", results_api, log_uuid).Stdout()
 	if strings.Contains(results_log, "record not found"){
-		testsuit.T.Errorf("Results log nod found")
+		testsuit.T.Errorf("Results log not found")
 	}else {
 		type ResultLogs struct{
 			Name string `json:"name"`
@@ -172,13 +173,34 @@ func VerifyResultsLogs(resorceType string){
 	}
 }
 
-func VerifyResultsRecords(resorceType string){
+func VerifyResultsRecords(resourceType string){
 	var record_uuid string
 	var results_api string
-	_, record_uuid = GetAnnotaions(resorceType)
+	_, record_uuid = GetAnnotaions(resourceType)
 	results_api = ConfigureResultsApi()
 	var results_record string = cmd.MustSucceed("opc", "results", "records", "get", "--insecure", "--addr", results_api, record_uuid).Stdout()
 	if strings.Contains(results_record, "record not found"){
-		testsuit.T.Errorf("Results record nod found")
+		testsuit.T.Errorf("Results record not found")
+	} else {
+		type ResultRecords struct {
+			Data        struct {
+				Type  string `json:"type"`
+				Value string `json:"value"`
+			} `json:"data"`
+		}
+		resultsJsonData := cmd.MustSucceed("opc", "results", "records", "get", "--insecure", "--addr", results_api, record_uuid, "-o", "json").Stdout()
+		var resultRecords ResultRecords
+		err := json.Unmarshal([]byte(resultsJsonData), &resultRecords)
+		if err != nil {
+			testsuit.T.Errorf("Error parsing JSON: %v", err)
+		}
+		decodedResultsLogs, err := base64.StdEncoding.Strict().DecodeString(resultRecords.Data.Value)
+		if err != nil {
+			testsuit.T.Errorf("Error decoding base64 data: %v", err)
+		}
+		fmt.Printf(string(decodedResultsLogs))
+		if !strings.Contains(string(decodedResultsLogs), "Hello, Results!") || !strings.Contains(string(decodedResultsLogs), "Goodbye, Results!"){
+			testsuit.T.Errorf("Records are incorrect")
+		}
 	}
 }
