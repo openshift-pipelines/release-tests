@@ -124,3 +124,31 @@ var _ = gauge.Step("Check <binary> version", func(binary string) {
 var _ = gauge.Step("Validate quickstarts", func() {
 	tkn.ValidateQuickstarts()
 })
+
+var _ = gauge.Step("Create secrets for Tekton Results", func() {
+	operator.CreateSecretsForTektonResults()
+})
+
+var _ = gauge.Step("Ensure that Tekton Results is ready", func() {
+	operator.EnsureResutsReady()
+})
+
+var _ = gauge.Step("Create Results route", func(){
+	operator.CreateResultsRoute()
+})
+
+var _ = gauge.Step("Configure Results Api", func(){
+	operator.GetResultsApi()
+})
+
+var _ = gauge.Step("Get <resourceType> annotations", func(resourceType string){
+	operator.GetResultsAnnotaions(resourceType)
+})
+
+var _ = gauge.Step("Verify <resourceType> Results records", func(resourceType string){
+	operator.VerifyResultsRecords(resourceType)
+})
+
+var _ = gauge.Step("Verify <resourceType> Results logs", func(resourceType string){
+	operator.VerifyResultsLogs(resourceType)
+})

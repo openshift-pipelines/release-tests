@@ -169,35 +169,3 @@ var _ = gauge.Step("Configure the bundles resolver", func() {
 	patch_data := "{\"spec\":{\"pipeline\":{\"bundles-resolver-config\":{\"default-kind\":\"task\", \"defaut-service-account\":\"pipelines\"}}}}"
 	oc.UpdateTektonConfig(patch_data)
 })
-
-var _ = gauge.Step("Create secrets for Tekton Results", func() {
-	if !oc.SecretExists("tekton-results-postgres", "openshift-pipelines") && !oc.SecretExists("tekton-results-tls", "openshift-pipelines"){
-		oc.CreateSecretsForTektonResults()
-	} else {
-		log.Printf("\"tekton-results-postgres\" or \"tekton-results-tls\" secrets already exist")
-	}
-})
-
-var _ = gauge.Step("Ensure that Tekton Results is ready", func() {
-	oc.EnsureResutsReady()
-})
-
-var _ = gauge.Step("Create Results route", func(){
-	oc.CreateResultsRoute()
-})
-
-var _ = gauge.Step("Configure Results Api", func(){
-	oc.ConfigureResultsApi()
-})
-
-var _ = gauge.Step("Get <resourceType> annotations", func(resourceType string){
-	oc.GetAnnotaions(resourceType)
-})
-
-var _ = gauge.Step("Verify <resourceType> Results records", func(resourceType string){
-	oc.VerifyResultsRecords(resourceType)
-})
-
-var _ = gauge.Step("Verify <resourceType> Results logs", func(resourceType string){
-	oc.VerifyResultsLogs(resourceType)
-})
