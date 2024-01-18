@@ -5,14 +5,9 @@ metadata:
 spec:
   serviceAccountName: ""
   taskSpec:
-    results:
-    - name: IMAGE_URL
-      type: string
-    - name: IMAGE_DIGEST
-      type: string
     steps:
-    - name: create-image
-      image: quay.io/fedora/fedora:38
+    - name: hello-goodbye-results
+      image: quay.io/fedora/fedora:39
       script: |-
         #!/usr/bin/env sh
         echo "Hello, Results!"
