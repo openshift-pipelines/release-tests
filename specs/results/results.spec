@@ -25,7 +25,7 @@ Steps:
 * Verify "taskrun" Results logs
 
 ## Test Tekton results with PipelineRun: PIPELINES-26-TC02
-tags: results, e2e, pipelinerun
+Tags: results, e2e, pipelinerun
 Component: Results
 Level: Integration
 Type: Functional
