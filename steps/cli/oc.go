@@ -169,11 +169,3 @@ var _ = gauge.Step("Configure the bundles resolver", func() {
 	patch_data := "{\"spec\":{\"pipeline\":{\"bundles-resolver-config\":{\"default-kind\":\"task\", \"defaut-service-account\":\"pipelines\"}}}}"
 	oc.UpdateTektonConfig(patch_data)
 })
-
-var _ = gauge.Step("Create secrets for Tekton Results", func() {
-	if !oc.SecretExists("tekton-results-postgres", "openshift-pipelines") && !oc.SecretExists("tekton-results-tls", "openshift-pipelines"){
-		oc.CreateSecretsForTektonResults()
-	} else {
-		log.Printf("\"tekton-results-postgres\" or \"tekton-results-tls\" secrets already exist")
-	}
-})

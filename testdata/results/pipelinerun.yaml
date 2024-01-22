@@ -1,0 +1,8 @@
+apiVersion: tekton.dev/v1
+kind: PipelineRun
+metadata:
+  name: pipeline-results
+spec:
+  pipelineRef: 
+    name: pipeline-results
+    
