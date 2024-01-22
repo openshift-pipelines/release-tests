@@ -137,14 +137,6 @@ var _ = gauge.Step("Create Results route", func(){
 	operator.CreateResultsRoute()
 })
 
-var _ = gauge.Step("Configure Results Api", func(){
-	operator.GetResultsApi()
-})
-
-var _ = gauge.Step("Get <resourceType> annotations", func(resourceType string){
-	operator.GetResultsAnnotaions(resourceType)
-})
-
 var _ = gauge.Step("Verify <resourceType> Results records", func(resourceType string){
 	operator.VerifyResultsRecords(resourceType)
 })
