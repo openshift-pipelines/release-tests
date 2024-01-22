@@ -6,7 +6,7 @@ Precondition:
 * Ensure that Tekton Results is ready
 
 ## Test Tekton results with TaskRun: PIPELINES-26-TC01
-tags: results, e2e, taskrun
+Tags: results, e2e, taskrun
 Component: Results
 Level: Integration
 Type: Functional
@@ -25,7 +25,7 @@ Steps:
 * Verify "taskrun" Results logs
 
 ## Test Tekton results with PipelineRun: PIPELINES-26-TC02
-tags: results, e2e, pipelinerun
+Tags: results, e2e, pipelinerun
 Component: Results
 Level: Integration
 Type: Functional
