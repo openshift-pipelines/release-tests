@@ -25,6 +25,7 @@ Steps:
     |------|--------------------------------|
     | 1    | testdata/pvc/tekton-logs.yaml  |
     | 2    | testdata/results/result.yaml   | 
+  * Create Results route
   * Configure GitHub token for git resolver in TektonConfig
   * Configure the bundles resolver
   * Validate pipelines deployment
