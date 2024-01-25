@@ -11,6 +11,7 @@ import (
 	"github.com/getgauge-contrib/gauge-go/testsuit"
 	"github.com/openshift-pipelines/release-tests/pkg/config"
 	"github.com/openshift-pipelines/release-tests/pkg/k8s"
+	"github.com/openshift-pipelines/release-tests/pkg/oc"
 	"github.com/openshift-pipelines/release-tests/pkg/olm"
 	"github.com/openshift-pipelines/release-tests/pkg/openshift"
 	"github.com/openshift-pipelines/release-tests/pkg/operator"
@@ -126,7 +127,11 @@ var _ = gauge.Step("Validate quickstarts", func() {
 })
 
 var _ = gauge.Step("Create secrets for Tekton Results", func() {
-	operator.CreateSecretsForTektonResults()
+	if !oc.SecretExists("tekton-results-postgres", "openshift-pipelines") && !oc.SecretExists("tekton-results-tls", "openshift-pipelines"){
+		operator.CreateSecretsForTektonResults()
+	} else {
+		log.Printf("\"tekton-results-postgres\" or \"tekton-results-tls\" secrets already exist")
+	}
 })
 
 var _ = gauge.Step("Ensure that Tekton Results is ready", func() {
