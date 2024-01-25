@@ -3,7 +3,6 @@ PIPELINES-26
 
 Precondition:
 * Validate Operator should be installed
-* Ensure that Tekton Results is ready
 
 ## Test Tekton results with TaskRun: PIPELINES-26-TC01
 Tags: results, e2e, taskrun
