@@ -3,6 +3,7 @@ package operator
 import (
 	"fmt"
 	"strings"
+	"time"
 
 	"encoding/base64"
 	"encoding/json"
@@ -22,7 +23,7 @@ func CreateSecretsForTektonResults() {
 }
 
 func EnsureResutsReady() {
-	cmd.MustSucceed("oc", "wait", "--for=condition=Ready", "tektoninstallerset", "-l", "operator.tekton.dev/type=result")
+	cmd.MustSuccedIncreasedTimeout(time.Minute*5, "oc", "wait", "--for=condition=Ready", "tektoninstallerset", "-l", "operator.tekton.dev/type=result")
 }
 
 func CreateResultsRoute() {
