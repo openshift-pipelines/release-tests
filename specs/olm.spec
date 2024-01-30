@@ -26,7 +26,6 @@ Steps:
     | 1    | testdata/pvc/tekton-logs.yaml  |
     | 2    | testdata/results/result.yaml   | 
   * Create Results route
-  * Ensure that Tekton Results is ready
   * Configure GitHub token for git resolver in TektonConfig
   * Configure the bundles resolver
   * Validate pipelines deployment
@@ -35,6 +34,7 @@ Steps:
   * Validate chains deployment
   * Validate hub deployment
   * Validate tkn server cli deployment
+  * Ensure that Tekton Results is ready
   * Verify TektonAddons Install status
   * Validate RBAC
   * Validate quickstarts
