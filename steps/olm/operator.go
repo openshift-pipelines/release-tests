@@ -11,6 +11,7 @@ import (
 	"github.com/getgauge-contrib/gauge-go/testsuit"
 	"github.com/openshift-pipelines/release-tests/pkg/config"
 	"github.com/openshift-pipelines/release-tests/pkg/k8s"
+	"github.com/openshift-pipelines/release-tests/pkg/oc"
 	"github.com/openshift-pipelines/release-tests/pkg/olm"
 	"github.com/openshift-pipelines/release-tests/pkg/openshift"
 	"github.com/openshift-pipelines/release-tests/pkg/operator"
@@ -123,4 +124,28 @@ var _ = gauge.Step("Check <binary> version", func(binary string) {
 
 var _ = gauge.Step("Validate quickstarts", func() {
 	tkn.ValidateQuickstarts()
+})
+
+var _ = gauge.Step("Create secrets for Tekton Results", func() {
+	if !oc.SecretExists("tekton-results-postgres", "openshift-pipelines") && !oc.SecretExists("tekton-results-tls", "openshift-pipelines"){
+		operator.CreateSecretsForTektonResults()
+	} else {
+		log.Printf("\"tekton-results-postgres\" or \"tekton-results-tls\" secrets already exist")
+	}
+})
+
+var _ = gauge.Step("Ensure that Tekton Results is ready", func() {
+	operator.EnsureResutsReady()
+})
+
+var _ = gauge.Step("Create Results route", func(){
+	operator.CreateResultsRoute()
+})
+
+var _ = gauge.Step("Verify <resourceType> Results records", func(resourceType string){
+	operator.VerifyResultsRecords(resourceType)
+})
+
+var _ = gauge.Step("Verify <resourceType> Results logs", func(resourceType string){
+	operator.VerifyResultsLogs(resourceType)
 })

@@ -13,13 +13,19 @@ Installs `openshift-pipelines` operator using olm
 Steps:
   * Subscribe to operator
   * Wait for TektonConfig CR availability  
-  * Change enable-api-fields to "beta"
   * Define the tekton-hub-api variable
   * Verify namespace "openshift-pipelines" exists
   * Apply
     | S.NO | resource_dir                   |
     |------|--------------------------------|
     | 1    | testdata/hub/tektonhub.yaml    |
+  * Create secrets for Tekton Results
+  * Apply in namespace "openshift-pipelines"
+    | S.NO | resource_dir                   |
+    |------|--------------------------------|
+    | 1    | testdata/pvc/tekton-logs.yaml  |
+    | 2    | testdata/results/result.yaml   | 
+  * Create Results route
   * Configure GitHub token for git resolver in TektonConfig
   * Configure the bundles resolver
   * Validate pipelines deployment
@@ -28,6 +34,7 @@ Steps:
   * Validate chains deployment
   * Validate hub deployment
   * Validate tkn server cli deployment
+  * Ensure that Tekton Results is ready
   * Verify TektonAddons Install status
   * Validate RBAC
   * Validate quickstarts

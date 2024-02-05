@@ -1,0 +1,28 @@
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  name: pipeline-results
+spec:
+  tasks:
+  - name: hello
+    taskSpec:
+      results:
+      - name: url
+      steps:
+      - name: hello
+        image: registry.access.redhat.com/ubi8/ubi-minimal
+        script: |
+          echo "https://artifacts.mycompany.com/mypipelinerun/210908-111711/" > $(results.url.path)
+          echo "Hello, Results!"
+  - name: goodbye
+    runAfter:
+    - hello
+    taskSpec:
+      steps:
+      - name: goodbye
+        image: registry.access.redhat.com/ubi8/ubi-minimal
+        script: |
+          echo "Goodbye, Results!"
+  results:
+  - name: artifacts-url
+    value: $(tasks.hello.results.url) 

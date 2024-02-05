@@ -1,0 +1,62 @@
+FROM quay.io/fedora/fedora:38
+
+RUN dnf update -y &&\
+    dnf install -y --setopt=tsflags=nodocs git go jq lynx make openssl unzip vim wget python39 python3-pip &&\
+    dnf clean all -y && rm -fR /var/cache/dnf
+
+RUN pip install pyyaml reportportal-client
+
+RUN wget https://github.com/mikefarah/yq/releases/download/v4.40.5/yq_linux_amd64 -O /usr/bin/yq &&\
+    chmod +x /usr/bin/yq
+
+ENV OC_VERSION=4.14
+RUN wget https://mirror.openshift.com/pub/openshift-v4/clients/ocp/fast-${OC_VERSION}/openshift-client-linux.tar.gz \
+    -O /tmp/openshift-client.tar.gz &&\
+    tar xzf /tmp/openshift-client.tar.gz -C /usr/bin oc &&\
+    rm /tmp/openshift-client.tar.gz
+
+RUN wget https://mirror.openshift.com/pub/openshift-v4/clients/ocp/fast-${OC_VERSION}/oc-mirror.tar.gz \
+    -O /tmp/oc-mirror.tar.gz &&\
+    tar xzf /tmp/oc-mirror.tar.gz -C /usr/bin oc-mirror &&\
+    chmod u+x /usr/bin/oc-mirror &&\
+    rm /tmp/oc-mirror.tar.gz
+
+RUN wget https://mirror.openshift.com/pub/openshift-v4/clients/ocp/fast-${OC_VERSION}/opm-linux.tar.gz \
+    -O /tmp/opm.tar.gz &&\
+    tar xzf /tmp/opm.tar.gz -C /usr/bin opm &&\
+    chmod u+x /usr/bin/opm &&\
+    rm /tmp/opm.tar.gz
+
+RUN wget https://mirror.openshift.com/pub/openshift-v4/clients/rosa/latest/rosa-linux.tar.gz \
+    -O /tmp/rosa.tar.gz &&\
+    tar xzf /tmp/rosa.tar.gz -C /usr/bin --no-same-owner rosa &&\
+    rm /tmp/rosa.tar.gz
+
+ENV TKN_VERSION=1.13.0
+RUN wget https://mirror.openshift.com/pub/openshift-v4/clients/pipelines/${TKN_VERSION}/tkn-linux-amd64.tar.gz \
+   -O /tmp/tkn.tar.gz &&\
+   tar xzf /tmp/tkn.tar.gz -C /usr/bin --no-same-owner tkn tkn-pac opc &&\
+   rm /tmp/tkn.tar.gz
+
+ENV GAUGE_VERSION=1.5.6
+RUN wget https://github.com/getgauge/gauge/releases/download/v${GAUGE_VERSION}/gauge-${GAUGE_VERSION}-linux.x86_64.zip \
+    -O /tmp/gauge.zip &&\
+    unzip /tmp/gauge.zip gauge -d /usr/bin &&\
+    rm /tmp/gauge.zip &&\
+    ln -s /usr/bin/oc /usr/bin/kubectl &&\
+    gauge install go &&\
+    gauge install html-report &&\
+    gauge install screenshot &&\
+    gauge install xml-report &&\
+    gauge install reportportal &&\
+    gauge config check_updates false &&\
+    gauge config runner_connection_timeout 600000 && \
+    gauge config runner_request_timeout 300000 &&\
+    go env -w GOPROXY="https://proxy.golang.org,direct" &&\
+    gauge version
+
+RUN wget https://github.com/sigstore/cosign/releases/download/v2.2.2/cosign-linux-amd64 -O /usr/bin/cosign && \
+    chmod u+x /usr/bin/cosign
+
+RUN wget https://github.com/sigstore/rekor/releases/download/v1.3.4/rekor-cli-linux-amd64 -O /usr/bin/rekor-cli && \
+    chmod u+x /usr/bin/rekor-cli

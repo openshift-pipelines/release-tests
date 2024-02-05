@@ -5,7 +5,7 @@ Pre condition:
   * Validate Operator should be installed
 
 ## Run sample pipeline: PIPELINES-03-TC01
-Tags: e2e, pipelines, non-admin, sanity
+Tags: e2e, pipelines, non-admin
 Component: Pipelines
 Level: Integration
 Type: Functional
@@ -84,8 +84,8 @@ Steps:
       |----|------------------------|---------|-----------------------|
       |1   |output-pipeline-run-v1b1|cancelled|no                     |
 
-## Pipelinerun with pipelinespec and taskspec(embedded pipelinerun tests): PIPELINES-03-TC07
-Tags: e2e, integration, pipelines, non-admin, sanity
+## Pipelinerun with pipelinespec and taskspec (embedded pipelinerun tests): PIPELINES-03-TC07
+Tags: e2e, integration, pipelines, non-admin
 Component: Pipelines
 Level: Integration
 Type: Functional

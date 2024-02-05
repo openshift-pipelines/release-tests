@@ -26,6 +26,13 @@ var _ = gauge.Step("Apply <table>", func(table *m.Table) {
 	}
 })
 
+var _ = gauge.Step("Apply in namespace <ns> <table>", func(ns string, table *m.Table) {
+	for _, row := range table.Rows {
+		resource := row.Cells[1]
+		oc.Apply(resource, ns)
+	}
+})
+
 var _ = gauge.Step("Enable TLS config for eventlisteners", func() {
 	oc.EnableTLSConfigForEventlisteners(store.Namespace())
 
@@ -136,11 +143,6 @@ var _ = gauge.Step("Link secret <secret> to service account <sa>", func(secret, 
 
 var _ = gauge.Step("Delete <resourceType> named <name>", func(resourceType, name string) {
 	oc.DeleteResource(resourceType, name)
-})
-
-var _ = gauge.Step("Change enable-api-fields to <version>", func(version string) {
-	patch_data := fmt.Sprintf("{\"spec\":{\"pipeline\":{\"enable-api-fields\":\"%s\"}}}", version)
-	oc.UpdateTektonConfig(patch_data)
 })
 
 var _ = gauge.Step("Define the tekton-hub-api variable", func (){

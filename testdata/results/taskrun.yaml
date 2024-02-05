@@ -1,0 +1,14 @@
+apiVersion: tekton.dev/v1beta1
+kind: TaskRun
+metadata:
+  name: results-task
+spec:
+  serviceAccountName: ""
+  taskSpec:
+    steps:
+    - name: hello-goodbye-results
+      image: quay.io/fedora/fedora:39
+      script: |-
+        #!/usr/bin/env sh
+        echo "Hello, Results!"
+        echo "Goodbye, Results!"
