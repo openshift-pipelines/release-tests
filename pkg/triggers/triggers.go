@@ -110,7 +110,7 @@ func ExposeEventListnerForTLS(c *clients.Clients, elname, namespace string) stri
 func getDomain() string {
 	// extract cluster's domain from ingress config, e.g. apps.mycluster.example.com
 	routeDomainName := cmd.MustSucceed("oc", "get", "ingresses.config/cluster", "-o", "jsonpath={.spec.domain}").Stdout()
-	randomName := names.SimpleNameGenerator.RestrictLengthWithRandomSuffix("releasetest")
+	randomName := names.SimpleNameGenerator.RestrictLengthWithRandomSuffix("rt")
 	return "tls." + randomName + "." + routeDomainName
 }
 
