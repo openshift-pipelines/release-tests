@@ -1,0 +1,15 @@
+run:
+  build-tags:
+    - e2e
+  skip-dirs:
+    - vendor
+linters-settings:
+  gocritic:
+    disabled-checks:
+      - unlambda
+  gofumpt:
+    extra-rules: true
+linters:
+  enable:
+    - forbidigo
+    - unused
