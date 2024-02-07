@@ -45,6 +45,8 @@ spec:
         params:
           - name: package
             value: .
+          - name: version
+            value: "v1.55"
         workspaces:
           - name: source
             workspace: source
