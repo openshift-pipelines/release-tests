@@ -24,5 +24,3 @@ reports/
 
 build/
 /tmp/
-
-!.golangci.yaml
