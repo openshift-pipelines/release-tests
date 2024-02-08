@@ -92,6 +92,17 @@ var _ = gauge.Step("Validate tkn server cli deployment", func() {
 	}
 })
 
+var _ = gauge.Step("Validate console plugin deployment", func() {
+	rnames := store.GetCRNames()
+	cs := store.Clients()
+
+	if openshift.IsCapabilityEnabled(cs, "Console") {
+		k8s.ValidateDeployments(cs, rnames.TargetNamespace, config.ConsoleDeployment)
+	} else {
+		log.Printf("OpenShift Console is not enabled, skipping validation of console plugin deployment")
+	}
+})
+
 var _ = gauge.Step("Validate tektoninstallersets status", func() {
 	k8s.ValidateTektonInstallersetStatus(store.Clients())
 })

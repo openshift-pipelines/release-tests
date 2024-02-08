@@ -65,6 +65,9 @@ const (
 	// Name of tkn deployment
 	TknDeployment = "tkn-cli-serve"
 
+	// Name of console deployment
+	ConsoleDeployment = "pipeline-console-plugin"
+
 	// Community Clustertasks
 	CommunityClustertasks = "jib-maven,helm-upgrade-from-source,helm-upgrade-from-repo,trigger-jenkins-job,git-cli,pull-request,kubeconfig-creator,argocd-task-sync-and-wait"
 
@@ -73,7 +76,7 @@ const (
 )
 
 // Name prefixes of installerset
-var TektonInstallersetNamePrefixes [26]string = [26]string{
+var TektonInstallersetNamePrefixes [27]string = [27]string{
 	"addon-custom-clustertask",
 	"addon-custom-communityclustertask",
 	"addon-custom-consolecli",
@@ -100,6 +103,7 @@ var TektonInstallersetNamePrefixes [26]string = [26]string{
 	"trigger-main-deployment",
 	"trigger-main-static",
 	"validating-mutating-webhook",
+	"tekton-config-console-plugin-manifests",
 }
 
 var PrefixesOfDefaultPipelines [9]string = [9]string{"buildah", "s2i-dotnet", "s2i-go", "s2i-java", "s2i-nodejs", "s2i-perl", "s2i-php", "s2i-python", "s2i-ruby"}
