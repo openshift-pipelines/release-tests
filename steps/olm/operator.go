@@ -97,7 +97,7 @@ var _ = gauge.Step("Validate console plugin deployment", func() {
 	cs := store.Clients()
 
 	if openshift.IsCapabilityEnabled(cs, "Console") {
-		k8s.ValidateDeployments(cs, rnames.TargetNamespace, config.ConsoleDeployment)
+		k8s.ValidateDeployments(cs, rnames.TargetNamespace, config.ConsolePluginDeployment)
 	} else {
 		log.Printf("OpenShift Console is not enabled, skipping validation of console plugin deployment")
 	}
