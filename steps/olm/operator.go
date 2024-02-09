@@ -92,6 +92,17 @@ var _ = gauge.Step("Validate tkn server cli deployment", func() {
 	}
 })
 
+var _ = gauge.Step("Validate console plugin deployment", func() {
+	rnames := store.GetCRNames()
+	cs := store.Clients()
+
+	if openshift.IsCapabilityEnabled(cs, "Console") {
+		k8s.ValidateDeployments(cs, rnames.TargetNamespace, config.ConsolePluginDeployment)
+	} else {
+		log.Printf("OpenShift Console is not enabled, skipping validation of console plugin deployment")
+	}
+})
+
 var _ = gauge.Step("Validate tektoninstallersets status", func() {
 	k8s.ValidateTektonInstallersetStatus(store.Clients())
 })
@@ -127,7 +138,7 @@ var _ = gauge.Step("Validate quickstarts", func() {
 })
 
 var _ = gauge.Step("Create secrets for Tekton Results", func() {
-	if !oc.SecretExists("tekton-results-postgres", "openshift-pipelines") && !oc.SecretExists("tekton-results-tls", "openshift-pipelines"){
+	if !oc.SecretExists("tekton-results-postgres", "openshift-pipelines") && !oc.SecretExists("tekton-results-tls", "openshift-pipelines") {
 		operator.CreateSecretsForTektonResults()
 	} else {
 		log.Printf("\"tekton-results-postgres\" or \"tekton-results-tls\" secrets already exist")
@@ -138,14 +149,14 @@ var _ = gauge.Step("Ensure that Tekton Results is ready", func() {
 	operator.EnsureResutsReady()
 })
 
-var _ = gauge.Step("Create Results route", func(){
+var _ = gauge.Step("Create Results route", func() {
 	operator.CreateResultsRoute()
 })
 
-var _ = gauge.Step("Verify <resourceType> Results records", func(resourceType string){
+var _ = gauge.Step("Verify <resourceType> Results records", func(resourceType string) {
 	operator.VerifyResultsRecords(resourceType)
 })
 
-var _ = gauge.Step("Verify <resourceType> Results logs", func(resourceType string){
+var _ = gauge.Step("Verify <resourceType> Results logs", func(resourceType string) {
 	operator.VerifyResultsLogs(resourceType)
 })
