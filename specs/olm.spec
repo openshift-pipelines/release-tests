@@ -34,6 +34,7 @@ Steps:
   * Validate chains deployment
   * Validate hub deployment
   * Validate tkn server cli deployment
+  * Validate console plugin deployment
   * Ensure that Tekton Results is ready
   * Verify TektonAddons Install status
   * Validate RBAC
