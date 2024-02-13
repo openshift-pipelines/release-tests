@@ -41,7 +41,7 @@ spec:
         taskSpec: 
           steps: 
             - name: generate-image-name
-              image: -----
+              image: quay.io/openshift-pipeline/ci
               script: | 
                 #!/usr/bin/env bash
                 BRANCH_NAME={{target_branch}}
