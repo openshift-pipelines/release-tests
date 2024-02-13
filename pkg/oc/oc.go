@@ -1,7 +1,9 @@
 package oc
 
 import (
+	"encoding/json"
 	"log"
+	"slices"
 	"strings"
 
 	"github.com/getgauge-contrib/gauge-go/testsuit"
@@ -106,4 +108,24 @@ func SecretExists(secretName string, namespace string) bool {
 
 func CreateSecretForGitResolver(secretData string) {
 	cmd.MustSucceed("oc", "create", "secret", "generic", "github-auth-secret", "--from-literal", "github-auth-key="+secretData, "-n", "openshift-pipelines")
+}
+
+func EnableConsolePlugin() {
+	json_output := cmd.MustSucceed("oc", "get", "consoles.operator.openshift.io", "cluster", "-o", "jsonpath={.spec.plugins}").Stdout()
+	var plugins []string
+	err := json.Unmarshal([]byte(json_output), &plugins)
+
+	if err != nil {
+		testsuit.T.Errorf("Could not parse consoles.operator.openshift.io CR %v", err)
+	}
+
+	if slices.Contains(plugins, config.ConsolePluginDeployment) {
+		log.Printf("Pipelines console plugin is already enabled.")
+		return
+	}
+
+	plugins = append(plugins, config.ConsolePluginDeployment)
+
+	patch_data := "{\"spec\":{\"plugins\":[\"" + strings.Join(plugins, ",") + "\"]}}"
+	cmd.MustSucceed("oc", "patch", "consoles.operator.openshift.io", "cluster", "-p", patch_data, "--type=merge").Stdout()
 }

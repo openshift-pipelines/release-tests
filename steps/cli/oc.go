@@ -145,7 +145,7 @@ var _ = gauge.Step("Delete <resourceType> named <name>", func(resourceType, name
 	oc.DeleteResource(resourceType, name)
 })
 
-var _ = gauge.Step("Define the tekton-hub-api variable", func (){
+var _ = gauge.Step("Define the tekton-hub-api variable", func() {
 	patch_data := "{\"spec\":{\"pipeline\":{\"hub-resolver-config\":{\"tekton-hub-api\":\"https://api.hub.tekton.dev/\"}}}}"
 	oc.UpdateTektonConfig(patch_data)
 
@@ -165,7 +165,12 @@ var _ = gauge.Step("Configure GitHub token for git resolver in TektonConfig", fu
 		oc.UpdateTektonConfig(patch_data)
 	}
 })
+
 var _ = gauge.Step("Configure the bundles resolver", func() {
 	patch_data := "{\"spec\":{\"pipeline\":{\"bundles-resolver-config\":{\"default-kind\":\"task\", \"defaut-service-account\":\"pipelines\"}}}}"
 	oc.UpdateTektonConfig(patch_data)
+})
+
+var _ = gauge.Step("Enable console plugin", func() {
+	oc.EnableConsolePlugin()
 })
