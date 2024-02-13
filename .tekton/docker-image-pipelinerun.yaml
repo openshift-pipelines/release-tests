@@ -1,0 +1,74 @@
+---
+apiVersion: tekton.dev/v1beta1
+kind: PipelineRun
+metadata:
+  name: docker-image-pipelinerun
+  annotations:
+    pipelinesascode.tekton.dev/on-cel-expression: |
+      event == "pull_request" && files == "[Dockerfile.CI]" && target_branch == "[*]" 
+    pipelinesascode.tekton.dev/task: "git-clone"
+    pipelinesascode.tekton.dev/task-1: "buildah"
+    pipelinesascode.tekton.dev/max-keep-runs: "5"
+spec:
+  params:
+    - name: repo_url
+      value: "{{ repo_url }}"
+    - name: revision
+      value: "{{ revision }}"
+  pipelineSpec:
+    params:
+      - name: repo_url
+      - name: revision
+    workspaces:
+      - name: source
+      - name: basic-auth
+    tasks:
+      - name: fetch-repository
+        taskRef:
+          kind: ClusterTask
+          name: git-clone
+        workspaces:
+          - name: output
+            workspace: source
+          - name: basic-auth
+            workspace: basic-auth
+        params:
+          - name: url
+            value: $(params.repo_url)
+          - name: revision
+            value: $(params.revision)
+      - name: generate-image-name
+        taskSpec: 
+          steps: 
+            - name: generate-image-name
+              image: -----
+              script: | 
+                #!/usr/bin/env bash
+                BRANCH_NAME={{target_branch}}
+                IMAGE_NAME="quay.io/openshift-pipeline/${BRANCH_NAME//./}" 
+                echo -n "$IMAGE_NAME" > $(results.image-name.path)
+      - name: buildah 
+        taskRef:
+          kind: ClusterTask
+          name: buildah
+        params:
+          - name: IMAGE
+            value: $(tasks.generate-image-name.results.image-name)
+          - name: DOCKERFILE
+            value: ./Dockerfile.CI
+        workspaces:
+          - name: source
+            workspace: source
+
+  workspaces:
+    - name: source
+      volumeClaimTemplate:
+        spec:
+          accessModes:
+            - ReadWriteOnce
+          resources:
+            requests:
+              storage: 1Gi
+    - name: basic-auth
+      secret:
+        secretName: "{{ git_auth_secret }}"
