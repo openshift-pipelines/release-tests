@@ -66,7 +66,7 @@ const (
 	TknDeployment = "tkn-cli-serve"
 
 	// Name of console deployment
-	ConsolePluginDeployment = "pipeline-console-plugin"
+	ConsolePluginDeployment = "pipelines-console-plugin"
 
 	// Community Clustertasks
 	CommunityClustertasks = "jib-maven,helm-upgrade-from-source,helm-upgrade-from-repo,trigger-jenkins-job,git-cli,pull-request,kubeconfig-creator,argocd-task-sync-and-wait"
