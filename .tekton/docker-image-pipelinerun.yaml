@@ -9,7 +9,7 @@ metadata:
     pipelinesascode.tekton.dev/task: "git-clone"
     pipelinesascode.tekton.dev/task-1: "generate-image-name"
     pipelinesascode.tekton.dev/task-2: "buildah"
-    pipelinesascode.tekton.dev/task-3: "scopio-copy"
+    pipelinesascode.tekton.dev/task-3: "skopio-copy"
     pipelinesascode.tekton.dev/max-keep-runs: "5"
 spec:
   params:
@@ -77,7 +77,7 @@ spec:
       - name: skopeo-copy
         taskRef: 
           kind: ClusterTask
-          name: scopeo-copy
+          name: skopeo-copy
         params:
           - name: srcImageUrl
             value: $(tasks.generate-image-name.results.image-name)
