@@ -114,15 +114,18 @@ func EnableConsolePlugin() {
 	json_output := cmd.MustSucceed("oc", "get", "consoles.operator.openshift.io", "cluster", "-o", "jsonpath={.spec.plugins}").Stdout()
 	log.Printf("Already enabled console plugins: %s", json_output)
 	var plugins []string
-	err := json.Unmarshal([]byte(json_output), &plugins)
 
-	if err != nil {
-		testsuit.T.Errorf("Could not parse consoles.operator.openshift.io CR: %v", err)
-	}
+	if len(json_output) > 0 {
+		err := json.Unmarshal([]byte(json_output), &plugins)
 
-	if slices.Contains(plugins, config.ConsolePluginDeployment) {
-		log.Printf("Pipelines console plugin is already enabled.")
-		return
+		if err != nil {
+			testsuit.T.Errorf("Could not parse consoles.operator.openshift.io CR: %v", err)
+		}
+
+		if slices.Contains(plugins, config.ConsolePluginDeployment) {
+			log.Printf("Pipelines console plugin is already enabled.")
+			return
+		}
 	}
 
 	plugins = append(plugins, config.ConsolePluginDeployment)
