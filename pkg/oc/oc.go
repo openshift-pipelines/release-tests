@@ -112,11 +112,12 @@ func CreateSecretForGitResolver(secretData string) {
 
 func EnableConsolePlugin() {
 	json_output := cmd.MustSucceed("oc", "get", "consoles.operator.openshift.io", "cluster", "-o", "jsonpath={.spec.plugins}").Stdout()
+	log.Printf("Already enabled console plugins: %s", json_output)
 	var plugins []string
 	err := json.Unmarshal([]byte(json_output), &plugins)
 
 	if err != nil {
-		testsuit.T.Errorf("Could not parse consoles.operator.openshift.io CR %v", err)
+		testsuit.T.Errorf("Could not parse consoles.operator.openshift.io CR: %v", err)
 	}
 
 	if slices.Contains(plugins, config.ConsolePluginDeployment) {
@@ -126,6 +127,6 @@ func EnableConsolePlugin() {
 
 	plugins = append(plugins, config.ConsolePluginDeployment)
 
-	patch_data := "{\"spec\":{\"plugins\":[\"" + strings.Join(plugins, ",") + "\"]}}"
+	patch_data := "{\"spec\":{\"plugins\":[\"" + strings.Join(plugins, "\",\"") + "\"]}}"
 	cmd.MustSucceed("oc", "patch", "consoles.operator.openshift.io", "cluster", "-p", patch_data, "--type=merge").Stdout()
 }
