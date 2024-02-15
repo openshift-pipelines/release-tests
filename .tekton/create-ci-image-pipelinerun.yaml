@@ -2,7 +2,7 @@
 apiVersion: tekton.dev/v1beta1
 kind: PipelineRun
 metadata:
-  name: docker-image-pipelinerun
+  name: create-ci-image-pipelinerun
   annotations:
     pipelinesascode.tekton.dev/on-cel-expression: |
       event == "pull_request" && "Dockerfile.CI".pathChanged()
@@ -48,7 +48,7 @@ spec:
                 BRANCH_NAME={{ target_branch }}
                 IMAGE_NAME=""
                 IMAGE_NAME_TIMESTAMP=""
-                TIMESTAMP=$(date +"%Y%m%d")
+                TIMESTAMP=$(date +"%y%m%d")
                 
                 if [ "$BRANCH_NAME" == "master" ]; then 
                   IMAGE_NAME="quay.io/openshift-pipeline/ci/latest"
