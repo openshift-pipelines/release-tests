@@ -89,7 +89,6 @@ spec:
           - name: destImageUrl
             value: $(tasks.generate-image-name.results.image-name-timestamp)
         runAfter:
-          - generate-image-name
           - buildah
 
   workspaces:
