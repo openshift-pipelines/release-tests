@@ -6,9 +6,6 @@ metadata:
   annotations:
     pipelinesascode.tekton.dev/on-cel-expression: |
       event == "pull_request" && "Dockerfile.CI".pathChanged()
-    pipelinesascode.tekton.dev/task: "git-clone"
-    pipelinesascode.tekton.dev/task-1: "buildah"
-    pipelinesascode.tekton.dev/task-2: "skopeo-copy"
     pipelinesascode.tekton.dev/max-keep-runs: "5"
 spec:
   params:
@@ -49,18 +46,25 @@ spec:
               script: | 
                 #!/usr/bin/env bash
                 BRANCH_NAME={{ target_branch }}
-                TIMESTAMP=$(date +"%Y%m")
+                IMAGE_NAME=""
+                IMAGE_NAME_TIMESTAMP=""
+                TIMESTAMP=$(date +"%Y%m%d")
                 
                 if [ "$BRANCH_NAME" == "master" ]; then 
-                  BRANCH_NAME=latest
+                  IMAGE_NAME="quay.io/openshift-pipeline/ci/latest"
+                  IMAGE_NAME_TIMESTAMP=""quay.io/openshift-pipeline/ci/5.0"-$TIMESTAMP
                 elif [[ "$BRANCH_NAME" == release-* ]]; then 
-                  BRANCH_NAME=${BRANCH_NAME#release-}
+                  IMAGE_NAME="quay.io/openshift-pipeline/ci/${BRANCH_NAME#release-}"
+                  IMAGE_NAME_TIMESTAMP=$IMAGE_NAME-$TIMESTAMP
+                else
+                  echo "Error: Branch name '$BRANCH_NAME' is not appropriate."
+                  exit 1
                 fi
- 
-                IMAGE_NAME="quay.io/openshift-pipeline/ci/$BRANCH_NAME"
-                IMAGE_NAME_TIMESTAMP="quay.io/openshift-pipeline/ci/$BRANCH_NAME"-$TIMESTAMP  
+
                 echo -n "$IMAGE_NAME" | tee $(results.image-name.path)
-                echo -n "$IMAGE_NAME_TIMESTAP" | tee $(results.image-name-timestamp.path)
+                echo -n "$IMAGE_NAME_TIMESTAMP" | tee $(results.image-name-timestamp.path)
+          runAfter: 
+            - fetch-repository
       - name: buildah 
         taskRef:
           kind: ClusterTask
@@ -70,6 +74,8 @@ spec:
             value: $(tasks.generate-image-name.results.image-name)
           - name: DOCKERFILE
             value: ./Dockerfile.CI
+        runAfter: 
+          - generate-image-name
         workspaces:
           - name: source
             workspace: source
@@ -82,6 +88,9 @@ spec:
             value: $(tasks.generate-image-name.results.image-name)
           - name: destImageUrl
             value: $(tasks.generate-image-name.results.image-name-timestamp)
+        runAfter:
+          - generate-image-name
+          - buildah
 
   workspaces:
     - name: source
