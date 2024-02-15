@@ -63,8 +63,8 @@ spec:
 
                 echo -n "$IMAGE_NAME" | tee $(results.image-name.path)
                 echo -n "$IMAGE_NAME_TIMESTAMP" | tee $(results.image-name-timestamp.path)
-          runAfter: 
-            - fetch-repository
+        runAfter: 
+          - fetch-repository
       - name: buildah 
         taskRef:
           kind: ClusterTask
