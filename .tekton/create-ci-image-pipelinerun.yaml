@@ -52,7 +52,7 @@ spec:
                 
                 if [ "$BRANCH_NAME" == "master" ]; then 
                   IMAGE_NAME="quay.io/openshift-pipeline/ci/latest"
-                  IMAGE_NAME_TIMESTAMP=""quay.io/openshift-pipeline/ci/5.0"-$TIMESTAMP
+                  IMAGE_NAME_TIMESTAMP="quay.io/openshift-pipeline/ci/5.0"-$TIMESTAMP
                 elif [[ "$BRANCH_NAME" == release-* ]]; then 
                   IMAGE_NAME="quay.io/openshift-pipeline/ci/${BRANCH_NAME#release-}"
                   IMAGE_NAME_TIMESTAMP=$IMAGE_NAME-$TIMESTAMP
