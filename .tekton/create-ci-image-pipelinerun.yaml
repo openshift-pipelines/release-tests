@@ -5,7 +5,7 @@ metadata:
   name: create-ci-image-pipelinerun
   annotations:
     pipelinesascode.tekton.dev/on-cel-expression: |
-      event == "pull_request" && "Dockerfile.CI".pathChanged()
+      event == "[pull_request, push]" && "Dockerfile.CI".pathChanged()
     pipelinesascode.tekton.dev/max-keep-runs: "5"
 spec:
   params:
@@ -46,21 +46,29 @@ spec:
               script: | 
                 #!/usr/bin/env bash
                 BRANCH_NAME={{ target_branch }}
+                EVENT_TYPE={{ event_type }}
                 IMAGE_NAME=""
                 IMAGE_NAME_TIMESTAMP=""
                 TIMESTAMP=$(date +"%y%m%d")
-                
+
                 if [ "$BRANCH_NAME" == "master" ]; then 
-                  IMAGE_NAME="quay.io/openshift-pipeline/ci/latest"
-                  IMAGE_NAME_TIMESTAMP="quay.io/openshift-pipeline/ci/5.0"-$TIMESTAMP
+                  if [ "$EVENT_TYPE" == "pull_request" ]; then
+                      IMAGE_NAME="image-registry.openshift-image-registry.svc:5000/pipelines-ci/ci:latest"
+                  else
+                      IMAGE_NAME="quay.io/openshift-pipeline/ci:latest"
+                  fi
                 elif [[ "$BRANCH_NAME" == release-* ]]; then 
-                  IMAGE_NAME="quay.io/openshift-pipeline/ci/${BRANCH_NAME#release-}"
-                  IMAGE_NAME_TIMESTAMP=$IMAGE_NAME-$TIMESTAMP
+                  if [ "$EVENT_TYPE" == "pull_request" ]; then
+                    IMAGE_NAME="image-registry.openshift-image-registry.svc:5000/pipelines-ci/ci:${BRANCH_NAME#release-}"
+                  else
+                    IMAGE_NAME="quay.io/openshift-pipeline/ci:${BRANCH_NAME#release-}"
+                  fi
                 else
-                  echo "Error: Branch name '$BRANCH_NAME' is not appropriate."
-                  exit 1
+                    echo "Error: Branch name '$BRANCH_NAME' is not appropriate."
+                    exit 1
                 fi
 
+                IMAGE_NAME_TIMESTAMP="$IMAGE_NAME-$TIMESTAMP"
                 echo -n "$IMAGE_NAME" | tee $(results.image-name.path)
                 echo -n "$IMAGE_NAME_TIMESTAMP" | tee $(results.image-name-timestamp.path)
         runAfter: 
