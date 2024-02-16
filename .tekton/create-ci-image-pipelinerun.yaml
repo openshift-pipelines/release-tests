@@ -46,13 +46,12 @@ spec:
               script: | 
                 #!/usr/bin/env bash
                 BRANCH_NAME={{ target_branch }}
-                EVENT_TYPE={{ event_type }}
                 IMAGE_NAME=""
                 IMAGE_NAME_TIMESTAMP=""
                 TIMESTAMP=$(date +"%y%m%d")
 
                 if [ "$BRANCH_NAME" == "master" ]; then 
-                  if [ "$EVENT_TYPE" == "pull_request" ]; then
+                  if [ {{ event_type }} == "pull_request" ]; then
                       IMAGE_NAME="image-registry.openshift-image-registry.svc:5000/pipelines-ci/ci:latest"
                       IMAGE_NAME_TIMESTAMP="image-registry.openshift-image-registry.svc:5000/pipelines-ci/ci:5.0"-"$TIMESTAMP"
                   else
@@ -60,7 +59,7 @@ spec:
                       IMAGE_NAME_TIMESTAMP="quay.io/openshift-pipeline/ci/5.0"-"$TIMESTAMP"
                   fi
                 elif [[ "$BRANCH_NAME" == release-* ]]; then 
-                  if [ "$EVENT_TYPE" == "pull_request" ]; then
+                  if [ {{ event_type }} == "pull_request" ]; then
                     IMAGE_NAME="image-registry.openshift-image-registry.svc:5000/pipelines-ci/ci:${BRANCH_NAME#release-}"
                   else
                     IMAGE_NAME="quay.io/openshift-pipeline/ci:${BRANCH_NAME#release-}"
