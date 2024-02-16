@@ -56,7 +56,7 @@ spec:
                       IMAGE_NAME_TIMESTAMP="image-registry.openshift-image-registry.svc:5000/pipelines-ci/ci:5.0"-"$TIMESTAMP"
                   else
                       IMAGE_NAME="quay.io/openshift-pipeline/ci:latest"
-                      IMAGE_NAME_TIMESTAMP="quay.io/openshift-pipeline/ci/5.0"-"$TIMESTAMP"
+                      IMAGE_NAME_TIMESTAMP="quay.io/openshift-pipeline/ci:5.0"-"$TIMESTAMP"
                   fi
                 elif [[ "$BRANCH_NAME" == release-* ]]; then 
                   if [ {{ event_type }} == "pull_request" ]; then
@@ -70,8 +70,8 @@ spec:
                     exit 1
                 fi
 
-                echo -n "$IMAGE_NAME" | tee $(results.image-name.path)
-                echo -n "$IMAGE_NAME_TIMESTAMP" | tee $(results.image-name-timestamp.path)
+                echo "$IMAGE_NAME" | tee $(results.image-name.path)
+                echo "$IMAGE_NAME_TIMESTAMP" | tee $(results.image-name-timestamp.path)
         runAfter: 
           - fetch-repository
       - name: buildah 
