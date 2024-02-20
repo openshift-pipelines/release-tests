@@ -19,6 +19,8 @@ spec:
     params:
     - name: url
       value: https://github.com/chmouel/go-simple-uploader.git
+    - name: revision
+      value: e8e751f5e189ee493a43948b667f665f8d7e1057
     - name: subdirectory
       value: s2i-go-$(params.VERSION)
     - name: deleteExisting
