@@ -70,7 +70,7 @@ func UptadeSubscriptionAndWaitForOperatorToBeReady(cs *clients.Clients, subscrip
 func getSubcription(cs *clients.Clients, name string) *v1alpha1.Subscription {
 	subscription, err := cs.OLM.OperatorsV1alpha1().Subscriptions(OperatorsNamespace).Get(context.Background(), name, metav1.GetOptions{})
 	if err != nil {
-		testsuit.T.Errorf("\033[0;31m failed to get subscription %s in namespace %s \n %v \033[0m", name, OperatorsNamespace, err)
+		testsuit.T.Errorf("failed to get subscription %s in namespace %s \n %v", name, OperatorsNamespace, err)
 	}
 	return subscription
 }
