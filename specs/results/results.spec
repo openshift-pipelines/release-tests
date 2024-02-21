@@ -5,7 +5,7 @@ Precondition:
 * Validate Operator should be installed
 
 ## Test Tekton results with TaskRun: PIPELINES-26-TC01
-Tags: results, e2e, taskrun, sanity
+Tags: results, e2e, taskrun
 Component: Results
 Level: Integration
 Type: Functional
