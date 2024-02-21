@@ -31,6 +31,7 @@ Type: Functional
 Importance: Critical
 
 Steps:
+* Verify that image stream "golang" exists
 * Apply
    |S.NO|resource_dir                     |
    |----|---------------------------------|
