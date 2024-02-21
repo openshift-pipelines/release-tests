@@ -7,7 +7,7 @@ spec:
   taskSpec:
     steps:
     - name: hello-goodbye-results
-      image: quay.io/fedora/fedora:39
+      image: image-registry.openshift-image-registry.svc:5000/openshift/golang
       script: |-
         #!/usr/bin/env sh
         echo "Hello, Results!"
