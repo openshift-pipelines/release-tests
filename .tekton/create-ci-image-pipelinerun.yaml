@@ -5,7 +5,7 @@ metadata:
   name: create-ci-image-pipelinerun
   annotations:
     pipelinesascode.tekton.dev/on-cel-expression: |
-      event == "pull_request" && "Dockerfile.CI".pathChanged() || event == "push" && "Dockerfile.CI".pathChanged()
+      "Dockerfile.CI".pathChanged() && ( event == "push" || event == "pull_request" )
     pipelinesascode.tekton.dev/max-keep-runs: "5"
 spec:
   params:
@@ -19,7 +19,6 @@ spec:
       - name: revision
     workspaces:
       - name: source
-      - name: basic-auth
     tasks:
       - name: fetch-repository
         taskRef:
@@ -28,8 +27,6 @@ spec:
         workspaces:
           - name: output
             workspace: source
-          - name: basic-auth
-            workspace: basic-auth
         params:
           - name: url
             value: $(params.repo_url)
@@ -48,15 +45,15 @@ spec:
                 BRANCH_NAME={{ target_branch }}
                 IMAGE_NAME=""
                 IMAGE_NAME_TIMESTAMP=""
-                TIMESTAMP=$(date +"%y%m%d")
+                TIMESTAMP=$(date +"%y%m%d%H%M")
 
                 if [ "$BRANCH_NAME" == "master" ]; then 
                   if [ {{ event_type }} == "pull_request" ]; then
                       IMAGE_NAME="image-registry.openshift-image-registry.svc:5000/pipelines-ci/ci:latest"
-                      IMAGE_NAME_TIMESTAMP="image-registry.openshift-image-registry.svc:5000/pipelines-ci/ci:5.0"-"$TIMESTAMP"
+                      IMAGE_NAME_TIMESTAMP="image-registry.openshift-image-registry.svc:5000/pipelines-ci/ci:5.0-$TIMESTAMP"
                   else
                       IMAGE_NAME="quay.io/openshift-pipeline/ci:latest"
-                      IMAGE_NAME_TIMESTAMP="quay.io/openshift-pipeline/ci:5.0"-"$TIMESTAMP"
+                      IMAGE_NAME_TIMESTAMP="quay.io/openshift-pipeline/ci:5.0-$TIMESTAMP"
                   fi
                 elif [[ "$BRANCH_NAME" == release-* ]]; then 
                   if [ {{ event_type }} == "pull_request" ]; then
@@ -99,6 +96,16 @@ spec:
             value: $(tasks.generate-image-name.results.image-name-timestamp)
         runAfter:
           - buildah
+    finally:
+      - name: send-slack-notification
+        taskRef:
+          name: send-slack-notification
+        params:
+          - name: MESSAGE
+            value: "<icon> Uploading CI image *<run_status>* <icon> <<logs_url>|logs>"
+        when:
+          - cel: "'$(tasks.buildah.status)' in ['Failed', 'None']"
+          - cel: "'$(tasks.skopeo-copy.status)' in ['Failed', 'None']"
 
   workspaces:
     - name: source
@@ -109,6 +116,3 @@ spec:
           resources:
             requests:
               storage: 1Gi
-    - name: basic-auth
-      secret:
-        secretName: "{{ git_auth_secret }}"
