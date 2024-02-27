@@ -111,7 +111,9 @@ spec:
           - name: MESSAGE
             value: "<icon> Uploading CI image *<run_status>* <icon> <<logs_url>|logs>"
         when:
-          - cel: "'$(tasks.buildah.status)' in ['Failed', 'None']"
+          - input: $(tasks.skopeo-copy.status)
+            operator: in
+            values: ["Failed", "None"]
 
   workspaces:
     - name: source
