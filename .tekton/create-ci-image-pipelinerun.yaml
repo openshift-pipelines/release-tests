@@ -99,7 +99,14 @@ spec:
     finally:
       - name: send-slack-notification
         taskRef:
-          name: send-slack-notification
+          resolver: cluster
+          params: 
+          - name: kind
+            value: task
+          - name: name
+            value: send-slack-notification
+          - name: namespace
+            value: pipelines-ci
         params:
           - name: MESSAGE
             value: "<icon> Uploading CI image *<run_status>* <icon> <<logs_url>|logs>"
