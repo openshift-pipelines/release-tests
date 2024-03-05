@@ -10,7 +10,7 @@ require (
 	github.com/operator-framework/api v0.16.0
 	github.com/operator-framework/operator-lifecycle-manager v0.22.0
 	github.com/pkg/errors v0.9.1
-	github.com/prometheus/client_golang v1.17.0
+	github.com/prometheus/client_golang v1.18.0
 	github.com/prometheus/common v0.45.0
 	github.com/tektoncd/operator v0.70.0
 	github.com/tektoncd/pipeline v0.56.1
@@ -24,13 +24,13 @@ require (
 )
 
 replace (
-	k8s.io/api => k8s.io/api v0.25.9
-	k8s.io/apiextensions-apiserver => k8s.io/apiextensions-apiserver v0.25.9
-	k8s.io/apimachinery => k8s.io/apimachinery v0.25.9
-	k8s.io/client-go => k8s.io/client-go v0.25.9
-	k8s.io/code-generator => k8s.io/code-generator v0.25.9
+	k8s.io/api => k8s.io/api v0.26.8
+	k8s.io/apiextensions-apiserver => k8s.io/apiextensions-apiserver v0.26.8
+	k8s.io/apimachinery => k8s.io/apimachinery v0.26.8
+	k8s.io/client-go => k8s.io/client-go v0.26.8
+	k8s.io/code-generator => k8s.io/code-generator v0.26.8
 	k8s.io/kube-openapi => k8s.io/kube-openapi v0.0.0-20230525220651-2546d827e515
-	knative.dev/pkg => knative.dev/pkg v0.0.0-20231011201526-df28feae6d34
+	knative.dev/pkg => knative.dev/pkg v0.0.0-20231103161548-f5b42e8dea44
 )
 
 require (
