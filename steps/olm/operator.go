@@ -161,14 +161,6 @@ var _ = gauge.Step("Verify <resourceType> Results logs", func(resourceType strin
 	operator.VerifyResultsLogs(resourceType)
 })
 
-var _ = gauge.Step("Create secrets for Tekton Chains", func() {
-	if !oc.SecretExists("signing-secrets", "openshift-pipelines") {
-		operator.CreateSecretsForTektonResults()
-	} else {
-		log.Printf("\"tekton-results-postgres\" or \"tekton-results-tls\" secrets already exist")
-	}
-})
-
 var _ = gauge.Step("Verify <resourceType> signature", func(resourceType string){
 	operator.VerifySignature(resourceType)
 })
@@ -187,4 +179,12 @@ var _ = gauge.Step("Check Attestation", func(){
 
 var _ = gauge.Step("Verify Attestation", func(){
 	operator.VerifyAttestation()
+})
+
+var _ = gauge.Step("Import image registry variables", func(){
+	if os.Getenv("CHAINS_REGISTRY") == "" || os.Getenv("CHAINS_REPOSITORY") == "" {
+		testsuit.T.Errorf("Image registry system variables were not exported")
+	}else{
+		fmt.Println("Image registry variables were succesfully imported")
+	}
 })

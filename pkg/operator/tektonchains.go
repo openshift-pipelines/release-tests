@@ -37,8 +37,10 @@ import (
     "k8s.io/apimachinery/pkg/util/wait"
 )
 
-var registry string = "quay.io"
-var repo string = "openshift-pipeline/chainstest"
+//"quay.io"
+var registry string =  os.Getenv("CHAINS_REGISTRY") 
+//"openshift-pipeline/chainstest"
+var repo string = os.Getenv("CHAINS_REPOSITORY")
 var tag string = time.Now().Format("010206150405")
 
 func EnsureTektonChainsExists(clients chainv1alpha.TektonChainInterface, names utils.ResourceNames) (*v1alpha1.TektonChain, error) {
@@ -63,7 +65,7 @@ func VerifySignature(resourceType string){
     resourceUID := cmd.MustSucceed("tkn", resourceType, "describe", "--last", "-o", "jsonpath='{.metadata.uid}'").Stdout()
     resourceUID = strings.Trim(resourceUID, "'")
     jsonpath := fmt.Sprintf("jsonpath=\"{.metadata.annotations.chains\\.tekton\\.dev/signature-%s-%s}\"", resourceType, resourceUID)
-    fmt.Println("Sleep 30s")
+    fmt.Println("Waiting 30 seconds")
 	cmd.MustSuccedIncreasedTimeout(time.Second*45 ,"sleep", "30")
     signature := cmd.MustSucceed("tkn", resourceType, "describe", "--last", "-o", jsonpath).Stdout()
     signature = strings.Trim(signature, "\"")

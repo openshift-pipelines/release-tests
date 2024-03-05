@@ -2,6 +2,7 @@
 
 Precondition:
 * Validate Operator should be installed
+* Import image registry variables 
 * Create signing-secrets for tekton chains
 
 ## Test Tekton chains verify taskrun signature: PIPELINES-26-TC01
