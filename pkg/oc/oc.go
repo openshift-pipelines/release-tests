@@ -133,3 +133,10 @@ func EnableConsolePlugin() {
 	patch_data := "{\"spec\":{\"plugins\":[\"" + strings.Join(plugins, "\",\"") + "\"]}}"
 	cmd.MustSucceed("oc", "patch", "consoles.operator.openshift.io", "cluster", "-p", patch_data, "--type=merge").Stdout()
 }
+func CreateSigningSecretForTektonChains(chainsPublicKey, chainsPrivateKey, chainsPassword string){
+	cmd.MustSucceed("oc", "create", "secret", "generic", "signing-secrets", "--from-literal=cosign.key="+chainsPrivateKey, "--from-literal=cosign.password="+chainsPassword, "--from-literal=cosign.pub="+chainsPublicKey, "--namespace", "openshift-pipelines")
+}
+
+func CreateQuaySecretForTektonChains(dockerConfig, config string){
+	cmd.MustSucceed("oc", "create", "secret", "generic", "quay", "--from-literal=.dockerconfigjson="+dockerConfig, "--from-literal=config.json="+config, "--type=kubernetes.io/dockerconfigjson")
+}

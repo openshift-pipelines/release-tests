@@ -8,6 +8,7 @@ import (
 
 	"github.com/getgauge-contrib/gauge-go/gauge"
 	m "github.com/getgauge-contrib/gauge-go/models"
+	"github.com/getgauge-contrib/gauge-go/testsuit"
 	"github.com/openshift-pipelines/release-tests/pkg/oc"
 	"github.com/openshift-pipelines/release-tests/pkg/store"
 )
@@ -173,4 +174,42 @@ var _ = gauge.Step("Configure the bundles resolver", func() {
 
 var _ = gauge.Step("Enable console plugin", func() {
 	oc.EnableConsolePlugin()
+})
+var _ = gauge.Step("Create signing-secrets for tekton chains", func(){
+	fmt.Println(os.Getenv("CHAINS_COSIGN_PUBLIC"))
+	fmt.Println(os.Getenv("CHAINS_COSIGN_PRIVATE"))
+	fmt.Println(os.Getenv("CHAINS_COSIGN_PASSWORD"))
+	if os.Getenv("CHAINS_COSIGN_PUBLIC") == "" || os.Getenv("CHAINS_COSIGN_PRIVATE") == "" || os.Getenv("CHAINS_COSIGN_PASSWORD") == ""{
+		testsuit.T.Errorf("Cosign keys were not exported as system variables")
+	}else {
+		if !oc.SecretExists("signing-secrets", "openshift-pipelines"){
+			chainsPublicKey := os.Getenv("CHAINS_COSIGN_PUBLIC")
+			chainsPrivateKey := os.Getenv("CHAINS_COSIGN_PRIVATE")
+			chainsPassword := os.Getenv("CHAINS_COSIGN_PASSWORD")
+			oc.CreateSigningSecretForTektonChains(chainsPublicKey, chainsPrivateKey, chainsPassword)
+		} else {
+			log.Printf("Secret \"signing-secrets\" already exists")
+		}
+	}
+})
+
+var _ = gauge.Step("Create quay secret for tekton chains", func(){
+	if os.Getenv("CHAINS_DOCKER_CONFIG_JSON") == "" || os.Getenv("CHAINS_CONFIG_JSON") == ""{
+		testsuit.T.Errorf("Robot credentials were not exported as system variables")
+	}else {
+		dockerConfig := os.Getenv("CHAINS_DOCKER_CONFIG_JSON")
+		config := os.Getenv("CHAINS_CONFIG_JSON")
+		oc.CreateQuaySecretForTektonChains(dockerConfig, config)
+	}
+})
+
+var _ = gauge.Step("Patch tekton config to sign and verify <resourceType> with Tekton Chains", func(resourceType string){
+	var patch_data string
+	if resourceType == "taskrun"{
+		patch_data = "{\"spec\":{\"chain\":{\"artifacts.taskrun.format\":\"in-toto\",\"artifacts.taskrun.storage\":\"tekton\",\"artifacts.oci.storage\":\"\"}}}"
+	}
+	if resourceType == "image"{
+		patch_data = "{\"spec\":{\"chain\":{\"artifacts.taskrun.format\":\"in-toto\",\"artifacts.taskrun.storage\":\"tekton,oci\",\"transparency.enabled\":\"true\"}}}"
+	}
+	oc.UpdateTektonConfig(patch_data)
 })
