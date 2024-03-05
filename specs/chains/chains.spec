@@ -1,12 +1,13 @@
-# Results pvc tests
+PIPELINES-26
+# Tekton Chains tests
 
 Precondition:
 * Validate Operator should be installed
 * Import image registry variables 
 * Create signing-secrets for tekton chains
 
-## Test Tekton chains verify taskrun signature: PIPELINES-26-TC01
-Tags: results, e2e, taskrun
+## Using Tekton Chains to create and verify task run signatures: PIPELINES-27-TC01
+Tags: chains, e2e, taskrun
 Component: Chains
 Level: Integration
 Type: Functional
@@ -20,8 +21,8 @@ Steps:
      | 1    | testdata/chains/task-output-image.yaml|
     * Verify "taskrun" signature
 
-## Test Tekton chains verify image signature: PIPELINES-26-TC01
-Tags: results, e2e, image
+## Using Tekton Chains to sign and verify image and provenance : PIPELINES-27-TC02
+Tags: chains, e2e, image
 Component: Chains
 Level: Integration
 Type: Functional
