@@ -2,7 +2,7 @@
 apiVersion: tekton.dev/v1beta1
 kind: PipelineRun
 metadata:
-  name: go-lint-pipelinerun
+  name: go-lint
   annotations:
     pipelinesascode.tekton.dev/on-event: "[pull_request]"
     pipelinesascode.tekton.dev/on-target-branch: "[*]"
