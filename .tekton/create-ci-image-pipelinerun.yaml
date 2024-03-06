@@ -19,6 +19,7 @@ spec:
       - name: revision
     workspaces:
       - name: source
+      - name: images-url
     tasks:
       - name: fetch-repository
         taskRef:
