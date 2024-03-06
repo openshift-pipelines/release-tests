@@ -95,9 +95,9 @@ spec:
             workspace: images-url
         params:
           - name: srcImageURL
-            value: $(tasks.generate-image-name.results.image-name)
+            value: docker://$(tasks.generate-image-name.results.image-name)
           - name: destImageURL
-            value: $(tasks.generate-image-name.results.image-name-timestamp)
+            value: docker://$(tasks.generate-image-name.results.image-name-timestamp)
         runAfter:
           - buildah
     finally:
