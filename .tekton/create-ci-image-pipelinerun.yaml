@@ -94,9 +94,9 @@ spec:
           - name: images-url
             workspace: images-url
         params:
-          - name: srcImageUrl
+          - name: srcImageURL
             value: $(tasks.generate-image-name.results.image-name)
-          - name: destImageUrl
+          - name: destImageURL
             value: $(tasks.generate-image-name.results.image-name-timestamp)
         runAfter:
           - buildah
