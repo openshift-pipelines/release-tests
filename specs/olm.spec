@@ -28,6 +28,7 @@ Steps:
   * Create Results route
   * Configure GitHub token for git resolver in TektonConfig
   * Configure the bundles resolver
+  * Enable console plugin
   * Validate pipelines deployment
   * Validate triggers deployment
   * Validate PAC deployment
