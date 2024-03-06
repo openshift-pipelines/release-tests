@@ -1,9 +1,8 @@
-PIPELINES-26
+PIPELINES-27
 # Tekton Chains tests
 
 Precondition:
 * Validate Operator should be installed
-* Import image registry variables 
 * Create signing-secrets for tekton chains
 
 ## Using Tekton Chains to create and verify task run signatures: PIPELINES-27-TC01
@@ -29,6 +28,7 @@ Type: Functional
 Importance: Critical
 Steps:
     * Patch tekton config to sign and verify "image" with Tekton Chains
+    * Import image registry variables 
     * Create quay secret for tekton chains
     * Apply
      | S.NO | resource_dir                          |
