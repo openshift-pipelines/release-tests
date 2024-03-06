@@ -2,7 +2,7 @@
 apiVersion: tekton.dev/v1beta1
 kind: PipelineRun
 metadata:
-  name: create-ci-image-pipelinerun
+  name: create-push-ci-image
   annotations:
     pipelinesascode.tekton.dev/on-cel-expression: |
       "Dockerfile.CI".pathChanged() && ( event == "push" || event == "pull_request" )
@@ -67,8 +67,8 @@ spec:
                     exit 1
                 fi
 
-                echo "$IMAGE_NAME" | tee $(results.image-name.path)
-                echo "$IMAGE_NAME_TIMESTAMP" | tee $(results.image-name-timestamp.path)
+                echo -n "$IMAGE_NAME" | tee $(results.image-name.path)
+                echo -n "$IMAGE_NAME_TIMESTAMP" | tee $(results.image-name-timestamp.path)
         runAfter: 
           - fetch-repository
       - name: buildah 
