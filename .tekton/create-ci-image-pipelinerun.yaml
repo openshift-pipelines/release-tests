@@ -90,7 +90,7 @@ spec:
         taskRef: 
           kind: ClusterTask
           name: skopeo-copy
-        workpaces: 
+        workspaces:
           - name: images-url
             workspace: images-url
         params:
