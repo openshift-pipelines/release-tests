@@ -91,7 +91,7 @@ spec:
           name: skopeo-copy
         workpaces: 
           - name: images-url
-            emptyDir: {}
+            workspace: images-url
         params:
           - name: srcImageUrl
             value: $(tasks.generate-image-name.results.image-name)
@@ -119,6 +119,8 @@ spec:
             values: ["Failed", "None"]
 
   workspaces:
+    - name: images-url
+      emptyDir: {}
     - name: source
       volumeClaimTemplate:
         spec:
