@@ -125,7 +125,7 @@ spec:
   workspaces:
     - name: dockerconfig
       secret: 
-        secretName: pac-dockerconfig
+        secretName: quay-io-dockerconfig
     - name: images-url
       emptyDir: {}
     - name: source
