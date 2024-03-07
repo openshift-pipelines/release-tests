@@ -183,8 +183,16 @@ var _ = gauge.Step("Verify Attestation", func(){
 
 var _ = gauge.Step("Import image registry variables", func(){
 	if os.Getenv("CHAINS_REGISTRY") == "" || os.Getenv("CHAINS_REPOSITORY") == "" {
-		testsuit.T.Errorf("Image registry system variables were not exported")
+		testsuit.T.Errorf("'CHAINS_REGISTRY' and 'CHAINS_REPOSITORY' image registry system variables were not exported")
 	}else{
 		fmt.Println("Image registry variables were succesfully imported")
+	}
+})
+
+var _ = gauge.Step("Create signing-secrets for tekton chains", func(){
+	if oc.SecretExists("signing-secrets", "openshift-pipelines"){
+		log.Printf("Secret \"signing-secrets\" already exists")
+	} else {
+		operator.CreateSigningSecretForTektonChains()
 	}
 })

@@ -175,24 +175,10 @@ var _ = gauge.Step("Configure the bundles resolver", func() {
 var _ = gauge.Step("Enable console plugin", func() {
 	oc.EnableConsolePlugin()
 })
-var _ = gauge.Step("Create signing-secrets for tekton chains", func(){
-	if os.Getenv("CHAINS_COSIGN_PUBLIC") == "" || os.Getenv("CHAINS_COSIGN_PRIVATE") == "" || os.Getenv("CHAINS_COSIGN_PASSWORD") == ""{
-		testsuit.T.Errorf("Cosign keys system variables were not exported")
-	}else {
-		if !oc.SecretExists("signing-secrets", "openshift-pipelines"){
-			chainsPublicKey := os.Getenv("CHAINS_COSIGN_PUBLIC")
-			chainsPrivateKey := os.Getenv("CHAINS_COSIGN_PRIVATE")
-			chainsPassword := os.Getenv("CHAINS_COSIGN_PASSWORD")
-			oc.CreateSigningSecretForTektonChains(chainsPublicKey, chainsPrivateKey, chainsPassword)
-		} else {
-			log.Printf("Secret \"signing-secrets\" already exists")
-		}
-	}
-})
 
 var _ = gauge.Step("Create quay secret for tekton chains", func(){
 	if os.Getenv("CHAINS_DOCKER_CONFIG_JSON") == "" || os.Getenv("CHAINS_CONFIG_JSON") == ""{
-		testsuit.T.Errorf("Robot credentials system variables were not exported")
+		testsuit.T.Errorf("'CHAINS_DOCKER_CONFIG_JSON' and 'CHAINS_CONFIG_JSON' robot credentials system variables were not exported")
 	}else {
 		dockerConfig := os.Getenv("CHAINS_DOCKER_CONFIG_JSON")
 		config := os.Getenv("CHAINS_CONFIG_JSON")
