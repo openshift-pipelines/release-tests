@@ -121,7 +121,6 @@ func GetImageDigestedUrl() (string, string) {
             imageDigest = strings.Split(result.Value, ":")[1]
         }
     }
-    imageDigest = strings.TrimSpace(imageDigest)
 
     // Return image url with digest
     url := fmt.Sprintf("%s/%s@sha256:%s", registry, repo, imageDigest)
