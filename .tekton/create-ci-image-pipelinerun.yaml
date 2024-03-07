@@ -20,6 +20,7 @@ spec:
     workspaces:
       - name: source
       - name: images-url
+      - name: dockerconfig
     tasks:
       - name: fetch-repository
         taskRef:
@@ -86,6 +87,8 @@ spec:
         workspaces:
           - name: source
             workspace: source
+          - name: dockerconfig
+            workspace: dockerconfig
       - name: skopeo-copy
         taskRef: 
           kind: ClusterTask
@@ -120,6 +123,9 @@ spec:
             values: ["Failed", "None"]
 
   workspaces:
+    - name: dockerconfig
+      secret: 
+        secretName: quay-io-dockerconfig
     - name: images-url
       emptyDir: {}
     - name: source
