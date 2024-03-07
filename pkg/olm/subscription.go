@@ -131,7 +131,7 @@ func OperatorCleanup(cs *clients.Clients, name string) {
 	}
 
 	log.Printf("Output %s \n", cmd.MustSucceed(
-		"oc", "delete", "-n", OperatorsNamespace,
+		"oc", "delete", "--ignore-not-found" ,"-n", OperatorsNamespace,
 		"subscription", sub.Name,
 	).Stdout())
 }
