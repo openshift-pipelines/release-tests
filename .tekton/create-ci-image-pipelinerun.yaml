@@ -57,8 +57,8 @@ spec:
                       IMAGE_NAME_TIMESTAMP="image-registry.openshift-image-registry.svc:5000/pipelines-ci/ci:5.0-$TIMESTAMP"
                       REPOSITORY="image-registry"
                   else
-                      IMAGE_NAME="quay.io/openshift-pipeline/chainstest/test:latest"
-                      IMAGE_NAME_TIMESTAMP="quay.io/openshift-pipeline/chainstest/test:5.0-$TIMESTAMP"
+                      IMAGE_NAME="quay.io/openshift-pipeline/chainstest:latest"
+                      IMAGE_NAME_TIMESTAMP="quay.io/openshift-pipeline/chainstest:5.0-$TIMESTAMP"
                       REPOSITORY="quay.io"
                   fi
                 elif [[ "$BRANCH_NAME" == release-* ]]; then 
