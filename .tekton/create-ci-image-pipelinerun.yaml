@@ -1,5 +1,5 @@
 ---
-apiVersion: tekton.dev/v1beta1
+apiVersion: tekton.dev/v1
 kind: PipelineRun
 metadata:
   name: create-push-ci-image
@@ -39,6 +39,7 @@ spec:
           results:
             - name: image-name
             - name: image-name-timestamp
+            - name: repository
           steps: 
             - name: generate-image-name
               image: quay.io/openshift-pipeline/ci
@@ -47,21 +48,26 @@ spec:
                 BRANCH_NAME={{ target_branch }}
                 IMAGE_NAME=""
                 IMAGE_NAME_TIMESTAMP=""
+                REPOSITORY=""
                 TIMESTAMP=$(date +"%y%m%d%H%M")
 
                 if [ "$BRANCH_NAME" == "master" ]; then 
                   if [ {{ event_type }} == "pull_request" ]; then
                       IMAGE_NAME="image-registry.openshift-image-registry.svc:5000/pipelines-ci/ci:latest"
                       IMAGE_NAME_TIMESTAMP="image-registry.openshift-image-registry.svc:5000/pipelines-ci/ci:5.0-$TIMESTAMP"
+                      REPOSITORY="image-registry"
                   else
-                      IMAGE_NAME="quay.io/openshift-pipeline/ci:latest"
-                      IMAGE_NAME_TIMESTAMP="quay.io/openshift-pipeline/ci:5.0-$TIMESTAMP"
+                      IMAGE_NAME="quay.io/openshift-pipeline/chainstest/test:latest"
+                      IMAGE_NAME_TIMESTAMP="quay.io/openshift-pipeline/chainstest/test:5.0-$TIMESTAMP"
+                      REPOSITORY="quay.io"
                   fi
                 elif [[ "$BRANCH_NAME" == release-* ]]; then 
                   if [ {{ event_type }} == "pull_request" ]; then
                     IMAGE_NAME="image-registry.openshift-image-registry.svc:5000/pipelines-ci/ci:${BRANCH_NAME#release-}"
+                    REPOSITORY="image-registry"
                   else
                     IMAGE_NAME="quay.io/openshift-pipeline/ci:${BRANCH_NAME#release-}"
+                    REPOSITORY="quay.io"
                   fi
                   IMAGE_NAME_TIMESTAMP="$IMAGE_NAME-$TIMESTAMP"
                 else
@@ -71,9 +77,11 @@ spec:
 
                 echo -n "$IMAGE_NAME" | tee $(results.image-name.path)
                 echo -n "$IMAGE_NAME_TIMESTAMP" | tee $(results.image-name-timestamp.path)
+                echo -n "$REPOSITORY" | tee $(results.repository.path)
         runAfter: 
           - fetch-repository
       - name: buildah 
+        onError: continue
         taskRef:
           kind: ClusterTask
           name: buildah
@@ -89,8 +97,11 @@ spec:
             workspace: source
           - name: dockerconfig
             workspace: dockerconfig
+        when: 
+          expression: $(tasks.generate-image-name.results.repository == 'quay.io')
       - name: buildah2
-        taskref: 
+        onError: continue
+        taskRef: 
           kind: ClusterTask
           name: buildah
         params:
@@ -103,6 +114,8 @@ spec:
         workspaces:
           - name: source
             workspace: source
+        when: 
+          expression: $(tasks.generate-image-name.results.repository == 'image-registry')
       - name: skopeo-copy
         taskRef: 
           kind: ClusterTask
@@ -117,6 +130,7 @@ spec:
             value: docker://$(tasks.generate-image-name.results.image-name-timestamp)
         runAfter:
           - buildah
+          - buildah2
     finally:
       - name: send-slack-notification
         taskRef:
