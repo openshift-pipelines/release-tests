@@ -81,7 +81,6 @@ spec:
         runAfter: 
           - fetch-repository
       - name: buildah 
-        onError: continue
         taskRef:
           kind: ClusterTask
           name: buildah
@@ -103,7 +102,6 @@ spec:
             values: 
               - "$(tasks.generate-image-name.results.repository)"
       - name: buildah2
-        onError: continue
         taskRef: 
           kind: ClusterTask
           name: buildah
