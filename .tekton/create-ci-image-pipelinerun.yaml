@@ -98,7 +98,10 @@ spec:
           - name: dockerconfig
             workspace: dockerconfig
         when: 
-          expression: $(tasks.generate-image-name.results.repository == 'quay.io')
+          - input: "quay.io"
+            operator: in 
+            values: 
+              - "$(tasks.generate-image-name.results.repository)"
       - name: buildah2
         onError: continue
         taskRef: 
@@ -115,7 +118,10 @@ spec:
           - name: source
             workspace: source
         when: 
-          expression: $(tasks.generate-image-name.results.repository == 'image-registry')
+          - input: "image-registry"
+            operator: in 
+            values: 
+              - "$(tasks.generate-image-name.results.repository)"
       - name: skopeo-copy
         taskRef: 
           kind: ClusterTask
