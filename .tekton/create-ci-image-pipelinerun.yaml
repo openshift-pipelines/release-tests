@@ -89,6 +89,20 @@ spec:
             workspace: source
           - name: dockerconfig
             workspace: dockerconfig
+      - name: buildah2
+        taskref: 
+          kind: ClusterTask
+          name: buildah
+        params:
+          - name: IMAGE
+            value: $(tasks.generate-image-name.results.image-name)
+          - name: DOCKERFILE
+            value: ./Dockerfile.CI
+        runAfter: 
+          - generate-image-name
+        workspaces:
+          - name: source
+            workspace: source
       - name: skopeo-copy
         taskRef: 
           kind: ClusterTask
