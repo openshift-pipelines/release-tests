@@ -127,7 +127,8 @@ spec:
       secret: 
         secretName: quay-io-dockerconfig
     - name: images-url
-      emptyDir: {}
+      secret: 
+        secretName: quay-io-dockerconfig
     - name: source
       volumeClaimTemplate:
         spec:
