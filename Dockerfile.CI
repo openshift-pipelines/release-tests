@@ -1,4 +1,4 @@
-FROM quay.io/fedora/fedora:38
+FROM quay.io/fedora/fedora:39
 
 RUN dnf update -y &&\
     dnf install -y --setopt=tsflags=nodocs git go jq lynx make openssl unzip vim wget python39 python3-pip &&\
