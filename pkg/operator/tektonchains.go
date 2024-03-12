@@ -162,8 +162,9 @@ func CheckAttestation() {
 func CreateSigningSecretForTektonChains(){
 	chainsPublicKey := os.Getenv("CHAINS_COSIGN_PUBLIC")
 	chainsPrivateKey := os.Getenv("CHAINS_COSIGN_PRIVATE")
-	chainsPassword := os.Getenv("CHAINS_COSIGN_PASSWORD")
-	if chainsPublicKey != "" || chainsPrivateKey != "" || chainsPassword != ""{
+    os.Setenv("COSIGN_PASSWORD", "chainstest")
+	chainsPassword := os.Getenv("COSIGN_PASSWORD")
+	if chainsPublicKey != "" || chainsPrivateKey != "" {
 		cmd.MustSucceed("oc", "create", "secret", "generic", "signing-secrets", "--from-literal=cosign.key="+chainsPrivateKey, "--from-literal=cosign.password="+chainsPassword, "--from-literal=cosign.pub="+chainsPublicKey, "--namespace", "openshift-pipelines")
 	} else {
 		cmd.MustSucceed("cosign", "generate-key-pair", "k8s://openshift-pipelines/signing-secrets")
