@@ -17,24 +17,25 @@ limitations under the License.
 package operator
 
 import (
-    "context"
-    "encoding/base64"
-    "encoding/json"
-    "fmt"
-    "log"
-    "os"
-    "strings"
-    "time"
+	"context"
+	"encoding/base64"
+	"encoding/json"
+	"fmt"
+	"log"
+	"os"
+	"strings"
+	"time"
 
-    "github.com/getgauge-contrib/gauge-go/testsuit"
-    "github.com/openshift-pipelines/release-tests/pkg/cmd"
-    "github.com/openshift-pipelines/release-tests/pkg/config"
-    "github.com/tektoncd/operator/pkg/apis/operator/v1alpha1"
-    chainv1alpha "github.com/tektoncd/operator/pkg/client/clientset/versioned/typed/operator/v1alpha1"
-    "github.com/tektoncd/operator/test/utils"
-    apierrs "k8s.io/apimachinery/pkg/api/errors"
-    metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-    "k8s.io/apimachinery/pkg/util/wait"
+	"github.com/getgauge-contrib/gauge-go/testsuit"
+	"github.com/openshift-pipelines/release-tests/pkg/cmd"
+	"github.com/openshift-pipelines/release-tests/pkg/config"
+	"github.com/tektoncd/operator/pkg/apis/operator/v1alpha1"
+    resource "github.com/openshift-pipelines/release-tests/pkg/config"
+	chainv1alpha "github.com/tektoncd/operator/pkg/client/clientset/versioned/typed/operator/v1alpha1"
+	"github.com/tektoncd/operator/test/utils"
+	apierrs "k8s.io/apimachinery/pkg/api/errors"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/util/wait"
 )
 
 //"quay.io"
@@ -42,6 +43,7 @@ var registry string =  os.Getenv("CHAINS_REGISTRY")
 //"openshift-pipeline/chainstest"
 var repo string = os.Getenv("CHAINS_REPOSITORY")
 var tag string = time.Now().Format("010206150405")
+var public_key_path = resource.Path("testdata/chains/key/cosign.pub")
 
 func EnsureTektonChainsExists(clients chainv1alpha.TektonChainInterface, names utils.ResourceNames) (*v1alpha1.TektonChain, error) {
     // If this function is called by the upgrade tests, we only create the custom resource, if it does not exist.
@@ -85,7 +87,7 @@ func VerifySignature(resourceType string){
         testsuit.T.Errorf("Error writing to file")
     }
     //Verify signature with signing-secrets
-    cmd.MustSucceed("cosign", "verify-blob-attestation", "--insecure-ignore-tlog", "--key", "k8s://openshift-pipelines/signing-secrets", "--signature", "sign", "--type", "slsaprovenance", "--check-claims=false", "/dev/null")
+    cmd.MustSucceed("cosign", "verify-blob-attestation", "--insecure-ignore-tlog", "--key", public_key_path, "--signature", "sign", "--type", "slsaprovenance", "--check-claims=false", "/dev/null")
 }
 
 func StartKanikoTask() {
@@ -129,12 +131,12 @@ func GetImageDigestedUrl() (string, string) {
 
 func VerifyImageSignature() {
     url, _ := GetImageDigestedUrl()
-    cmd.MustSucceed("cosign", "verify", "--key", "k8s://openshift-pipelines/signing-secrets", url)
+    cmd.MustSucceed("cosign", "verify", "--key", public_key_path, url)
 }
 
 func VerifyAttestation() {
     url, _ := GetImageDigestedUrl()
-    cmd.MustSucceed("cosign", "verify-attestation", "--key", "k8s://openshift-pipelines/signing-secrets", "--type", "slsaprovenance", url )
+    cmd.MustSucceed("cosign", "verify-attestation", "--key", public_key_path, "--type", "slsaprovenance", url )
 }
 
 func CheckAttestation() {
@@ -159,8 +161,7 @@ func CheckAttestation() {
     }
 }
 
-func CreateSigningSecretForTektonChains(){
-    
+func CreateSigningSecretForTektonChains() {
 	chainsPublicKey := os.Getenv("CHAINS_COSIGN_PUBLIC")
 	chainsPrivateKey := os.Getenv("CHAINS_COSIGN_PRIVATE")
     os.Setenv("COSIGN_PASSWORD", "chainstest")
@@ -170,4 +171,5 @@ func CreateSigningSecretForTektonChains(){
 	} else {
 		cmd.MustSucceed("cosign", "generate-key-pair", "k8s://openshift-pipelines/signing-secrets")
 	}
+    cmd.MustSucceed("mv", "cosign.pub", public_key_path)
 }
