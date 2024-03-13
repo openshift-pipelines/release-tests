@@ -176,13 +176,12 @@ var _ = gauge.Step("Enable console plugin", func() {
 	oc.EnableConsolePlugin()
 })
 
-var _ = gauge.Step("Create quay secret for tekton chains", func(){
-	if os.Getenv("CHAINS_DOCKER_CONFIG_JSON") == "" || os.Getenv("CHAINS_CONFIG_JSON") == ""{
-		testsuit.T.Errorf("'CHAINS_DOCKER_CONFIG_JSON' and 'CHAINS_CONFIG_JSON' robot credentials system variables were not exported")
+var _ = gauge.Step("Create quay secret for Tekton Chains", func(){
+	if os.Getenv("CHAINS_DOCKER_CONFIG_JSON") == "" {
+		testsuit.T.Errorf("'CHAINS_DOCKER_CONFIG_JSON' robot credentials system variable is not exported")
 	}else {
 		dockerConfig := os.Getenv("CHAINS_DOCKER_CONFIG_JSON")
-		config := os.Getenv("CHAINS_CONFIG_JSON")
-		oc.CreateQuaySecretForTektonChains(dockerConfig, config)
+		oc.CreateQuaySecretForTektonChains(dockerConfig)
 	}
 })
 

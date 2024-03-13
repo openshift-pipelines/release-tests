@@ -27,8 +27,8 @@ Type: Functional
 Importance: Critical
 Steps:
     * Patch tekton config to sign and verify "image" with Tekton Chains
-    * Import image registry variables 
-    * Create quay secret for tekton chains
+    * Import image registry variable 
+    * Create quay secret for Tekton Chains
     * Apply
      | S.NO | resource_dir                          |
      |------|---------------------------------------|

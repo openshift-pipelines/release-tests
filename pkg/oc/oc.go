@@ -142,6 +142,6 @@ func GetSecretsData(secretName, namespace string) string {
 	return cmd.MustSucceed("oc", "get", "secrets", secretName, "-n", namespace, "-o", "jsonpath=\"{.data}\"").Stdout()
 }
 
-func CreateQuaySecretForTektonChains(dockerConfig, config string){
-	cmd.MustSucceed("oc", "create", "secret", "generic", "quay", "--from-literal=.dockerconfigjson="+dockerConfig, "--from-literal=config.json="+config, "--type=kubernetes.io/dockerconfigjson")
+func CreateQuaySecretForTektonChains(dockerConfig string){
+	cmd.MustSucceed("oc", "create", "secret", "generic", "quay", "--from-literal=.dockerconfigjson="+dockerConfig, "--from-literal=config.json="+dockerConfig, "--type=kubernetes.io/dockerconfigjson")
 }

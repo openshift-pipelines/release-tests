@@ -38,9 +38,7 @@ import (
 	"k8s.io/apimachinery/pkg/util/wait"
 )
 
-//"quay.io"
-var registry string =  os.Getenv("CHAINS_REGISTRY") 
-//"openshift-pipeline/chainstest"
+//"quay.io/openshift-pipeline/chainstest"
 var repo string = os.Getenv("CHAINS_REPOSITORY")
 var tag string = time.Now().Format("010206150405")
 var public_key_path = resource.Path("testdata/chains/key/cosign.pub")
@@ -92,7 +90,7 @@ func VerifySignature(resourceType string){
 
 func StartKanikoTask() {
     cmd.MustSucceed("oc", "secrets", "link", "pipeline", "quay", "--for=pull,mount")
-    image := fmt.Sprintf("IMAGE=%s/%s:%s", registry, repo, tag)
+    image := fmt.Sprintf("IMAGE=%s:%s", repo, tag)
     cmd.MustSucceed("tkn", "task", "start", "--param", image, "--use-param-defaults", "--workspace", "name=source,claimName=chains-pvc", "--workspace", "name=dockerconfig,secret=quay", "kaniko-chains")
     fmt.Println("Waiting 2 minutes for images to appear in image registry")
     cmd.MustSuccedIncreasedTimeout(time.Second*130 ,"sleep", "120")
@@ -125,7 +123,7 @@ func GetImageDigestedUrl() (string, string) {
     }
 
     // Return image url with digest
-    url := fmt.Sprintf("%s/%s@sha256:%s", registry, repo, imageDigest)
+    url := fmt.Sprintf("%s@sha256:%s", repo, imageDigest)
     return url, imageDigest
 }
 

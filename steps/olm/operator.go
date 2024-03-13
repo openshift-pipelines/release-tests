@@ -181,11 +181,9 @@ var _ = gauge.Step("Verify Attestation", func(){
 	operator.VerifyAttestation()
 })
 
-var _ = gauge.Step("Import image registry variables", func(){
-	if os.Getenv("CHAINS_REGISTRY") == "" || os.Getenv("CHAINS_REPOSITORY") == "" {
-		testsuit.T.Errorf("'CHAINS_REGISTRY' and 'CHAINS_REPOSITORY' image registry system variables were not exported")
-	}else{
-		fmt.Println("Image registry variables were succesfully imported")
+var _ = gauge.Step("Import image registry variable", func(){
+	if os.Getenv("CHAINS_REPOSITORY") == "" {
+		testsuit.T.Errorf("'CHAINS_REPOSITORY' system variable is not exported")
 	}
 })
 
