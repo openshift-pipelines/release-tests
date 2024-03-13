@@ -98,6 +98,10 @@ func DeleteResource(resourceType, name string) {
 	log.Printf("output: %s\n", cmd.MustSucceed("oc", "delete", resourceType, name, "-n", store.Namespace()).Stdout())
 }
 
+func DeleteResourceInNamespace(resourceType, name, namespace string){
+	log.Printf("output: %s\n", cmd.MustSucceed("oc", "delete", resourceType, name, "-n", namespace).Stdout())
+}
+
 func CheckProjectExists(projectName string) bool {
 	return !strings.Contains(cmd.Run("oc", "project", projectName).String(), "error")
 }
@@ -132,6 +136,10 @@ func EnableConsolePlugin() {
 
 	patch_data := "{\"spec\":{\"plugins\":[\"" + strings.Join(plugins, "\",\"") + "\"]}}"
 	cmd.MustSucceed("oc", "patch", "consoles.operator.openshift.io", "cluster", "-p", patch_data, "--type=merge").Stdout()
+}
+
+func GetSecretsData(secretName, namespace string) string {
+	return cmd.MustSucceed("oc", "get", "secrets", secretName, "-n", namespace, "-o", "jsonpath=\"{.data}\"").Stdout()
 }
 
 func CreateQuaySecretForTektonChains(dockerConfig, config string){

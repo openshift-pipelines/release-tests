@@ -160,6 +160,7 @@ func CheckAttestation() {
 }
 
 func CreateSigningSecretForTektonChains(){
+    
 	chainsPublicKey := os.Getenv("CHAINS_COSIGN_PUBLIC")
 	chainsPrivateKey := os.Getenv("CHAINS_COSIGN_PRIVATE")
     os.Setenv("COSIGN_PASSWORD", "chainstest")

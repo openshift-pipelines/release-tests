@@ -189,9 +189,14 @@ var _ = gauge.Step("Import image registry variables", func(){
 	}
 })
 
-var _ = gauge.Step("Create signing-secrets for tekton chains", func(){
+var _ = gauge.Step("Create signing-secrets for Tekton Chains", func(){
 	if oc.SecretExists("signing-secrets", "openshift-pipelines"){
-		log.Printf("Secret \"signing-secrets\" already exists")
+		log.Printf("Secrets \"signing-secrets\" already exists")
+		if oc.GetSecretsData("signing-secrets", "openshift-pipelines") == "\"\"" {
+			log.Printf("The \"signing-secrets\" does not contain any data")
+			oc.DeleteResourceInNamespace("secrets", "signing-secrets", "openshift-pipelines")
+			operator.CreateSigningSecretForTektonChains()
+		}
 	} else {
 		operator.CreateSigningSecretForTektonChains()
 	}
