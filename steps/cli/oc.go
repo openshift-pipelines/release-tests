@@ -176,22 +176,16 @@ var _ = gauge.Step("Enable console plugin", func() {
 	oc.EnableConsolePlugin()
 })
 
-var _ = gauge.Step("Create quay secret for Tekton Chains", func() {
+var _ = gauge.Step("Create secret with image registry credentials for SA", func() {
 	if os.Getenv("CHAINS_DOCKER_CONFIG_JSON") == "" {
-		testsuit.T.Errorf("'CHAINS_DOCKER_CONFIG_JSON' robot credentials system variable is not exported")
+		testsuit.T.Errorf("'CHAINS_DOCKER_CONFIG_JSON' robot credentials environment variable is not exported")
 	} else {
 		dockerConfig := os.Getenv("CHAINS_DOCKER_CONFIG_JSON")
 		oc.CreateQuaySecretForTektonChains(dockerConfig)
 	}
 })
 
-var _ = gauge.Step("Modifying the TektonConfig for Tekton Chains by storage for storing signatures: <storage>", func(storage string) {
-	var patch_data string
-	if storage == "disable" {
-		patch_data = "{\"spec\":{\"chain\":{\"artifacts.taskrun.format\":\"in-toto\",\"artifacts.taskrun.storage\":\"tekton\",\"artifacts.oci.storage\":\"\"}}}"
-	}
-	if storage == "oci" {
-		patch_data = "{\"spec\":{\"chain\":{\"artifacts.taskrun.format\":\"in-toto\",\"artifacts.taskrun.storage\":\"tekton,oci\",\"transparency.enabled\":\"true\"}}}"
-	}
+var _ = gauge.Step("Update the TektonConfig with taskrun format as <format> taskrun storage as <r_storage> oci storage as <oci_storage> transparency mode as <mode>", func(format, r_storage, oci_storage, mode string) {
+	patch_data := "{\"spec\":{\"chain\":{\"artifacts.taskrun.format\":\""+format+"\",\"artifacts.taskrun.storage\":\""+r_storage+"\",\"artifacts.oci.storage\":\""+oci_storage+"\",\"transparency.enabled\":\""+mode+"\"}}}"
 	oc.UpdateTektonConfig(patch_data)
 })

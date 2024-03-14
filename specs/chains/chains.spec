@@ -12,7 +12,7 @@ Type: Functional
 Importance: Critical
 
 Steps: 
-    * Modifying the TektonConfig for Tekton Chains by storage for storing signatures: "disable"
+    * Update the TektonConfig with taskrun format as "in-toto" taskrun storage as "tekton" oci storage as "" transparency mode as "false"
     * Apply
      | S.NO | resource_dir                          |
      |------|---------------------------------------|
@@ -26,15 +26,15 @@ Level: Integration
 Type: Functional
 Importance: Critical
 Steps:
-    * Modifying the TektonConfig for Tekton Chains by storage for storing signatures: "oci"
-    * Import image registry variable 
-    * Create quay secret for Tekton Chains
+    * Update the TektonConfig with taskrun format as "in-toto" taskrun storage as "oci" oci storage as "oci" transparency mode as "true"
+    * Verify that image registry variable is exported
+    * Create secret with image registry credentials for SA
     * Apply
      | S.NO | resource_dir                          |
      |------|---------------------------------------|
      | 1    | testdata/pvc/chains-pvc.yaml          |
      | 2    | testdata/chains/kaniko.yaml           |
-    * Start task
+    * Start the kaniko-chains task
     * Verify image signature
-    * Check Attestation
-    * Verify Attestation
+    * Check attestation
+    * Verify attestation

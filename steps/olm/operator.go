@@ -165,7 +165,7 @@ var _ = gauge.Step("Verify <resourceType> signature", func(resourceType string) 
 	operator.VerifySignature(resourceType)
 })
 
-var _ = gauge.Step("Start task", func() {
+var _ = gauge.Step("Start the kaniko-chains task", func() {
 	operator.StartKanikoTask()
 })
 
@@ -173,17 +173,17 @@ var _ = gauge.Step("Verify image signature", func() {
 	operator.VerifyImageSignature()
 })
 
-var _ = gauge.Step("Check Attestation", func() {
+var _ = gauge.Step("Check attestation", func() {
 	operator.CheckAttestation()
 })
 
-var _ = gauge.Step("Verify Attestation", func() {
+var _ = gauge.Step("Verify attestation", func() {
 	operator.VerifyAttestation()
 })
 
-var _ = gauge.Step("Import image registry variable", func() {
+var _ = gauge.Step("Verify that image registry variable is exported", func() {
 	if os.Getenv("CHAINS_REPOSITORY") == "" {
-		testsuit.T.Errorf("'CHAINS_REPOSITORY' system variable is not exported")
+		testsuit.T.Errorf("'CHAINS_REPOSITORY' environment variable is not exported")
 	}
 })
 

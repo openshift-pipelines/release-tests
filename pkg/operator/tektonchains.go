@@ -23,6 +23,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"path/filepath"
 	"strings"
 	"time"
 
@@ -41,10 +42,9 @@ import (
 // "quay.io/openshift-pipeline/chainstest"
 var repo string = os.Getenv("CHAINS_REPOSITORY")
 var tag string = time.Now().Format("010206150405")
-var public_key_path = resource.Path("testdata/chains/key/cosign.pub")
+var public_key_path = resource.Path("testdata/chains/key")
 
 func EnsureTektonChainsExists(clients chainv1alpha.TektonChainInterface, names utils.ResourceNames) (*v1alpha1.TektonChain, error) {
-	// If this function is called by the upgrade tests, we only create the custom resource, if it does not exist.
 	ks, err := clients.Get(context.TODO(), names.TektonChain, metav1.GetOptions{})
 	err = wait.Poll(config.APIRetry, config.APITimeout, func() (bool, error) {
 		ks, err = clients.Get(context.TODO(), names.TektonChain, metav1.GetOptions{})
@@ -85,7 +85,7 @@ func VerifySignature(resourceType string) {
 		testsuit.T.Errorf("Error writing to file")
 	}
 	//Verify signature with signing-secrets
-	cmd.MustSucceed("cosign", "verify-blob-attestation", "--insecure-ignore-tlog", "--key", public_key_path, "--signature", "sign", "--type", "slsaprovenance", "--check-claims=false", "/dev/null")
+	cmd.MustSucceed("cosign", "verify-blob-attestation", "--insecure-ignore-tlog", "--key", public_key_path+"/cosign.pub", "--signature", "sign", "--type", "slsaprovenance", "--check-claims=false", "/dev/null")
 }
 
 func StartKanikoTask() {
@@ -129,12 +129,12 @@ func GetImageDigestedUrl() (string, string) {
 
 func VerifyImageSignature() {
 	url, _ := GetImageDigestedUrl()
-	cmd.MustSucceed("cosign", "verify", "--key", public_key_path, url)
+	cmd.MustSucceed("cosign", "verify", "--key", public_key_path+"/cosign.pub", url)
 }
 
 func VerifyAttestation() {
 	url, _ := GetImageDigestedUrl()
-	cmd.MustSucceed("cosign", "verify-attestation", "--key", public_key_path, "--type", "slsaprovenance", url)
+	cmd.MustSucceed("cosign", "verify-attestation", "--key", public_key_path+"/cosign.pub", "--type", "slsaprovenance", url)
 }
 
 func CheckAttestation() {
@@ -166,8 +166,18 @@ func CreateSigningSecretForTektonChains() {
 	chainsPassword := os.Getenv("COSIGN_PASSWORD")
 	if chainsPublicKey != "" || chainsPrivateKey != "" {
 		cmd.MustSucceed("oc", "create", "secret", "generic", "signing-secrets", "--from-literal=cosign.key="+chainsPrivateKey, "--from-literal=cosign.password="+chainsPassword, "--from-literal=cosign.pub="+chainsPublicKey, "--namespace", "openshift-pipelines")
+		filepath := filepath.Join(public_key_path, "cosign.pub")
+		file, err := os.Create(filepath)
+		if err != nil {
+			testsuit.T.Errorf("Error creating file")
+		}
+		defer file.Close()
+		_, err = file.WriteString(chainsPublicKey)
+		if err != nil {
+			testsuit.T.Errorf("Error writing to file")
+		}
 	} else {
 		cmd.MustSucceed("cosign", "generate-key-pair", "k8s://openshift-pipelines/signing-secrets")
+		cmd.MustSucceed("mv", "cosign.pub", public_key_path)
 	}
-	cmd.MustSucceed("mv", "cosign.pub", public_key_path)
 }
