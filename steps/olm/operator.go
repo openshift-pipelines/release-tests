@@ -161,34 +161,34 @@ var _ = gauge.Step("Verify <resourceType> Results logs", func(resourceType strin
 	operator.VerifyResultsLogs(resourceType)
 })
 
-var _ = gauge.Step("Verify <resourceType> signature", func(resourceType string){
+var _ = gauge.Step("Verify <resourceType> signature", func(resourceType string) {
 	operator.VerifySignature(resourceType)
 })
 
-var _ = gauge.Step("Start task", func(){
+var _ = gauge.Step("Start task", func() {
 	operator.StartKanikoTask()
 })
 
-var _ = gauge.Step("Verify image signature", func(){
+var _ = gauge.Step("Verify image signature", func() {
 	operator.VerifyImageSignature()
 })
 
-var _ = gauge.Step("Check Attestation", func(){
+var _ = gauge.Step("Check Attestation", func() {
 	operator.CheckAttestation()
 })
 
-var _ = gauge.Step("Verify Attestation", func(){
+var _ = gauge.Step("Verify Attestation", func() {
 	operator.VerifyAttestation()
 })
 
-var _ = gauge.Step("Import image registry variable", func(){
+var _ = gauge.Step("Import image registry variable", func() {
 	if os.Getenv("CHAINS_REPOSITORY") == "" {
 		testsuit.T.Errorf("'CHAINS_REPOSITORY' system variable is not exported")
 	}
 })
 
-var _ = gauge.Step("Create signing-secrets for Tekton Chains", func(){
-	if oc.SecretExists("signing-secrets", "openshift-pipelines"){
+var _ = gauge.Step("Create signing-secrets for Tekton Chains", func() {
+	if oc.SecretExists("signing-secrets", "openshift-pipelines") {
 		log.Printf("Secrets \"signing-secrets\" already exists")
 		if oc.GetSecretsData("signing-secrets", "openshift-pipelines") == "\"\"" {
 			log.Printf("The \"signing-secrets\" does not contain any data")

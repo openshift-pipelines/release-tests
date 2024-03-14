@@ -176,21 +176,21 @@ var _ = gauge.Step("Enable console plugin", func() {
 	oc.EnableConsolePlugin()
 })
 
-var _ = gauge.Step("Create quay secret for Tekton Chains", func(){
+var _ = gauge.Step("Create quay secret for Tekton Chains", func() {
 	if os.Getenv("CHAINS_DOCKER_CONFIG_JSON") == "" {
 		testsuit.T.Errorf("'CHAINS_DOCKER_CONFIG_JSON' robot credentials system variable is not exported")
-	}else {
+	} else {
 		dockerConfig := os.Getenv("CHAINS_DOCKER_CONFIG_JSON")
 		oc.CreateQuaySecretForTektonChains(dockerConfig)
 	}
 })
 
-var _ = gauge.Step("Patch tekton config to sign and verify <resourceType> with Tekton Chains", func(resourceType string){
+var _ = gauge.Step("Modifying the TektonConfig for Tekton Chains by storage for storing signatures: <storage>", func(storage string) {
 	var patch_data string
-	if resourceType == "taskrun"{
+	if storage == "disable" {
 		patch_data = "{\"spec\":{\"chain\":{\"artifacts.taskrun.format\":\"in-toto\",\"artifacts.taskrun.storage\":\"tekton\",\"artifacts.oci.storage\":\"\"}}}"
 	}
-	if resourceType == "image"{
+	if storage == "oci" {
 		patch_data = "{\"spec\":{\"chain\":{\"artifacts.taskrun.format\":\"in-toto\",\"artifacts.taskrun.storage\":\"tekton,oci\",\"transparency.enabled\":\"true\"}}}"
 	}
 	oc.UpdateTektonConfig(patch_data)

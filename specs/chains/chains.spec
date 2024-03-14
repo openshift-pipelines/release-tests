@@ -12,7 +12,7 @@ Type: Functional
 Importance: Critical
 
 Steps: 
-    * Patch tekton config to sign and verify "taskrun" with Tekton Chains
+    * Modifying the TektonConfig for Tekton Chains by storage for storing signatures: "disable"
     * Apply
      | S.NO | resource_dir                          |
      |------|---------------------------------------|
@@ -26,7 +26,7 @@ Level: Integration
 Type: Functional
 Importance: Critical
 Steps:
-    * Patch tekton config to sign and verify "image" with Tekton Chains
+    * Modifying the TektonConfig for Tekton Chains by storage for storing signatures: "oci"
     * Import image registry variable 
     * Create quay secret for Tekton Chains
     * Apply
