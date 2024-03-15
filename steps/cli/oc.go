@@ -181,11 +181,11 @@ var _ = gauge.Step("Create secret with image registry credentials for SA", func(
 		testsuit.T.Errorf("'CHAINS_DOCKER_CONFIG_JSON' robot credentials environment variable is not exported")
 	} else {
 		dockerConfig := os.Getenv("CHAINS_DOCKER_CONFIG_JSON")
-		oc.CreateQuaySecretForTektonChains(dockerConfig)
+		oc.CreateChainsImageRegistrySecret(dockerConfig)
 	}
 })
 
 var _ = gauge.Step("Update the TektonConfig with taskrun format as <format> taskrun storage as <r_storage> oci storage as <oci_storage> transparency mode as <mode>", func(format, r_storage, oci_storage, mode string) {
-	patch_data := "{\"spec\":{\"chain\":{\"artifacts.taskrun.format\":\""+format+"\",\"artifacts.taskrun.storage\":\""+r_storage+"\",\"artifacts.oci.storage\":\""+oci_storage+"\",\"transparency.enabled\":\""+mode+"\"}}}"
+	patch_data := "{\"spec\":{\"chain\":{\"artifacts.taskrun.format\":\"" + format + "\",\"artifacts.taskrun.storage\":\"" + r_storage + "\",\"artifacts.oci.storage\":\"" + oci_storage + "\",\"transparency.enabled\":\"" + mode + "\"}}}"
 	oc.UpdateTektonConfig(patch_data)
 })

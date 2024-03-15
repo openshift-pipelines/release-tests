@@ -98,7 +98,7 @@ func DeleteResource(resourceType, name string) {
 	log.Printf("output: %s\n", cmd.MustSucceed("oc", "delete", resourceType, name, "-n", store.Namespace()).Stdout())
 }
 
-func DeleteResourceInNamespace(resourceType, name, namespace string){
+func DeleteResourceInNamespace(resourceType, name, namespace string) {
 	log.Printf("output: %s\n", cmd.MustSucceed("oc", "delete", resourceType, name, "-n", namespace).Stdout())
 }
 
@@ -142,6 +142,6 @@ func GetSecretsData(secretName, namespace string) string {
 	return cmd.MustSucceed("oc", "get", "secrets", secretName, "-n", namespace, "-o", "jsonpath=\"{.data}\"").Stdout()
 }
 
-func CreateQuaySecretForTektonChains(dockerConfig string){
-	cmd.MustSucceed("oc", "create", "secret", "generic", "quay", "--from-literal=.dockerconfigjson="+dockerConfig, "--from-literal=config.json="+dockerConfig, "--type=kubernetes.io/dockerconfigjson")
+func CreateChainsImageRegistrySecret(dockerConfig string) {
+	cmd.MustSucceed("oc", "create", "secret", "generic", "chains-image-registry-credentials", "--from-literal=.dockerconfigjson="+dockerConfig, "--from-literal=config.json="+dockerConfig, "--type=kubernetes.io/dockerconfigjson")
 }

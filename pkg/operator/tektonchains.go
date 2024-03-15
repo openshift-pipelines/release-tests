@@ -41,8 +41,7 @@ import (
 
 // "quay.io/openshift-pipeline/chainstest"
 var repo string = os.Getenv("CHAINS_REPOSITORY")
-var tag string = time.Now().Format("010206150405")
-var public_key_path = resource.Path("testdata/chains/key")
+var public_key_path = resource.Path(config.PublicKeyPath)
 
 func EnsureTektonChainsExists(clients chainv1alpha.TektonChainInterface, names utils.ResourceNames) (*v1alpha1.TektonChain, error) {
 	ks, err := clients.Get(context.TODO(), names.TektonChain, metav1.GetOptions{})
@@ -89,9 +88,10 @@ func VerifySignature(resourceType string) {
 }
 
 func StartKanikoTask() {
-	cmd.MustSucceed("oc", "secrets", "link", "pipeline", "quay", "--for=pull,mount")
+	var tag string = time.Now().Format("010206150405")
+	cmd.MustSucceed("oc", "secrets", "link", "pipeline", "chains-image-registry-credentials", "--for=pull,mount")
 	image := fmt.Sprintf("IMAGE=%s:%s", repo, tag)
-	cmd.MustSucceed("tkn", "task", "start", "--param", image, "--use-param-defaults", "--workspace", "name=source,claimName=chains-pvc", "--workspace", "name=dockerconfig,secret=quay", "kaniko-chains")
+	cmd.MustSucceed("tkn", "task", "start", "--param", image, "--use-param-defaults", "--workspace", "name=source,claimName=chains-pvc", "--workspace", "name=dockerconfig,secret=chains-image-registry-credentials", "kaniko-chains")
 	fmt.Println("Waiting 2 minutes for images to appear in image registry")
 	cmd.MustSuccedIncreasedTimeout(time.Second*130, "sleep", "120")
 }
@@ -159,6 +159,25 @@ func CheckAttestation() {
 	}
 }
 
+func CreateFileWithCosignPubKey() {
+	chainsPublicKey := cmd.MustSucceed("oc", "get", "secrets", "signing-secrets", "-n", "openshift-pipelines", "-o", "jsonpath='{.data.cosign\\.pub}'").Stdout()
+	chainsPublicKey = strings.Trim(chainsPublicKey, "'")
+	decodedPublicKey, err := base64.StdEncoding.DecodeString(chainsPublicKey)
+	if err != nil {
+		testsuit.T.Errorf("Error decoding base64")
+	}
+	filepath := filepath.Join(public_key_path, "cosign.pub")
+	file, err := os.Create(filepath)
+	if err != nil {
+		testsuit.T.Errorf("Error creating file")
+	}
+	defer file.Close()
+	_, err = file.WriteString(string(decodedPublicKey))
+	if err != nil {
+		testsuit.T.Errorf("Error writing to file")
+	}
+}
+
 func CreateSigningSecretForTektonChains() {
 	chainsPublicKey := os.Getenv("CHAINS_COSIGN_PUBLIC")
 	chainsPrivateKey := os.Getenv("CHAINS_COSIGN_PRIVATE")
@@ -166,18 +185,9 @@ func CreateSigningSecretForTektonChains() {
 	chainsPassword := os.Getenv("COSIGN_PASSWORD")
 	if chainsPublicKey != "" || chainsPrivateKey != "" {
 		cmd.MustSucceed("oc", "create", "secret", "generic", "signing-secrets", "--from-literal=cosign.key="+chainsPrivateKey, "--from-literal=cosign.password="+chainsPassword, "--from-literal=cosign.pub="+chainsPublicKey, "--namespace", "openshift-pipelines")
-		filepath := filepath.Join(public_key_path, "cosign.pub")
-		file, err := os.Create(filepath)
-		if err != nil {
-			testsuit.T.Errorf("Error creating file")
-		}
-		defer file.Close()
-		_, err = file.WriteString(chainsPublicKey)
-		if err != nil {
-			testsuit.T.Errorf("Error writing to file")
-		}
+		CreateFileWithCosignPubKey()
 	} else {
 		cmd.MustSucceed("cosign", "generate-key-pair", "k8s://openshift-pipelines/signing-secrets")
-		cmd.MustSucceed("mv", "cosign.pub", public_key_path)
+		CreateFileWithCosignPubKey()
 	}
 }
