@@ -9,7 +9,7 @@ RUN pip install pyyaml reportportal-client
 RUN wget https://github.com/mikefarah/yq/releases/download/v4.40.5/yq_linux_amd64 -O /usr/bin/yq &&\
     chmod +x /usr/bin/yq
 
-ENV OC_VERSION=4.14
+ENV OC_VERSION=4.15
 RUN wget https://mirror.openshift.com/pub/openshift-v4/clients/ocp/fast-${OC_VERSION}/openshift-client-linux.tar.gz \
     -O /tmp/openshift-client.tar.gz &&\
     tar xzf /tmp/openshift-client.tar.gz -C /usr/bin oc &&\
