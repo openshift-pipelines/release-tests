@@ -9,8 +9,8 @@ metadata:
     pipelinesascode.tekton.dev/max-keep-runs: "5"
 spec:
   taskRunSpecs:
-    - pipelineTaskName: skopeo-copy-push
-      serviceAccountName: skopeo-copy-quay-creds
+    - pipelineTaskName: skopeo-copy
+      serviceAccountName: builder
   params:
     - name: repo_url
       value: "{{ repo_url }}"
@@ -123,7 +123,7 @@ spec:
             operator: in 
             values: 
               - "$(tasks.generate-image-name.results.repository)"
-      - name: skopeo-copy-push
+      - name: skopeo-copy
         taskRef: 
           kind: ClusterTask
           name: skopeo-copy
@@ -137,30 +137,7 @@ spec:
             value: docker://$(tasks.generate-image-name.results.image-name-timestamp)
         runAfter:
           - buildah-push
-        when:
-          - input: "quay.io"
-            operator: in 
-            values: 
-              - "$(tasks.generate-image-name.results.repository)"
-      - name: skopeo-copy-pull-request
-        taskRef: 
-          kind: ClusterTask
-          name: skopeo-copy
-        workspaces:
-          - name: images-url
-            workspace: images-url
-        params:
-          - name: srcImageURL
-            value: docker://$(tasks.generate-image-name.results.image-name)
-          - name: destImageURL
-            value: docker://$(tasks.generate-image-name.results.image-name-timestamp)
-        runAfter:
           - buildah-pull-request
-        when:
-          - input: "image-registry"
-            operator: in 
-            values: 
-              - "$(tasks.generate-image-name.results.repository)"
           
     finally:
       - name: send-slack-notification-request
