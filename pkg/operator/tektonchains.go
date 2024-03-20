@@ -39,9 +39,14 @@ import (
 	"k8s.io/apimachinery/pkg/util/wait"
 )
 
+const(
+	// Path to a chains public key
+	PublicKeyPath = "testdata/chains/key"
+)
+
 // "quay.io/openshift-pipeline/chainstest"
 var repo string = os.Getenv("CHAINS_REPOSITORY")
-var public_key_path = resource.Path(config.PublicKeyPath)
+var public_key_path = resource.Path(PublicKeyPath)
 
 func EnsureTektonChainsExists(clients chainv1alpha.TektonChainInterface, names utils.ResourceNames) (*v1alpha1.TektonChain, error) {
 	ks, err := clients.Get(context.TODO(), names.TektonChain, metav1.GetOptions{})
@@ -163,6 +168,7 @@ func CreateFileWithCosignPubKey() {
 	chainsPublicKey := cmd.MustSucceed("oc", "get", "secrets", "signing-secrets", "-n", "openshift-pipelines", "-o", "jsonpath='{.data.cosign\\.pub}'").Stdout()
 	chainsPublicKey = strings.Trim(chainsPublicKey, "'")
 	decodedPublicKey, err := base64.StdEncoding.DecodeString(chainsPublicKey)
+	cmd.MustSucceed("mkdir", "-p", public_key_path)
 	if err != nil {
 		testsuit.T.Errorf("Error decoding base64")
 	}

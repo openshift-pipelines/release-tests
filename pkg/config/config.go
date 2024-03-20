@@ -62,9 +62,6 @@ const (
 	PacWatcherName    = "pipelines-as-code-watcher"
 	PacWebhookName    = "pipelines-as-code-webhook"
 
-	// Path to a chains public key
-	PublicKeyPath = "testdata/chains/key"
-
 	// Name of tkn deployment
 	TknDeployment = "tkn-cli-serve"
 
