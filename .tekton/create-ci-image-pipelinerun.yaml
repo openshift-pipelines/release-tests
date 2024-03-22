@@ -1,5 +1,5 @@
 ---
-apiVersion: tekton.dev/v1beta1
+apiVersion: tekton.dev/v1
 kind: PipelineRun
 metadata:
   name: create-push-ci-image
@@ -8,6 +8,9 @@ metadata:
       "Dockerfile.CI".pathChanged() && ( event == "push" || event == "pull_request" )
     pipelinesascode.tekton.dev/max-keep-runs: "5"
 spec:
+  taskRunSpecs:
+    - pipelineTaskName: skopeo-copy
+      serviceAccountName: builder
   params:
     - name: repo_url
       value: "{{ repo_url }}"
@@ -47,21 +50,26 @@ spec:
                 BRANCH_NAME={{ target_branch }}
                 IMAGE_NAME=""
                 IMAGE_NAME_TIMESTAMP=""
+                REPOSITORY=""
                 TIMESTAMP=$(date +"%y%m%d%H%M")
 
                 if [ "$BRANCH_NAME" == "master" ]; then 
                   if [ {{ event_type }} == "pull_request" ]; then
                       IMAGE_NAME="image-registry.openshift-image-registry.svc:5000/pipelines-ci/ci:latest"
                       IMAGE_NAME_TIMESTAMP="image-registry.openshift-image-registry.svc:5000/pipelines-ci/ci:5.0-$TIMESTAMP"
+                      REPOSITORY="image-registry"
                   else
                       IMAGE_NAME="quay.io/openshift-pipeline/ci:latest"
                       IMAGE_NAME_TIMESTAMP="quay.io/openshift-pipeline/ci:5.0-$TIMESTAMP"
+                      REPOSITORY="quay.io"
                   fi
                 elif [[ "$BRANCH_NAME" == release-* ]]; then 
                   if [ {{ event_type }} == "pull_request" ]; then
                     IMAGE_NAME="image-registry.openshift-image-registry.svc:5000/pipelines-ci/ci:${BRANCH_NAME#release-}"
+                    REPOSITORY="image-registry"
                   else
                     IMAGE_NAME="quay.io/openshift-pipeline/ci:${BRANCH_NAME#release-}"
+                    REPOSITORY="quay.io"
                   fi
                   IMAGE_NAME_TIMESTAMP="$IMAGE_NAME-$TIMESTAMP"
                 else
@@ -73,7 +81,7 @@ spec:
                 echo -n "$IMAGE_NAME_TIMESTAMP" | tee $(results.image-name-timestamp.path)
         runAfter: 
           - fetch-repository
-      - name: buildah 
+      - name: buildah-push
         taskRef:
           kind: ClusterTask
           name: buildah
@@ -89,6 +97,30 @@ spec:
             workspace: source
           - name: dockerconfig
             workspace: dockerconfig
+        when: 
+          - input: "{{ event_type }}"
+            operator: in 
+            values: 
+              - "push"
+      - name: buildah-pull-request
+        taskRef: 
+          kind: ClusterTask
+          name: buildah
+        params:
+          - name: IMAGE
+            value: $(tasks.generate-image-name.results.image-name)
+          - name: DOCKERFILE
+            value: ./Dockerfile.CI
+        runAfter: 
+          - generate-image-name
+        workspaces:
+          - name: source
+            workspace: source
+        when: 
+          - input: "{{ event_type }}"
+            operator: in 
+            values: 
+              -  "pull_request"
       - name: skopeo-copy
         taskRef: 
           kind: ClusterTask
@@ -102,7 +134,9 @@ spec:
           - name: destImageURL
             value: docker://$(tasks.generate-image-name.results.image-name-timestamp)
         runAfter:
-          - buildah
+          - buildah-push
+          - buildah-pull-request
+          
     finally:
       - name: send-slack-notification
         taskRef:
@@ -121,6 +155,10 @@ spec:
           - input: $(tasks.skopeo-copy.status)
             operator: in
             values: ["Failed", "None"]
+          - input: "{{ event_type }}"
+            operator: in 
+            values: 
+              - "push"
 
   workspaces:
     - name: dockerconfig
