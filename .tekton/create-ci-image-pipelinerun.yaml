@@ -42,7 +42,6 @@ spec:
           results:
             - name: image-name
             - name: image-name-timestamp
-            - name: repository
           steps: 
             - name: generate-image-name
               image: quay.io/openshift-pipeline/ci
@@ -80,7 +79,6 @@ spec:
 
                 echo -n "$IMAGE_NAME" | tee $(results.image-name.path)
                 echo -n "$IMAGE_NAME_TIMESTAMP" | tee $(results.image-name-timestamp.path)
-                echo -n "$REPOSITORY" | tee $(results.repository.path)
         runAfter: 
           - fetch-repository
       - name: buildah-push
@@ -100,10 +98,10 @@ spec:
           - name: dockerconfig
             workspace: dockerconfig
         when: 
-          - input: "quay.io"
+          - input: "{{ event_type }}"
             operator: in 
             values: 
-              - "$(tasks.generate-image-name.results.repository)"
+              - "push"
       - name: buildah-pull-request
         taskRef: 
           kind: ClusterTask
@@ -119,10 +117,10 @@ spec:
           - name: source
             workspace: source
         when: 
-          - input: "image-registry"
+          - input: "{{ event_type }}"
             operator: in 
             values: 
-              - "$(tasks.generate-image-name.results.repository)"
+              -  "pull_request"
       - name: skopeo-copy
         taskRef: 
           kind: ClusterTask
@@ -157,10 +155,10 @@ spec:
           - input: $(tasks.skopeo-copy.status)
             operator: in
             values: ["Failed", "None"]
-          - input: "quay.io"
+          - input: "{{ event_type }}"
             operator: in 
             values: 
-              - "$(tasks.generate-image-name.results.repository)"
+              - "push"
 
   workspaces:
     - name: dockerconfig
