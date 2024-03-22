@@ -36,5 +36,5 @@ Steps:
      | 2    | testdata/chains/kaniko.yaml           |
     * Start the kaniko-chains task
     * Verify image signature
-    * Check attestation
+    * Check attestation exists
     * Verify attestation

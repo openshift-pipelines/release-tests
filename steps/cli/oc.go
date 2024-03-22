@@ -185,7 +185,7 @@ var _ = gauge.Step("Create secret with image registry credentials for SA", func(
 	}
 })
 
-var _ = gauge.Step("Update the TektonConfig with taskrun format as <format> taskrun storage as <r_storage> oci storage as <oci_storage> transparency mode as <mode>", func(format, r_storage, oci_storage, mode string) {
-	patch_data := "{\"spec\":{\"chain\":{\"artifacts.taskrun.format\":\"" + format + "\",\"artifacts.taskrun.storage\":\"" + r_storage + "\",\"artifacts.oci.storage\":\"" + oci_storage + "\",\"transparency.enabled\":\"" + mode + "\"}}}"
+var _ = gauge.Step("Update the TektonConfig with taskrun format as <format> taskrun storage as <r_storage> oci storage as <oci_storage> transparency mode as <mode>", func(format, runStorage, ociStorage, mode string) {
+	patch_data := "{\"spec\":{\"chain\":{\"artifacts.taskrun.format\":\"" + format + "\",\"artifacts.taskrun.storage\":\"" + runStorage + "\",\"artifacts.oci.storage\":\"" + ociStorage + "\",\"transparency.enabled\":\"" + mode + "\"}}}"
 	oc.UpdateTektonConfig(patch_data)
 })

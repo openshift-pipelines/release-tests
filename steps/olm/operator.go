@@ -161,32 +161,6 @@ var _ = gauge.Step("Verify <resourceType> Results logs", func(resourceType strin
 	operator.VerifyResultsLogs(resourceType)
 })
 
-var _ = gauge.Step("Verify <resourceType> signature", func(resourceType string) {
-	operator.VerifySignature(resourceType)
-})
-
-var _ = gauge.Step("Start the kaniko-chains task", func() {
-	operator.StartKanikoTask()
-})
-
-var _ = gauge.Step("Verify image signature", func() {
-	operator.VerifyImageSignature()
-})
-
-var _ = gauge.Step("Check attestation", func() {
-	operator.CheckAttestation()
-})
-
-var _ = gauge.Step("Verify attestation", func() {
-	operator.VerifyAttestation()
-})
-
-var _ = gauge.Step("Verify that image registry variable is exported", func() {
-	if os.Getenv("CHAINS_REPOSITORY") == "" {
-		testsuit.T.Errorf("'CHAINS_REPOSITORY' environment variable is not exported")
-	}
-})
-
 var _ = gauge.Step("Create signing-secrets for Tekton Chains", func() {
 	if oc.SecretExists("signing-secrets", "openshift-pipelines") {
 		log.Printf("Secrets \"signing-secrets\" already exists")

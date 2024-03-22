@@ -39,14 +39,9 @@ import (
 	"k8s.io/apimachinery/pkg/util/wait"
 )
 
-const(
-	// Path to a chains public key
-	PublicKeyPath = "testdata/chains/key"
-)
-
 // "quay.io/openshift-pipeline/chainstest"
 var repo string = os.Getenv("CHAINS_REPOSITORY")
-var public_key_path = resource.Path(PublicKeyPath)
+var publicKeyPath = resource.Path("testdata/chains/key")
 
 func EnsureTektonChainsExists(clients chainv1alpha.TektonChainInterface, names utils.ResourceNames) (*v1alpha1.TektonChain, error) {
 	ks, err := clients.Get(context.TODO(), names.TektonChain, metav1.GetOptions{})
@@ -89,11 +84,11 @@ func VerifySignature(resourceType string) {
 		testsuit.T.Errorf("Error writing to file")
 	}
 	//Verify signature with signing-secrets
-	cmd.MustSucceed("cosign", "verify-blob-attestation", "--insecure-ignore-tlog", "--key", public_key_path+"/cosign.pub", "--signature", "sign", "--type", "slsaprovenance", "--check-claims=false", "/dev/null")
+	cmd.MustSucceed("cosign", "verify-blob-attestation", "--insecure-ignore-tlog", "--key", publicKeyPath+"/cosign.pub", "--signature", "sign", "--type", "slsaprovenance", "--check-claims=false", "/dev/null")
 }
 
 func StartKanikoTask() {
-	var tag string = time.Now().Format("010206150405")
+	var tag string = time.Now().Format("060102150405")
 	cmd.MustSucceed("oc", "secrets", "link", "pipeline", "chains-image-registry-credentials", "--for=pull,mount")
 	image := fmt.Sprintf("IMAGE=%s:%s", repo, tag)
 	cmd.MustSucceed("tkn", "task", "start", "--param", image, "--use-param-defaults", "--workspace", "name=source,claimName=chains-pvc", "--workspace", "name=dockerconfig,secret=chains-image-registry-credentials", "kaniko-chains")
@@ -101,27 +96,24 @@ func StartKanikoTask() {
 	cmd.MustSuccedIncreasedTimeout(time.Second*130, "sleep", "120")
 }
 
-func GetImageDigestedUrl() (string, string) {
+func GetImageUrlAndDigest() (string, string) {
 	// Get Image digest
 	var imageDigest string
-	jsonOutput := cmd.MustSucceed("tkn", "tr", "describe", "--last", "-o", "json").Stdout()
+	jsonOutput := cmd.MustSucceed("tkn", "tr", "describe", "--last", "-o", "jsonpath={.status.results}").Stdout()
 	// Parse Json Output
-	type TaskRun struct {
-		Status struct {
-			Results []struct {
-				Name  string `json:"name"`
-				Value string `json:"value"`
-			} `json:"results"`
-		} `json:"status"`
+	type Result struct {
+		Name  string `json:"name"`
+		Value string `json:"value"`
 	}
-	var taskrun TaskRun
-	err := json.Unmarshal([]byte(jsonOutput), &taskrun)
+
+	var results []Result
+	err := json.Unmarshal([]byte(jsonOutput), &results)
 	if err != nil {
 		testsuit.T.Errorf("Error parsing Json output")
 	}
 
 	// Get IMAGE_DIGEST value
-	for _, result := range taskrun.Status.Results {
+	for _, result := range results {
 		if strings.Contains(result.Name, "IMAGE_DIGEST") {
 			imageDigest = strings.Split(result.Value, ":")[1]
 		}
@@ -133,18 +125,18 @@ func GetImageDigestedUrl() (string, string) {
 }
 
 func VerifyImageSignature() {
-	url, _ := GetImageDigestedUrl()
-	cmd.MustSucceed("cosign", "verify", "--key", public_key_path+"/cosign.pub", url)
+	url, _ := GetImageUrlAndDigest()
+	cmd.MustSucceed("cosign", "verify", "--key", publicKeyPath+"/cosign.pub", url)
 }
 
 func VerifyAttestation() {
-	url, _ := GetImageDigestedUrl()
-	cmd.MustSucceed("cosign", "verify-attestation", "--key", public_key_path+"/cosign.pub", "--type", "slsaprovenance", url)
+	url, _ := GetImageUrlAndDigest()
+	cmd.MustSucceed("cosign", "verify-attestation", "--key", publicKeyPath+"/cosign.pub", "--type", "slsaprovenance", url)
 }
 
-func CheckAttestation() {
+func CheckAttestationExists() {
 	// Get UUID
-	_, imageDigest := GetImageDigestedUrl()
+	_, imageDigest := GetImageUrlAndDigest()
 	jsonOutput := cmd.MustSucceed("rekor-cli", "search", "--format", "json", "--sha", imageDigest).Stdout()
 
 	// Parse Json output to find UUID
@@ -168,11 +160,11 @@ func CreateFileWithCosignPubKey() {
 	chainsPublicKey := cmd.MustSucceed("oc", "get", "secrets", "signing-secrets", "-n", "openshift-pipelines", "-o", "jsonpath='{.data.cosign\\.pub}'").Stdout()
 	chainsPublicKey = strings.Trim(chainsPublicKey, "'")
 	decodedPublicKey, err := base64.StdEncoding.DecodeString(chainsPublicKey)
-	cmd.MustSucceed("mkdir", "-p", public_key_path)
+	cmd.MustSucceed("mkdir", "-p", publicKeyPath)
 	if err != nil {
 		testsuit.T.Errorf("Error decoding base64")
 	}
-	filepath := filepath.Join(public_key_path, "cosign.pub")
+	filepath := filepath.Join(publicKeyPath, "cosign.pub")
 	file, err := os.Create(filepath)
 	if err != nil {
 		testsuit.T.Errorf("Error creating file")
@@ -188,7 +180,7 @@ func CreateSigningSecretForTektonChains() {
 	chainsPublicKey := os.Getenv("CHAINS_COSIGN_PUBLIC")
 	chainsPrivateKey := os.Getenv("CHAINS_COSIGN_PRIVATE")
 	var chainsPassword string
-	if chainsPublicKey != "" || chainsPrivateKey != "" || chainsPassword != "" {
+	if chainsPublicKey != "" && chainsPrivateKey != "" && chainsPassword != "" {
 		chainsPassword = os.Getenv("COSIGN_PASSWORD")
 		cmd.MustSucceed("oc", "create", "secret", "generic", "signing-secrets", "--from-literal=cosign.key="+chainsPrivateKey, "--from-literal=cosign.password="+chainsPassword, "--from-literal=cosign.pub="+chainsPublicKey, "--namespace", "openshift-pipelines")
 		CreateFileWithCosignPubKey()
