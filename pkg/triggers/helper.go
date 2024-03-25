@@ -6,9 +6,9 @@ import (
 	"crypto/tls"
 	"crypto/x509"
 	"encoding/hex"
-	"io/ioutil"
 	"log"
 	"net/http"
+	"os"
 	"strings"
 	"time"
 
@@ -44,7 +44,7 @@ func CreateHTTPSClient() *http.Client {
 	if err != nil {
 		log.Fatal(err)
 	}
-	caCert, err := ioutil.ReadFile(resource.Path("testdata/triggers/certs/ca.crt"))
+	caCert, err := os.ReadFile(resource.Path("testdata/triggers/certs/ca.crt"))
 	if err != nil {
 		log.Fatal(err)
 	}

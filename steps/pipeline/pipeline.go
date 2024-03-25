@@ -1,4 +1,3 @@
-//
 package pipeline
 
 import (

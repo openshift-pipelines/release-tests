@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
@@ -39,7 +38,7 @@ func getServiceNameAndPort(c *clients.Clients, elname, namespace string) (string
 	// Grab EventListener sink pods
 	sinkPods, err := c.KubeClient.Kube.CoreV1().Pods(namespace).List(c.Ctx, metav1.ListOptions{LabelSelector: labelSelector})
 	if err != nil {
-		testsuit.T.Errorf("failed to list event listener sink pods \n %v", elname, namespace, err)
+		testsuit.T.Errorf("failed to list event listener %s sink pods in namespace %s \n %v", elname, namespace, err)
 	}
 
 	log.Printf("sinkpod name: %s", sinkPods.Items[0].Name)
@@ -84,7 +83,7 @@ func ExposeEventListnerForTLS(c *clients.Clients, elname, namespace string) stri
 	extData := fmt.Sprintf("authorityKeyIdentifier=keyid,issuer\nbasicConstraints=CA:FALSE\nkeyUsage = digitalSignature, nonRepudiation, keyEncipherment, dataEncipherment\n"+
 		"subjectAltName = @alt_names\n\n\n[alt_names]\nDNS.1 = %s\n", domain)
 
-	err := ioutil.WriteFile(serverEXT, []byte(extData), 0644)
+	err := os.WriteFile(serverEXT, []byte(extData), 0644)
 	if err != nil {
 		testsuit.T.Fail(err)
 	}
@@ -139,7 +138,7 @@ func MockPostEvent(routeurl, interceptor, eventType, payload string, isTLS bool)
 		err  error
 		resp *http.Response
 	)
-	eventBodyJSON, err := ioutil.ReadFile(resource.Path(payload))
+	eventBodyJSON, err := os.ReadFile(resource.Path(payload))
 	if err != nil {
 		testsuit.T.Errorf("could not load test data from file %s \n %v", payload, err)
 	}

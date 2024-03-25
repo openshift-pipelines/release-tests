@@ -208,7 +208,7 @@ func VerifyServiceAccountExists(ctx context.Context, kc *clients.KubeClient, sa,
 	}
 }
 
-func VerifyNamespaceExists(ctx context.Context, kc *clients.KubeClient, ns string){
+func VerifyNamespaceExists(ctx context.Context, kc *clients.KubeClient, ns string) {
 	log.Printf("Verify namespace %q exists", ns)
 	if err := wait.PollImmediate(config.APIRetry, config.APITimeout, func() (bool, error) {
 		_, err := kc.Kube.CoreV1().Namespaces().Get(ctx, ns, metav1.GetOptions{})
