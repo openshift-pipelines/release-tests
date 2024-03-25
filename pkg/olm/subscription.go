@@ -4,8 +4,8 @@ import (
 	"bytes"
 	"context"
 	"html/template"
-	"io/ioutil"
 	"log"
+	"os"
 	"time"
 
 	"github.com/getgauge-contrib/gauge-go/testsuit"
@@ -113,7 +113,7 @@ func createSubscription(name, channel, catalogsource string) {
 	if err != nil {
 		testsuit.T.Fail(err)
 	}
-	if err = ioutil.WriteFile(file, buffer.Bytes(), 0666); err != nil {
+	if err = os.WriteFile(file, buffer.Bytes(), 0666); err != nil {
 		testsuit.T.Fail(err)
 	}
 
@@ -131,7 +131,7 @@ func OperatorCleanup(cs *clients.Clients, name string) {
 	}
 
 	log.Printf("Output %s \n", cmd.MustSucceed(
-		"oc", "delete", "--ignore-not-found" ,"-n", OperatorsNamespace,
+		"oc", "delete", "--ignore-not-found", "-n", OperatorsNamespace,
 		"subscription", sub.Name,
 	).Stdout())
 }
