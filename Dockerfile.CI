@@ -55,8 +55,8 @@ RUN wget https://github.com/getgauge/gauge/releases/download/v${GAUGE_VERSION}/g
     go env -w GOPROXY="https://proxy.golang.org,direct" &&\
     gauge version
 
-RUN wget https://github.com/sigstore/cosign/releases/download/v2.2.2/cosign-linux-amd64 -O /usr/bin/cosign && \
+RUN wget https://github.com/sigstore/cosign/releases/download/v2.2.3/cosign-linux-amd64 -O /usr/bin/cosign && \
     chmod u+x /usr/bin/cosign
 
-RUN wget https://github.com/sigstore/rekor/releases/download/v1.3.4/rekor-cli-linux-amd64 -O /usr/bin/rekor-cli && \
+RUN wget https://github.com/sigstore/rekor/releases/download/v1.3.5/rekor-cli-linux-amd64 -O /usr/bin/rekor-cli && \
     chmod u+x /usr/bin/rekor-cli
