@@ -29,7 +29,6 @@ import (
 	"k8s.io/apimachinery/pkg/util/wait"
 )
 
-
 func EnsureTektonHubsExists(clients hubv1alpha.TektonHubInterface, names utils.ResourceNames) (*v1alpha1.TektonHub, error) {
 	// If this function is called by the upgrade tests, we only create the custom resource, if it does not exist.
 	ks, err := clients.Get(context.TODO(), names.TektonHub, metav1.GetOptions{})
