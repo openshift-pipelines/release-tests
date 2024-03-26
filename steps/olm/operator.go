@@ -127,7 +127,7 @@ var _ = gauge.Step("Validate quickstarts", func() {
 })
 
 var _ = gauge.Step("Create secrets for Tekton Results", func() {
-	if !oc.SecretExists("tekton-results-postgres", "openshift-pipelines") && !oc.SecretExists("tekton-results-tls", "openshift-pipelines"){
+	if !oc.SecretExists("tekton-results-postgres", "openshift-pipelines") && !oc.SecretExists("tekton-results-tls", "openshift-pipelines") {
 		operator.CreateSecretsForTektonResults()
 	} else {
 		log.Printf("\"tekton-results-postgres\" or \"tekton-results-tls\" secrets already exist")
@@ -138,14 +138,29 @@ var _ = gauge.Step("Ensure that Tekton Results is ready", func() {
 	operator.EnsureResutsReady()
 })
 
-var _ = gauge.Step("Create Results route", func(){
+var _ = gauge.Step("Create Results route", func() {
 	operator.CreateResultsRoute()
 })
 
-var _ = gauge.Step("Verify <resourceType> Results records", func(resourceType string){
+var _ = gauge.Step("Verify <resourceType> Results records", func(resourceType string) {
 	operator.VerifyResultsRecords(resourceType)
 })
 
-var _ = gauge.Step("Verify <resourceType> Results logs", func(resourceType string){
+var _ = gauge.Step("Verify <resourceType> Results logs", func(resourceType string) {
 	operator.VerifyResultsLogs(resourceType)
+})
+
+var _ = gauge.Step("Create signing-secrets for Tekton Chains", func() {
+	if oc.SecretExists("signing-secrets", "openshift-pipelines") {
+		log.Printf("Secrets \"signing-secrets\" already exists")
+		if oc.GetSecretsData("signing-secrets", "openshift-pipelines") == "\"\"" {
+			log.Printf("The \"signing-secrets\" does not contain any data")
+			oc.DeleteResourceInNamespace("secrets", "signing-secrets", "openshift-pipelines")
+			operator.CreateSigningSecretForTektonChains()
+		} else {
+			operator.CreateFileWithCosignPubKey()
+		}
+	} else {
+		operator.CreateSigningSecretForTektonChains()
+	}
 })

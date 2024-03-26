@@ -96,6 +96,10 @@ func DeleteResource(resourceType, name string) {
 	log.Printf("output: %s\n", cmd.MustSucceed("oc", "delete", resourceType, name, "-n", store.Namespace()).Stdout())
 }
 
+func DeleteResourceInNamespace(resourceType, name, namespace string) {
+	log.Printf("output: %s\n", cmd.MustSucceed("oc", "delete", resourceType, name, "-n", namespace).Stdout())
+}
+
 func CheckProjectExists(projectName string) bool {
 	return !strings.Contains(cmd.Run("oc", "project", projectName).String(), "error")
 }
@@ -106,4 +110,12 @@ func SecretExists(secretName string, namespace string) bool {
 
 func CreateSecretForGitResolver(secretData string) {
 	cmd.MustSucceed("oc", "create", "secret", "generic", "github-auth-secret", "--from-literal", "github-auth-key="+secretData, "-n", "openshift-pipelines")
+}
+
+func GetSecretsData(secretName, namespace string) string {
+	return cmd.MustSucceed("oc", "get", "secrets", secretName, "-n", namespace, "-o", "jsonpath=\"{.data}\"").Stdout()
+}
+
+func CreateChainsImageRegistrySecret(dockerConfig string) {
+	cmd.MustSucceed("oc", "create", "secret", "generic", "chains-image-registry-credentials", "--from-literal=.dockerconfigjson="+dockerConfig, "--from-literal=config.json="+dockerConfig, "--type=kubernetes.io/dockerconfigjson")
 }
