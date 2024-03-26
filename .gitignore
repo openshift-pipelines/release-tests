@@ -17,6 +17,9 @@ vendor/
 # Temporary TLS certificates used for testing
 testdata/triggers/certs/
 
+# Temporary cosign public key used for testing
+testdata/chains/key 
+
 logs/
 
 reports/
