@@ -44,7 +44,7 @@ spec:
     - name: APP_NAME
       default: nodejs-ex-git
     - name: GIT_REPO
-      default: 'https://github.com/sclorg/nodejs-ex.git'
+      default: 'https://github.com/digitalocean/sample-nodejs.git'
     - name: GIT_REVISION
       default: master
     - name: IMAGE_NAME
