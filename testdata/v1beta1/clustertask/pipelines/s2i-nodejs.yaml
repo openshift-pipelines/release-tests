@@ -18,7 +18,7 @@ spec:
       workspace: source
     params:
     - name: url
-      value: https://github.com/sclorg/nodejs-ex
+      value: https://github.com/digitalocean/sample-nodejs.git
     - name: subdirectory
       value: s2i-nodejs-$(params.VERSION)
     - name: deleteExisting
