@@ -13,6 +13,7 @@ Importance: Critical
 
 Steps:
 * Verify that image stream "golang" exists
+* Verify ServiceAccount "pipeline" exist
 * Apply
    |S.NO|resource_dir                 |
    |----|-----------------------------|
@@ -33,6 +34,7 @@ Importance: Critical
 
 Steps:
 * Verify that image stream "golang" exists
+* Verify ServiceAccount "pipeline" exist
 * Apply
    |S.NO|resource_dir                     |
    |----|---------------------------------|
