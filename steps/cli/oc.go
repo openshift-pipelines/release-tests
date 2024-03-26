@@ -174,3 +174,4 @@ var _ = gauge.Step("Configure the bundles resolver", func() {
 var _ = gauge.Step("Enable console plugin", func() {
 	oc.EnableConsolePlugin()
 })
+
