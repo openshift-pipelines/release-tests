@@ -18,7 +18,7 @@ spec:
       workspace: source
     params:
     - name: url
-      value: https://github.com/VeereshAradhya/django-ex.git
+      value: https://github.com/VeereshAradhya/flask-hello-world.git
     - name: subdirectory
       value: s2i-python-$(params.VERSION)
     - name: deleteExisting
