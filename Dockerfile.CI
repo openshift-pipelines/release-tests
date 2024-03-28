@@ -32,7 +32,7 @@ RUN wget https://mirror.openshift.com/pub/openshift-v4/clients/rosa/latest/rosa-
     tar xzf /tmp/rosa.tar.gz -C /usr/bin --no-same-owner rosa &&\
     rm /tmp/rosa.tar.gz
 
-ENV TKN_VERSION=1.14.0
+ENV TKN_VERSION=1.14.3
 RUN wget https://mirror.openshift.com/pub/openshift-v4/clients/pipelines/${TKN_VERSION}/tkn-linux-amd64.tar.gz \
    -O /tmp/tkn.tar.gz &&\
    tar xzf /tmp/tkn.tar.gz -C /usr/bin --no-same-owner tkn tkn-pac opc &&\
