@@ -339,15 +339,16 @@ func getPipelinerunLogs(c *clients.Clients, prname, namespace string) *bytes.Buf
 	params.SetNamespace(namespace)
 
 	// Set options for the CLI
-	lopts := options.LogOptions{}
-	lopts.PipelineRunName = prname
-	lopts.Stream = &cli.Stream{
-		In:  os.Stdin,
-		Out: buf,
-		Err: buf,
+	lopts := options.LogOptions{
+		PipelineRunName: prname,
+		Stream: &cli.Stream{
+			In:  os.Stdin,
+			Out: buf,
+			Err: buf,
+		},
+		Params:    &params,
+		Prefixing: true,
 	}
-	lopts.Params = &params
-	lopts.Prefixing = true
 
 	// Get the logs
 	clipr.Run(&lopts)
