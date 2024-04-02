@@ -168,7 +168,7 @@ var _ = gauge.Step("Create signing-secrets for Tekton Chains", func() {
 			log.Printf("The \"signing-secrets\" does not contain any data")
 			oc.DeleteResourceInNamespace("secrets", "signing-secrets", "openshift-pipelines")
 			operator.CreateSigningSecretForTektonChains()
-		} else{
+		} else {
 			operator.CreateFileWithCosignPubKey()
 		}
 	} else {
