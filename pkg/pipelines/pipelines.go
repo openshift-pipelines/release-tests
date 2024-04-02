@@ -1,8 +1,10 @@
 package pipelines
 
 import (
+	"bytes"
 	"fmt"
 	"log"
+	"os"
 	"strconv"
 	"strings"
 	"sync"
@@ -15,6 +17,9 @@ import (
 	"github.com/openshift-pipelines/release-tests/pkg/config"
 	"github.com/openshift-pipelines/release-tests/pkg/k8s"
 	"github.com/openshift-pipelines/release-tests/pkg/wait"
+	"github.com/tektoncd/cli/pkg/cli"
+	clipr "github.com/tektoncd/cli/pkg/cmd/pipelinerun"
+	"github.com/tektoncd/cli/pkg/options"
 	"github.com/tektoncd/pipeline/pkg/apis/pipeline/v1beta1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -29,7 +34,8 @@ func validatePipelineRunForSuccessStatus(c *clients.Clients, prname, labelCheck,
 	// Verify status of PipelineRun (wait for it)
 	err := wait.WaitForPipelineRunState(c, prname, wait.PipelineRunSucceed(prname), "PipelineRunCompleted")
 	if err != nil {
-		testsuit.T.Errorf("error waiting for pipeline run %s to finish \n %v", prname, err)
+		buf := getPipelinerunLogs(c, prname, namespace)
+		testsuit.T.Errorf("error waiting for pipeline run %s to finish \n %v \n pipelinerun logs: \n %s", prname, err, buf.String())
 	}
 
 	log.Printf("pipelineRun: %s is successful under namespace : %s", prname, namespace)
@@ -62,7 +68,8 @@ func validatePipelineRunForFailedStatus(c *clients.Clients, prname, namespace st
 	log.Printf("Waiting for PipelineRun in namespace %s to fail", namespace)
 	err = wait.WaitForPipelineRunState(c, prname, wait.PipelineRunFailed(prname), "BuildValidationFailed")
 	if err != nil {
-		testsuit.T.Errorf("pipeline run %s failed to finish \n %v", prname, err)
+		buf := getPipelinerunLogs(c, prname, namespace)
+		testsuit.T.Errorf("pipeline run %s failed to finish \n %v \n pipelinerun logs: \n %s", prname, err, buf.String())
 	}
 }
 
@@ -321,4 +328,29 @@ func AssertPipelinesNotPresent(c *clients.Clients, namespace string) {
 		testsuit.T.Fail(fmt.Errorf("Expected: %v number of pipelines present in namespace %v, Actual: %v number of pipelines present in namespace %v , Error: %v", 0, namespace, len(p.Items), namespace, err))
 	}
 	log.Printf("Pipelines are present in namespace %v", namespace)
+}
+
+func getPipelinerunLogs(c *clients.Clients, prname, namespace string) *bytes.Buffer {
+	buf := new(bytes.Buffer)
+
+	// Set params
+	params := cli.TektonParams{}
+	params.Clients(c.KubeConfig)
+	params.SetNamespace(namespace)
+
+	// Set options for the CLI
+	lopts := options.LogOptions{
+		PipelineRunName: prname,
+		Stream: &cli.Stream{
+			In:  os.Stdin,
+			Out: buf,
+			Err: buf,
+		},
+		Params:    &params,
+		Prefixing: true,
+	}
+
+	// Get the logs
+	clipr.Run(&lopts)
+	return buf
 }

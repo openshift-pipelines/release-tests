@@ -1,7 +1,9 @@
 package pipelines
 
 import (
+	"bytes"
 	"log"
+	"os"
 	"regexp"
 	"strings"
 
@@ -9,6 +11,9 @@ import (
 	"github.com/getgauge-contrib/gauge-go/testsuit"
 	"github.com/openshift-pipelines/release-tests/pkg/clients"
 	"github.com/openshift-pipelines/release-tests/pkg/wait"
+	"github.com/tektoncd/cli/pkg/cli"
+	clitr "github.com/tektoncd/cli/pkg/cmd/taskrun"
+	"github.com/tektoncd/cli/pkg/options"
 	"github.com/tektoncd/pipeline/pkg/apis/pipeline"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
@@ -36,7 +41,8 @@ func validateTaskRunForFailedStatus(c *clients.Clients, trname, namespace string
 	log.Printf("Waiting for TaskRun %s in namespace %s to fail", trname, namespace)
 	err = wait.WaitForTaskRunState(c, trname, wait.TaskRunFailed(trname), "BuildValidationFailed")
 	if err != nil {
-		testsuit.T.Errorf("task run %s was expected to be in BuildValidationFailed state \n %v", trname, err)
+		buf := getPipelinerunLogs(c, trname, namespace)
+		testsuit.T.Errorf("task run %s was expected to be in BuildValidationFailed state \n %v \n taskrun logs: \n %s", trname, err, buf.String())
 	}
 }
 
@@ -45,7 +51,8 @@ func validateTaskRunForSuccessStatus(c *clients.Clients, trname, namespace strin
 	log.Printf("Waiting for TaskRun %s in namespace %s to succeed", trname, namespace)
 	err = wait.WaitForTaskRunState(c, trname, wait.TaskRunSucceed(trname), "TaskRunSucceed")
 	if err != nil {
-		testsuit.T.Errorf("task run %s was expected to be in TaskRunSucceed state \n %v", trname, err)
+		buf := getPipelinerunLogs(c, trname, namespace)
+		testsuit.T.Errorf("task run %s was expected to be in TaskRunSucceed state \n %v \n taskrun logs: \n %s", trname, err, buf.String())
 	}
 }
 
@@ -108,4 +115,29 @@ func ValidateTaskRunLabelPropogation(c *clients.Clients, trname, namespace strin
 		AssertLabelsMatch(labels, pod.ObjectMeta.Labels)
 		gauge.WriteMessage("Labels: \n\n %+v", createKeyValuePairs(labels))
 	}
+}
+
+func getTaskrunLogs(c *clients.Clients, trname, namespace string) *bytes.Buffer {
+	buf := new(bytes.Buffer)
+
+	// Set params
+	params := cli.TektonParams{}
+	params.Clients(c.KubeConfig)
+	params.SetNamespace(namespace)
+
+	// Set options for the CLI
+	lopts := options.LogOptions{
+		TaskrunName: trname,
+		Stream: &cli.Stream{
+			In:  os.Stdin,
+			Out: buf,
+			Err: buf,
+		},
+		Params:    &params,
+		Prefixing: true,
+	}
+
+	// Get the logs
+	clitr.Run(&lopts)
+	return buf
 }
