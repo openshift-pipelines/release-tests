@@ -44,6 +44,7 @@ spec:
           exit 1
         fi
         cat $(workspaces.test.path)/$(params.FILE)
+        exit 1
   workspaces:
     - name: test
 ---
