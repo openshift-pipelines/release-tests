@@ -41,7 +41,7 @@ func validateTaskRunForFailedStatus(c *clients.Clients, trname, namespace string
 	log.Printf("Waiting for TaskRun %s in namespace %s to fail", trname, namespace)
 	err = wait.WaitForTaskRunState(c, trname, wait.TaskRunFailed(trname), "BuildValidationFailed")
 	if err != nil {
-		buf := getPipelinerunLogs(c, trname, namespace)
+		buf := getTaskrunLogs(c, trname, namespace)
 		testsuit.T.Errorf("task run %s was expected to be in BuildValidationFailed state \n %v \n taskrun logs: \n %s", trname, err, buf.String())
 	}
 }
@@ -51,7 +51,7 @@ func validateTaskRunForSuccessStatus(c *clients.Clients, trname, namespace strin
 	log.Printf("Waiting for TaskRun %s in namespace %s to succeed", trname, namespace)
 	err = wait.WaitForTaskRunState(c, trname, wait.TaskRunSucceed(trname), "TaskRunSucceed")
 	if err != nil {
-		buf := getPipelinerunLogs(c, trname, namespace)
+		buf := getTaskrunLogs(c, trname, namespace)
 		testsuit.T.Errorf("task run %s was expected to be in TaskRunSucceed state \n %v \n taskrun logs: \n %s", trname, err, buf.String())
 	}
 }
