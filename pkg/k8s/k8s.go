@@ -467,15 +467,15 @@ func ValidateTektonInstallersetNames(c *clients.Clients) {
 	}
 }
 
-func GetEvents(c *clients.Clients, resourceType, resourceName, namespace string) (string, error) {
+func GetWarningEvents(c *clients.Clients, namespace string) (string, error) {
 	var eventString string
 	var eventSlice []string
-	events, err := c.KubeClient.Kube.CoreV1().Events(namespace).List(c.Ctx, metav1.ListOptions{TypeMeta: metav1.TypeMeta{Kind: resourceType}, FieldSelector: fmt.Sprintf("involvedObject.name=%s", resourceName)})
+	events, err := c.KubeClient.Kube.CoreV1().Events(namespace).List(c.Ctx, metav1.ListOptions{FieldSelector: "type=Warning"})
 	if err != nil {
 		return eventString, err
 	}
 	for _, item := range events.Items {
 		eventSlice = append(eventSlice, item.Message)
 	}
-	return strings.Join(eventSlice, "/n"), nil
+	return strings.Join(eventSlice, "\n"), nil
 }

@@ -36,9 +36,7 @@ func validatePipelineRunForSuccessStatus(c *clients.Clients, prname, labelCheck,
 	if err != nil {
 		var printMsg string
 		buf, logsErr := getPipelinerunLogs(c, prname, namespace)
-		pr, _ := c.PipelineRunClient.Get(c.Ctx, prname, metav1.GetOptions{})
-		pipelineName := pr.Labels["tekton.dev/pipeline"]
-		events, eventError := k8s.GetEvents(c, "PipelineRun", fmt.Sprintf("tekton.dev/pipeline=%s", pipelineName), namespace)
+		events, eventError := k8s.GetWarningEvents(c, namespace)
 		if logsErr != nil {
 			if eventError != nil {
 				printMsg = fmt.Sprintf("error waiting for pipeline run %s to finish \n %v \n piplinerun logs error: \n %v \n pipelinerun events error: \n %v", prname, err, logsErr, eventError)
@@ -87,9 +85,7 @@ func validatePipelineRunForFailedStatus(c *clients.Clients, prname, namespace st
 	if err != nil {
 		var printMsg string
 		buf, logsErr := getPipelinerunLogs(c, prname, namespace)
-		// pr, _ := c.PipelineRunClient.Get(c.Ctx, prname, metav1.GetOptions{})
-		// pipelineName := pr.Labels["tekton.dev/pipeline"]
-		events, eventError := k8s.GetEvents(c, "PipelineRun", prname, namespace)
+		events, eventError := k8s.GetWarningEvents(c, namespace)
 		if logsErr != nil {
 			if eventError != nil {
 				printMsg = fmt.Sprintf("error waiting for pipeline run %s to finish \n %v \n piplinerun logs error: \n %v \n pipelinerun events error: \n %v", prname, err, logsErr, eventError)
