@@ -48,15 +48,15 @@ func validateTaskRunForFailedStatus(c *clients.Clients, trname, namespace string
 		events, eventError := k8s.GetWarningEvents(c, namespace)
 		if logsErr != nil {
 			if eventError != nil {
-				printMsg = fmt.Sprintf("task run %s was expected to be in TaskRunFailed state \n %v \n taskrun logs error: \n %v \n taskrun events error: \n %v", trname, err, logsErr, eventError)
+				printMsg = fmt.Sprintf("task run %s was expected to be in TaskRunFailed state \n%v \ntaskrun logs error: \n%v \ntaskrun events error: \n%v", trname, err, logsErr, eventError)
 			} else {
-				printMsg = fmt.Sprintf("task run %s was expected to be in TaskRunFailed state \n %v \n taskrun logs error: \n %v \n taskrun events: \n %v", trname, err, logsErr, events)
+				printMsg = fmt.Sprintf("task run %s was expected to be in TaskRunFailed state \n%v \ntaskrun logs error: \n%v \ntaskrun events: \n%v", trname, err, logsErr, events)
 			}
 		} else {
 			if eventError != nil {
-				printMsg = fmt.Sprintf("task run %s was expected to be in TaskRunFailed state \n %v \n taskrun logs: \n %v \n taskrun events error: \n %v", trname, err, buf.String(), eventError)
+				printMsg = fmt.Sprintf("task run %s was expected to be in TaskRunFailed state \n%v \ntaskrun logs: \n%v \ntaskrun events error: \n%v", trname, err, buf.String(), eventError)
 			} else {
-				printMsg = fmt.Sprintf("task run %s was expected to be in TaskRunFailed state \n %v \n taskrun logs: \n %v \n taskrun events: \n %v", trname, err, buf.String(), events)
+				printMsg = fmt.Sprintf("task run %s was expected to be in TaskRunFailed state \n %v \ntaskrun logs: \n%v \ntaskrun events: \n%v", trname, err, buf.String(), events)
 			}
 		}
 		testsuit.T.Errorf(printMsg)
@@ -73,15 +73,15 @@ func validateTaskRunForSuccessStatus(c *clients.Clients, trname, namespace strin
 		events, eventError := k8s.GetWarningEvents(c, namespace)
 		if logsErr != nil {
 			if eventError != nil {
-				printMsg = fmt.Sprintf("task run %s was expected to be in TaskRunSucceed state \n %v \n taskrun logs error: \n %v \n taskrun events error: \n %v", trname, err, logsErr, eventError)
+				printMsg = fmt.Sprintf("task run %s was expected to be in TaskRunSucceed state \n%v \ntaskrun logs error: \n%v \ntaskrun events error: \n%v", trname, err, logsErr, eventError)
 			} else {
-				printMsg = fmt.Sprintf("task run %s was expected to be in TaskRunSucceed state \n %v \n taskrun logs error: \n %v \n taskrun events: \n %v", trname, err, logsErr, events)
+				printMsg = fmt.Sprintf("task run %s was expected to be in TaskRunSucceed state \n%v \ntaskrun logs error: \n%v \ntaskrun events: \n%v", trname, err, logsErr, events)
 			}
 		} else {
 			if eventError != nil {
-				printMsg = fmt.Sprintf("task run %s was expected to be in TaskRunSucceed state \n %v \n taskrun logs: \n %v \n taskrun events error: \n %v", trname, err, buf.String(), eventError)
+				printMsg = fmt.Sprintf("task run %s was expected to be in TaskRunSucceed state \n%v \ntaskrun logs: \n%v \ntaskrun events error: \n%v", trname, err, buf.String(), eventError)
 			} else {
-				printMsg = fmt.Sprintf("task run %s was expected to be in TaskRunSucceed state \n %v \n taskrun logs: \n %v \n taskrun events: \n %v", trname, err, buf.String(), events)
+				printMsg = fmt.Sprintf("task run %s was expected to be in TaskRunSucceed state \n%v \ntaskrun logs: \n%v \ntaskrun events: \n%v", trname, err, buf.String(), events)
 			}
 		}
 		testsuit.T.Errorf(printMsg)
