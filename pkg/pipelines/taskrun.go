@@ -2,6 +2,7 @@ package pipelines
 
 import (
 	"bytes"
+	"fmt"
 	"log"
 	"os"
 	"regexp"
@@ -10,6 +11,7 @@ import (
 	"github.com/getgauge-contrib/gauge-go/gauge"
 	"github.com/getgauge-contrib/gauge-go/testsuit"
 	"github.com/openshift-pipelines/release-tests/pkg/clients"
+	"github.com/openshift-pipelines/release-tests/pkg/k8s"
 	"github.com/openshift-pipelines/release-tests/pkg/wait"
 	"github.com/tektoncd/cli/pkg/cli"
 	clitr "github.com/tektoncd/cli/pkg/cmd/taskrun"
@@ -41,8 +43,23 @@ func validateTaskRunForFailedStatus(c *clients.Clients, trname, namespace string
 	log.Printf("Waiting for TaskRun %s in namespace %s to fail", trname, namespace)
 	err = wait.WaitForTaskRunState(c, trname, wait.TaskRunFailed(trname), "BuildValidationFailed")
 	if err != nil {
-		buf := getTaskrunLogs(c, trname, namespace)
-		testsuit.T.Errorf("task run %s was expected to be in BuildValidationFailed state \n %v \n taskrun logs: \n %s", trname, err, buf.String())
+		var printMsg string
+		buf, logsErr := getTaskrunLogs(c, trname, namespace)
+		events, eventError := k8s.GetWarningEvents(c, namespace)
+		if logsErr != nil {
+			if eventError != nil {
+				printMsg = fmt.Sprintf("task run %s was expected to be in TaskRunFailed state \n%v \ntaskrun logs error: \n%v \ntaskrun events error: \n%v", trname, err, logsErr, eventError)
+			} else {
+				printMsg = fmt.Sprintf("task run %s was expected to be in TaskRunFailed state \n%v \ntaskrun logs error: \n%v \ntaskrun events: \n%v", trname, err, logsErr, events)
+			}
+		} else {
+			if eventError != nil {
+				printMsg = fmt.Sprintf("task run %s was expected to be in TaskRunFailed state \n%v \ntaskrun logs: \n%v \ntaskrun events error: \n%v", trname, err, buf.String(), eventError)
+			} else {
+				printMsg = fmt.Sprintf("task run %s was expected to be in TaskRunFailed state \n %v \ntaskrun logs: \n%v \ntaskrun events: \n%v", trname, err, buf.String(), events)
+			}
+		}
+		testsuit.T.Errorf(printMsg)
 	}
 }
 
@@ -51,8 +68,23 @@ func validateTaskRunForSuccessStatus(c *clients.Clients, trname, namespace strin
 	log.Printf("Waiting for TaskRun %s in namespace %s to succeed", trname, namespace)
 	err = wait.WaitForTaskRunState(c, trname, wait.TaskRunSucceed(trname), "TaskRunSucceed")
 	if err != nil {
-		buf := getTaskrunLogs(c, trname, namespace)
-		testsuit.T.Errorf("task run %s was expected to be in TaskRunSucceed state \n %v \n taskrun logs: \n %s", trname, err, buf.String())
+		var printMsg string
+		buf, logsErr := getTaskrunLogs(c, trname, namespace)
+		events, eventError := k8s.GetWarningEvents(c, namespace)
+		if logsErr != nil {
+			if eventError != nil {
+				printMsg = fmt.Sprintf("task run %s was expected to be in TaskRunSucceed state \n%v \ntaskrun logs error: \n%v \ntaskrun events error: \n%v", trname, err, logsErr, eventError)
+			} else {
+				printMsg = fmt.Sprintf("task run %s was expected to be in TaskRunSucceed state \n%v \ntaskrun logs error: \n%v \ntaskrun events: \n%v", trname, err, logsErr, events)
+			}
+		} else {
+			if eventError != nil {
+				printMsg = fmt.Sprintf("task run %s was expected to be in TaskRunSucceed state \n%v \ntaskrun logs: \n%v \ntaskrun events error: \n%v", trname, err, buf.String(), eventError)
+			} else {
+				printMsg = fmt.Sprintf("task run %s was expected to be in TaskRunSucceed state \n%v \ntaskrun logs: \n%v \ntaskrun events: \n%v", trname, err, buf.String(), events)
+			}
+		}
+		testsuit.T.Errorf(printMsg)
 	}
 }
 
@@ -117,7 +149,7 @@ func ValidateTaskRunLabelPropogation(c *clients.Clients, trname, namespace strin
 	}
 }
 
-func getTaskrunLogs(c *clients.Clients, trname, namespace string) *bytes.Buffer {
+func getTaskrunLogs(c *clients.Clients, trname, namespace string) (*bytes.Buffer, error) {
 	buf := new(bytes.Buffer)
 
 	// Set params
@@ -138,6 +170,6 @@ func getTaskrunLogs(c *clients.Clients, trname, namespace string) *bytes.Buffer 
 	}
 
 	// Get the logs
-	clitr.Run(&lopts)
-	return buf
+	err := clitr.Run(&lopts)
+	return buf, err
 }

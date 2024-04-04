@@ -466,3 +466,16 @@ func ValidateTektonInstallersetNames(c *clients.Clients) {
 		testsuit.T.Fail(fmt.Errorf("Installersets with prefix %s is not found", strings.Join(missingInstallersets, ",")))
 	}
 }
+
+func GetWarningEvents(c *clients.Clients, namespace string) (string, error) {
+	var eventString string
+	var eventSlice []string
+	events, err := c.KubeClient.Kube.CoreV1().Events(namespace).List(c.Ctx, metav1.ListOptions{FieldSelector: "type=Warning"})
+	if err != nil {
+		return eventString, err
+	}
+	for _, item := range events.Items {
+		eventSlice = append(eventSlice, item.Message)
+	}
+	return strings.Join(eventSlice, "\n"), nil
+}
