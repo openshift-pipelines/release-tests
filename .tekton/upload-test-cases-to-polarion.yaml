@@ -94,6 +94,6 @@ spec:
           resources:
             requests:
               storage: 1Gi
-    # - name: basic-auth
-    #   secret:
-    #     secretName: "{{ git_auth_secret }}"
+    - name: basic-auth
+      secret:
+        secretName: "{{ git_auth_secret }}"
