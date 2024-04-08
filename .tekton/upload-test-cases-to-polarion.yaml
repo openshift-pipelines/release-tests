@@ -1,0 +1,99 @@
+---
+apiVersion: tekton.dev/v1beta1
+kind: PipelineRun
+metadata:
+  name: upload-test-cases-polarion-
+  annotations:
+    pipelinesascode.tekton.dev/on-target-branch: "[master]"
+    pipelinesascode.tekton.dev/on-cel-expression: |
+      "specs".pathChanged() && event == "push"
+    pipelinesascode.tekton.dev/max-keep-runs: "5"
+spec:
+  pipelineSpec:
+    params:
+      - name: RELEASE_TESTS_BRANCH
+        default: master
+    workspaces:
+      - name: git
+    tasks:
+      - name: clone-release-tests-repo
+        params:
+          - name: url
+            value: 'https://github.com/openshift-pipelines/release-tests.git'
+          - name: revision
+            value: $(params.RELEASE_TESTS_BRANCH)
+        taskRef:
+          kind: ClusterTask
+          name: git-clone
+        workspaces:
+          - name: output
+            subPath: release-tests-git
+            workspace: git
+      - name: clone-plumbing-repo
+        params:
+          - name: url
+            value: 'https://gitlab.cee.redhat.com/tekton/plumbing.git'
+          - name: revision
+            value: master
+          - name: sslVerify
+            value: 'false'
+        taskRef:
+          kind: ClusterTask
+          name: git-clone
+        workspaces:
+          - name: output
+            subPath: plumbing-git
+            workspace: git
+      - name: upload-tests-to-polarion
+        taskRef:
+          resolver: cluster
+          params: 
+          - name: kind
+            value: task
+          - name: name
+            value: upload-test-cases-to-polarion
+          - name: namespace
+            value: pipelines-ci
+        params:
+        - name: RELEASE_TESTS_BRANCH
+          value: $(params.RELEASE_TESTS_BRANCH)
+        runAfter:
+          - clone-plumbing-repo
+          - clone-release-tests-repo
+        workspaces:
+          - name: release-tests-git
+            subPath: release-tests-git
+            workspace: git
+          - name: plumbing-git
+            subPath: plumbing-git
+            workspace: git
+    finally:
+      - name: send-slack-notification
+        taskRef:
+          resolver: cluster
+          params: 
+          - name: kind
+            value: task
+          - name: name
+            value: send-slack-notification
+          - name: namespace
+            value: pipelines-ci
+        params:
+          - name: MESSAGE
+            value: "<icon> Uploading test cases to Polario *<run_status>* <icon> <<logs_url>|logs>"
+        when:
+          - input: $(tasks.upload-tests-to-polarion.status)
+            operator: in
+            values: ["Failed", "None"]
+  workspaces:
+    - name: git
+      volumeClaimTemplate:
+        spec:
+          accessModes:
+            - ReadWriteOnce
+          resources:
+            requests:
+              storage: 1Gi
+    - name: basic-auth
+      secret:
+        secretName: "{{ git_auth_secret }}"
