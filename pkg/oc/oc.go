@@ -18,6 +18,10 @@ func Create(path_dir, namespace string) {
 	log.Printf("output: %s\n", cmd.MustSucceed("oc", "create", "-f", resource.Path(path_dir), "-n", namespace).Stdout())
 }
 
+func CreateRemote(remote_path, namespace string) {
+	log.Printf("output: %s\n", cmd.MustSucceed("oc", "create", "-f", remote_path, "-n", namespace).Stdout())
+}
+
 func Apply(path_dir, namespace string) {
 	log.Printf("output: %s\n", cmd.MustSucceed("oc", "apply", "-f", resource.Path(path_dir), "-n", namespace).Stdout())
 }

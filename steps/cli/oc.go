@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"regexp"
 	"strings"
 
 	"github.com/getgauge-contrib/gauge-go/gauge"
@@ -16,6 +17,20 @@ var _ = gauge.Step("Create <table>", func(table *m.Table) {
 	for _, row := range table.Rows {
 		resource := row.Cells[1]
 		oc.Create(resource, store.Namespace())
+	}
+})
+
+var _ = gauge.Step("Create remote <table>", func(table *m.Table) {
+	for _, row := range table.Rows {
+		resource := row.Cells[1]
+		expr := regexp.MustCompile("{.+}")
+		matchedString := expr.FindString(resource)
+		if matchedString != "" {
+			envVariable := strings.Replace(matchedString, "{", "", 1)
+			envVariable = strings.Replace(envVariable, "}", "", 1)
+			resource = strings.Replace(resource, matchedString, os.Getenv(envVariable), 1)
+		}
+		oc.CreateRemote(resource, store.Namespace())
 	}
 })
 
