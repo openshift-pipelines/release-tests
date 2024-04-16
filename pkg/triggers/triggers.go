@@ -252,7 +252,11 @@ func CleanupTriggers(c *clients.Clients, elName, namespace string) {
 func GetRoute(elname, namespace string) string {
 	route := cmd.MustSucceed("oc", "-n", namespace, "get", "route", "--selector=eventlistener="+elname, "-o", "jsonpath='{range .items[*]}{.metadata.name}'").Stdout()
 
-	route_url := cmd.MustSucceed("oc", "-n", namespace, "get", "route", strings.Trim(route, "'"), "--template='http://{{.spec.host}}'").Stdout()
+	return GetRouteURL(route, namespace)
+}
+
+func GetRouteURL(routeName, namespace string) string {
+	route_url := cmd.MustSucceed("oc", "-n", namespace, "get", "route", strings.Trim(routeName, "'"), "--template='http://{{.spec.host}}'").Stdout()
 	log.Printf("Route url: %s", route_url)
 
 	time.Sleep(5 * time.Second)
