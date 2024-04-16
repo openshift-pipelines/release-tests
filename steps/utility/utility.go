@@ -7,6 +7,7 @@ import (
 
 	"github.com/getgauge-contrib/gauge-go/gauge"
 	"github.com/getgauge-contrib/gauge-go/testsuit"
+	"github.com/openshift-pipelines/release-tests/pkg/cmd"
 	"github.com/openshift-pipelines/release-tests/pkg/store"
 )
 
@@ -36,4 +37,9 @@ var _ = gauge.Step("Assert if values stored in variable <variable1> and variable
 var _ = gauge.Step("Switch to project <projectName>", func(projectName string) {
 	store.Clients().NewClientSet(projectName)
 	gauge.GetScenarioStore()["namespace"] = projectName
+})
+
+var _ = gauge.Step("Validate route url", func() {
+	routeUrl := store.GetScenarioData("routeurl")
+	cmd.MustSucceed("lynx", routeUrl, "--dump")
 })
