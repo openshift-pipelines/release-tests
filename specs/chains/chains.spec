@@ -26,6 +26,7 @@ Level: Integration
 Type: Functional
 Importance: Critical
 Steps:
+    * Verify ServiceAccount "pipeline" exist
     * Update the TektonConfig with taskrun format as "in-toto" taskrun storage as "oci" oci storage as "oci" transparency mode as "true"
     * Verify that image registry variable is exported
     * Create secret with image registry credentials for SA
