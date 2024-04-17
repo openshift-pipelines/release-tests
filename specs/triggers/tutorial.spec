@@ -5,8 +5,8 @@ Pre condition:
   * Validate Operator should be installed
 
 ## Run pipelines tutorials: PIPELINES-06-TC01
-Tags: e2e, integration, triggers, non-admin, to-do
-Component: Triggers
+Tags: e2e, integration, non-admin, pipelines
+Component: Pipelines
 Level: Integration
 Type: Functional
 Importance: Critical
@@ -45,7 +45,7 @@ Level: Integration
 Type: Functional
 Importance: Critical
 
-This scenario tests the pipeline tutorials (https://github.com/openshift/pipelines-tutorial) pipelines related resources 
+This scenario tests the pipeline tutorials (https://github.com/openshift/pipelines-tutorial) triggers related resources 
 
 Steps:
   * Verify ServiceAccount "pipeline" exist
@@ -62,6 +62,11 @@ Steps:
       |8   |https://raw.githubusercontent.com/openshift/pipelines-tutorial/{OSP_TUTORIAL_BRANCH}/03_triggers/04_event_listener.yaml                  |
    * Link secret "github-secret" to service account "pipeline"
    * Expose Event listener "vote-app"
-   * Mock post event to "github" interceptor with event-type "push", payload "testdata/triggers/triggersCRD/push-vote-api.json", with TLS "false"
+   * Mock post event to "github" interceptor with event-type "push", payload "testdata/push-vote-api.json", with TLS "false"
    * Assert eventlistener response
-   * Verify the latest pipelinerun for "success" state
+   * Verify the latest pipelinerun for "successful" state
+   * Mock post event to "github" interceptor with event-type "push", payload "testdata/push-vote-ui.json", with TLS "false"
+   * Assert eventlistener response
+   * Verify the latest pipelinerun for "successful" state
+   * Get route url of the route "pipelines-vote-ui"
+   * Validate route url

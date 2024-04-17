@@ -1,13 +1,16 @@
 package pipeline
 
 import (
+	"fmt"
+	"log"
+	"strings"
+
 	"github.com/getgauge-contrib/gauge-go/gauge"
 	m "github.com/getgauge-contrib/gauge-go/models"
+	"github.com/getgauge-contrib/gauge-go/testsuit"
 	"github.com/openshift-pipelines/release-tests/pkg/config"
 	"github.com/openshift-pipelines/release-tests/pkg/pipelines"
 	"github.com/openshift-pipelines/release-tests/pkg/store"
-	"log"
-	"strings"
 )
 
 var _ = gauge.Step("Verify taskrun <table>", func(table *m.Table) {
@@ -70,4 +73,13 @@ var _ = gauge.Step("Assert pipelines are <status> in <namespace> namespace", fun
 	} else {
 		pipelines.AssertPipelinesNotPresent(store.Clients(), namespace)
 	}
+})
+
+var _ = gauge.Step("Verify the latest pipelinerun for <state> state", func(state string) {
+	namespace := store.Namespace()
+	prname, err := pipelines.GetLatestPipelinerun(store.Clients(), namespace)
+	if err != nil {
+		testsuit.T.Fail(fmt.Errorf("failed to get pipelinerun from %s", namespace))
+	}
+	pipelines.ValidatePipelineRun(store.Clients(), prname, state, "no", namespace)
 })
