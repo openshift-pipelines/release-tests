@@ -5,7 +5,7 @@ Pre condition:
   * Validate Operator should be installed
 
 ## Run pipelines tutorials: PIPELINES-06-TC01
-Tags: e2e, integration, non-admin, pipelines
+Tags: e2e, integration, non-admin, pipelines, tutorial
 Component: Pipelines
 Level: Integration
 Type: Functional
@@ -36,10 +36,10 @@ Steps:
       |----|---------------------------|----------|-----------------------|
       |1   |build-deploy-ui-pipelinerun|successful|no                     |
    * Get route url of the route "pipelines-vote-ui"
-   * Validate route url
+   * Validate route url for pipelines tutorial
 
 ## Run pipelines tutorial using triggers: PIPELINES-06-TC02
-Tags: e2e, integration, triggers, non-admin, to-do
+Tags: e2e, integration, triggers, non-admin, tutorial
 Component: Triggers
 Level: Integration
 Type: Functional
@@ -60,7 +60,6 @@ Steps:
       |6   |https://raw.githubusercontent.com/openshift/pipelines-tutorial/{OSP_TUTORIAL_BRANCH}/03_triggers/02_template.yaml                        |
       |7   |https://raw.githubusercontent.com/openshift/pipelines-tutorial/{OSP_TUTORIAL_BRANCH}/03_triggers/03_trigger.yaml                         |
       |8   |https://raw.githubusercontent.com/openshift/pipelines-tutorial/{OSP_TUTORIAL_BRANCH}/03_triggers/04_event_listener.yaml                  |
-   * Link secret "github-secret" to service account "pipeline"
    * Expose Event listener "vote-app"
    * Mock post event to "github" interceptor with event-type "push", payload "testdata/push-vote-api.json", with TLS "false"
    * Assert eventlistener response
@@ -69,4 +68,4 @@ Steps:
    * Assert eventlistener response
    * Verify the latest pipelinerun for "successful" state
    * Get route url of the route "pipelines-vote-ui"
-   * Validate route url
+   * Validate route url for pipelines tutorial
