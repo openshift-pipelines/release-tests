@@ -20,6 +20,7 @@ import (
 	"github.com/tektoncd/cli/pkg/cli"
 	clipr "github.com/tektoncd/cli/pkg/cmd/pipelinerun"
 	"github.com/tektoncd/cli/pkg/options"
+	prsort "github.com/tektoncd/cli/pkg/pipelinerun/sort"
 	"github.com/tektoncd/pipeline/pkg/apis/pipeline/v1beta1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -383,4 +384,17 @@ func getPipelinerunLogs(c *clients.Clients, prname, namespace string) (*bytes.Bu
 	// Get the logs
 	err := clipr.Run(&lopts)
 	return buf, err
+}
+
+func GetLatestPipelinerun(c *clients.Clients, namespace string) (string, error) {
+	prs, err := c.PipelineRunClient.List(c.Ctx, metav1.ListOptions{})
+	if err != nil {
+		return "", err
+	}
+	if len(prs.Items) == 0 {
+		return "", fmt.Errorf("no pipelineruns found in the namespace %s", namespace)
+	}
+	prsort.SortByStartTime(prs.Items)
+	return prs.Items[0].Name, nil
+
 }
