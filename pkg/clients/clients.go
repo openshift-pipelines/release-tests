@@ -17,6 +17,7 @@ import (
 	"github.com/tektoncd/operator/pkg/client/clientset/versioned"
 	operatorv1alpha1 "github.com/tektoncd/operator/pkg/client/clientset/versioned/typed/operator/v1alpha1"
 	pversioned "github.com/tektoncd/pipeline/pkg/client/clientset/versioned"
+	"github.com/tektoncd/pipeline/pkg/client/clientset/versioned/typed/pipeline/v1"
 	"github.com/tektoncd/pipeline/pkg/client/clientset/versioned/typed/pipeline/v1beta1"
 	triggersclientset "github.com/tektoncd/triggers/pkg/client/clientset/versioned"
 )
@@ -40,10 +41,10 @@ type Clients struct {
 	ClusterVersion     configV1.ClusterVersionInterface
 	ConsoleCLIDownload consolev1.ConsoleCLIDownloadInterface
 	Tekton             pversioned.Interface
-	PipelineClient     v1beta1.PipelineInterface
-	TaskClient         v1beta1.TaskInterface
-	TaskRunClient      v1beta1.TaskRunInterface
-	PipelineRunClient  v1beta1.PipelineRunInterface
+	PipelineClient     v1.PipelineInterface
+	TaskClient         v1.TaskInterface
+	TaskRunClient      v1.TaskRunInterface
+	PipelineRunClient  v1.PipelineRunInterface
 	TriggersClient     triggersclientset.Interface
 	ClustertaskClient  v1beta1.ClusterTaskInterface
 }
@@ -164,10 +165,10 @@ func (c *Clients) TektonConfig() operatorv1alpha1.TektonConfigInterface {
 }
 
 func (c *Clients) NewClientSet(namespace string) {
-	c.PipelineClient = c.Tekton.TektonV1beta1().Pipelines(namespace)
-	c.TaskClient = c.Tekton.TektonV1beta1().Tasks(namespace)
-	c.TaskRunClient = c.Tekton.TektonV1beta1().TaskRuns(namespace)
-	c.PipelineRunClient = c.Tekton.TektonV1beta1().PipelineRuns(namespace)
+	c.PipelineClient = c.Tekton.TektonV1().Pipelines(namespace)
+	c.TaskClient = c.Tekton.TektonV1().Tasks(namespace)
+	c.TaskRunClient = c.Tekton.TektonV1().TaskRuns(namespace)
+	c.PipelineRunClient = c.Tekton.TektonV1().PipelineRuns(namespace)
 	c.Route = routev1.NewForConfigOrDie(c.KubeConfig)
 	c.ProxyConfig = configV1.NewForConfigOrDie(c.KubeConfig)
 	c.ClusterVersion = configV1.NewForConfigOrDie(c.KubeConfig).ClusterVersions()
