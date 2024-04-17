@@ -9,7 +9,7 @@ import (
 	"github.com/getgauge-contrib/gauge-go/testsuit"
 	"github.com/openshift-pipelines/release-tests/pkg/clients"
 	"github.com/tektoncd/pipeline/pkg/apis/pipeline"
-	"github.com/tektoncd/pipeline/pkg/apis/pipeline/v1beta1"
+	"github.com/tektoncd/pipeline/pkg/apis/pipeline/v1"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -50,7 +50,7 @@ func collectMatchingEvents(c *clients.Clients, namespace string, kinds map[strin
 
 // checkLabelPropagation checks that labels are correctly propagating from
 // Pipelines, PipelineRuns, and Tasks to TaskRuns and Pods.
-func checkLabelPropagation(c *clients.Clients, namespace string, pipelineRunName string, tr *v1beta1.TaskRun) {
+func checkLabelPropagation(c *clients.Clients, namespace string, pipelineRunName string, tr *v1.TaskRun) {
 	// Our controllers add 4 labels automatically. If custom labels are set on
 	// the Pipeline, PipelineRun, or Task then the map will have to be resized.
 	labels := make(map[string]string, 4)
@@ -109,7 +109,7 @@ func checkLabelPropagation(c *clients.Clients, namespace string, pipelineRunName
 
 // checkAnnotationPropagation checks that annotations are correctly propagating from
 // Pipelines, PipelineRuns, and Tasks to TaskRuns and Pods.
-func checkAnnotationPropagation(c *clients.Clients, namespace string, pipelineRunName string, tr *v1beta1.TaskRun) {
+func checkAnnotationPropagation(c *clients.Clients, namespace string, pipelineRunName string, tr *v1.TaskRun) {
 	annotations := make(map[string]string)
 
 	// Check annotation propagation to PipelineRuns.
@@ -151,7 +151,7 @@ func checkAnnotationPropagation(c *clients.Clients, namespace string, pipelineRu
 	AssertAnnotationsMatch(annotations, pod.ObjectMeta.Annotations)
 }
 
-func GetPodForTaskRun(c *clients.Clients, namespace string, tr *v1beta1.TaskRun) *corev1.Pod {
+func GetPodForTaskRun(c *clients.Clients, namespace string, tr *v1.TaskRun) *corev1.Pod {
 	// The Pod name has a random suffix, so we filter by label to find the one we care about.
 	pods, err := c.KubeClient.Kube.CoreV1().Pods(namespace).List(c.Ctx, metav1.ListOptions{
 		LabelSelector: pipeline.TaskRunLabelKey + " = " + tr.Name,
@@ -182,8 +182,8 @@ func AssertAnnotationsMatch(expectedAnnotations, actualAnnotations map[string]st
 	}
 }
 
-func Cast2pipelinerun(obj runtime.Object) (*v1beta1.PipelineRun, error) {
-	var run *v1beta1.PipelineRun
+func Cast2pipelinerun(obj runtime.Object) (*v1.PipelineRun, error) {
+	var run *v1.PipelineRun
 	unstruct, err := runtime.DefaultUnstructuredConverter.ToUnstructured(obj)
 	if err != nil {
 		return nil, err
