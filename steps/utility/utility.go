@@ -1,8 +1,10 @@
 package utility
 
 import (
+	"fmt"
 	"log"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/getgauge-contrib/gauge-go/gauge"
@@ -39,7 +41,12 @@ var _ = gauge.Step("Switch to project <projectName>", func(projectName string) {
 	gauge.GetScenarioStore()["namespace"] = projectName
 })
 
-var _ = gauge.Step("Validate route url", func() {
+var _ = gauge.Step("Validate route url for pipelines tutorial", func() {
+	expectedOutput := "Cat 🐺 vs Dog 🐶"
 	routeUrl := store.GetScenarioData("routeurl")
-	cmd.MustSucceed("lynx", routeUrl, "--dump")
+	output := cmd.MustSucceed("lynx", routeUrl, "--dump").Stdout()
+	log.Println(output)
+	if !strings.Contains(output, expectedOutput) {
+		testsuit.T.Fail(fmt.Errorf("expected:\n%v,\ngot:\n%v", expectedOutput, output))
+	}
 })
