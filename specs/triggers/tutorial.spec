@@ -39,7 +39,7 @@ Steps:
    * Validate route url for pipelines tutorial
 
 ## Run pipelines tutorial using triggers: PIPELINES-06-TC02
-Tags: e2e, integration, triggers, non-admin, tutorial
+Tags: e2e, integration, triggers, non-admin, tutorial, sanity
 Component: Triggers
 Level: Integration
 Type: Functional
