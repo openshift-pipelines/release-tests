@@ -68,6 +68,18 @@ func VerifySignature(resourceType string) {
 	cmd.MustSuccedIncreasedTimeout(time.Second*45, "sleep", "30")
 	signature := cmd.MustSucceed("tkn", resourceType, "describe", "--last", "-o", jsonpath).Stdout()
 	signature = strings.Trim(signature, "\"")
+
+	jsonpath = "jsonpath=\"{.metadata.annotations.chains\\.tekton\\.dev/signed}\""
+	isSigned := cmd.MustSucceed("tkn", resourceType, "describe", "--last", "-o", jsonpath).Stdout()
+	isSigned = strings.Trim(isSigned, "\"")
+
+	if isSigned != "true" {
+		testsuit.T.Errorf("Annotation chains.tekton.dev/signed is set to %s", isSigned)
+	}
+	if len(signature) == 0 {
+		testsuit.T.Fail(fmt.Errorf("Annotation chains.tekton.dev/signature-%s-%s is not set", resourceType, resourceUID))
+	}
+
 	//Decode the signature
 	decodedSignature, err := base64.StdEncoding.DecodeString(signature)
 	if err != nil {
