@@ -10,6 +10,7 @@ import (
 	"github.com/getgauge-contrib/gauge-go/gauge"
 	"github.com/getgauge-contrib/gauge-go/testsuit"
 	"github.com/openshift-pipelines/release-tests/pkg/cmd"
+	"github.com/openshift-pipelines/release-tests/pkg/k8s"
 	"github.com/openshift-pipelines/release-tests/pkg/store"
 )
 
@@ -49,4 +50,8 @@ var _ = gauge.Step("Validate route url for pipelines tutorial", func() {
 	if !strings.Contains(output, expectedOutput) {
 		testsuit.T.Fail(fmt.Errorf("expected:\n%v,\ngot:\n%v", expectedOutput, output))
 	}
+})
+
+var _ = gauge.Step("Wait for pipelines-vote-ui deployment", func() {
+	k8s.ValidateDeployments(store.Clients(), store.Namespace(), "pipelines-vote-ui")
 })
