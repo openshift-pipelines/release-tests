@@ -29,4 +29,4 @@ spec:
       script: |-
         #!/usr/bin/env sh
         echo "gcr.io/foo/bar" | tee $(results.IMAGE_URL.path)
-        echo "sha256:05f95b26ed10668b7183c1e2da98610e91372fa9f510046d4ce5812adda$RANDOM" | tee $(results.IMAGE_DIGEST.path)
+        echo "sha256:05f95b26ed10668b7183c1e2da98610e91372fa9f510046d4ce5812adda$((10000+ RANDOM %10000))" | tee $(results.IMAGE_DIGEST.path)
