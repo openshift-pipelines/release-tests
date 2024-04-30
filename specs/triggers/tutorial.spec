@@ -36,6 +36,7 @@ Steps:
       |----|---------------------------|----------|-----------------------|
       |1   |build-deploy-ui-pipelinerun|successful|no                     |
    * Get route url of the route "pipelines-vote-ui"
+   * Wait for pipelines-vote-ui deployment
    * Validate route url for pipelines tutorial
 
 ## Run pipelines tutorial using triggers: PIPELINES-06-TC02
@@ -68,4 +69,5 @@ Steps:
    * Assert eventlistener response
    * Verify the latest pipelinerun for "successful" state
    * Get route url of the route "pipelines-vote-ui"
+   * Wait for pipelines-vote-ui deployment
    * Validate route url for pipelines tutorial
