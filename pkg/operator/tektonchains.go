@@ -64,7 +64,7 @@ func VerifySignature(resourceType string) {
 	resourceUID := cmd.MustSucceed("tkn", resourceType, "describe", "--last", "-o", "jsonpath='{.metadata.uid}'").Stdout()
 	resourceUID = strings.Trim(resourceUID, "'")
 	jsonpath := fmt.Sprintf("jsonpath=\"{.metadata.annotations.chains\\.tekton\\.dev/signature-%s-%s}\"", resourceType, resourceUID)
-	fmt.Println("Waiting 30 seconds")
+	log.Println("Waiting 30 seconds")
 	cmd.MustSuccedIncreasedTimeout(time.Second*45, "sleep", "30")
 	signature := cmd.MustSucceed("tkn", resourceType, "describe", "--last", "-o", jsonpath).Stdout()
 	signature = strings.Trim(signature, "\"")
@@ -104,7 +104,7 @@ func StartKanikoTask() {
 	cmd.MustSucceed("oc", "secrets", "link", "pipeline", "chains-image-registry-credentials", "--for=pull,mount")
 	image := fmt.Sprintf("IMAGE=%s:%s", repo, tag)
 	cmd.MustSucceed("tkn", "task", "start", "--param", image, "--use-param-defaults", "--workspace", "name=source,claimName=chains-pvc", "--workspace", "name=dockerconfig,secret=chains-image-registry-credentials", "kaniko-chains")
-	fmt.Println("Waiting 2 minutes for images to appear in image registry")
+	log.Println("Waiting 2 minutes for images to appear in image registry")
 	cmd.MustSuccedIncreasedTimeout(time.Second*130, "sleep", "120")
 }
 

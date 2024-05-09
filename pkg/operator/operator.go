@@ -1,6 +1,7 @@
 package operator
 
 import (
+	"fmt"
 	"log"
 	"strings"
 
@@ -15,7 +16,9 @@ import (
 )
 
 func WaitForTektonConfigCR(cs *clients.Clients, rnames utils.ResourceNames) {
-	EnsureTektonConfigExists(cs.TektonConfig(), rnames)
+	if _, err := EnsureTektonConfigExists(cs.TektonConfig(), rnames); err != nil {
+		testsuit.T.Fail(fmt.Errorf("TektonConfig doesn't exists\n %v", err))
+	}
 }
 
 func ValidateRBAC(cs *clients.Clients, rnames utils.ResourceNames) {
@@ -47,25 +50,33 @@ func ValidateRBACAfterDisable(cs *clients.Clients, rnames utils.ResourceNames) {
 }
 
 func ValidatePipelineDeployments(cs *clients.Clients, rnames utils.ResourceNames) {
-	EnsureTektonPipelineExists(cs.TektonPipeline(), rnames)
+	if _, err := EnsureTektonPipelineExists(cs.TektonPipeline(), rnames); err != nil {
+		testsuit.T.Fail(fmt.Errorf("TektonPipelines doesn't exists\n %v", err))
+	}
 	k8s.ValidateDeployments(cs, rnames.TargetNamespace,
 		config.PipelineControllerName, config.PipelineWebhookName)
 }
 
 func ValidateTriggerDeployments(cs *clients.Clients, rnames utils.ResourceNames) {
-	EnsureTektonTriggerExists(cs.TektonTrigger(), rnames)
+	if _, err := EnsureTektonTriggerExists(cs.TektonTrigger(), rnames); err != nil {
+		testsuit.T.Fail(fmt.Errorf("TektonTriggers doesn't exists\n %v", err))
+	}
 	k8s.ValidateDeployments(cs, rnames.TargetNamespace,
 		config.TriggerControllerName, config.TriggerWebhookName)
 }
 
 func ValidateChainsDeployments(cs *clients.Clients, rnames utils.ResourceNames) {
-	EnsureTektonChainsExists(cs.TektonChains(), rnames)
+	if _, err := EnsureTektonChainsExists(cs.TektonChains(), rnames); err != nil {
+		testsuit.T.Fail(fmt.Errorf("TektonChains doesn't exists\n %v", err))
+	}
 	k8s.ValidateDeployments(cs, rnames.TargetNamespace,
 		config.ChainsControllerName)
 }
 
 func ValidateHubDeployments(cs *clients.Clients, rnames utils.ResourceNames) {
-	EnsureTektonHubsExists(cs.TektonHub(), rnames)
+	if _, err := EnsureTektonHubsExists(cs.TektonHub(), rnames); err != nil {
+		testsuit.T.Fail(fmt.Errorf("TektonHub doesn't exists\n %v", err))
+	}
 	k8s.ValidateDeployments(cs, rnames.TargetNamespace,
 		config.HubApiName, config.HubDbName, config.HubUiName)
 }
@@ -85,7 +96,7 @@ func DeleteTektonConfigCR(cs *clients.Clients, rnames utils.ResourceNames) {
 	TektonConfigCRDelete(cs, rnames)
 }
 
-// Unistall helps you to delete operator and it's traces if any from cluster
+// Uninstall helps you to delete operator and it's traces if any from cluster
 func Uninstall(cs *clients.Clients, rnames utils.ResourceNames) {
 	log.Printf("output: %s\n", cmd.MustSucceed("oc", "delete", "--ignore-not-found", "TektonHub", "hub").Stdout())
 	log.Printf("output: %s\n", cmd.MustSucceed("oc", "delete", "--ignore-not-found", "tektonresults", "result").Stdout())

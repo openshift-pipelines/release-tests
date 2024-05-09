@@ -154,7 +154,11 @@ func getTaskrunLogs(c *clients.Clients, trname, namespace string) (*bytes.Buffer
 
 	// Set params
 	params := cli.TektonParams{}
-	params.Clients(c.KubeConfig)
+	_, err := params.Clients(c.KubeConfig)
+	if err != nil {
+		log.Printf("Client Initialization Failed\n %v", err)
+		return nil, err
+	}
 	params.SetNamespace(namespace)
 
 	// Set options for the CLI
@@ -170,6 +174,6 @@ func getTaskrunLogs(c *clients.Clients, trname, namespace string) (*bytes.Buffer
 	}
 
 	// Get the logs
-	err := clitr.Run(&lopts)
+	err = clitr.Run(&lopts)
 	return buf, err
 }

@@ -27,11 +27,6 @@ const (
 	OLMNamespace       = "openshift-marketplace"
 )
 
-var (
-	immediate             = int64(0)
-	immediateDeleteOption = &metav1.DeleteOptions{GracePeriodSeconds: &immediate}
-)
-
 func SubscribeAndWaitForOperatorToBeReady(cs *clients.Clients, subscriptionName, channel, catalogsource string) (*v1alpha1.Subscription, error) {
 	createSubscription(subscriptionName, channel, catalogsource)
 
