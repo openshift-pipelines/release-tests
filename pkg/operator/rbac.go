@@ -201,6 +201,6 @@ func AssertSCCNotPresent(clients *clients.Clients, sccName string) {
 		return true, err
 	})
 	if err != nil {
-		testsuit.T.Fail(fmt.Errorf("Expected: secuirty context constraint %q not present, Actual: security context constraint %q present, Error: %v", sccName, sccName, err))
+		testsuit.T.Fail(fmt.Errorf("Expected: security context constraint %q not present, Actual: security context constraint %q present, Error: %v", sccName, sccName, err))
 	}
 }

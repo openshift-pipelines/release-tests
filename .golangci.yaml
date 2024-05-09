@@ -1,8 +1,7 @@
 run:
+  timeout: 5m
   build-tags:
     - e2e
-  skip-dirs:
-    - vendor
 linters-settings:
   gocritic:
     disabled-checks:
@@ -12,4 +11,4 @@ linters-settings:
 linters:
   enable:
     - forbidigo
-    - unused
+    - misspell
