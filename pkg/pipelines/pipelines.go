@@ -21,7 +21,7 @@ import (
 	clipr "github.com/tektoncd/cli/pkg/cmd/pipelinerun"
 	"github.com/tektoncd/cli/pkg/options"
 	prsort "github.com/tektoncd/cli/pkg/pipelinerun/sort"
-	"github.com/tektoncd/pipeline/pkg/apis/pipeline/v1beta1"
+	v1 "github.com/tektoncd/pipeline/pkg/apis/pipeline/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
@@ -143,7 +143,7 @@ func validatePipelineRunTimeoutFailure(c *clients.Clients, prname, namespace str
 	}
 
 	log.Printf("Waiting for PipelineRun %s in namespace %s to be timed out", pipelineRun.Name, namespace)
-	if err := wait.WaitForPipelineRunState(c, pipelineRun.Name, wait.FailedWithReason(v1beta1.PipelineRunReasonTimedOut.String(), pipelineRun.Name), "PipelineRunTimedOut"); err != nil {
+	if err := wait.WaitForPipelineRunState(c, pipelineRun.Name, wait.FailedWithReason(v1.PipelineRunReasonTimedOut.String(), pipelineRun.Name), "PipelineRunTimedOut"); err != nil {
 		testsuit.T.Errorf("Error waiting for PipelineRun %s to finish: %s", pipelineRun.Name, err)
 	}
 
@@ -153,7 +153,7 @@ func validatePipelineRunTimeoutFailure(c *clients.Clients, prname, namespace str
 		wg.Add(1)
 		go func(name string) {
 			defer wg.Done()
-			err := wait.WaitForTaskRunState(c, name, wait.FailedWithReason(v1beta1.TaskRunReasonCancelled.String(), name), v1beta1.TaskRunReasonCancelled.String())
+			err := wait.WaitForTaskRunState(c, name, wait.FailedWithReason(v1.TaskRunReasonCancelled.String(), name), v1.TaskRunReasonCancelled.String())
 			if err != nil {
 				testsuit.T.Errorf("error waiting for task run %s to be cancelled on pipeline timeout \n %v", name, err)
 			}
@@ -191,7 +191,7 @@ func validatePipelineRunCancel(c *clients.Clients, prname, namespace string) {
 		wg.Add(1)
 		go func(name string) {
 			defer wg.Done()
-			err := wait.WaitForTaskRunState(c, name, wait.FailedWithReason(v1beta1.TaskRunReasonCancelled.String(), name), "TaskRunCancelled")
+			err := wait.WaitForTaskRunState(c, name, wait.FailedWithReason(v1.TaskRunReasonCancelled.String(), name), "TaskRunCancelled")
 			if err != nil {
 				testsuit.T.Errorf("task run %s failed to finish \n %v", name, err)
 			}
@@ -253,8 +253,8 @@ func WatchForPipelineRun(c *clients.Clients, namespace string) {
 	gauge.WriteMessage("%+v", prnames)
 }
 
-func cast2pipelinerun(obj runtime.Object) (*v1beta1.PipelineRun, error) {
-	var run *v1beta1.PipelineRun
+func cast2pipelinerun(obj runtime.Object) (*v1.PipelineRun, error) {
+	var run *v1.PipelineRun
 	unstruct, err := runtime.DefaultUnstructuredConverter.ToUnstructured(obj)
 	if err != nil {
 		return nil, err
@@ -366,7 +366,11 @@ func getPipelinerunLogs(c *clients.Clients, prname, namespace string) (*bytes.Bu
 
 	// Set params
 	params := cli.TektonParams{}
-	params.Clients(c.KubeConfig)
+	_, err := params.Clients(c.KubeConfig)
+	if err != nil {
+		log.Printf("Client Initialization Failed\n %v", err)
+		return nil, err
+	}
 	params.SetNamespace(namespace)
 
 	// Set options for the CLI
@@ -382,7 +386,7 @@ func getPipelinerunLogs(c *clients.Clients, prname, namespace string) (*bytes.Bu
 	}
 
 	// Get the logs
-	err := clipr.Run(&lopts)
+	err = clipr.Run(&lopts)
 	return buf, err
 }
 
