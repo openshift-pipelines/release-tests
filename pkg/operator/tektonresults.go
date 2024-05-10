@@ -23,7 +23,7 @@ func CreateSecretsForTektonResults() {
 }
 
 func EnsureResutsReady() {
-	cmd.MustSuccedIncreasedTimeout(time.Minute*5, "oc", "wait", "--for=condition=Ready", "tektoninstallerset", "-l", "operator.tekton.dev/type=result")
+	cmd.MustSuccedIncreasedTimeout(time.Minute*5, "oc", "wait", "--for=condition=Ready", "tektoninstallerset", "-l", "operator.tekton.dev/type=result", "--timeout=120s")
 }
 
 func CreateResultsRoute() {
