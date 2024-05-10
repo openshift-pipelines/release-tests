@@ -13,7 +13,7 @@ require (
 	github.com/prometheus/client_golang v1.18.0
 	github.com/prometheus/common v0.45.0
 	github.com/tektoncd/cli v0.35.2
-	github.com/tektoncd/operator v0.70.0
+	github.com/tektoncd/operator v0.70.2
 	github.com/tektoncd/pipeline v0.56.1
 	github.com/tektoncd/triggers v0.26.1
 	go.opencensus.io v0.24.0
@@ -102,7 +102,7 @@ require (
 	github.com/munnerz/goautoneg v0.0.0-20191010083416-a7dc8b61c822 // indirect
 	github.com/nsf/termbox-go v1.1.1 // indirect
 	github.com/opencontainers/go-digest v1.0.0 // indirect
-	github.com/openshift-pipelines/pipelines-as-code v0.24.1 // indirect
+	github.com/openshift-pipelines/pipelines-as-code v0.24.3 // indirect
 	github.com/openshift/apiserver-library-go v0.0.0-20230503174907-d9b2bf6185e9 // indirect
 	github.com/peterbourgon/diskv v2.0.1+incompatible // indirect
 	github.com/prometheus/client_model v0.5.0 // indirect
