@@ -75,6 +75,7 @@ gauge run --log-level=debug --verbose --tags 'e2e & linux/amd64' specs/clusterta
 gauge run --log-level=debug --verbose --tags e2e specs/operator/rbac.spec
 gauge run --log-level=debug --verbose --tags e2e specs/operator/auto-prune.spec
 gauge run --log-level=debug --verbose --tags e2e specs/operator/addon.spec
+gauge run --log-level=debug --verbose --tags e2e <specification_path>:<scenario_line_number>
 ```
 
 The following tests can run as both `admin` and regular/non-admin user
