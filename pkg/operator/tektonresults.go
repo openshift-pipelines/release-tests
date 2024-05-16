@@ -98,7 +98,7 @@ func VerifyResultsRecords(resourceType string) {
 		if err != nil {
 			testsuit.T.Errorf("Error decoding base64 data: %v", err)
 		}
-		log.Printf("%s", decodedResultsLogs)
+		log.Print(string(decodedResultsLogs))
 		if !strings.Contains(string(decodedResultsLogs), "Hello, Results!") || !strings.Contains(string(decodedResultsLogs), "Goodbye, Results!") {
 			testsuit.T.Errorf("Records are incorrect")
 		}
