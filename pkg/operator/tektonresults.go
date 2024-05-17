@@ -1,7 +1,7 @@
 package operator
 
 import (
-	"fmt"
+	"log"
 	"strings"
 	"time"
 
@@ -98,7 +98,7 @@ func VerifyResultsRecords(resourceType string) {
 		if err != nil {
 			testsuit.T.Errorf("Error decoding base64 data: %v", err)
 		}
-		fmt.Printf(string(decodedResultsLogs))
+		log.Print(string(decodedResultsLogs))
 		if !strings.Contains(string(decodedResultsLogs), "Hello, Results!") || !strings.Contains(string(decodedResultsLogs), "Goodbye, Results!") {
 			testsuit.T.Errorf("Records are incorrect")
 		}
