@@ -1,10 +1,11 @@
 package k8s
 
 import (
+	"log"
+
 	"github.com/getgauge-contrib/gauge-go/gauge"
 	"github.com/openshift-pipelines/release-tests/pkg/k8s"
 	"github.com/openshift-pipelines/release-tests/pkg/store"
-	"log"
 )
 
 var _ = gauge.Step("Verify ServiceAccount <sa> does not exist", func(sa string) {
@@ -25,7 +26,9 @@ var _ = gauge.Step("Create cron job with schedule <schedule>", func(schedule str
 })
 
 var _ = gauge.Step("Delete cron job", func() {
-	k8s.DeleteCronJob(store.Clients(), store.GetScenarioData("cronjob"), store.Namespace())
+	if err := k8s.DeleteCronJob(store.Clients(), store.GetScenarioData("cronjob"), store.Namespace()); err != nil {
+		log.Printf("Delete cron job failed\n %v", err)
+	}
 })
 
 var _ = gauge.Step("Validate default auto prune cronjob in target namespace", func() {
