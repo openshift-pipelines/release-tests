@@ -17,7 +17,7 @@ import (
 	"github.com/tektoncd/operator/pkg/client/clientset/versioned"
 	operatorv1alpha1 "github.com/tektoncd/operator/pkg/client/clientset/versioned/typed/operator/v1alpha1"
 	pversioned "github.com/tektoncd/pipeline/pkg/client/clientset/versioned"
-	"github.com/tektoncd/pipeline/pkg/client/clientset/versioned/typed/pipeline/v1"
+	v1 "github.com/tektoncd/pipeline/pkg/client/clientset/versioned/typed/pipeline/v1"
 	"github.com/tektoncd/pipeline/pkg/client/clientset/versioned/typed/pipeline/v1beta1"
 	triggersclientset "github.com/tektoncd/triggers/pkg/client/clientset/versioned"
 )

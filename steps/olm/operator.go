@@ -34,7 +34,9 @@ var _ = gauge.Step("Subscribe to operator", func() {
 })
 
 var _ = gauge.Step("Wait for TektonConfig CR availability", func() {
-	operator.EnsureTektonConfigExists(store.Clients().TektonConfig(), store.GetCRNames())
+	if _, err := operator.EnsureTektonConfigExists(store.Clients().TektonConfig(), store.GetCRNames()); err != nil {
+		testsuit.T.Fail(fmt.Errorf("TektonConfig doesn't exists\n %v", err))
+	}
 })
 
 var _ = gauge.Step("Upgrade operator subscription", func() {
