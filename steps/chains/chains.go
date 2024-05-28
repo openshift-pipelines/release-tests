@@ -10,7 +10,10 @@ import (
 )
 
 var _ = gauge.Step("Verify <resourceType> signature", func(resourceType string) {
-	operator.VerifySignature(resourceType)
+	err := operator.VerifySignature(resourceType)
+	if err != nil {
+		testsuit.T.Errorf("Signature verification failed with error: %v", err)
+	}
 })
 
 var _ = gauge.Step("Start the kaniko-chains task", func() {

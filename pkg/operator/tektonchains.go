@@ -59,44 +59,61 @@ func EnsureTektonChainsExists(clients chainv1alpha.TektonChainInterface, names u
 	return ks, err
 }
 
-func VerifySignature(resourceType string) {
+func VerifySignature(resourceType string) error {
 	//Get a signature of taskrun payload
-	resourceUID := cmd.MustSucceed("tkn", resourceType, "describe", "--last", "-o", "jsonpath='{.metadata.uid}'").Stdout()
+	cmdOut := cmd.Run("tkn", resourceType, "describe", "--last", "-o", "jsonpath='{.metadata.uid}'")
+	if cmdOut.ExitCode != 0 {
+		return fmt.Errorf("command execution failed with error %v", cmdOut.Error)
+	}
+	resourceUID := cmdOut.Stdout()
 	resourceUID = strings.Trim(resourceUID, "'")
+
 	jsonpath := fmt.Sprintf("jsonpath=\"{.metadata.annotations.chains\\.tekton\\.dev/signature-%s-%s}\"", resourceType, resourceUID)
 	log.Println("Waiting 30 seconds")
-	cmd.MustSuccedIncreasedTimeout(time.Second*45, "sleep", "30")
-	signature := cmd.MustSucceed("tkn", resourceType, "describe", "--last", "-o", jsonpath).Stdout()
+	time.Sleep(30 * time.Second)
+	cmdOut = cmd.Run("tkn", resourceType, "describe", "--last", "-o", jsonpath)
+	if cmdOut.ExitCode != 0 {
+		return fmt.Errorf("command execution failed with error %v", cmdOut.Error)
+	}
+	signature := cmdOut.Stdout()
 	signature = strings.Trim(signature, "\"")
 
 	jsonpath = "jsonpath=\"{.metadata.annotations.chains\\.tekton\\.dev/signed}\""
-	isSigned := cmd.MustSucceed("tkn", resourceType, "describe", "--last", "-o", jsonpath).Stdout()
+	cmdOut = cmd.Run("tkn", resourceType, "describe", "--last", "-o", jsonpath)
+	if cmdOut.ExitCode != 0 {
+		return fmt.Errorf("command execution failed with error %v", cmdOut.Error)
+	}
+	isSigned := cmdOut.Stdout()
 	isSigned = strings.Trim(isSigned, "\"")
 
 	if isSigned != "true" {
-		testsuit.T.Errorf("Annotation chains.tekton.dev/signed is set to %s", isSigned)
+		return fmt.Errorf("Annotation chains.tekton.dev/signed is set to %s", isSigned)
 	}
 	if len(signature) == 0 {
-		testsuit.T.Fail(fmt.Errorf("Annotation chains.tekton.dev/signature-%s-%s is not set", resourceType, resourceUID))
+		return fmt.Errorf("Annotation chains.tekton.dev/signature-%s-%s is not set", resourceType, resourceUID)
 	}
 
 	//Decode the signature
 	decodedSignature, err := base64.StdEncoding.DecodeString(signature)
 	if err != nil {
-		testsuit.T.Errorf("Error decoding base64")
+		return fmt.Errorf("Error decoding base64")
 	}
 	//Create file with signature
 	file, err := os.Create("sign")
-	if err != nil {
-		testsuit.T.Errorf("Error creating file")
-	}
 	defer file.Close()
+	if err != nil {
+		return fmt.Errorf("Error creating file")
+	}
 	_, err = file.WriteString(string(decodedSignature))
 	if err != nil {
-		testsuit.T.Errorf("Error writing to file")
+		return fmt.Errorf("Error writing to file")
 	}
 	//Verify signature with signing-secrets
-	cmd.MustSucceed("cosign", "verify-blob-attestation", "--insecure-ignore-tlog", "--key", publicKeyPath+"/cosign.pub", "--signature", "sign", "--type", "slsaprovenance", "--check-claims=false", "/dev/null")
+	cmdOut = cmd.Run("cosign", "verify-blob-attestation", "--insecure-ignore-tlog", "--key", publicKeyPath+"/cosign.pub", "--signature", "sign", "--type", "slsaprovenance", "--check-claims=false", "/dev/null")
+	if cmdOut.ExitCode != 0 {
+		return fmt.Errorf("command execution failed with error %v", cmdOut.Error)
+	}
+	return nil
 }
 
 func StartKanikoTask() {
