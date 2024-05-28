@@ -4,9 +4,8 @@ kind: PipelineRun
 metadata:
   name: upload-test-cases-polarion-
   annotations:
-    pipelinesascode.tekton.dev/on-target-branch: "[master]"
     pipelinesascode.tekton.dev/on-cel-expression: |
-      "specs".pathChanged() && event == "push"
+      "specs/*.spec".pathChanged() && event == "push" && target_branch == "master"
     pipelinesascode.tekton.dev/max-keep-runs: "5"
 spec:
   pipelineSpec:
