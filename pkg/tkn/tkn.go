@@ -41,6 +41,8 @@ func AssertComponentVersion(version string, component string) {
 		actualVersion = cmd.MustSucceed("oc", "get", "tektonhub", "hub", "-o", "jsonpath={.status.version}").Stdout()
 	case "results":
 		actualVersion = cmd.MustSucceed("oc", "get", "tektonresult", "result", "-o", "jsonpath={.status.version}").Stdout()
+	case "manual-approval-gate":
+		actualVersion = cmd.MustSucceed("oc", "get", "manualapprovalgate", "manualapprovalgate", "-o", "jsonpath={.status.version}").Stdout()
 	default:
 		testsuit.T.Errorf("Unknown component")
 	}
