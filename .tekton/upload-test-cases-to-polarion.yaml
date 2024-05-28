@@ -5,7 +5,7 @@ metadata:
   name: upload-test-cases-polarion-
   annotations:
     pipelinesascode.tekton.dev/on-cel-expression: |
-      "specs/*.spec".pathChanged() && event == "push" && target_branch == "test-pac-remote"
+      "specs/*.spec".pathChanged() && event == "push" && target_branch == "master"
     pipelinesascode.tekton.dev/max-keep-runs: "5"
 spec:
   pipelineSpec:
