@@ -1,6 +1,7 @@
 package chains
 
 import (
+	"fmt"
 	"os"
 
 	"github.com/getgauge-contrib/gauge-go/gauge"
@@ -12,7 +13,7 @@ import (
 var _ = gauge.Step("Verify <resourceType> signature", func(resourceType string) {
 	err := operator.VerifySignature(resourceType)
 	if err != nil {
-		testsuit.T.Errorf("Signature verification failed with error: %v", err)
+		testsuit.T.Fail(fmt.Errorf("Signature verification failed with error: %v", err))
 	}
 })
 
