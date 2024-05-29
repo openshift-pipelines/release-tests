@@ -23,12 +23,16 @@ import (
 var _ = gauge.BeforeScenario(func(exInfo *gauge_messages.ExecutionInfo) {
 	cs, namespace, cleanup := k8s.NewClientSet()
 	crNames := utils.ResourceNames{
-		TektonPipeline:  operatorapi.PipelineResourceName,
-		TektonTrigger:   operatorapi.TriggerResourceName,
-		TektonAddon:     operatorapi.AddonResourceName,
-		TektonConfig:    operatorapi.ConfigResourceName,
-		Namespace:       "",
-		TargetNamespace: config.TargetNamespace,
+		TektonPipeline:           operatorapi.PipelineResourceName,
+		TektonTrigger:            operatorapi.TriggerResourceName,
+		TektonAddon:              operatorapi.AddonResourceName,
+		TektonConfig:             operatorapi.ConfigResourceName,
+		Namespace:                "",
+		TargetNamespace:          config.TargetNamespace,
+		TektonResult:             operatorapi.ResultResourceName,
+		TektonChain:              operatorapi.ChainResourceName,
+		TektonHub:                operatorapi.HubResourceName,
+		OpenShiftPipelinesAsCode: operatorapi.OpenShiftPipelinesAsCodeName,
 	}
 
 	store := gauge.GetScenarioStore()
