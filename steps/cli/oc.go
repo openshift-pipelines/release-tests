@@ -5,11 +5,14 @@ import (
 	"log"
 	"os"
 	"regexp"
+	"strconv"
 	"strings"
 
 	"github.com/getgauge-contrib/gauge-go/gauge"
 	m "github.com/getgauge-contrib/gauge-go/models"
+	"github.com/getgauge-contrib/gauge-go/testsuit"
 	"github.com/openshift-pipelines/release-tests/pkg/oc"
+	"github.com/openshift-pipelines/release-tests/pkg/openshift"
 	"github.com/openshift-pipelines/release-tests/pkg/store"
 )
 
@@ -187,5 +190,17 @@ var _ = gauge.Step("Configure the bundles resolver", func() {
 })
 
 var _ = gauge.Step("Enable console plugin", func() {
+	openshiftVersion := openshift.GetOpenShiftVersion(store.Clients())
+	minorVersion, err := strconv.Atoi(strings.Split(openshiftVersion, ".")[1])
+
+	if err != nil {
+		testsuit.T.Fail(err)
+	}
+
+	if minorVersion < 15 {
+		log.Printf("Console plugin is not supported on OpenShift version lower than 4.15 (cluster version %v).", openshiftVersion)
+		return
+	}
+
 	oc.EnableConsolePlugin()
 })
