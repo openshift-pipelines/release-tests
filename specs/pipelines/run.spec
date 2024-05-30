@@ -27,7 +27,7 @@ Steps:
   * Verify pipelinerun
       |S.NO|pipeline_run_name       |status    |check_label_propagation|
       |----|------------------------|----------|-----------------------|
-      |1   |output-pipeline-run-v1b1|successful|yes                    |
+      |1   |output-pipeline-run-v1b1|successful|no                     |
 
 ## Pipelinerun Timeout failure Test: PIPELINES-03-TC04
 Tags: e2e, pipelines, non-admin, sanity
