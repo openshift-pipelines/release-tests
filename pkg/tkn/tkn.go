@@ -44,6 +44,8 @@ func AssertComponentVersion(version string, component string) {
 	default:
 		testsuit.T.Errorf("Unknown component")
 	}
+
+	actualVersion = strings.Trim(actualVersion, "\n")
 	if !strings.Contains(actualVersion, version) {
 		testsuit.T.Errorf("The " + component + " has an unexpected version: " + actualVersion + ", expected: " + version)
 	}
