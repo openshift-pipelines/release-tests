@@ -82,9 +82,11 @@ var TektonInstallersetNamePrefixes [27]string = [27]string{
 	"addon-custom-consolecli",
 	"addon-custom-openshiftconsole",
 	"addon-custom-pipelinestemplate",
+	"addon-custom-resolvertask",
 	"addon-custom-triggersresources",
 	"addon-versioned-clustertasks",
 	"chain",
+	"chain-config",
 	"chain-secret",
 	"console-link-hub",
 	"openshiftpipelinesascode-main-deployment",
@@ -95,6 +97,7 @@ var TektonInstallersetNamePrefixes [27]string = [27]string{
 	"pipeline-post",
 	"pipeline-pre",
 	"rhosp-rbac",
+	"tekton-config-console-plugin-manifests",
 	"tekton-hub-api",
 	"tekton-hub-db",
 	"tekton-hub-db-migration",
@@ -103,7 +106,6 @@ var TektonInstallersetNamePrefixes [27]string = [27]string{
 	"trigger-main-deployment",
 	"trigger-main-static",
 	"validating-mutating-webhook",
-	"tekton-config-console-plugin-manifests",
 }
 
 var PrefixesOfDefaultPipelines [9]string = [9]string{"buildah", "s2i-dotnet", "s2i-go", "s2i-java", "s2i-nodejs", "s2i-perl", "s2i-php", "s2i-python", "s2i-ruby"}
