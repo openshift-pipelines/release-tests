@@ -76,7 +76,7 @@ const (
 )
 
 // Name prefixes of installerset
-var TektonInstallersetNamePrefixes [27]string = [27]string{
+var TektonInstallersetNamePrefixes [29]string = [29]string{
 	"addon-custom-clustertask",
 	"addon-custom-communityclustertask",
 	"addon-custom-consolecli",
