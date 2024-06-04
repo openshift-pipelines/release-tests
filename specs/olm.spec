@@ -19,6 +19,11 @@ Steps:
     | S.NO | resource_dir                   |
     |------|--------------------------------|
     | 1    | testdata/hub/tektonhub.yaml    |
+  * Verify namespace "openshift-pipelines" exists
+  * Apply
+    | S.NO | resource_dir                                          |
+    |------|-------------------------------------------------------|
+    | 1    | testdata/manualapprovalgate/manual-approval-gate.yaml |
   * Create secrets for Tekton Results
   * Apply in namespace "openshift-pipelines"
     | S.NO | resource_dir                   |
