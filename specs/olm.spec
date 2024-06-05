@@ -19,7 +19,6 @@ Steps:
     | S.NO | resource_dir                   |
     |------|--------------------------------|
     | 1    | testdata/hub/tektonhub.yaml    |
-  * Verify namespace "openshift-pipelines" exists
   * Apply
     | S.NO | resource_dir                                          |
     |------|-------------------------------------------------------|
