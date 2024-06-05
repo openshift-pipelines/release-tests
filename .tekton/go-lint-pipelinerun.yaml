@@ -43,7 +43,7 @@ spec:
         taskSpec:
           steps:
             - name: lint
-              image: quay.io/openshift-pipeline/ci
+              image: quay.io/srivickynesh/pipelines-ci
               imagePullPolicy: Always
               command: ["/bin/sh", "-c"]
               args:
