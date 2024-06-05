@@ -60,3 +60,6 @@ RUN wget https://github.com/sigstore/cosign/releases/download/v2.2.4/cosign-linu
 
 RUN wget https://github.com/sigstore/rekor/releases/download/v1.3.6/rekor-cli-linux-amd64 -O /usr/bin/rekor-cli && \
     chmod u+x /usr/bin/rekor-cli
+
+ENV GOLANGCI_LINT_VERSION=1.59.0
+RUN curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b /usr/bin v${GOLANGCI_LINT_VERSION}
