@@ -48,10 +48,8 @@ spec:
               command: ["/bin/sh", "-c"]
               args:
                 - |
+                  cd $(workspaces.output.path)/release-tests &&
                   ls &&
-                  cd ${workspaces.source.path}/release-tests &&
-                  ls &&
-                  pwd &&
                   golangci-lint run --timeout=5m
         workspaces:
           - name: source
