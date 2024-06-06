@@ -18,14 +18,25 @@ spec:
       workspace: source
     params:
     - name: url
-      value: https://github.com/sclorg/django-ex
+      value: https://github.com/openshift-pipelines/release-tests
     - name: subdirectory
-      value: s2i-python-$(params.VERSION)
+      value: testdata/s2i_python-$(params.VERSION)
     - name: deleteExisting
       value: "true"
+  - name: install-dependencies
+    taskRef:
+      name: python-38
+      kind: ClusterTask
+    params:
+      - name: packages
+        value: '-r testdata/s2i_python/requirment.txt'
+    workspaces:
+      - name: source
+        workspace: shared-workspace
+        
   - name: build
     taskRef:
-      name: s2i-python
+      name: s2i_python
       kind: ClusterTask
     runAfter: 
     - clone-git-repo
@@ -34,9 +45,9 @@ spec:
       workspace: source
     params:
     - name: IMAGE
-      value: image-registry.openshift-image-registry.svc:5000/$(context.pipelineRun.namespace)/s2i-python-$(params.VERSION)
+      value: image-registry.openshift-image-registry.svc:5000/$(context.pipelineRun.namespace)/s2i_python-$(params.VERSION)
     - name: PATH_CONTEXT
-      value: s2i-python-$(params.VERSION)
+      value: s2i_python-$(params.VERSION)
     - name: TLSVERIFY
       value: "true"
     - name: VERSION
