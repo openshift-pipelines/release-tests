@@ -49,7 +49,9 @@ spec:
               args:
                 - |
                   ls &&
-                  cd /workspace/output/release-tests &&
+                  echo "---------------"
+                  ls $(workspaces.source.path) &&
+                  echo "---------------"
                   ls &&
                   golangci-lint run --timeout=5m
         workspaces:
