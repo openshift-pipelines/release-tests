@@ -1,0 +1,6 @@
+apiVersion: operator.tekton.dev/v1alpha1
+kind: ManualApprovalGate
+metadata:
+  name: manual-approval-gate
+spec:
+  targetNamespace: openshift-pipelines
