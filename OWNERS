@@ -1,2 +1,8 @@
 approvers:
   - openshift-cherrypick-robot
+  - ppitonak
+  - VeereshAradhya
+reviewers:
+  - openshift-cherrypick-robot
+  - ppitonak
+  - VeereshAradhya
