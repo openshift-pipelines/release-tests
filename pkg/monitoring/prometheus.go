@@ -150,7 +150,7 @@ func getBearerTokenForPrometheusAccount(cs *clients.Clients) (string, error) {
 		// generate token for service account prometheus-k8s
 		output := cmd.Run("oc", "sa", "new-token", "prometheus-k8s", "-n", "openshift-monitoring")
 		if output.ExitCode != 0 {
-			return "", errors.New(fmt.Sprintf("error creating token for the service account prometheus-k8s: %v", output.Stderr()))
+			return "", fmt.Errorf("error creating token for the service account prometheus-k8s: %v", output.Stderr())
 		}
 		secrets, err := cs.KubeClient.Kube.CoreV1().Secrets("openshift-monitoring").List(context.Background(), meta.ListOptions{})
 		if err != nil {
