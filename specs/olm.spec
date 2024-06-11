@@ -46,6 +46,10 @@ Steps:
   * Validate RBAC
   * Validate quickstarts
   * Validate default auto prune cronjob in target namespace
+  * Apply
+    | S.NO | resource_dir                                          |
+    |------|-------------------------------------------------------|
+    | 1    | testdata/manualapprovalgate/manual-approval-gate.yaml |
   * Validate tektoninstallersets status
   * Validate tektoninstallersets names
 
