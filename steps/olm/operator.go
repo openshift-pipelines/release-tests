@@ -170,10 +170,12 @@ var _ = gauge.Step("Create signing-secrets for Tekton Chains", func() {
 			log.Printf("The \"signing-secrets\" does not contain any data")
 			oc.DeleteResourceInNamespace("secrets", "signing-secrets", "openshift-pipelines")
 			operator.CreateSigningSecretForTektonChains()
-		} else {
-			operator.CreateFileWithCosignPubKey()
 		}
 	} else {
 		operator.CreateSigningSecretForTektonChains()
 	}
+})
+
+var _ = gauge.Step("Store Cosign public key in file", func() {
+	operator.CreateFileWithCosignPubKey()
 })
