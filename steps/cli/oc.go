@@ -191,6 +191,10 @@ var _ = gauge.Step("Configure the bundles resolver", func() {
 
 var _ = gauge.Step("Enable console plugin", func() {
 	openshiftVersion := openshift.GetOpenShiftVersion(store.Clients())
+	if openshiftVersion == "" {
+		testsuit.T.Errorf("Unknown version of OpenShift (cluster version \"%v\").", openshiftVersion)
+	}
+
 	minorVersion, err := strconv.Atoi(strings.Split(openshiftVersion, ".")[1])
 
 	if err != nil {
