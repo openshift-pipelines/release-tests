@@ -55,3 +55,13 @@ func IsCapabilityEnabled(c *clients.Clients, name string) bool {
 	}
 	return false
 }
+
+func GetOpenShiftVersion(c *clients.Clients) string {
+	cv, err := c.ClusterVersion.Get(c.Ctx, "version", metav1.GetOptions{})
+	if err != nil {
+		testsuit.T.Fail(err)
+		return ""
+	}
+
+	return cv.Status.Desired.Version
+}
