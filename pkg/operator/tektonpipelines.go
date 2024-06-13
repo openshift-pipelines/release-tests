@@ -44,7 +44,7 @@ func EnsureTektonPipelineExists(clients pipelinev1alpha1.TektonPipelineInterface
 	if err == nil {
 		return tpCR, err
 	}
-	err = wait.Poll(config.APIRetry, config.APITimeout, func() (bool, error) {
+	err = wait.PollUntilContextTimeout(context.TODO(), config.APIRetry, config.APITimeout, false, func(context.Context) (bool, error) {
 		tpCR, err = clients.Get(context.TODO(), names.TektonPipeline, metav1.GetOptions{})
 		if err != nil {
 			if apierrs.IsNotFound(err) {
@@ -67,7 +67,7 @@ func WaitForTektonPipelineState(clients pipelinev1alpha1.TektonPipelineInterface
 	defer span.End()
 
 	var lastState *v1alpha1.TektonPipeline
-	waitErr := wait.PollImmediate(config.APIRetry, config.APITimeout, func() (bool, error) {
+	waitErr := wait.PollUntilContextTimeout(context.TODO(), config.APIRetry, config.APITimeout, true, func(context.Context) (bool, error) {
 		lastState, err := clients.Get(context.TODO(), name, metav1.GetOptions{})
 		return inState(lastState, err)
 	})
@@ -96,7 +96,7 @@ func TektonPipelineCRDelete(clients *clients.Clients, crNames utils.ResourceName
 	if err := clients.TektonPipeline().Delete(context.TODO(), crNames.TektonPipeline, metav1.DeleteOptions{}); err != nil {
 		testsuit.T.Fail(fmt.Errorf("TektonPipeline %q failed to delete: %v", crNames.TektonPipeline, err))
 	}
-	err := wait.PollImmediate(config.APIRetry, config.APITimeout, func() (bool, error) {
+	err := wait.PollUntilContextTimeout(clients.Ctx, config.APIRetry, config.APITimeout, true, func(context.Context) (bool, error) {
 		_, err := clients.TektonPipeline().Get(context.TODO(), crNames.TektonPipeline, metav1.GetOptions{})
 		if apierrs.IsNotFound(err) {
 			return true, nil

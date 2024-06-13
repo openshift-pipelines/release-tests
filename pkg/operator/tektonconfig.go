@@ -44,7 +44,7 @@ func EnsureTektonConfigExists(clients configv1alpha1.TektonConfigInterface, name
 		return tcCR, err
 	}
 
-	err = wait.Poll(config.APIRetry, config.APITimeout, func() (bool, error) {
+	err = wait.PollUntilContextTimeout(context.TODO(), config.APIRetry, config.APITimeout, false, func(context.Context) (bool, error) {
 		tcCR, err = clients.Get(context.TODO(), names.TektonConfig, metav1.GetOptions{})
 		if err != nil {
 			if apierrs.IsNotFound(err) {
@@ -67,7 +67,7 @@ func WaitForTektonConfigState(clients configv1alpha1.TektonConfigInterface, name
 	defer span.End()
 
 	var lastState *v1alpha1.TektonConfig
-	waitErr := wait.PollImmediate(config.APIRetry, config.APITimeout, func() (bool, error) {
+	waitErr := wait.PollUntilContextTimeout(context.TODO(), config.APIRetry, config.APITimeout, true, func(context.Context) (bool, error) {
 		lastState, err := clients.Get(context.TODO(), name, metav1.GetOptions{})
 		return inState(lastState, err)
 	})
@@ -84,7 +84,7 @@ func IsTektonConfigReady(s *v1alpha1.TektonConfig, err error) (bool, error) {
 }
 
 func EnsureTektonConfigStatusInstalled(clients configv1alpha1.TektonConfigInterface, names utils.ResourceNames) {
-	err := wait.PollImmediate(config.APIRetry, config.APITimeout, func() (bool, error) {
+	err := wait.PollUntilContextTimeout(context.TODO(), config.APIRetry, config.APITimeout, true, func(context.Context) (bool, error) {
 		// Refresh Cluster CR
 		cr, err := EnsureTektonConfigExists(clients, names)
 		if err != nil {
@@ -115,7 +115,7 @@ func TektonConfigCRDelete(clients *clients.Clients, crNames utils.ResourceNames)
 	if err := clients.TektonConfig().Delete(context.TODO(), crNames.TektonConfig, metav1.DeleteOptions{}); err != nil {
 		testsuit.T.Fail(fmt.Errorf("TektonConfigCR %q failed to delete: %v", crNames.TektonConfig, err))
 	}
-	err := wait.PollImmediate(config.APIRetry, config.APITimeout, func() (bool, error) {
+	err := wait.PollUntilContextTimeout(clients.Ctx, config.APIRetry, config.APITimeout, true, func(context.Context) (bool, error) {
 		_, err := clients.TektonConfig().Get(context.TODO(), crNames.TektonConfig, metav1.GetOptions{})
 		if apierrs.IsNotFound(err) {
 			return true, nil

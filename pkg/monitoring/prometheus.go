@@ -78,8 +78,7 @@ func VerifyHealthStatusMetric(cs *clients.Clients, targetService TargetService) 
 	if err != nil {
 		return err
 	}
-
-	if err := wait.PollImmediate(config.APIRetry, config.APITimeout, func() (bool, error) {
+	if err := wait.PollUntilContextTimeout(cs.Ctx, config.APIRetry, config.APITimeout, true, func(context.Context) (bool, error) {
 		value, _, err := pc.Query(context.Background(), fmt.Sprintf(`max(up{job="%s"})`, targetService.Job), time.Time{})
 		if err != nil {
 			return false, err
@@ -126,7 +125,7 @@ func VerifyPipelinesControlPlaneMetrics(cs *clients.Clients) error {
 		"tekton_taskruns_pod_latency",
 	}
 	for _, metric := range pipelineMetrics {
-		if err := wait.PollImmediate(config.APIRetry, config.APITimeout, func() (bool, error) {
+		if err := wait.PollUntilContextTimeout(cs.Ctx, config.APIRetry, config.APITimeout, true, func(context.Context) (bool, error) {
 			value, _, err := pc.Query(context.Background(), metric, time.Time{})
 			if err != nil {
 				return false, err
