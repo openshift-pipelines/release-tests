@@ -76,7 +76,7 @@ const (
 )
 
 // Name prefixes of installerset
-var TektonInstallersetNamePrefixes [29]string = [29]string{
+var TektonInstallersetNamePrefixes [31]string = [31]string{
 	"addon-custom-clustertask",
 	"addon-custom-communityclustertask",
 	"addon-custom-consolecli",
@@ -89,6 +89,8 @@ var TektonInstallersetNamePrefixes [29]string = [29]string{
 	"chain-config",
 	"chain-secret",
 	"console-link-hub",
+	"manualapprovalgate-main-deployment",
+	"manualapprovalgate-main-static",
 	"openshiftpipelinesascode-main-deployment",
 	"openshiftpipelinesascode-main-static",
 	"openshiftpipelinesascode-post",
