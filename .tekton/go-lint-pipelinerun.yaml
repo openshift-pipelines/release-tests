@@ -46,7 +46,7 @@ spec:
           - name: package
             value: .
           - name: version
-            value: "v1.55"
+            value: "v1.59"
         workspaces:
           - name: source
             workspace: source
