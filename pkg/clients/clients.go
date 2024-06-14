@@ -145,7 +145,6 @@ func (c *Clients) TektonTrigger() operatorv1alpha1.TektonTriggerInterface {
 }
 
 func (c *Clients) TektonChains() operatorv1alpha1.TektonChainInterface {
-	c.Operator.ManualApprovalGates()
 	return c.Operator.TektonChains()
 }
 
