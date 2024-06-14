@@ -55,7 +55,7 @@ const (
 
 	// Name of the manual approval gate deployment
 	MAGController = "manual-approval-gate-controller"
-	MAGWebHook = "manual-approval-gate-webhook"
+	MAGWebHook    = "manual-approval-gate-webhook"
 
 	// Default config for auto pruner
 	PrunerSchedule   = "0 8 * * *"
