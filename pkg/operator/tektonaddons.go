@@ -41,7 +41,10 @@ import (
 func EnsureTektonAddonExists(clients operatorv1alpha1.TektonAddonInterface, names utils.ResourceNames) (*v1alpha1.TektonAddon, error) {
 	// If this function is called by the upgrade tests, we only create the custom resource, if it does not exist.
 	ks, err := clients.Get(context.TODO(), names.TektonAddon, metav1.GetOptions{})
-	err = wait.Poll(config.APIRetry, config.APITimeout, func() (bool, error) {
+	if err == nil {
+		return nil, err
+	}
+	err = wait.PollUntilContextTimeout(context.TODO(), config.APIRetry, config.APITimeout, false, func(context.Context) (bool, error) {
 		ks, err = clients.Get(context.TODO(), names.TektonAddon, metav1.GetOptions{})
 		if err != nil {
 			if apierrs.IsNotFound(err) {
@@ -64,7 +67,7 @@ func WaitForTektonAddonState(clients operatorv1alpha1.TektonAddonInterface, name
 	defer span.End()
 
 	var lastState *v1alpha1.TektonAddon
-	waitErr := wait.PollImmediate(config.APIRetry, config.APITimeout, func() (bool, error) {
+	waitErr := wait.PollUntilContextTimeout(context.TODO(), config.APIRetry, config.APITimeout, true, func(context.Context) (bool, error) {
 		lastState, err := clients.Get(context.TODO(), name, metav1.GetOptions{})
 		return inState(lastState, err)
 	})
@@ -81,7 +84,7 @@ func IsTektonAddonReady(s *v1alpha1.TektonAddon, err error) (bool, error) {
 }
 
 func EnsureTektonAddonsStatusInstalled(clients operatorv1alpha1.TektonAddonInterface, names utils.ResourceNames) {
-	err := wait.PollImmediate(config.APIRetry, config.APITimeout, func() (bool, error) {
+	err := wait.PollUntilContextTimeout(context.TODO(), config.APIRetry, config.APITimeout, true, func(context.Context) (bool, error) {
 		// Refresh Cluster CR
 		cr, err := EnsureTektonAddonExists(clients, names)
 		if err != nil {
@@ -113,7 +116,7 @@ func TektonAddonCRDelete(clients *clients.Clients, crNames utils.ResourceNames) 
 	if err := clients.TektonAddon().Delete(context.TODO(), crNames.TektonAddon, metav1.DeleteOptions{}); err != nil {
 		testsuit.T.Fail(fmt.Errorf("TektonAddon %q failed to delete: %v", crNames.TektonAddon, err))
 	}
-	err := wait.PollImmediate(config.APIRetry, config.APITimeout, func() (bool, error) {
+	err := wait.PollUntilContextTimeout(clients.Ctx, config.APIRetry, config.APITimeout, true, func(context.Context) (bool, error) {
 		_, err := clients.TektonAddon().Get(context.TODO(), crNames.TektonAddon, metav1.GetOptions{})
 		if apierrs.IsNotFound(err) {
 			return true, nil

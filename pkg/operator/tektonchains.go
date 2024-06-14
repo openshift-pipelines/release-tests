@@ -45,7 +45,7 @@ var publicKeyPath = resource.Path("testdata/chains/key")
 
 func EnsureTektonChainsExists(clients chainv1alpha.TektonChainInterface, names utils.ResourceNames) (*v1alpha1.TektonChain, error) {
 	ks, err := clients.Get(context.TODO(), names.TektonChain, metav1.GetOptions{})
-	err = wait.Poll(config.APIRetry, config.APITimeout, func() (bool, error) {
+	err = wait.PollUntilContextTimeout(context.TODO(), config.APIRetry, config.APITimeout, false, func(context.Context) (bool, error) {
 		ks, err = clients.Get(context.TODO(), names.TektonChain, metav1.GetOptions{})
 		if err != nil {
 			if apierrs.IsNotFound(err) {

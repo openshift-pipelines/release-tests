@@ -41,7 +41,7 @@ import (
 func EnsureTektonTriggerExists(clients triggerv1alpha1.TektonTriggerInterface, names utils.ResourceNames) (*v1alpha1.TektonTrigger, error) {
 	// If this function is called by the upgrade tests, we only create the custom resource, if it does not exist.
 	ks, err := clients.Get(context.TODO(), names.TektonTrigger, metav1.GetOptions{})
-	err = wait.Poll(config.APIRetry, config.APITimeout, func() (bool, error) {
+	err = wait.PollUntilContextTimeout(context.TODO(), config.APIRetry, config.APITimeout, false, func(context.Context) (bool, error) {
 		ks, err = clients.Get(context.TODO(), names.TektonTrigger, metav1.GetOptions{})
 		if err != nil {
 			if apierrs.IsNotFound(err) {
@@ -64,7 +64,7 @@ func WaitForTektonTriggerState(clients triggerv1alpha1.TektonTriggerInterface, n
 	defer span.End()
 
 	var lastState *v1alpha1.TektonTrigger
-	waitErr := wait.PollImmediate(config.APIRetry, config.APITimeout, func() (bool, error) {
+	waitErr := wait.PollUntilContextTimeout(context.TODO(), config.APIRetry, config.APITimeout, true, func(context.Context) (bool, error) {
 		lastState, err := clients.Get(context.TODO(), name, metav1.GetOptions{})
 		return inState(lastState, err)
 	})
@@ -93,7 +93,7 @@ func TektonTriggerCRDelete(clients *clients.Clients, crNames utils.ResourceNames
 	if err := clients.TektonTrigger().Delete(context.TODO(), crNames.TektonTrigger, metav1.DeleteOptions{}); err != nil {
 		testsuit.T.Fail(fmt.Errorf("TektonTrigger %q failed to delete: %v", crNames.TektonTrigger, err))
 	}
-	err := wait.PollImmediate(config.APIRetry, config.APITimeout, func() (bool, error) {
+	err := wait.PollUntilContextTimeout(clients.Ctx, config.APIRetry, config.APITimeout, true, func(context.Context) (bool, error) {
 		_, err := clients.TektonTrigger().Get(context.TODO(), crNames.TektonTrigger, metav1.GetOptions{})
 		if apierrs.IsNotFound(err) {
 			return true, nil

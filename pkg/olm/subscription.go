@@ -144,7 +144,7 @@ func UpdateSubscription(cs *clients.Clients, name, channel string) (*v1alpha1.Su
 func WaitForSubscriptionState(cs *clients.Clients, name, namespace string, inState func(s *v1alpha1.Subscription, err error) (bool, error)) (*v1alpha1.Subscription, error) {
 	var lastState *v1alpha1.Subscription
 	var err error
-	waitErr := wait.PollImmediate(Interval, Timeout, func() (bool, error) {
+	waitErr := wait.PollUntilContextTimeout(cs.Ctx, Interval, Timeout, true, func(context.Context) (bool, error) {
 		lastState, err = cs.OLM.OperatorsV1alpha1().Subscriptions(namespace).Get(context.Background(), name, metav1.GetOptions{})
 		return inState(lastState, err)
 	})
@@ -158,7 +158,7 @@ func WaitForSubscriptionState(cs *clients.Clients, name, namespace string, inSta
 func WaitForClusterServiceVersionState(cs *clients.Clients, name, namespace string, inState func(s *v1alpha1.ClusterServiceVersion, err error) (bool, error)) (*v1alpha1.ClusterServiceVersion, error) {
 	var lastState *v1alpha1.ClusterServiceVersion
 	var err error
-	waitErr := wait.PollImmediate(Interval, Timeout, func() (bool, error) {
+	waitErr := wait.PollUntilContextTimeout(cs.Ctx, Interval, Timeout, true, func(context.Context) (bool, error) {
 		lastState, err = cs.OLM.OperatorsV1alpha1().ClusterServiceVersions(namespace).Get(context.Background(), name, metav1.GetOptions{})
 		return inState(lastState, err)
 	})

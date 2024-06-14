@@ -2,6 +2,7 @@ package pipelines
 
 import (
 	"bytes"
+	"context"
 	"fmt"
 	"log"
 	"os"
@@ -290,7 +291,7 @@ func AssertForNoNewPipelineRunCreation(c *clients.Clients, namespace string) {
 func AssertNumberOfPipelineruns(c *clients.Clients, namespace, numberOfPr, timeoutSeconds string) {
 	log.Printf("Verifying if %s number of pipelinerun are present", numberOfPr)
 	timeoutSecondsInt, _ := strconv.Atoi(timeoutSeconds)
-	err := w.Poll(config.APIRetry, time.Second*time.Duration(timeoutSecondsInt), func() (bool, error) {
+	err := w.PollUntilContextTimeout(c.Ctx, config.APIRetry, time.Second*time.Duration(timeoutSecondsInt), false, func(context.Context) (bool, error) {
 		prlist, err := c.PipelineRunClient.List(c.Ctx, metav1.ListOptions{})
 		numberOfPrInt, _ := strconv.Atoi(numberOfPr)
 		if len(prlist.Items) == numberOfPrInt {
@@ -307,7 +308,7 @@ func AssertNumberOfPipelineruns(c *clients.Clients, namespace, numberOfPr, timeo
 func AssertNumberOfTaskruns(c *clients.Clients, namespace, numberOfTr, timeoutSeconds string) {
 	log.Printf("Verifying if %s number of taskruns are present", numberOfTr)
 	timeoutSecondsInt, _ := strconv.Atoi(timeoutSeconds)
-	err := w.Poll(config.APIRetry, time.Second*time.Duration(timeoutSecondsInt), func() (bool, error) {
+	err := w.PollUntilContextTimeout(c.Ctx, config.APIRetry, time.Second*time.Duration(timeoutSecondsInt), false, func(context.Context) (bool, error) {
 		trlist, err := c.TaskRunClient.List(c.Ctx, metav1.ListOptions{})
 		numberOfPrInt, _ := strconv.Atoi(numberOfTr)
 		if len(trlist.Items) == numberOfPrInt {
@@ -329,7 +330,7 @@ func AssertPipelinesPresent(c *clients.Clients, namespace string) {
 		expectedNumberOfPipelines *= 3
 	}
 
-	err := w.Poll(config.APIRetry, config.ResourceTimeout, func() (bool, error) {
+	err := w.PollUntilContextTimeout(c.Ctx, config.APIRetry, config.ResourceTimeout, false, func(context.Context) (bool, error) {
 		log.Printf("Verifying that %v pipelines are present in namespace %v", expectedNumberOfPipelines, namespace)
 		p, _ := pclient.List(c.Ctx, metav1.ListOptions{})
 		if len(p.Items) == expectedNumberOfPipelines {
@@ -346,7 +347,7 @@ func AssertPipelinesPresent(c *clients.Clients, namespace string) {
 
 func AssertPipelinesNotPresent(c *clients.Clients, namespace string) {
 	pclient := c.Tekton.TektonV1beta1().Pipelines(namespace)
-	err := w.Poll(config.APIRetry, config.ResourceTimeout, func() (bool, error) {
+	err := w.PollUntilContextTimeout(c.Ctx, config.APIRetry, config.ResourceTimeout, false, func(context.Context) (bool, error) {
 		log.Printf("Verifying if 0 pipelines are not present in namespace %v", namespace)
 		p, _ := pclient.List(c.Ctx, metav1.ListOptions{})
 		if len(p.Items) == 0 {
