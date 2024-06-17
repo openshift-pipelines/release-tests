@@ -21,7 +21,7 @@ import (
 type ConditionAccessorFn func(ca apis.ConditionAccessor) (bool, error)
 
 func pollImmediateWithContext(ctx context.Context, fn func() (bool, error)) error {
-	return wait.PollImmediate(config.APIRetry, config.APITimeout, func() (bool, error) {
+	return wait.PollUntilContextTimeout(ctx, config.APIRetry, config.APITimeout, true, func(context.Context) (done bool, err error) {
 		select {
 		case <-ctx.Done():
 			return true, ctx.Err()

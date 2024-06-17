@@ -51,7 +51,7 @@ func NewClientSet() (*clients.Clients, string, func()) {
 // WaitForDeploymentDeletion checks to see if a given deployment is deleted
 // the function returns an error if the given deployment is not deleted within the timeout
 func WaitForDeploymentDeletion(cs *clients.Clients, namespace, name string) error {
-	err := wait.Poll(config.APIRetry, config.APITimeout, func() (bool, error) {
+	err := wait.PollUntilContextTimeout(cs.Ctx, config.APIRetry, config.APITimeout, false, func(context.Context) (bool, error) {
 		kc := cs.KubeClient.Kube
 		_, err := kc.AppsV1().Deployments(namespace).Get(cs.Ctx, name, metav1.GetOptions{})
 		if err != nil {
@@ -72,7 +72,7 @@ func WaitForDeploymentDeletion(cs *clients.Clients, namespace, name string) erro
 // WaitForServiceAccount checks if service account created
 func WaitForServiceAccount(cs *clients.Clients, ns, targetSA string) *corev1.ServiceAccount {
 	ret := &corev1.ServiceAccount{}
-	err := wait.Poll(config.APIRetry, config.APITimeout, func() (bool, error) {
+	err := wait.PollUntilContextTimeout(cs.Ctx, config.APIRetry, config.APITimeout, false, func(context.Context) (bool, error) {
 		saList, err := cs.KubeClient.Kube.CoreV1().ServiceAccounts(ns).List(cs.Ctx, metav1.ListOptions{})
 		for _, sa := range saList.Items {
 			if sa.Name == targetSA {
@@ -89,7 +89,7 @@ func WaitForServiceAccount(cs *clients.Clients, ns, targetSA string) *corev1.Ser
 }
 
 func ValidateSCCAdded(cs *clients.Clients, ns, sa string) {
-	err := wait.Poll(config.APIRetry, config.APITimeout, func() (bool, error) {
+	err := wait.PollUntilContextTimeout(cs.Ctx, config.APIRetry, config.APITimeout, false, func(context.Context) (bool, error) {
 		privileged, err := GetPrivilegedSCC(cs)
 		if err != nil {
 			log.Printf("failed to get privileged scc: %s \n", err)
@@ -106,7 +106,7 @@ func ValidateSCCAdded(cs *clients.Clients, ns, sa string) {
 }
 
 func ValidateSCCRemoved(cs *clients.Clients, ns, sa string) {
-	err := wait.Poll(config.APIRetry, config.APITimeout, func() (bool, error) {
+	err := wait.PollUntilContextTimeout(cs.Ctx, config.APIRetry, config.APITimeout, false, func(context.Context) (bool, error) {
 		privileged, err := GetPrivilegedSCC(cs)
 		if err != nil {
 			log.Printf("failed to get privileged scc: %s \n", err)
@@ -162,7 +162,7 @@ func ValidateDeploymentDeletion(cs *clients.Clients, ns string, deployments ...s
 }
 
 func WaitForDeployment(ctx context.Context, kc kubernetes.Interface, namespace, name string, replicas int, retryInterval, timeout time.Duration) error {
-	err := wait.Poll(retryInterval, timeout, func() (done bool, err error) {
+	err := wait.PollUntilContextTimeout(ctx, retryInterval, timeout, false, func(context.Context) (done bool, err error) {
 		deployment, err := kc.AppsV1().Deployments(namespace).Get(ctx, name, metav1.GetOptions{})
 		if err != nil {
 			if errors.IsNotFound(err) {
@@ -183,8 +183,8 @@ func WaitForDeployment(ctx context.Context, kc kubernetes.Interface, namespace, 
 
 func VerifyNoServiceAccount(ctx context.Context, kc *clients.KubeClient, sa, ns string) {
 	log.Printf("Verify SA %q is absent in namespace %q", sa, ns)
-	if err := wait.PollImmediate(config.APIRetry, config.APITimeout, func() (bool, error) {
-		_, err := kc.Kube.CoreV1().ServiceAccounts(ns).Get(ctx, sa, metav1.GetOptions{})
+	if err := wait.PollUntilContextTimeout(ctx, config.APIRetry, config.APITimeout, true, func(context.Context) (done bool, err error) {
+		_, err = kc.Kube.CoreV1().ServiceAccounts(ns).Get(ctx, sa, metav1.GetOptions{})
 		if err == nil || !errors.IsNotFound(err) {
 			return false, fmt.Errorf("sa %q exists in namespace %q", sa, ns)
 		}
@@ -197,8 +197,8 @@ func VerifyNoServiceAccount(ctx context.Context, kc *clients.KubeClient, sa, ns 
 func VerifyServiceAccountExists(ctx context.Context, kc *clients.KubeClient, sa, ns string) {
 	log.Printf("Verify SA %q is created in namespace %q", sa, ns)
 
-	if err := wait.PollImmediate(config.APIRetry, config.APITimeout, func() (bool, error) {
-		_, err := kc.Kube.CoreV1().ServiceAccounts(ns).Get(ctx, sa, metav1.GetOptions{})
+	if err := wait.PollUntilContextTimeout(ctx, config.APIRetry, config.APITimeout, true, func(context.Context) (done bool, err error) {
+		_, err = kc.Kube.CoreV1().ServiceAccounts(ns).Get(ctx, sa, metav1.GetOptions{})
 		if err != nil && errors.IsNotFound(err) {
 			return false, nil
 		}
@@ -210,8 +210,8 @@ func VerifyServiceAccountExists(ctx context.Context, kc *clients.KubeClient, sa,
 
 func VerifyNamespaceExists(ctx context.Context, kc *clients.KubeClient, ns string) {
 	log.Printf("Verify namespace %q exists", ns)
-	if err := wait.PollImmediate(config.APIRetry, config.APITimeout, func() (bool, error) {
-		_, err := kc.Kube.CoreV1().Namespaces().Get(ctx, ns, metav1.GetOptions{})
+	if err := wait.PollUntilContextTimeout(ctx, config.APIRetry, config.APITimeout, true, func(context.Context) (done bool, err error) {
+		_, err = kc.Kube.CoreV1().Namespaces().Get(ctx, ns, metav1.GetOptions{})
 		if err != nil && errors.IsNotFound(err) {
 			return false, nil
 		}
@@ -370,7 +370,7 @@ func AssertPrunerCronjobWithContainer(c *clients.Clients, namespace, num string)
 }
 
 func AssertCronjobPresent(c *clients.Clients, cronJobName, namespace string) {
-	err := wait.Poll(config.APIRetry, config.ResourceTimeout, func() (bool, error) {
+	err := wait.PollUntilContextTimeout(c.Ctx, config.APIRetry, config.ResourceTimeout, false, func(context.Context) (bool, error) {
 		log.Printf("Verifying if cronjob with prefix %v is present in namespace %v", cronJobName, namespace)
 		cjs, err := c.KubeClient.Kube.BatchV1().CronJobs(namespace).List(c.Ctx, metav1.ListOptions{})
 		if err != nil {
@@ -390,7 +390,7 @@ func AssertCronjobPresent(c *clients.Clients, cronJobName, namespace string) {
 }
 
 func AssertCronjobNotPresent(c *clients.Clients, cronJobName, namespace string) {
-	err := wait.Poll(config.APIRetry, config.ResourceTimeout, func() (bool, error) {
+	err := wait.PollUntilContextTimeout(c.Ctx, config.APIRetry, config.ResourceTimeout, false, func(context.Context) (bool, error) {
 		log.Printf("Verifying if cronjob with prefix %v is present in namespace %v", cronJobName, namespace)
 		cjs, err := c.KubeClient.Kube.BatchV1().CronJobs(namespace).List(c.Ctx, metav1.ListOptions{})
 		if err != nil {

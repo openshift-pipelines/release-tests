@@ -1,6 +1,7 @@
 package pipelines
 
 import (
+	"context"
 	"fmt"
 	"log"
 
@@ -12,7 +13,7 @@ import (
 )
 
 func AssertClustertaskPresent(c *clients.Clients, clusterTaskName string) {
-	err := wait.Poll(config.APIRetry, config.ResourceTimeout, func() (bool, error) {
+	err := wait.PollUntilContextTimeout(c.Ctx, config.APIRetry, config.ResourceTimeout, false, func(context.Context) (bool, error) {
 		log.Printf("Verifying if the clustertask %v is present", clusterTaskName)
 		_, err := c.ClustertaskClient.Get(c.Ctx, clusterTaskName, v1.GetOptions{})
 		if err == nil {
@@ -28,7 +29,7 @@ func AssertClustertaskPresent(c *clients.Clients, clusterTaskName string) {
 }
 
 func AssertClustertaskNotPresent(c *clients.Clients, clusterTaskName string) {
-	err := wait.Poll(config.APIRetry, config.ResourceTimeout, func() (bool, error) {
+	err := wait.PollUntilContextTimeout(c.Ctx, config.APIRetry, config.ResourceTimeout, false, func(context.Context) (bool, error) {
 		log.Printf("Verifying if the clustertask %v is not present", clusterTaskName)
 		_, err := c.ClustertaskClient.Get(c.Ctx, clusterTaskName, v1.GetOptions{})
 		if err == nil {
