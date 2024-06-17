@@ -81,6 +81,14 @@ func ValidateHubDeployments(cs *clients.Clients, rnames utils.ResourceNames) {
 		config.HubApiName, config.HubDbName, config.HubUiName)
 }
 
+func ValidateManualApprovalGateDeployments(cs *clients.Clients, rnames utils.ResourceNames) {
+	if _, err := EnsureManualApprovalGateExists(cs.ManualApprovalGate(), rnames); err != nil {
+		testsuit.T.Fail(fmt.Errorf("Manual approval gate doesn't exists\n %v", err))
+	}
+	k8s.ValidateDeployments(cs, rnames.TargetNamespace,
+		config.MAGController, config.MAGWebHook)
+}
+
 func ValidateOperatorInstallStatus(cs *clients.Clients, rnames utils.ResourceNames) {
 	operatorVersion := cmd.MustSucceed("tkn", "version", "--component", "operator").Stdout()
 	if strings.Contains(operatorVersion, "unknown") {

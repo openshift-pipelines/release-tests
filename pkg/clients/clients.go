@@ -164,6 +164,10 @@ func (c *Clients) TektonConfig() operatorv1alpha1.TektonConfigInterface {
 	return c.Operator.TektonConfigs()
 }
 
+func (c *Clients) ManualApprovalGate() operatorv1alpha1.ManualApprovalGateInterface {
+	return c.Operator.ManualApprovalGates()
+}
+
 func (c *Clients) NewClientSet(namespace string) {
 	c.PipelineClient = c.Tekton.TektonV1().Pipelines(namespace)
 	c.TaskClient = c.Tekton.TektonV1().Tasks(namespace)
