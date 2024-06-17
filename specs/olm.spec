@@ -46,6 +46,7 @@ Steps:
     | S.NO | resource_dir                                          |
     |------|-------------------------------------------------------|
     | 1    | testdata/manualapprovalgate/manual-approval-gate.yaml |
+  * Validate manual approval gate deployment
   * Validate tektoninstallersets status
   * Validate tektoninstallersets names
 

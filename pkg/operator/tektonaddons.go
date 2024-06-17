@@ -41,7 +41,7 @@ import (
 func EnsureTektonAddonExists(clients operatorv1alpha1.TektonAddonInterface, names utils.ResourceNames) (*v1alpha1.TektonAddon, error) {
 	// If this function is called by the upgrade tests, we only create the custom resource, if it does not exist.
 	ks, err := clients.Get(context.TODO(), names.TektonAddon, metav1.GetOptions{})
-	if err == nil {
+	if err != nil {
 		return nil, err
 	}
 	err = wait.PollUntilContextTimeout(context.TODO(), config.APIRetry, config.APITimeout, false, func(context.Context) (bool, error) {

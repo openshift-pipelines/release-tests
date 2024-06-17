@@ -53,6 +53,10 @@ const (
 	HubDbName  = "tekton-hub-db"
 	HubUiName  = "tekton-hub-ui"
 
+	// Name of the manual approval gate deployment
+	MAGController = "manual-approval-gate-controller"
+	MAGWebHook    = "manual-approval-gate-webhook"
+
 	// Default config for auto pruner
 	PrunerSchedule   = "0 8 * * *"
 	PrunerNamePrefix = "tekton-resource-pruner-"
