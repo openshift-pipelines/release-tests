@@ -1,0 +1,9 @@
+apiVersion: tekton.dev/v1alpha1
+kind: Task
+metadata:
+  name: invalid-task
+spec:
+  steps:
+    - name: shell-example
+      script: |
+        echo "Hello from Bash!"
