@@ -44,7 +44,7 @@ spec:
           steps:
             - name: lint
               image: quay.io/srivickynesh/pipelines-ci #quay.io/openshift-pipeline/ci
-              imagePullPolicy: Always]
+              imagePullPolicy: Always
               script: | 
                 #!/usr/bin/env bash
                 cd $(workspaces.source.path)
