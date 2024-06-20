@@ -38,19 +38,20 @@ spec:
           - name: revision
             value: $(params.revision)
       - name: golangci-lint
-        taskRef:
-          name: golangci-lint
         runAfter:
           - fetch-repository
-        params:
-          - name: package
-            value: .
-          - name: version
-            value: "v1.59"
+        taskSpec:
+          steps:
+            - name: lint
+              image: quay.io/openshift-pipeline/ci
+              imagePullPolicy: Always
+              script: | 
+                #!/usr/bin/env bash
+                cd $(workspaces.source.path)
+                golangci-lint run -v --timeout=5m
         workspaces:
           - name: source
             workspace: source
-
   workspaces:
     - name: source
       volumeClaimTemplate:
