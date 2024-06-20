@@ -43,7 +43,7 @@ spec:
         taskSpec:
           steps:
             - name: lint
-              image: quay.io/srivickynesh/pipelines-ci #quay.io/openshift-pipeline/ci
+              image: quay.io/openshift-pipeline/ci
               imagePullPolicy: Always
               script: | 
                 #!/usr/bin/env bash
