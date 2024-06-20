@@ -1,0 +1,16 @@
+apiVersion: tekton.dev/v1alpha1
+kind: Condition
+metadata:
+  name: always-true-sample-condition
+spec:
+  resources:
+    - name: pipeline-git
+      type: git
+  check:
+    image: ubuntu
+    command:
+      - bash
+    args:
+      - -c
+      - |
+        echo "Hello from Tekton Pipeline!"
