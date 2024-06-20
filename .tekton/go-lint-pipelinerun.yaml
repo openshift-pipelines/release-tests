@@ -43,13 +43,13 @@ spec:
         taskSpec:
           steps:
             - name: lint
-              image: quay.io/openshift-pipeline/ci
+              image: quay.io/srivickynesh/pipelines-ci #quay.io/openshift-pipeline/ci
               imagePullPolicy: Always
               command: ["/bin/sh", "-c"]
-              args:
-                - |
-                  cd $(workspaces.source.path) &&
-                  golangci-lint run -v --timeout=5m
+              script: | 
+                #!/usr/bin/env bash
+                cd $(workspaces.source.path)
+                golangci-lint run -v --timeout=5m
         workspaces:
           - name: source
             workspace: source
