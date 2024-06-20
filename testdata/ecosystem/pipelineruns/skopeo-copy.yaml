@@ -1,0 +1,34 @@
+apiVersion: tekton.dev/v1
+kind: PipelineRun
+metadata:
+  name: skopeo-copy-run
+spec:
+  pipelineSpec:
+    tasks:
+    - name: run-skopeo-copy
+      taskRef:
+        resolver: cluster
+        params:
+        - name: kind
+          value: task
+        - name: name
+          value: skopeo-copy
+        - name: namespace
+          value: openshift-pipelines
+      params:
+      - name: SOURCE_IMAGE_URL
+        value: "docker://image-registry.openshift-image-registry.svc:5000/openshift/golang"
+      - name: DESTINATION_IMAGE_URL
+        value: "docker://image-registry.openshift-image-registry.svc:5000/$(context.pipelineRun.namespace)/golang:skopeo"
+      - name: DEST_TLS_VERIFY
+        value: "false"
+      workspaces:
+        - name: images_url
+          workspace: images_url
+    workspaces:
+    - name: images_url
+  timeouts: 
+    pipeline: 5m
+  workspaces:
+  - name: images_url
+    emptyDir: {}
