@@ -51,7 +51,10 @@ spec:
                 cd $(workspaces.source.path)
                 export GOLANGCI_LINT_CACHE=$(workspaces.cache.path)/golangci-lint-cache
                 mkdir -p $GOLANGCI_LINT_CACHE
+                ls
                 golangci-lint run -v --timeout=5m
+                ls
+                cat $(workspaces.cache.path)/golangci-lint-cache
         workspaces:
           - name: source
             workspace: source
