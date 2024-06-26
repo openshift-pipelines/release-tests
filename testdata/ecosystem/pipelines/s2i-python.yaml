@@ -1,0 +1,58 @@
+apiVersion: tekton.dev/v1
+kind: Pipeline
+metadata:
+  name: s2i-python-pipeline
+spec:
+  params:
+  - name: VERSION
+    description: The tag of 'python' imagestream for Python version
+  workspaces:
+  - name: source
+  tasks:
+  - name: clone-git-repo
+    taskRef:
+      resolver: cluster
+      params:
+      - name: kind
+        value: task
+      - name: name
+        value: git-clone
+      - name: namespace
+        value: openshift-pipelines
+    workspaces:
+    - name: output
+      workspace: source
+    params:
+    - name: URL
+      value: https://github.com/sclorg/django-ex
+    - name: REVISION
+      value: master
+    - name: SUBDIRECTORY
+      value: s2i-python-$(params.VERSION)
+    - name: DELETE_EXISTING
+      value: "true"
+  - name: build
+    taskRef:
+      resolver: cluster
+      params:
+      - name: kind
+        value: task
+      - name: name
+        value: s2i-python
+      - name: namespace
+        value: openshift-pipelines
+    runAfter: 
+    - clone-git-repo
+    workspaces:
+    - name: source
+      workspace: source
+    params:
+    - name: IMAGE
+      value: image-registry.openshift-image-registry.svc:5000/$(context.pipelineRun.namespace)/s2i-python-$(params.VERSION)
+    - name: CONTEXT
+      value: s2i-python-$(params.VERSION)
+    - name: TLSVERIFY
+      value: "true"
+    - name: VERSION
+      value: $(params.VERSION)
+    retries: 1

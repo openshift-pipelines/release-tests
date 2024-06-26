@@ -1,0 +1,23 @@
+apiVersion: tekton.dev/v1
+kind: PipelineRun
+metadata:
+  name: openshift-client-run
+spec:
+  pipelineSpec:
+    tasks:
+    - name: run-oc
+      taskRef:
+        resolver: cluster
+        params:
+        - name: kind
+          value: task
+        - name: name
+          value: openshift-client
+        - name: namespace
+          value: openshift-pipelines
+      params:
+      - name: SCRIPT
+        value: |
+          oc get pipeline -n openshift
+  timeouts: 
+    pipeline: 5m
