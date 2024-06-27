@@ -52,9 +52,6 @@ spec:
                 export GOLANGCI_LINT_CACHE=$(workspaces.cache.path)/golangci-lint-cache
                 mkdir -p $GOLANGCI_LINT_CACHE
                 golangci-lint run -v --timeout=5m
-                cd $(workspaces.cache.path)/golangci-lint-cache
-                ls
-                cat *
         workspaces:
           - name: source
             workspace: source
@@ -70,13 +67,8 @@ spec:
             requests:
               storage: 1Gi
     - name: cache
-      volumeClaimTemplate:
-        spec:
-          accessModes:
-            - ReadWriteOnce
-          resources:
-            requests:
-              storage: 1Gi
+      persistentVolumeClaim:
+        claimName: golangci-lint-cache
     - name: basic-auth
       secret:
         secretName: "{{ git_auth_secret }}"
