@@ -76,7 +76,8 @@ func WaitForServiceAccount(cs *clients.Clients, ns, targetSA string) *corev1.Ser
 		saList, err := cs.KubeClient.Kube.CoreV1().ServiceAccounts(ns).List(cs.Ctx, metav1.ListOptions{})
 		for _, sa := range saList.Items {
 			if sa.Name == targetSA {
-				ret = &sa
+				saCopy := sa
+				ret = &saCopy
 				return true, nil
 			}
 		}

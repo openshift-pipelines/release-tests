@@ -68,9 +68,10 @@ func validatePipelineRunForSuccessStatus(c *clients.Clients, prname, labelCheck,
 		for _, tr := range actualTaskrunList.Items {
 			actualTaskRunNames = append(actualTaskRunNames, tr.GetName())
 			log.Printf("Checking that labels were propagated correctly for TaskRun %s", tr.Name)
-			checkLabelPropagation(c, namespace, prname, &tr)
+			trCopy := tr
+			checkLabelPropagation(c, namespace, prname, &trCopy)
 			log.Printf("Checking that annotations were propagated correctly for TaskRun %s", tr.Name)
-			checkAnnotationPropagation(c, namespace, prname, &tr)
+			checkAnnotationPropagation(c, namespace, prname, &trCopy)
 		}
 
 		matchKinds := map[string][]string{"PipelineRun": {prname}, "TaskRun": actualTaskRunNames}
@@ -241,8 +242,7 @@ func WatchForPipelineRun(c *clients.Clients, namespace string) {
 			if err != nil {
 				testsuit.T.Errorf("failed to convert pipeline run to v1beta1 in namespace %s \n %v", namespace, err)
 			}
-			switch event.Type {
-			case watch.Added:
+			if event.Type == watch.Added {
 				log.Printf("pipeline run : %s", run.Name)
 				prnames = append(prnames, run.Name)
 			}
@@ -276,8 +276,7 @@ func AssertForNoNewPipelineRunCreation(c *clients.Clients, namespace string) {
 	ch := watchRun.ResultChan()
 	go func() {
 		for event := range ch {
-			switch event.Type {
-			case watch.Added:
+			if event.Type == watch.Added {
 				count++
 			}
 		}
