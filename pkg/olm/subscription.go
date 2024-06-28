@@ -108,7 +108,7 @@ func createSubscription(name, channel, catalogsource string) {
 	if err != nil {
 		testsuit.T.Fail(err)
 	}
-	if err = os.WriteFile(file, buffer.Bytes(), 0666); err != nil {
+	if err = os.WriteFile(file, buffer.Bytes(), 0600); err != nil {
 		testsuit.T.Fail(err)
 	}
 
@@ -119,7 +119,7 @@ func createSubscription(name, channel, catalogsource string) {
 func OperatorCleanup(cs *clients.Clients, name string) {
 	sub := getSubcription(cs, name)
 
-	//Delete CSV
+	// Delete CSV
 	err := cs.OLM.OperatorsV1alpha1().ClusterServiceVersions(OperatorsNamespace).DeleteCollection(context.Background(), metav1.DeleteOptions{}, metav1.ListOptions{})
 	if err != nil {
 		testsuit.T.Errorf("failed to delete CSVs in namespace %s \n %v", OperatorsNamespace, err)

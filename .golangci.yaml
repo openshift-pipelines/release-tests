@@ -1,14 +1,31 @@
 run:
-  timeout: 5m
+  cache-dir: .golangci-lint-cache
+  enable-cache: true
+  timeout: 2m
+  concurrency: 4
+  tests: true
   build-tags:
     - e2e
+outputs:
+   print-linter-name: true
 linters-settings:
-  gocritic:
-    disabled-checks:
-      - unlambda
+  govet:
+    shadow: true
+  typecheck:
+    warning: true
   gofumpt:
     extra-rules: true
 linters:
   enable:
     - forbidigo
     - misspell
+    - gofmt
+    - goimports
+    - errcheck
+    - typecheck
+    - unparam
+    - gocritic
+    - gosec
+issues:
+ max-issues-per-linter: 0
+ max-same-issues: 0

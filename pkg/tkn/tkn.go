@@ -64,15 +64,17 @@ func DownloadCLIFromCluster() {
 }
 
 func AssertClientVersion(binary string) {
-	var commandResult string
-	var unexpectedVersion string
-	if binary == "tkn-pac" {
+	var commandResult, unexpectedVersion string
+
+	switch binary {
+	case "tkn-pac":
 		commandResult = cmd.MustSucceed("/tmp/tkn-pac", "version").Stdout()
 		expectedVersion := os.Getenv("PAC_VERSION")
 		if !strings.Contains(commandResult, expectedVersion) {
 			testsuit.T.Errorf("tkn-pac has an unexpected version: " + commandResult + ". Expected: " + expectedVersion)
 		}
-	} else if binary == "tkn" {
+
+	case "tkn":
 		expectedVersion := os.Getenv("TKN_CLIENT_VERSION")
 		commandResult = cmd.MustSucceed("/tmp/tkn", "version").Stdout()
 		var splittedCommandResult = strings.Split(commandResult, "\n")
@@ -84,11 +86,12 @@ func AssertClientVersion(binary string) {
 				}
 			}
 		}
-	} else if binary == "opc" {
+
+	case "opc":
 		commandResult = cmd.MustSucceed("/tmp/opc", "version").Stdout()
 		components := [3]string{"OpenShift Pipelines Client", "Tekton CLI", "Pipelines as Code CLI"}
 		expectedVersions := [3]string{os.Getenv("OSP_VERSION"), os.Getenv("TKN_CLIENT_VERSION"), os.Getenv("PAC_VERSION")}
-		var splittedCommandResult = strings.Split(commandResult, "\n")
+		splittedCommandResult := strings.Split(commandResult, "\n")
 		for i := 0; i < 3; i++ {
 			if strings.Contains(splittedCommandResult[i], components[i]) {
 				if !strings.Contains(splittedCommandResult[i], expectedVersions[i]) {
@@ -97,7 +100,8 @@ func AssertClientVersion(binary string) {
 				}
 			}
 		}
-	} else {
+
+	default:
 		testsuit.T.Errorf("Unknown binary or client")
 	}
 }

@@ -14,15 +14,15 @@ import (
 
 func CreateSecretsForTektonResults() {
 	var password string = cmd.MustSucceed("openssl", "rand", "-base64", "20").Stdout()
-	password = strings.Replace(password, "\n", "", -1)
+	password = strings.ReplaceAll(password, "\n", "")
 	cmd.MustSucceed("oc", "create", "secret", "-n", "openshift-pipelines", "generic", "tekton-results-postgres", "--from-literal=POSTGRES_USER=result", "--from-literal=POSTGRES_PASSWORD="+password)
-	//generating tls certifiacte
+	// generating tls certificate
 	cmd.MustSucceed("openssl", "req", "-x509", "-newkey", "rsa:4096", "-keyout", "key.pem", "-out", "cert.pem", "-days", "365", "-nodes", "-subj", "/CN=tekton-results-api-service.openshift-pipelines.svc.cluster.local", "-addext", "subjectAltName=DNS:tekton-results-api-service.openshift-pipelines.svc.cluster.local")
-	//creating secret with generated certificate
+	// creating secret with generated certificate
 	cmd.MustSucceed("oc", "create", "secret", "tls", "-n", "openshift-pipelines", "tekton-results-tls", "--cert=cert.pem", "--key=key.pem")
 }
 
-func EnsureResutsReady() {
+func EnsureResultsReady() {
 	cmd.MustSuccedIncreasedTimeout(time.Minute*5, "oc", "wait", "--for=condition=Ready", "tektoninstallerset", "-l", "operator.tekton.dev/type=result", "--timeout=120s")
 }
 

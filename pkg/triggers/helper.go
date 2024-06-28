@@ -2,7 +2,7 @@ package triggers
 
 import (
 	"crypto/hmac"
-	"crypto/sha1"
+	"crypto/sha256"
 	"crypto/tls"
 	"crypto/x509"
 	"encoding/hex"
@@ -19,9 +19,9 @@ import (
 )
 
 const (
-	//MaxIdleConnections specifies max connection to the http client
+	// MaxIdleConnections specifies max connection to the http client
 	MaxIdleConnections int = 30
-	//RequestTimeout specifies request timeout with http client
+	// RequestTimeout specifies request timeout with http client
 	RequestTimeout int = 15
 )
 
@@ -56,6 +56,7 @@ func CreateHTTPSClient() *http.Client {
 			TLSClientConfig: &tls.Config{
 				Certificates: []tls.Certificate{cert},
 				RootCAs:      caCertPool,
+				MinVersion:   tls.VersionTLS12,
 			},
 		},
 		Timeout: time.Duration(RequestTimeout) * time.Second,
@@ -64,10 +65,10 @@ func CreateHTTPSClient() *http.Client {
 	return client
 }
 
-// GetSignature is a HMAC sha1 generator
+// GetSignature is a HMAC sha256 generator
 func GetSignature(input []byte, key string) string {
 	keyForSign := []byte(key)
-	h := hmac.New(sha1.New, keyForSign)
+	h := hmac.New(sha256.New, keyForSign)
 	_, err := h.Write(input)
 	if err != nil {
 		testsuit.T.Errorf("could not generate signature \n %v", err)
@@ -81,7 +82,7 @@ func buildHeaders(req *http.Request, interceptor, eventType string) *http.Reques
 		log.Printf("Building headers for github interceptor..")
 		req.Header.Add("Accept", "application/json")
 		req.Header.Add("Content-Type", "application/json")
-		req.Header.Add("X-Hub-Signature", "sha1="+GetSignature(store.GetPayload(), config.TriggersSecretToken))
+		req.Header.Add("X-Hub-Signature", "sha256="+GetSignature(store.GetPayload(), config.TriggersSecretToken))
 		req.Header.Add("X-GitHub-Event", eventType)
 	case "gitlab":
 		log.Printf("Building headers for gitlab interceptor..")
@@ -93,7 +94,7 @@ func buildHeaders(req *http.Request, interceptor, eventType string) *http.Reques
 		log.Printf("Building headers for bitbucket interceptor..")
 		req.Header.Add("Accept", "application/json")
 		req.Header.Add("Content-Type", "application/json")
-		req.Header.Add("X-Hub-Signature", "sha1="+GetSignature(store.GetPayload(), config.TriggersSecretToken))
+		req.Header.Add("X-Hub-Signature", "sha256="+GetSignature(store.GetPayload(), config.TriggersSecretToken))
 		req.Header.Add("X-Event-Key", "repo:"+eventType)
 	default:
 		testsuit.T.Errorf("Error: %s ", "Please provide valid event_listener type eg: (github, gitlab, bitbucket)")

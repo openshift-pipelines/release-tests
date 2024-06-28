@@ -45,7 +45,8 @@ func newPrometheusClient(cs *clients.Clients) (promv1.API, error) {
 	}
 
 	rt := prom.DefaultRoundTripper.(*http.Transport).Clone()
-	rt.TLSClientConfig = &tls.Config{InsecureSkipVerify: true}
+	// nolint reason: InsecureSkipVerify is enabled due to self signed certs
+	rt.TLSClientConfig = &tls.Config{InsecureSkipVerify: true} //nolint:gosec
 	client, err := prom.NewClient(prom.Config{
 		Address: "https://" + route.Spec.Host,
 		RoundTripper: &authRoundtripper{

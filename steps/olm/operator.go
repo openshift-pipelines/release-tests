@@ -71,7 +71,7 @@ var _ = gauge.Step("Validate manual approval gate deployment", func() {
 })
 
 var _ = gauge.Step("Uninstall Operator", func() {
-	//cleanup operator Traces
+	// cleanup operator Traces
 	operator.Uninstall(store.Clients(), store.GetCRNames())
 })
 
@@ -152,7 +152,7 @@ var _ = gauge.Step("Create secrets for Tekton Results", func() {
 })
 
 var _ = gauge.Step("Ensure that Tekton Results is ready", func() {
-	operator.EnsureResutsReady()
+	operator.EnsureResultsReady()
 })
 
 var _ = gauge.Step("Create Results route", func() {
