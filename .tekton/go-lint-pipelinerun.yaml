@@ -22,6 +22,7 @@ spec:
     workspaces:
       - name: source
       - name: basic-auth
+      - name: cache
     tasks:
       - name: fetch-repository
         taskRef:
@@ -48,10 +49,13 @@ spec:
               script: | 
                 #!/usr/bin/env bash
                 cd $(workspaces.source.path)
+                export GOLANGCI_LINT_CACHE=$(workspaces.cache.path)
                 golangci-lint run -v --timeout=5m
         workspaces:
           - name: source
             workspace: source
+          - name: cache
+            workspace: cache
   workspaces:
     - name: source
       volumeClaimTemplate:
@@ -61,6 +65,9 @@ spec:
           resources:
             requests:
               storage: 1Gi
+    - name: cache
+      persistentVolumeClaim:
+        claimName: golangci-lint-cache
     - name: basic-auth
       secret:
         secretName: "{{ git_auth_secret }}"

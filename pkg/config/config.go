@@ -30,7 +30,7 @@ const (
 
 	ResourceTimeout = 60 * time.Second
 
-	//TargetNamespace specify the name of Target namespace
+	// TargetNamespace specify the name of Target namespace
 	TargetNamespace = "openshift-pipelines"
 
 	// Name of the pipeline controller deployment

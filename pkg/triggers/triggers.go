@@ -83,7 +83,7 @@ func ExposeEventListnerForTLS(c *clients.Clients, elname, namespace string) stri
 	extData := fmt.Sprintf("authorityKeyIdentifier=keyid,issuer\nbasicConstraints=CA:FALSE\nkeyUsage = digitalSignature, nonRepudiation, keyEncipherment, dataEncipherment\n"+
 		"subjectAltName = @alt_names\n\n\n[alt_names]\nDNS.1 = %s\n", domain)
 
-	err := os.WriteFile(serverEXT, []byte(extData), 0644)
+	err := os.WriteFile(serverEXT, []byte(extData), 0600)
 	if err != nil {
 		testsuit.T.Fail(err)
 	}
@@ -232,7 +232,7 @@ func CleanupTriggers(c *clients.Clients, elName, namespace string) {
 
 	log.Println("EventListener's Service was deleted")
 
-	//Delete Route exposed earlier
+	// Delete Route exposed earlier
 	err = c.Route.Routes(namespace).Delete(c.Ctx, fmt.Sprintf("%s-%s", eventReconciler.GeneratedResourcePrefix, elName), metav1.DeleteOptions{})
 	if err != nil {
 		testsuit.T.Fail(err)

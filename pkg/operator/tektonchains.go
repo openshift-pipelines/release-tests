@@ -60,7 +60,7 @@ func EnsureTektonChainsExists(clients chainv1alpha.TektonChainInterface, names u
 }
 
 func VerifySignature(resourceType string) {
-	//Get a signature of taskrun payload
+	// Get a signature of taskrun payload
 	resourceUID := cmd.MustSucceed("tkn", resourceType, "describe", "--last", "-o", "jsonpath='{.metadata.uid}'").Stdout()
 	resourceUID = strings.Trim(resourceUID, "'")
 	jsonpath := fmt.Sprintf("jsonpath=\"{.metadata.annotations.chains\\.tekton\\.dev/signature-%s-%s}\"", resourceType, resourceUID)
@@ -80,12 +80,12 @@ func VerifySignature(resourceType string) {
 		testsuit.T.Fail(fmt.Errorf("Annotation chains.tekton.dev/signature-%s-%s is not set", resourceType, resourceUID))
 	}
 
-	//Decode the signature
+	// Decode the signature
 	decodedSignature, err := base64.StdEncoding.DecodeString(signature)
 	if err != nil {
 		testsuit.T.Errorf("Error decoding base64")
 	}
-	//Create file with signature
+	// Create file with signature
 	file, err := os.Create("sign")
 	if err != nil {
 		testsuit.T.Errorf("Error creating file")
@@ -95,7 +95,7 @@ func VerifySignature(resourceType string) {
 	if err != nil {
 		testsuit.T.Errorf("Error writing to file")
 	}
-	//Verify signature with signing-secrets
+	// Verify signature with signing-secrets
 	cmd.MustSucceed("cosign", "verify-blob-attestation", "--insecure-ignore-tlog", "--key", publicKeyPath+"/cosign.pub", "--signature", "sign", "--type", "slsaprovenance", "--check-claims=false", "/dev/null")
 }
 
