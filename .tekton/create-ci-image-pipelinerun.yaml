@@ -136,7 +136,6 @@ spec:
         runAfter:
           - buildah-push
           - buildah-pull-request
-          
     finally:
       - name: send-slack-notification
         taskRef:
@@ -159,7 +158,11 @@ spec:
             operator: in 
             values: 
               - "push"
-
+    results:
+      - name: image-name
+        value: $(tasks.generate-image-name.results.image-name)
+      - name: image-name-timestamp
+        value: $(tasks.generate-image-name.results.image-name-timestamp)
   workspaces:
     - name: dockerconfig
       secret: 
