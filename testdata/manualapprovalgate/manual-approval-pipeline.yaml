@@ -1,0 +1,49 @@
+apiVersion: tekton.dev/v1
+kind: Pipeline
+metadata: 
+  name: manual-approval-pipeline
+spec: 
+  tasks: 
+  - name: task-1
+    taskSpec: 
+      steps: 
+      - name: hello
+        image: registry.access.redhat.com/ubi8/ubi-minimal
+        script: |
+          #!/usr/bin/env bash
+          echo "Hello from task 1"
+  - name: task-2
+    taskRef: 
+      apiVersion: openshift-pipelines.org/v1alpha1
+      kind: ApprovalTask
+    params: 
+    - name: approvers
+      value: 
+      - kubeadmin
+      - system:admin
+      - tekton
+    - name: numberOfApprovalsRequired
+      value: 1
+    - name: description
+      value: Approval Task Rocks!!!
+    runAfter: 
+    - task-1
+  - name: task-3
+    taskSpec: 
+      steps: 
+      - name: hello
+        image: registry.access.redhat.com/ubi8/ubi-minimal
+        script: |
+          #!/usr/bin/env bash
+          echo "Hello from task 3"
+    runAfter: 
+    - task-2
+  finally: 
+  - name: final-task
+    taskSpec: 
+      steps: 
+      - name: hello
+        image: registry.access.redhat.com/ubi8/ubi-minimal
+        script: |
+          #!/usr/bin/env bash
+          echo "Hello from task 2"

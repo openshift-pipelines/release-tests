@@ -18,8 +18,13 @@ package operator
 
 import (
 	"context"
+	"fmt"
 	"log"
+	"strings"
+	"time"
 
+	"github.com/getgauge-contrib/gauge-go/testsuit"
+	"github.com/openshift-pipelines/release-tests/pkg/cmd"
 	"github.com/openshift-pipelines/release-tests/pkg/config"
 	"github.com/tektoncd/operator/pkg/apis/operator/v1alpha1"
 	mag "github.com/tektoncd/operator/pkg/client/clientset/versioned/typed/operator/v1alpha1"
@@ -43,4 +48,36 @@ func EnsureManualApprovalGateExists(clients mag.ManualApprovalGateInterface, nam
 		return true, nil
 	})
 	return ks, err
+}
+
+func StartApprovalGatePipeline() {
+	cmd.MustSucceed("tkn", "pipeline", "start", "manual-approval-pipeline")
+	log.Println("Waiting 10sec to start the pipeline")
+	cmd.MustSuccedIncreasedTimeout(time.Second*130, "sleep", "10")
+}
+
+func GetApprovaltasklist() string {
+	output := cmd.MustSucceed("opc", "approvaltask", "list").Stdout()
+	tasklist := strings.Split(output, "\n")
+	var taskname string
+	for _, line := range tasklist {
+		if strings.Contains(line, "manual-approval-pipeline") {
+			fields := strings.Fields(line)
+			if len(fields) >= 1 {
+				taskname = fields[0]
+				break
+			}
+		}
+	}
+	if len(taskname) == 0 {
+		testsuit.T.Fail(fmt.Errorf("Manual approval gate Pipeline doesn't exists\n"))
+	}
+	return taskname
+}
+func ApproveApprovalGatePipeline(taskname string) {
+	cmd.MustSucceed("opc", "approvaltask", "approve", taskname).Stdout()
+}
+
+func RejectApprovalGatePipeline(taskname string) {
+	cmd.MustSucceed("opc", "approvaltask", "reject", taskname).Stdout()
 }
