@@ -13,7 +13,7 @@ var _ = gauge.Step("Start the manual-approval-pipeline pipeline", func() {
 })
 
 var _ = gauge.Step("Approve the manual-approval-pipeline", func() {
-	tasks := operator.GetApprovaltasklist()
+	tasks := operator.GetApprovalTaskList()
 	if tasks == nil {
 		testsuit.T.Errorf("No Approval Gate Tasks Found")
 	}
@@ -24,7 +24,7 @@ var _ = gauge.Step("Approve the manual-approval-pipeline", func() {
 })
 
 var _ = gauge.Step("Reject the manual-approval-pipeline", func() {
-	tasks := operator.GetApprovaltasklist()
+	tasks := operator.GetApprovalTaskList()
 	if tasks == nil {
 		testsuit.T.Errorf("No Approval Gate Tasks Found")
 	}

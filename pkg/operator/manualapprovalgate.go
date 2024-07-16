@@ -64,7 +64,7 @@ func StartApprovalGatePipeline() {
 	cmd.MustSuccedIncreasedTimeout(time.Second*130, "sleep", "10")
 }
 
-func GetApprovaltasklist() []TaskInfo {
+func GetApprovalTaskList() []TaskInfo {
 	output := cmd.MustSucceed("opc", "approvaltask", "list").Stdout()
 	tasklist := strings.Split(output, "\n")
 	var tasks []TaskInfo
@@ -113,8 +113,8 @@ func GetApprovaltasklist() []TaskInfo {
 }
 
 func ValidateApprovalGatePipeline(expectedStatus string) (bool, error) {
-	tasks := GetApprovaltasklist()
-	if tasks == nil || len(tasks) == 0 {
+	tasks := GetApprovalTaskList()
+	if tasks == nil {
 		return false, errors.New("no approval gate tasks found")
 	}
 
@@ -142,7 +142,7 @@ func determineStatus(task TaskInfo) string {
 	case task.Status == "Approved" && task.PendingApprovals == 0 && task.Rejected == 0:
 		return "Approved"
 	default:
-		return "Check Details"
+		return "Unknown Error: Check Details"
 	}
 }
 
