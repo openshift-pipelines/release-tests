@@ -120,7 +120,7 @@ func ValidateApprovalGatePipeline(expectedStatus string) (bool, error) {
 
 	found := false
 	for _, task := range tasks {
-		actualStatus := determineStatus(task)
+		actualStatus := checkApprovalTaskStatus(task)
 		if actualStatus == expectedStatus {
 			found = true
 			break
@@ -133,7 +133,7 @@ func ValidateApprovalGatePipeline(expectedStatus string) (bool, error) {
 	return true, nil
 }
 
-func determineStatus(task TaskInfo) string {
+func checkApprovalTaskStatus(task TaskInfo) string {
 	switch {
 	case task.PendingApprovals > 0:
 		return "Pending"
