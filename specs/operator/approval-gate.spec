@@ -16,6 +16,7 @@ Steps:
      | 1    | testdata/manualapprovalgate/manual-approval-pipeline.yaml|
   * Start the manual-approval-pipeline pipeline
   * Approve the manual-approval-pipeline
+  * Validate the manual-approval-pipeline for "Approved" state
   * Verify the latest pipelinerun for "successful" state
 
 ## Reject Manual Approval gate pipeline: PIPELINES-28-TC02
@@ -33,4 +34,5 @@ Steps:
      | 1    | testdata/manualapprovalgate/manual-approval-pipeline.yaml|
   * Start the manual-approval-pipeline pipeline
   * Reject the manual-approval-pipeline
+  * Validate the manual-approval-pipeline for "Rejected" state
   * Verify the latest pipelinerun for "failed" state

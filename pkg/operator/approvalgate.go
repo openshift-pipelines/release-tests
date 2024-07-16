@@ -18,12 +18,12 @@ package operator
 
 import (
 	"context"
-	"fmt"
+	"errors"
 	"log"
+	"strconv"
 	"strings"
 	"time"
 
-	"github.com/getgauge-contrib/gauge-go/testsuit"
 	"github.com/openshift-pipelines/release-tests/pkg/cmd"
 	"github.com/openshift-pipelines/release-tests/pkg/config"
 	"github.com/tektoncd/operator/pkg/apis/operator/v1alpha1"
@@ -33,6 +33,14 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/util/wait"
 )
+
+type TaskInfo struct {
+	Name                      string
+	NumberOfApprovalsRequired int
+	PendingApprovals          int
+	Rejected                  int
+	Status                    string
+}
 
 func EnsureManualApprovalGateExists(clients mag.ManualApprovalGateInterface, names utils.ResourceNames) (*v1alpha1.ManualApprovalGate, error) {
 	ks, err := clients.Get(context.TODO(), names.ManualApprovalGate, metav1.GetOptions{})
@@ -56,28 +64,92 @@ func StartApprovalGatePipeline() {
 	cmd.MustSuccedIncreasedTimeout(time.Second*130, "sleep", "10")
 }
 
-func GetApprovaltasklist() string {
+func GetApprovaltasklist() []TaskInfo {
 	output := cmd.MustSucceed("opc", "approvaltask", "list").Stdout()
 	tasklist := strings.Split(output, "\n")
-	var taskname string
-	for _, line := range tasklist {
-		if strings.Contains(line, "manual-approval-pipeline") {
-			fields := strings.Fields(line)
-			if len(fields) >= 1 {
-				taskname = fields[0]
-				break
-			}
+	var tasks []TaskInfo
+
+	headers := strings.Fields(tasklist[0])
+	if len(headers) < 5 {
+		return nil
+	}
+
+	for _, line := range tasklist[1:] {
+		fields := strings.Fields(line)
+		if len(fields) < 5 {
+			continue
+		}
+
+		requiredApprovals, err := strconv.Atoi(fields[1])
+		if err != nil {
+			continue
+		}
+
+		pendingApprovals, err := strconv.Atoi(fields[2])
+		if err != nil {
+			continue
+		}
+
+		rejected, err := strconv.Atoi(fields[3])
+		if err != nil {
+			continue
+		}
+
+		task := TaskInfo{
+			Name:                      fields[0],
+			NumberOfApprovalsRequired: requiredApprovals,
+			PendingApprovals:          pendingApprovals,
+			Rejected:                  rejected,
+			Status:                    fields[4],
+		}
+		tasks = append(tasks, task)
+	}
+
+	if len(tasks) == 0 {
+		return nil
+	}
+
+	return tasks
+}
+
+func ValidateApprovalGatePipeline(expectedStatus string) (bool, error) {
+	tasks := GetApprovaltasklist()
+	if tasks == nil || len(tasks) == 0 {
+		return false, errors.New("no approval gate tasks found")
+	}
+
+	found := false
+	for _, task := range tasks {
+		actualStatus := determineStatus(task)
+		if actualStatus == expectedStatus {
+			found = true
+			break
 		}
 	}
-	if len(taskname) == 0 {
-		testsuit.T.Fail(fmt.Errorf("Manual approval gate Pipeline doesn't exists\n"))
+
+	if !found {
+		return false, errors.New("no approval tasks were found in the specified state")
 	}
-	return taskname
+	return true, nil
 }
+
+func determineStatus(task TaskInfo) string {
+	switch {
+	case task.PendingApprovals > 0:
+		return "Pending"
+	case task.Rejected > 0:
+		return "Rejected"
+	case task.Status == "Approved" && task.PendingApprovals == 0 && task.Rejected == 0:
+		return "Approved"
+	default:
+		return "Check Details"
+	}
+}
+
 func ApproveApprovalGatePipeline(taskname string) {
-	cmd.MustSucceed("opc", "approvaltask", "approve", taskname).Stdout()
+	cmd.MustSucceed("opc", "approvaltask", "approve", taskname)
 }
 
 func RejectApprovalGatePipeline(taskname string) {
-	cmd.MustSucceed("opc", "approvaltask", "reject", taskname).Stdout()
+	cmd.MustSucceed("opc", "approvaltask", "reject", taskname)
 }
