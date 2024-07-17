@@ -41,6 +41,6 @@ var _ = gauge.Step("Validate the manual-approval-pipeline for <status> state", f
 	}
 
 	if !success {
-		testsuit.T.Fail(errors.New("validation failed: no approvaltasks match the expected status"))
+		testsuit.T.Fail(errors.New("validation failed: no approvaltasks matched the expected status"))
 	}
 })
