@@ -172,7 +172,7 @@ func WaitForDeployment(ctx context.Context, kc kubernetes.Interface, namespace, 
 			return false, err
 		}
 
-		if int(deployment.Status.AvailableReplicas) == replicas {
+		if int(deployment.Status.AvailableReplicas) == replicas && int(deployment.Status.UnavailableReplicas) == 0 {
 			return true, nil
 		}
 		log.Printf("Waiting for full availability of deployment %s (%d/%d)\n", name, deployment.Status.AvailableReplicas, replicas)
