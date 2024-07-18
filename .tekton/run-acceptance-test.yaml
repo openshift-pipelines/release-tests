@@ -6,10 +6,10 @@ metadata:
   annotations:
     pipelinesascode.tekton.dev/on-event: "[pull_request]"
     pipelinesascode.tekton.dev/on-target-branch: "[*]"
-    pipelinesascode.tekton.dev/task: "git-clone"
-    pipelinesascode.tekton.dev/task-1: "run-acceptance-test"
-    pipelinesascode.tekton.dev/max-keep-runs: "5"
+    pipelinesascode.tekton.dev/max-keep-runs: "5"  
 spec:
+  pipelineRef:
+    name: acceptance-tests
   params:
     - name: ARCH
       value: "linux/amd64"
