@@ -4,8 +4,7 @@ kind: PipelineRun
 metadata:
   name: run-acceptance-test
   annotations:
-    pipelinesascode.tekton.dev//pipeline
-    pipelinesascode.tekton.dev/on-event: "[pull_request]"
+    pipelinesascode.tekton.dev/pipeline: "[pull_request]"
     pipelinesascode.tekton.dev/on-target-branch: "[*]"
     pipelinesascode.tekton.dev/max-keep-runs: "5"  
 spec:
