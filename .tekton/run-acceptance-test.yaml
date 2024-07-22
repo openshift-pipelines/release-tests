@@ -4,65 +4,143 @@ kind: PipelineRun
 metadata:
   name: run-acceptance-test
   annotations:
-    pipelinesascode.tekton.dev/pipeline: "[pull_request]"
+    pipelinesascode.tekton.dev/on-event: "[pull_request]"
+    pipelinesascode.tekton.dev/pipeline: "https://gitlab.cee.redhat.com/tekton/plumbing/-/raw/master/ci/pipelines/acceptance-tests.yaml"
     pipelinesascode.tekton.dev/on-target-branch: "[*]"
+    pipelinesascode.tekton.dev/task-01: "git-clone"
+    pipelinesascode.tekton.dev/task: "https://gitlab.cee.redhat.com/tekton/plumbing/-/raw/master/ci/tasks/cleanup-cloud-resources.yaml"				
+    pipelinesascode.tekton.dev/task-1: "https://gitlab.cee.redhat.com/tekton/plumbing/-/raw/master/ci/tasks/send-gitlab-mr-test-results-to-dashboard.yaml"
+    pipelinesascode.tekton.dev/task-2: "https://gitlab.cee.redhat.com/tekton/plumbing/-/raw/master/ci/tasks/cli-tests-in-container.yaml"				
+    pipelinesascode.tekton.dev/task-3: "https://gitlab.cee.redhat.com/tekton/plumbing/-/raw/master/ci/tasks/send-interop-notification.yaml"
+    pipelinesascode.tekton.dev/task-4: "https://gitlab.cee.redhat.com/tekton/plumbing/-/raw/master/ci/tasks/cli-tests.yaml"						
+    pipelinesascode.tekton.dev/task-5: "https://gitlab.cee.redhat.com/tekton/plumbing/-/raw/master/ci/tasks/send-results-to-dashboard.yaml"
+    pipelinesascode.tekton.dev/task-6: "https://gitlab.cee.redhat.com/tekton/plumbing/-/raw/master/ci/tasks/clone-catalog-source.yaml"				
+    pipelinesascode.tekton.dev/task-7: "https://gitlab.cee.redhat.com/tekton/plumbing/-/raw/master/ci/tasks/send-slack-notification-generic.yaml"
+    pipelinesascode.tekton.dev/task-8: "https://gitlab.cee.redhat.com/tekton/plumbing/-/raw/master/ci/tasks/configure-operator-for-unofficial-builds.yaml"		
+    pipelinesascode.tekton.dev/task-9: "https://gitlab.cee.redhat.com/tekton/plumbing/-/raw/master/ci/tasks/send-slack-notification.yaml"
+    pipelinesascode.tekton.dev/task-10: "https://gitlab.cee.redhat.com/tekton/plumbing/-/raw/master/ci/tasks/configure-operator.yaml"					
+    pipelinesascode.tekton.dev/task-11: "https://gitlab.cee.redhat.com/tekton/plumbing/-/raw/master/ci/tasks/setup-testing-accounts.yaml"
+    pipelinesascode.tekton.dev/task-12: "https://gitlab.cee.redhat.com/tekton/plumbing/-/raw/master/ci/tasks/create-rhel-vm-and-subscribe.yaml"			
+    pipelinesascode.tekton.dev/task-13: "https://gitlab.cee.redhat.com/tekton/plumbing/-/raw/master/ci/tasks/ui-tests.yaml"
+    pipelinesascode.tekton.dev/task-14: "https://gitlab.cee.redhat.com/tekton/plumbing/-/raw/master/ci/tasks/create-rp-launch.yaml"					
+    pipelinesascode.tekton.dev/task-15: "https://gitlab.cee.redhat.com/tekton/plumbing/-/raw/master/ci/tasks/uninstall-cluster.yaml"
+    pipelinesascode.tekton.dev/task-16: "https://gitlab.cee.redhat.com/tekton/plumbing/-/raw/master/ci/tasks/entitlement-tests.yaml"					
+    pipelinesascode.tekton.dev/task-17: "https://gitlab.cee.redhat.com/tekton/plumbing/-/raw/master/ci/tasks/unsubscribe-and-destroy-rhel-vm.yaml"
+    pipelinesascode.tekton.dev/task-18: "https://gitlab.cee.redhat.com/tekton/plumbing/-/raw/master/ci/tasks/evaluate-gathered-data.yaml"				
+    pipelinesascode.tekton.dev/task-19: "https://gitlab.cee.redhat.com/tekton/plumbing/-/raw/master/ci/tasks/update-channel.yaml"
+    pipelinesascode.tekton.dev/task-20: "https://gitlab.cee.redhat.com/tekton/plumbing/-/raw/master/ci/tasks/evaluate-test-suites.yaml"				
+    pipelinesascode.tekton.dev/task-21: "https://gitlab.cee.redhat.com/tekton/plumbing/-/raw/master/ci/tasks/update-image-sets.yaml"
+    pipelinesascode.tekton.dev/task-22: "https://gitlab.cee.redhat.com/tekton/plumbing/-/raw/master/ci/tasks/generate-build-artifacts.yaml"				
+    pipelinesascode.tekton.dev/task-23: "https://gitlab.cee.redhat.com/tekton/plumbing/-/raw/master/ci/tasks/update-resources.yaml"
+    pipelinesascode.tekton.dev/task-24: "https://gitlab.cee.redhat.com/tekton/plumbing/-/raw/master/ci/tasks/generate-ids.yaml"					
+    pipelinesascode.tekton.dev/task-25: "https://gitlab.cee.redhat.com/tekton/plumbing/-/raw/master/ci/tasks/upgrade-cluster.yaml"
+    pipelinesascode.tekton.dev/task-26: "https://gitlab.cee.redhat.com/tekton/plumbing/-/raw/master/ci/tasks/get-cluster-version.yaml"				
+    pipelinesascode.tekton.dev/task-27: "https://gitlab.cee.redhat.com/tekton/plumbing/-/raw/master/ci/tasks/upload-artifacts.yaml"
+    pipelinesascode.tekton.dev/task-28: "https://gitlab.cee.redhat.com/tekton/plumbing/-/raw/master/ci/tasks/get-component-versions.yaml"				
+    pipelinesascode.tekton.dev/task-29: "https://gitlab.cee.redhat.com/tekton/plumbing/-/raw/master/ci/tasks/upload-results-to-polarion.yaml"
+    pipelinesascode.tekton.dev/task-30: "https://gitlab.cee.redhat.com/tekton/plumbing/-/raw/master/ci/tasks/get-operator-component-version-unofficial-builds.yaml"	
+    pipelinesascode.tekton.dev/task-31: "https://gitlab.cee.redhat.com/tekton/plumbing/-/raw/master/ci/tasks/upload-test-cases-to-polarion.yaml"
+    pipelinesascode.tekton.dev/task-32: "https://gitlab.cee.redhat.com/tekton/plumbing/-/raw/master/ci/tasks/get-operator-files-unofficial-builds.yaml"		
+    pipelinesascode.tekton.dev/task-33: "https://gitlab.cee.redhat.com/tekton/plumbing/-/raw/master/ci/tasks/upstream-operator-tests.yaml"
+    pipelinesascode.tekton.dev/task-34: "https://gitlab.cee.redhat.com/tekton/plumbing/-/raw/master/ci/tasks/install-cluster.yaml"					
+    pipelinesascode.tekton.dev/task-35: "https://gitlab.cee.redhat.com/tekton/plumbing/-/raw/master/ci/tasks/upstream-pac-tests.yaml"
+    pipelinesascode.tekton.dev/task-36: "https://gitlab.cee.redhat.com/tekton/plumbing/-/raw/master/ci/tasks/install-serverless-operator.yaml"			
+    pipelinesascode.tekton.dev/task-37: "https://gitlab.cee.redhat.com/tekton/plumbing/-/raw/master/ci/tasks/upstream-pipelines-tests.yaml"
+    pipelinesascode.tekton.dev/task-38: "https://gitlab.cee.redhat.com/tekton/plumbing/-/raw/master/ci/tasks/mini-must-gather.yaml"					
+    pipelinesascode.tekton.dev/task-39: "https://gitlab.cee.redhat.com/tekton/plumbing/-/raw/master/ci/tasks/upstream-triggers-tests.yaml"
+    pipelinesascode.tekton.dev/task-40: "https://gitlab.cee.redhat.com/tekton/plumbing/-/raw/master/ci/tasks/mirror-and-tag-imagestreams.yaml"			
+    pipelinesascode.tekton.dev/task-41: "https://gitlab.cee.redhat.com/tekton/plumbing/-/raw/master/ci/tasks/verify-binaries-and-sha256sum.yaml"
+    pipelinesascode.tekton.dev/task-42: "https://gitlab.cee.redhat.com/tekton/plumbing/-/raw/master/ci/tasks/mirror-operator-images.yaml"				
+    pipelinesascode.tekton.dev/task-43: "https://gitlab.cee.redhat.com/tekton/plumbing/-/raw/master/ci/tasks/verify-binaries-on-mac.yaml"
+    pipelinesascode.tekton.dev/task-44: "https://gitlab.cee.redhat.com/tekton/plumbing/-/raw/master/ci/tasks/release-tests.yaml"					
+    pipelinesascode.tekton.dev/task-45: "https://gitlab.cee.redhat.com/tekton/plumbing/-/raw/master/ci/tasks/whitelist-domains.yaml"
+    pipelinesascode.tekton.dev/task-46: "https://gitlab.cee.redhat.com/tekton/plumbing/-/raw/master/ci/tasks/run-tfa-classifire.yaml"
     pipelinesascode.tekton.dev/max-keep-runs: "5"  
 spec:
-  pipelineRef:
-    name: acceptance-tests
   params:
-    - name: ARCH
-      value: "linux/amd64"
-    - name: CATALOG_SOURCE
-      value: custom-operators
-    - name: CLUSTER_POOL
-      value: "openstack"
-    - name: CLI_TESTS_TYPE
-      value: downstream
-    - name: CLUSTER_NAME
-      value: hive
-    - name: INDEX
-      value: "766649"
-    - name: INSTALLER
-      value: "hive"
-    - name: INSTALL_PIPELINES_OPERATOR
-      value: "true"
-    - name: INSTALL_SERVERLESS_OPERATOR
-      value: "true"
-    - name: OPERATOR_ENVIRONMENT
-      value: pre-stage
-    - name: OPERATOR_VERSION
-      value: "1.15.1"
-    - name: TEST_SUITES
-      value:
-      # - cli-tests-fedora
-      - release-tests-versions
-      - release-tests-chains
-      - release-tests-metrics
-      - release-tests-clustertasks
-      - release-tests-clustertasks-s2i
-      - release-tests-clustertasks-multiarch
-      - release-tests-pipelines
-      - release-tests-results
-      - release-tests-triggers
-      - release-tests-triggers-tls
-      # - operator-upstream-tests
-      # - pipelines-upstream-tests
-      # - triggers-upstream-tests
-      - release-tests-rbac
-      - release-tests-auto-prune
-      - release-tests-addon
-    - name: TKN_DOWNLOAD_URL
-      value: https://mirror.openshift.com/pub/openshift-v4/clients/pipelines/1.13.0/tkn-linux-amd64.tar.gz
-  timeouts:
-    pipeline: 3h
-  workspaces:
-    - name: git
-      volumeClaimTemplate:
-        spec:
-          accessModes:
-            - ReadWriteMany
-          resources:
-            requests:
-              storage: 200Mi
-          # storageClassName: csi-manila-ceph
+    - name: repo_url
+      value: "{{ repo_url }}"
+    - name: revision
+      value: "{{ revision }}"
+  pipelineSpec:
+    params:
+      - name: repo_url
+      - name: revision
+    workspaces:
+      - name: source
+      - name: basic-auth
+      - name: cache
+    tasks:
+      - name: fetch-repository
+        taskRef:
+          kind: ClusterTask
+          name: git-clone
+        workspaces:
+          - name: output
+            workspace: source
+          - name: basic-auth
+            workspace: basic-auth
+        params:
+          - name: url
+            value: $(params.repo_url)
+          - name: revision
+            value: $(params.revision)
+        taskSpec:
+          pipelineRef:
+            name: acceptance-tests
+          params:
+            - name: ARCH
+              value: "linux/amd64"
+            - name: CATALOG_SOURCE
+              value: custom-operators
+            - name: CLUSTER_POOL
+              value: "openstack"
+            - name: CLI_TESTS_TYPE
+              value: downstream
+            - name: CLUSTER_NAME
+              value: hive
+            - name: INDEX
+              value: "766649"
+            - name: INSTALLER
+              value: "hive"
+            - name: INSTALL_PIPELINES_OPERATOR
+              value: "true"
+            - name: INSTALL_SERVERLESS_OPERATOR
+              value: "true"
+            - name: OPERATOR_ENVIRONMENT
+              value: pre-stage
+            - name: OPERATOR_VERSION
+              value: "1.15.1"
+            - name: TEST_SUITES
+              value:
+              # - cli-tests-fedora
+              - release-tests-versions
+              - release-tests-chains
+              - release-tests-metrics
+              - release-tests-clustertasks
+              - release-tests-clustertasks-s2i
+              - release-tests-clustertasks-multiarch
+              - release-tests-pipelines
+              - release-tests-results
+              - release-tests-triggers
+              - release-tests-triggers-tls
+              # - operator-upstream-tests
+              # - pipelines-upstream-tests
+              # - triggers-upstream-tests
+              - release-tests-rbac
+              - release-tests-auto-prune
+              - release-tests-addon
+            - name: TKN_DOWNLOAD_URL
+              value: https://mirror.openshift.com/pub/openshift-v4/clients/pipelines/1.13.0/tkn-linux-amd64.tar.gz
+          timeouts:
+            pipeline: 3h
+          workspaces:
+            - name: git
+              volumeClaimTemplate:
+                spec:
+                  accessModes:
+                    - ReadWriteMany
+                  resources:
+                    requests:
+                      storage: 200Mi
+                  # storageClassName: csi-manila-ceph
