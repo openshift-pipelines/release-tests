@@ -46,4 +46,4 @@ spec:
         image: registry.access.redhat.com/ubi8/ubi-minimal
         script: |
           #!/usr/bin/env bash
-          echo "Hello from task 2"
+          echo "Hello from final task"

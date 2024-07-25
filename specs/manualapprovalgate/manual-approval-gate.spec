@@ -10,11 +10,11 @@ Importance: Critical
 
 Steps:
   * Validate manual approval gate deployment
-  * Apply
+  * Create
      | S.NO | resource_dir                                             |
      |------|----------------------------------------------------------|
      | 1    | testdata/manualapprovalgate/manual-approval-pipeline.yaml|
-  * Start the manual-approval-pipeline pipeline
+  * Start the "manual-approval-pipeline" pipeline with workspace "name=source,claimName=shared-pvc"
   * Approve the manual-approval-pipeline
   * Validate the manual-approval-pipeline for "Approved" state
   * Verify the latest pipelinerun for "successful" state
@@ -28,11 +28,11 @@ Importance: Critical
 
 Steps:
   * Validate manual approval gate deployment
-  * Apply
+  * Create
      | S.NO | resource_dir                                             |
      |------|----------------------------------------------------------|
      | 1    | testdata/manualapprovalgate/manual-approval-pipeline.yaml|
-  * Start the manual-approval-pipeline pipeline
+  * Start the "manual-approval-pipeline" pipeline with workspace "name=source,claimName=shared-pvc"
   * Reject the manual-approval-pipeline
   * Validate the manual-approval-pipeline for "Rejected" state
   * Verify the latest pipelinerun for "failed" state

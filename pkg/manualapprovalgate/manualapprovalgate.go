@@ -14,31 +14,31 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package operator
+package approvalgate
 
 import (
 	"context"
 	"errors"
+	"fmt"
 	"log"
-	"strconv"
-	"strings"
-	"time"
 
+	"github.com/openshift-pipelines/release-tests/pkg/clients"
 	"github.com/openshift-pipelines/release-tests/pkg/cmd"
 	"github.com/openshift-pipelines/release-tests/pkg/config"
+	"github.com/openshift-pipelines/release-tests/pkg/store"
 	"github.com/tektoncd/operator/pkg/apis/operator/v1alpha1"
 	mag "github.com/tektoncd/operator/pkg/client/clientset/versioned/typed/operator/v1alpha1"
 	"github.com/tektoncd/operator/test/utils"
 	apierrs "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/util/wait"
 )
 
-type TaskInfo struct {
+type ApprovalTaskInfo struct {
 	Name                      string
 	NumberOfApprovalsRequired int
 	PendingApprovals          int
-	Rejected                  int
 	Status                    string
 }
 
@@ -58,63 +58,30 @@ func EnsureManualApprovalGateExists(clients mag.ManualApprovalGateInterface, nam
 	return ks, err
 }
 
-func StartApprovalGatePipeline() {
-	cmd.MustSucceed("tkn", "pipeline", "start", "manual-approval-pipeline")
-	log.Println("Waiting 10sec to start the pipeline")
-	cmd.MustSuccedIncreasedTimeout(time.Second*130, "sleep", "10")
-}
-
-func GetApprovalTaskList() []TaskInfo {
-	output := cmd.MustSucceed("opc", "approvaltask", "list").Stdout()
-	tasklist := strings.Split(output, "\n")
-	var tasks []TaskInfo
-
-	headers := strings.Fields(tasklist[0])
-	if len(headers) < 5 {
-		return nil
+func ListApprovalTask(cs *clients.Clients) []ApprovalTaskInfo {
+	var tasks []ApprovalTaskInfo
+	at, err := cs.ApprovalTask.List(cs.Ctx, v1.ListOptions{})
+	if err != nil {
+		fmt.Errorf("Failed to List approval task")
+		return tasks
 	}
 
-	for _, line := range tasklist[1:] {
-		fields := strings.Fields(line)
-		if len(fields) < 5 {
-			continue
+	for _, item := range at.Items {
+		info := ApprovalTaskInfo{
+			Name:                      item.Name,
+			NumberOfApprovalsRequired: item.Spec.NumberOfApprovalsRequired,
+			PendingApprovals:          len(item.Spec.Approvers),
+			Status:                    item.Status.State,
 		}
-
-		requiredApprovals, err := strconv.Atoi(fields[1])
-		if err != nil {
-			continue
-		}
-
-		pendingApprovals, err := strconv.Atoi(fields[2])
-		if err != nil {
-			continue
-		}
-
-		rejected, err := strconv.Atoi(fields[3])
-		if err != nil {
-			continue
-		}
-
-		task := TaskInfo{
-			Name:                      fields[0],
-			NumberOfApprovalsRequired: requiredApprovals,
-			PendingApprovals:          pendingApprovals,
-			Rejected:                  rejected,
-			Status:                    fields[4],
-		}
-		tasks = append(tasks, task)
-	}
-
-	if len(tasks) == 0 {
-		return nil
+		tasks = append(tasks, info)
 	}
 
 	return tasks
 }
 
 func ValidateApprovalGatePipeline(expectedStatus string) (bool, error) {
-	tasks := GetApprovalTaskList()
-	if tasks == nil {
+	tasks := ListApprovalTask(store.Clients())
+	if len(tasks) == 0 {
 		return false, errors.New("no approval gate tasks found")
 	}
 
@@ -133,13 +100,13 @@ func ValidateApprovalGatePipeline(expectedStatus string) (bool, error) {
 	return true, nil
 }
 
-func checkApprovalTaskStatus(task TaskInfo) string {
+func checkApprovalTaskStatus(task ApprovalTaskInfo) string {
 	switch {
-	case task.PendingApprovals > 0:
+	case task.Status == "pending":
 		return "Pending"
-	case task.Rejected > 0:
+	case task.Status == "rejected":
 		return "Rejected"
-	case task.Status == "Approved" && task.PendingApprovals == 0 && task.Rejected == 0:
+	case task.Status == "approved":
 		return "Approved"
 	default:
 		return "Unknown Error: Check Details"
