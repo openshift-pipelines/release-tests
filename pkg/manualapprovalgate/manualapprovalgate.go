@@ -70,7 +70,7 @@ func ListApprovalTask(cs *clients.Clients) []ApprovalTaskInfo {
 		info := ApprovalTaskInfo{
 			Name:                      item.Name,
 			NumberOfApprovalsRequired: item.Spec.NumberOfApprovalsRequired,
-			PendingApprovals:          len(item.Spec.Approvers),
+			PendingApprovals:          item.Spec.NumberOfApprovalsRequired - len(item.Status.ApproversResponse),
 			Status:                    item.Status.State,
 		}
 		tasks = append(tasks, info)
@@ -101,12 +101,12 @@ func ValidateApprovalGatePipeline(expectedStatus string) (bool, error) {
 }
 
 func checkApprovalTaskStatus(task ApprovalTaskInfo) string {
-	switch {
-	case task.Status == "pending":
+	switch task.Status {
+	case "pending":
 		return "Pending"
-	case task.Status == "rejected":
+	case "rejected":
 		return "Rejected"
-	case task.Status == "approved":
+	case "approved":
 		return "Approved"
 	default:
 		return "Unknown Error: Check Details"
