@@ -19,6 +19,7 @@ package approvalgate
 import (
 	"context"
 	"errors"
+	"fmt"
 	"log"
 
 	"github.com/openshift-pipelines/release-tests/pkg/clients"
@@ -86,7 +87,6 @@ func ListApprovalTask(cs *clients.Clients) ([]ApprovalTaskInfo, error) {
 	})
 
 	if err != nil {
-		log.Printf("Failed to list approval tasks: %v", err)
 		return nil, err
 	}
 
@@ -94,24 +94,19 @@ func ListApprovalTask(cs *clients.Clients) ([]ApprovalTaskInfo, error) {
 }
 
 func ValidateApprovalGatePipeline(expectedStatus string) (bool, error) {
-	tasks, _ := ListApprovalTask(store.Clients())
-	if len(tasks) == 0 {
-		return false, errors.New("no approval gate tasks found")
+	tasks, err := ListApprovalTask(store.Clients())
+	if err != nil {
+		return false, fmt.Errorf("error fetching approval tasks: %v", err)
 	}
 
-	found := false
 	for _, task := range tasks {
 		actualStatus := checkApprovalTaskStatus(task)
 		if actualStatus == expectedStatus {
-			found = true
-			break
+			return true, nil
 		}
 	}
 
-	if !found {
-		return false, errors.New("no approval tasks were found in the specified state")
-	}
-	return true, nil
+	return false, errors.New("no approval tasks were found in the specified state")
 }
 
 func checkApprovalTaskStatus(task ApprovalTaskInfo) string {

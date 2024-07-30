@@ -20,8 +20,9 @@ var _ = gauge.Step("Start the <pipelineName> pipeline with workspace <workspaceV
 
 var _ = gauge.Step("Approve the manual-approval-pipeline", func() {
 	tasks, err := approvalgate.ListApprovalTask(store.Clients())
-	if tasks == nil {
-		testsuit.T.Errorf("No Approval Gate Tasks Found: %v", err)
+	if err != nil {
+		testsuit.T.Errorf("Error while listing approval gate tasks: %v", err)
+		return
 	}
 
 	for _, task := range tasks {
@@ -31,9 +32,11 @@ var _ = gauge.Step("Approve the manual-approval-pipeline", func() {
 
 var _ = gauge.Step("Reject the manual-approval-pipeline", func() {
 	tasks, err := approvalgate.ListApprovalTask(store.Clients())
-	if tasks == nil {
-		testsuit.T.Errorf("No Approval Gate Tasks Found: %v", err)
+	if err != nil {
+		testsuit.T.Errorf("Error while listing approval gate tasks: %v", err)
+		return
 	}
+
 	for _, task := range tasks {
 		approvalgate.RejectApprovalGatePipeline(task.Name)
 	}
