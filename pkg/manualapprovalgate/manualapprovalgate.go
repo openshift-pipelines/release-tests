@@ -19,7 +19,6 @@ package approvalgate
 import (
 	"context"
 	"errors"
-	"fmt"
 	"log"
 
 	"github.com/openshift-pipelines/release-tests/pkg/clients"
@@ -31,7 +30,6 @@ import (
 	"github.com/tektoncd/operator/test/utils"
 	apierrs "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/util/wait"
 )
 
@@ -58,29 +56,45 @@ func EnsureManualApprovalGateExists(clients mag.ManualApprovalGateInterface, nam
 	return ks, err
 }
 
-func ListApprovalTask(cs *clients.Clients) []ApprovalTaskInfo {
+func ListApprovalTask(cs *clients.Clients) ([]ApprovalTaskInfo, error) {
 	var tasks []ApprovalTaskInfo
-	at, err := cs.ApprovalTask.List(cs.Ctx, v1.ListOptions{})
-	if err != nil {
-		fmt.Errorf("Failed to List approval task")
-		return tasks
-	}
 
-	for _, item := range at.Items {
-		info := ApprovalTaskInfo{
-			Name:                      item.Name,
-			NumberOfApprovalsRequired: item.Spec.NumberOfApprovalsRequired,
-			PendingApprovals:          item.Spec.NumberOfApprovalsRequired - len(item.Status.ApproversResponse),
-			Status:                    item.Status.State,
+	err := wait.PollUntilContextTimeout(cs.Ctx, config.APIRetry, config.APITimeout, false, func(ctx context.Context) (bool, error) {
+		at, err := cs.ApprovalTask.List(ctx, metav1.ListOptions{})
+		if err != nil {
+			log.Printf("Failed to list approval tasks, retrying...: %v", err)
+			return false, err
 		}
-		tasks = append(tasks, info)
+
+		if len(at.Items) == 0 {
+			log.Printf("No approval tasks found, retrying...")
+			return false, nil
+		}
+
+		tasks = make([]ApprovalTaskInfo, 0, len(at.Items))
+		for _, item := range at.Items {
+			info := ApprovalTaskInfo{
+				Name:                      item.Name,
+				NumberOfApprovalsRequired: item.Spec.NumberOfApprovalsRequired,
+				PendingApprovals:          item.Spec.NumberOfApprovalsRequired - len(item.Status.ApproversResponse),
+				Status:                    item.Status.State,
+			}
+			tasks = append(tasks, info)
+		}
+
+		return true, nil
+	})
+
+	if err != nil {
+		log.Printf("Failed to list approval tasks: %v", err)
+		return nil, err
 	}
 
-	return tasks
+	return tasks, nil
 }
 
 func ValidateApprovalGatePipeline(expectedStatus string) (bool, error) {
-	tasks := ListApprovalTask(store.Clients())
+	tasks, _ := ListApprovalTask(store.Clients())
 	if len(tasks) == 0 {
 		return false, errors.New("no approval gate tasks found")
 	}
