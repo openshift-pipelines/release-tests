@@ -9,10 +9,6 @@ Type: Functional
 Importance: Critical
 
 Steps:
-  * Apply
-    | S.NO | resource_dir                                          |
-    |------|-------------------------------------------------------|
-    | 1    | testdata/manualapprovalgate/manual-approval-gate.yaml |
   * Validate manual approval gate deployment
   * Create
      | S.NO | resource_dir                                             |
@@ -31,7 +27,6 @@ Type: Functional
 Importance: Critical
 
 Steps:
-  * Validate manual approval gate deployment
   * Create
      | S.NO | resource_dir                                             |
      |------|----------------------------------------------------------|
