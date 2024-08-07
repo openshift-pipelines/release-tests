@@ -7,8 +7,9 @@ toolchain go1.22.4
 require (
 	github.com/getgauge-contrib/gauge-go v0.4.0
 	github.com/google/go-cmp v0.6.0
-	github.com/openshift/api v0.0.0-20240304080513-3e8192a10b13
-	github.com/openshift/client-go v0.0.0-20230503144108-75015d2347cb
+	github.com/openshift-pipelines/manual-approval-gate v0.2.2
+	github.com/openshift/api v0.0.0-20240422085825-2624175e9673
+	github.com/openshift/client-go v0.0.0-20240422164335-6c851f4919dd
 	github.com/operator-framework/api v0.16.0
 	github.com/operator-framework/operator-lifecycle-manager v0.22.0
 	github.com/pkg/errors v0.9.1
