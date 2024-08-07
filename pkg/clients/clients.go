@@ -10,6 +10,7 @@ import (
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/clientcmd"
 
+	apclient "github.com/openshift-pipelines/manual-approval-gate/pkg/client/clientset/versioned/typed/approvaltask/v1alpha1"
 	configV1 "github.com/openshift/client-go/config/clientset/versioned/typed/config/v1"
 	consolev1 "github.com/openshift/client-go/console/clientset/versioned/typed/console/v1"
 	routev1 "github.com/openshift/client-go/route/clientset/versioned/typed/route/v1"
@@ -47,6 +48,7 @@ type Clients struct {
 	PipelineRunClient  v1.PipelineRunInterface
 	TriggersClient     triggersclientset.Interface
 	ClustertaskClient  v1beta1.ClusterTaskInterface
+	ApprovalTask       apclient.ApprovalTaskInterface
 }
 
 // NewClients instantiates and returns several clientsets required for making request to the
@@ -178,4 +180,5 @@ func (c *Clients) NewClientSet(namespace string) {
 	c.ClusterVersion = configV1.NewForConfigOrDie(c.KubeConfig).ClusterVersions()
 	c.ConsoleCLIDownload = consolev1.NewForConfigOrDie(c.KubeConfig).ConsoleCLIDownloads()
 	c.ClustertaskClient = c.Tekton.TektonV1beta1().ClusterTasks()
+	c.ApprovalTask = apclient.NewForConfigOrDie(c.KubeConfig).ApprovalTasks(namespace)
 }
