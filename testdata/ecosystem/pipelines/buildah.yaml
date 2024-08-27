@@ -4,57 +4,57 @@ metadata:
   name: buildah-pipeline
 spec:
   params:
-  - name: REVISION
-    default: fedora-38
-  - name: SUBDIR
-    description: where to clone the git repo
-    default: buildah
-  workspaces:
-  - name: source
-  tasks:
-  - name: clone-git-repo
-    taskRef:
-      resolver: cluster
-      params:
-      - name: kind
-        value: task
-      - name: name
-        value: git-clone
-      - name: namespace
-        value: openshift-pipelines
-    workspaces:
-    - name: output
-      workspace: source
-    params:
-    - name: URL
-      value: https://github.com/ppitonak/nocode
-    - name: SUBDIRECTORY
-      value: $(params.SUBDIR)
-    - name: deleteExisting
-      value: "true"
     - name: REVISION
-      value: $(params.REVISION)
-  - name: run-buildah
-    taskRef:
-      resolver: cluster
-      params:
-      - name: kind
-        value: task
-      - name: name
-        value: buildah
-      - name: namespace
-        value: openshift-pipelines
-    runAfter:
-    - clone-git-repo
-    workspaces:
+      default: fedora-38
+    - name: SUBDIR
+      description: where to clone the git repo
+      default: buildah
+  workspaces:
     - name: source
-      workspace: source
-    params:
-    - name: IMAGE
-      value: image-registry.openshift-image-registry.svc:5000/$(context.pipelineRun.namespace)/$(params.SUBDIR)
-    - name: CONTEXT
-      value: $(params.SUBDIR)
-    - name: DOCKERFILE
-      value: $(params.SUBDIR)/Dockerfile
-    - name: TLSVERIFY
-      value: "true"
+  tasks:
+    - name: clone-git-repo
+      taskRef:
+        resolver: cluster
+        params:
+          - name: kind
+            value: task
+          - name: name
+            value: git-clone
+          - name: namespace
+            value: openshift-pipelines
+      workspaces:
+        - name: output
+          workspace: source
+      params:
+        - name: URL
+          value: https://github.com/ppitonak/nocode
+        - name: SUBDIRECTORY
+          value: $(params.SUBDIR)
+        - name: DELETE_EXISTING
+          value: "true"
+        - name: REVISION
+          value: $(params.REVISION)
+    - name: run-buildah
+      taskRef:
+        resolver: cluster
+        params:
+          - name: kind
+            value: task
+          - name: name
+            value: buildah
+          - name: namespace
+            value: openshift-pipelines
+      runAfter:
+        - clone-git-repo
+      workspaces:
+        - name: source
+          workspace: source
+      params:
+        - name: IMAGE
+          value: image-registry.openshift-image-registry.svc:5000/$(context.pipelineRun.namespace)/$(params.SUBDIR)
+        - name: CONTEXT
+          value: $(params.SUBDIR)
+        - name: DOCKERFILE
+          value: $(params.SUBDIR)/Dockerfile
+        - name: TLSVERIFY
+          value: "true"

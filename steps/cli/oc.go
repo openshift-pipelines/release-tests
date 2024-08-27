@@ -138,6 +138,15 @@ var _ = gauge.Step("Update addon config with clusterTasks as <clusterTaskStatus>
 	}
 })
 
+var _ = gauge.Step("Update addon config with resolverTasks as <resolverTasksStatus> and expect message <expectedMessage>", func(resolverTasksStatus, expectedMessage string) {
+	patchData := fmt.Sprintf("{\"spec\":{\"addon\":{\"params\":[{\"name\":\"resolverTasks\",\"value\":\"%s\"}]}}}", resolverTasksStatus)
+	if expectedMessage == "" {
+		oc.UpdateTektonConfig(patchData)
+	} else {
+		oc.UpdateTektonConfigwithInvalidData(patchData, expectedMessage)
+	}
+})
+
 var _ = gauge.Step("Create project <projectName>", func(projectName string) {
 	log.Printf("Check if project %v already exists", projectName)
 	if oc.CheckProjectExists(projectName) {

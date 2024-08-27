@@ -22,6 +22,8 @@ spec:
         value: "docker://image-registry.openshift-image-registry.svc:5000/$(context.pipelineRun.namespace)/golang:skopeo"
       - name: DEST_TLS_VERIFY
         value: "false"
+      - name: VERBOSE
+        value: "true"
       workspaces:
         - name: images_url
           workspace: images_url
