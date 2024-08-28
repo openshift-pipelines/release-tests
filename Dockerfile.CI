@@ -9,7 +9,7 @@ RUN pip install pyyaml reportportal-client
 RUN wget https://github.com/mikefarah/yq/releases/download/v4.44.3/yq_linux_amd64 -O /usr/bin/yq &&\
     chmod +x /usr/bin/yq
 
-ENV OC_VERSION=4.15
+ENV OC_VERSION=4.16
 RUN wget https://mirror.openshift.com/pub/openshift-v4/clients/ocp/fast-${OC_VERSION}/openshift-client-linux.tar.gz \
     -O /tmp/openshift-client.tar.gz &&\
     tar xzf /tmp/openshift-client.tar.gz -C /usr/bin oc &&\
@@ -55,7 +55,7 @@ RUN wget https://github.com/getgauge/gauge/releases/download/v${GAUGE_VERSION}/g
     go env -w GOPROXY="https://proxy.golang.org,direct" &&\
     gauge version
 
-RUN wget https://github.com/sigstore/cosign/releases/download/v2.3.0/cosign-linux-amd64 -O /usr/bin/cosign && \
+RUN wget https://github.com/sigstore/cosign/releases/download/v2.4.0/cosign-linux-amd64 -O /usr/bin/cosign && \
     chmod a+x /usr/bin/cosign
 
 RUN wget https://github.com/sigstore/rekor/releases/download/v1.3.6/rekor-cli-linux-amd64 -O /usr/bin/rekor-cli && \
