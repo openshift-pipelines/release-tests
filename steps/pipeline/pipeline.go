@@ -67,7 +67,7 @@ var _ = gauge.Step("<cts> clustertasks are <status>", func(cts, status string) {
 	}
 })
 
-var _ = gauge.Step("<ts> tasks are <status> in namespace <namespace>", func(ts, status string, namespace string) {
+var _ = gauge.Step("Tasks <ts> are <status> in namespace <namespace>", func(ts, status string, namespace string) {
 	log.Printf("Checking if tasks %v is/are %v in namespace %v", ts, status, namespace)
 	tsList := strings.Split(ts, ",")
 	if status == "present" {
@@ -79,11 +79,6 @@ var _ = gauge.Step("<ts> tasks are <status> in namespace <namespace>", func(ts, 
 			pipelines.AssertTaskNotPresent(store.Clients(), namespace, c)
 		}
 	}
-})
-
-var _ = gauge.Step("Create task hello in namespace <namespace>", func(namespace string) {
-	log.Printf("Creating new task hello in namespace %v", namespace)
-	pipelines.CreateTask(store.Clients(), namespace)
 })
 
 var _ = gauge.Step("Assert pipelines are <status> in <namespace> namespace", func(status, namespace string) {

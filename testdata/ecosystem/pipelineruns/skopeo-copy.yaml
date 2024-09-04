@@ -23,7 +23,7 @@ spec:
       - name: DEST_TLS_VERIFY
         value: "false"
       - name: VERBOSE
-        value: "true"
+        value: "false"
       workspaces:
         - name: images_url
           workspace: images_url

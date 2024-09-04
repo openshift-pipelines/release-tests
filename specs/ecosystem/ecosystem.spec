@@ -3,7 +3,6 @@ PIPELINES-29
 
 Pre condition:
   * Validate Operator should be installed
-  * Verify tekton ecosystem resources are present
 
 ## buildah pipelinerun: PIPELINES-29-TC01
 Tags: e2e, ecosystem, tasks, non-admin, buildah, sanity
@@ -162,3 +161,4 @@ Steps:
 ## git-cli read private repo pipelinerun: PIPELINES-29
 ## git-cli read private repo using different service account pipelinerun: PIPELINES-29
 ## maven pipelinerun: PIPELINES-29
+## s2i, kn, kn-apply, tkn-pac, to be added.

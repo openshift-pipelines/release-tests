@@ -1,7 +1,6 @@
 package olm
 
 import (
-	"context"
 	"fmt"
 	"log"
 	"os"
@@ -18,7 +17,6 @@ import (
 	"github.com/openshift-pipelines/release-tests/pkg/operator"
 	"github.com/openshift-pipelines/release-tests/pkg/store"
 	"github.com/openshift-pipelines/release-tests/pkg/tkn"
-	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
 var once sync.Once
@@ -184,15 +182,4 @@ var _ = gauge.Step("Create signing-secrets for Tekton Chains", func() {
 
 var _ = gauge.Step("Store Cosign public key in file", func() {
 	operator.CreateFileWithCosignPubKey()
-})
-
-var _ = gauge.Step("Verify tekton ecosystem resources are present", func() {
-	patchData := fmt.Sprintf("{\"spec\":{\"addon\":{\"params\":[{\"name\":\"resolverTasks\",\"value\":\"%s\"}]}}}", "true")
-	oc.UpdateTektonConfig(patchData)
-	cs := store.Clients()
-	tc, err := cs.TektonConfig().Get(context.TODO(), "config", v1.GetOptions{})
-	if err != nil {
-		testsuit.T.Errorf("Error: couldt not get TektonConfig")
-	}
-	log.Println(tc.Spec.Addon)
 })
