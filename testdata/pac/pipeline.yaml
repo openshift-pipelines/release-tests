@@ -1,0 +1,25 @@
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  name: merge-request-pipeline
+spec:
+  params:
+    - name: git-repository-url
+      type: string
+    - name: git-revision
+      type: string
+  tasks:
+    - name: echo-details
+      taskSpec:
+        params:
+          - name: git-repository-url
+            type: string
+          - name: git-revision
+            type: string
+        steps:
+          - name: echo
+            image: ubuntu
+            script: |
+              #! /bin/bash
+              echo "Repository URL: $(params.git-repository-url)"
+              echo "Revision: $(params.git-revision)"
