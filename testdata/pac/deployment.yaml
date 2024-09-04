@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gosmee
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: gosmee
+  template:
+    metadata:
+      labels:
+        app: gosmee
+    spec:
+      containers:
+      - name: gosmee
+        image: ghcr.io/chmouel/gosmee:latest
+        imagePullPolicy: Always
+        env:
+        - name: SMEE_URL
+          value: "https://smee.io/xxHuupdS5ovs2e1Z"
+        - name: TARGET_URL
+          value: "https://pipelines-as-code-controller-openshift-pipelines.apps.test151.lab.psi.pnq2.redhat.com"
+        command: ["gosmee", "client", "$(SMEE_URL)", "$(TARGET_URL)"]
+        ports:
+          - containerPort: 8080

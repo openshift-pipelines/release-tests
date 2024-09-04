@@ -1,0 +1,21 @@
+apiVersion: triggers.tekton.dev/v1beta1
+kind: EventListener
+metadata:
+  name: webhook-listener
+spec:
+  serviceAccountName: tekton-triggers-example-sa
+  triggers:
+    - name: webhook-trigger
+      interceptors:
+        - ref:
+            name: "CEL"
+            kind: ClusterInterceptor
+          params:
+            - name: "filter"
+              value: "header.match('X-GitHub-Event', 'push')"
+            - name: "overwrite"
+              value: "body"
+      bindings:
+        - ref: git-revision-binding
+      template:
+        ref: gitops-template
