@@ -37,27 +37,32 @@ func GetNewSmeeURL() (string, error) {
 func CreateSmeeDeployment(c *clients.Clients, namespace, smeeURL, targetURL string) error {
 	deployment := &v1.Deployment{
 		ObjectMeta: metav1.ObjectMeta{
-			Name: "smee-client",
+			Name: "gosmee-client",
 		},
 		Spec: v1.DeploymentSpec{
 			Replicas: int32Ptr(1),
 			Selector: &metav1.LabelSelector{
 				MatchLabels: map[string]string{
-					"app": "smee-client",
+					"app": "gosmee-client",
 				},
 			},
 			Template: corev1.PodTemplateSpec{
 				ObjectMeta: metav1.ObjectMeta{
 					Labels: map[string]string{
-						"app": "smee-client",
+						"app": "gosmee-client",
 					},
 				},
 				Spec: corev1.PodSpec{
 					Containers: []corev1.Container{
 						{
-							Name:  "smee-client",
-							Image: "quay.io/openshift-pipeline/release-test:smee-client",
-							Args:  []string{"-u", smeeURL, "-t", targetURL},
+							Name:  "gosmee-client",
+							Image: "ghcr.io/chmouel/gosmee:latest",
+							Command: []string{
+								"gosmee",
+								"client",
+								smeeURL,
+								targetURL,
+							},
 							Env: []corev1.EnvVar{
 								{
 									Name:  "SMEE_URL",
@@ -66,6 +71,11 @@ func CreateSmeeDeployment(c *clients.Clients, namespace, smeeURL, targetURL stri
 								{
 									Name:  "TARGET_URL",
 									Value: targetURL,
+								},
+							},
+							Ports: []corev1.ContainerPort{
+								{
+									ContainerPort: 8080,
 								},
 							},
 						},

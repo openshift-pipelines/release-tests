@@ -46,15 +46,15 @@ var _ = gauge.Step("Create Smee Deployment", func() {
 	if err != nil {
 		log.Fatalf("Failed to create deployment: %v", err)
 	}
-	k8s.ValidateDeployments(store.Clients(), store.Namespace(), "smee-client")
+	k8s.ValidateDeployments(store.Clients(), store.Namespace(), "gosmee-client")
 
 })
 
 var _ = gauge.Step("Configure Gitlab repo", func() {
 
 	smeeURL := os.Getenv("SMEE_URL")
-	projectIDOrPath := "<ProjectID>"
-	targetGroupNamespace := "<GroupNamespace>"
+	projectIDOrPath := "<Project ID>"
+	targetGroupNamespace := "<Target namespace>"
 	privateToken := "<Private Token>"
 
 	client, err := pac.InitGitLabClient(privateToken)
@@ -68,11 +68,11 @@ var _ = gauge.Step("Configure Gitlab repo", func() {
 		log.Fatal(err)
 	}
 	log.Printf("Project successfully forked: %s (Project ID: %d)\n", project.Name, project.ID)
-	defer func() {
-		if err := pac.DeleteGitlabProject(client, project.ID); err != nil {
-			log.Printf("Cleanup failed: %v", err)
-		}
-	}()
+	// defer func() {
+	// 	if err := pac.DeleteGitlabProject(client, project.ID); err != nil {
+	// 		log.Printf("Cleanup failed: %v", err)
+	// 	}
+	// }()
 
 	err = pac.AddWebhook(client, project.ID, smeeURL)
 	if err != nil {
@@ -104,8 +104,8 @@ var _ = gauge.Step("Configure Gitlab repo", func() {
 	fmt.Printf("Merge Request Created: %s\n", mrURL)
 
 	mrID, err := pac.ExtractMergeRequestID(mrURL)
-	if err != nil {
-		log.Fatal(err)
+	if err == nil {
+		log.Fatal(mrID, err)
 	}
 	// WIP: check the Pipelinerun status
 	// if err := pac.CheckPipelineStatus(client, project.ID, mrID); err != nil {
