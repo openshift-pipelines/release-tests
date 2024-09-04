@@ -8,8 +8,6 @@ import (
 	"github.com/getgauge-contrib/gauge-go/testsuit"
 	"github.com/openshift-pipelines/release-tests/pkg/clients"
 	"github.com/openshift-pipelines/release-tests/pkg/config"
-	"github.com/openshift-pipelines/release-tests/pkg/store"
-	taskv1 "github.com/tektoncd/pipeline/pkg/apis/pipeline/v1"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/util/wait"
 )
@@ -47,7 +45,7 @@ func AssertClustertaskNotPresent(c *clients.Clients, clusterTaskName string) {
 }
 
 func AssertTaskPresent(c *clients.Clients, namespace string, taskName string) {
-	err := wait.Poll(config.APIRetry, config.ResourceTimeout, func() (bool, error) {
+	err := wait.PollUntilContextTimeout(c.Ctx, config.APIRetry, config.ResourceTimeout, false, func(context.Context) (bool, error) {
 		log.Printf("Verifying if the task %v is present", taskName)
 		_, err := c.Tekton.TektonV1().Tasks(namespace).Get(c.Ctx, taskName, v1.GetOptions{})
 		if err == nil {
@@ -63,7 +61,7 @@ func AssertTaskPresent(c *clients.Clients, namespace string, taskName string) {
 }
 
 func AssertTaskNotPresent(c *clients.Clients, namespace string, taskName string) {
-	err := wait.Poll(config.APIRetry, config.ResourceTimeout, func() (bool, error) {
+	err := wait.PollUntilContextTimeout(c.Ctx, config.APIRetry, config.ResourceTimeout, false, func(context.Context) (bool, error) {
 		log.Printf("Verifying if the task %v is not present", taskName)
 		_, err := c.Tekton.TektonV1().Tasks(namespace).Get(c.Ctx, taskName, v1.GetOptions{})
 		if err == nil {
@@ -76,28 +74,4 @@ func AssertTaskNotPresent(c *clients.Clients, namespace string, taskName string)
 	} else {
 		log.Printf("Task %v is not present", taskName)
 	}
-}
-
-func CreateTask(c *clients.Clients, namespace string) {
-	task := &taskv1.Task{
-		TypeMeta: v1.TypeMeta{APIVersion: taskv1.SchemeGroupVersion.String(), Kind: "Task"},
-		ObjectMeta: v1.ObjectMeta{
-			Name: "hello",
-		},
-		Spec: taskv1.TaskSpec{
-			Steps: []taskv1.Step{
-				{
-					Name:   "echo",
-					Image:  "alpine",
-					Script: "#!/bin/sh\necho \"Hello World\"",
-				},
-			},
-		},
-	}
-	tk, err := c.Tekton.TektonV1().Tasks(namespace).Create(c.Ctx, task, v1.CreateOptions{})
-	if err != nil {
-		testsuit.T.Errorf("failed to create task %s \n %v", tk.Name, err)
-	}
-	log.Printf("Task: %s created in namespace: %s", tk.Name, namespace)
-	store.PutScenarioData("task", tk.Name)
 }
