@@ -1,0 +1,26 @@
+apiVersion: tekton.dev/v1
+kind: PipelineRun
+metadata:
+  name: git-clone-stepaction-run
+spec:
+  pipelineSpec:
+    tasks:
+    - name: git-clone-stepaction
+      taskRef:
+        name: git-clone-stepaction
+      params:
+      - name: repo-url
+        value: https://github.com/tektoncd/pipeline.git
+      - name: tag-name
+        value: v0.12.1
+      - name: expected-sha
+        value: a54dd3984affab47f3018852e61a1a6f9946ecfa
+      workspaces:
+      - name: output
+        workspace: output
+    workspaces:
+    - name: output
+  workspaces:
+  - name: output
+    persistentVolumeClaim:
+      claimName: shared-pvc
