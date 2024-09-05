@@ -109,6 +109,7 @@ func DeleteTektonConfigCR(cs *clients.Clients, rnames utils.ResourceNames) {
 func Uninstall(cs *clients.Clients, rnames utils.ResourceNames) {
 	log.Printf("output: %s\n", cmd.MustSucceed("oc", "delete", "--ignore-not-found", "TektonHub", "hub").Stdout())
 	log.Printf("output: %s\n", cmd.MustSucceed("oc", "delete", "--ignore-not-found", "tektonresults", "result").Stdout())
+	log.Printf("output: %s\n", cmd.MustSucceed("oc", "delete", "--ignore-not-found", "manualapprovalgate", "manual-approval-gate").Stdout())
 	DeleteTektonConfigCR(cs, rnames)
 	k8s.ValidateDeploymentDeletion(cs,
 		rnames.TargetNamespace,
