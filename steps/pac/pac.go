@@ -3,46 +3,31 @@ package pac
 import (
 	"fmt"
 	"log"
-	"os"
 	"strconv"
 	"time"
 
 	"github.com/getgauge-contrib/gauge-go/gauge"
+	"github.com/openshift-pipelines/release-tests/pkg/config"
 	"github.com/openshift-pipelines/release-tests/pkg/k8s"
 	"github.com/openshift-pipelines/release-tests/pkg/pac"
+	"github.com/openshift-pipelines/release-tests/pkg/pipelines"
 	"github.com/openshift-pipelines/release-tests/pkg/store"
 	"github.com/openshift-pipelines/release-tests/pkg/triggers"
 )
 
-var (
-	smeeURL string
-)
+var _ = gauge.Step("Create Smee Deployment with <elname>", func(elname string) {
 
-var _ = gauge.Step("Create Smee Deployment", func() {
-
-	smeeURL = os.Getenv("SMEE_URL")
-	targetURL := os.Getenv("TARGET_URL")
-
-	if smeeURL == "" {
-		var err error
-		smeeURL, err = pac.GetNewSmeeURL()
-		if err != nil {
-			log.Fatalf("Failed to get a new Smee URL: %v", err)
-		}
-		os.Setenv("SMEE_URL", smeeURL)
+	var err error
+	smeeURL, err := pac.GetNewSmeeURL()
+	if err != nil {
+		log.Fatalf("Failed to get a new Smee URL: %v", err)
 	}
+	store.PutScenarioData("SMEE_URL", smeeURL)
 
-	if targetURL == "" {
-		namespace := "openshift-pipelines"
-		routeName := "pipelines-as-code-controller"
+	routeurl := triggers.GetRoute(elname, store.Namespace())
+	store.PutScenarioData("route", routeurl)
 
-		targetURL = triggers.GetRouteURL(routeName, namespace)
-		if targetURL == "" {
-			log.Fatalf("Received an empty Route URL for route %s in namespace %s", routeName, namespace)
-		}
-	}
-
-	err := pac.CreateSmeeDeployment(store.Clients(), store.Namespace(), smeeURL, targetURL)
+	err = pac.CreateSmeeDeployment(store.Clients(), store.Namespace(), smeeURL, routeurl)
 	if err != nil {
 		log.Fatalf("Failed to create deployment: %v", err)
 	}
@@ -52,10 +37,10 @@ var _ = gauge.Step("Create Smee Deployment", func() {
 
 var _ = gauge.Step("Configure Gitlab repo", func() {
 
-	smeeURL := os.Getenv("SMEE_URL")
-	projectIDOrPath := "<Project ID>"
-	targetGroupNamespace := "<Target namespace>"
-	privateToken := "<Private Token>"
+	smeeURL := store.GetScenarioData("SMEE_URL")
+	projectIDOrPath := ">Project ID<"
+	targetGroupNamespace := "<Target Namespace>"
+	privateToken := "<PAC Token>"
 
 	client, err := pac.InitGitLabClient(privateToken)
 	if err != nil {
@@ -74,7 +59,8 @@ var _ = gauge.Step("Configure Gitlab repo", func() {
 	// 	}
 	// }()
 
-	err = pac.AddWebhook(client, project.ID, smeeURL)
+	token := config.TriggersSecretToken
+	err = pac.AddWebhook(client, project.ID, smeeURL, token)
 	if err != nil {
 		log.Printf("Failed to add webhook: %v\n", err)
 		log.Fatal(err)
@@ -104,13 +90,9 @@ var _ = gauge.Step("Configure Gitlab repo", func() {
 	fmt.Printf("Merge Request Created: %s\n", mrURL)
 
 	mrID, err := pac.ExtractMergeRequestID(mrURL)
-	if err == nil {
+	if err != nil {
 		log.Fatal(mrID, err)
 	}
-	// WIP: check the Pipelinerun status
-	// if err := pac.CheckPipelineStatus(client, project.ID, mrID); err != nil {
-	// 	fmt.Println("Error checking pipeline status:", err)
-	// }
-	// log.Fatal("stop")
 
+	pipelines.ValidatePipelineRun(store.Clients(), "gitlab-run", "successful", "no", store.Namespace())
 })

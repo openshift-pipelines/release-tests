@@ -12,11 +12,11 @@ This scenario tests enable/disable of pipelines as code from tektonconfig custom
 
 Steps:
   * Create
-     | S.NO | resource_dir                          |
-     |------|---------------------------------------|
-     | 1    | testdata/pac/eventlistener.yaml       |
-     | 2    | testdata/pac/trigger-binding.yaml     |
-     | 3    | testdata/pac/trigger-template.yaml    |
-     | 4    | testdata/pac/pipeline.yaml            |
-  * Create Smee Deployment
+    |S.NO|resource_dir                                      |
+    |----|--------------------------------------------------|
+    |1   |testdata/triggers/gitlab/gitlab-push-listener.yaml|
+  * Verify ServiceAccount "pipeline" exist
+  * Create & Link secret "gitlab-secret" to service account "pipeline"
+  * Expose Event listener "gitlab-listener"
+  * Create Smee Deployment with "gitlab-listener"
   * Configure Gitlab repo
