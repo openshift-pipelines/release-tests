@@ -5,7 +5,6 @@ go 1.22.5
 toolchain go1.22.7
 
 require (
-	github.com/chromedp/chromedp v0.10.0
 	github.com/getgauge-contrib/gauge-go v0.4.0
 	github.com/google/go-cmp v0.6.0
 	github.com/openshift-pipelines/manual-approval-gate v0.2.2
@@ -47,7 +46,11 @@ require (
 	github.com/blang/semver/v4 v4.0.0 // indirect
 	github.com/blendle/zapdriver v1.3.1 // indirect
 	github.com/census-instrumentation/opencensus-proto v0.4.1 // indirect
+<<<<<<< HEAD
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
+=======
+	github.com/cespare/xxhash/v2 v2.2.0 // indirect
+>>>>>>> fa77249 (complete working pac changes)
 	github.com/cloudevents/sdk-go/v2 v2.15.2 // indirect
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc // indirect
 	github.com/dmotylev/goproperties v0.0.0-20140630191356-7cbffbaada47 // indirect
@@ -65,9 +68,6 @@ require (
 	github.com/go-openapi/jsonpointer v0.21.0 // indirect
 	github.com/go-openapi/jsonreference v0.21.0 // indirect
 	github.com/go-openapi/swag v0.23.0 // indirect
-	github.com/gobwas/httphead v0.1.0 // indirect
-	github.com/gobwas/pool v0.2.1 // indirect
-	github.com/gobwas/ws v1.4.0 // indirect
 	github.com/gogo/protobuf v1.3.2 // indirect
 	github.com/golang/groupcache v0.0.0-20210331224755-41bb18bfe9da // indirect
 	github.com/golang/protobuf v1.5.4 // indirect

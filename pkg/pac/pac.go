@@ -6,11 +6,11 @@ import (
 	"io"
 	"log"
 	"net/url"
+	"os/exec"
 	"strconv"
 	"strings"
 	"time"
 
-	"github.com/chromedp/chromedp"
 	"github.com/openshift-pipelines/release-tests/pkg/clients"
 	"github.com/xanzy/go-gitlab"
 	v1 "k8s.io/api/apps/v1"
@@ -19,18 +19,20 @@ import (
 )
 
 func GetNewSmeeURL() (string, error) {
-	ctx, cancel := chromedp.NewContext(context.Background())
-	defer cancel()
+	curlCommand := `curl -Ls -o /dev/null -w %{url_effective} https://smee.io/new`
 
-	var smeeURL string
-	err := chromedp.Run(ctx,
-		chromedp.Navigate(`https://smee.io/new`),
-		chromedp.WaitVisible(`body`),
-		chromedp.Location(&smeeURL),
-	)
+	cmd := exec.Command("sh", "-c", curlCommand)
+	output, err := cmd.Output()
 	if err != nil {
 		return "", fmt.Errorf("failed to create SmeeURL: %v", err)
 	}
+
+	smeeURL := strings.TrimSpace(string(output))
+
+	if smeeURL == "" {
+		return "", fmt.Errorf("failed to retrieve Smee URL: no URL found")
+	}
+
 	return smeeURL, nil
 }
 
@@ -130,13 +132,14 @@ func ForkProject(client *gitlab.Client, projectID, targetGroupNamespace string) 
 	return project, nil
 }
 
-func AddWebhook(client *gitlab.Client, projectID int, webhookURL string) error {
+func AddWebhook(client *gitlab.Client, projectID int, webhookURL, token string) error {
 	pushEvents := true
 	mergeRequestsEvents := true
 	hookOptions := &gitlab.AddProjectHookOptions{
 		URL:                 &webhookURL,
 		PushEvents:          &pushEvents,
 		MergeRequestsEvents: &mergeRequestsEvents,
+		Token:               &token,
 	}
 	_, _, err := client.Projects.AddProjectHook(projectID, hookOptions)
 	if err != nil {
