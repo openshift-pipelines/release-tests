@@ -80,15 +80,18 @@ const (
 )
 
 // Name prefixes of installerset
-var TektonInstallersetNamePrefixes [31]string = [31]string{
+var TektonInstallersetNamePrefixes [37]string = [37]string{
 	"addon-custom-clustertask",
 	"addon-custom-communityclustertask",
 	"addon-custom-consolecli",
 	"addon-custom-openshiftconsole",
 	"addon-custom-pipelinestemplate",
+	"addon-custom-resolverstepaction",
 	"addon-custom-resolvertask",
 	"addon-custom-triggersresources",
 	"addon-versioned-clustertasks",
+	"addon-versioned-resolverstepactions",
+	"addon-versioned-resolvertasks",
 	"chain",
 	"chain-config",
 	"chain-secret",
@@ -102,6 +105,9 @@ var TektonInstallersetNamePrefixes [31]string = [31]string{
 	"pipeline-main-static",
 	"pipeline-post",
 	"pipeline-pre",
+	"result",
+	"result-post",
+	"result-pre",
 	"rhosp-rbac",
 	"tekton-config-console-plugin-manifests",
 	"tekton-hub-api",
