@@ -5,6 +5,7 @@ import (
 	"strconv"
 	"strings"
 	"sync"
+	"time"
 
 	"regexp"
 
@@ -34,6 +35,8 @@ var _ = gauge.Step("Start and verify pipeline <pipelineName> with param <paramNa
 			pipelineRunName := tkn.StartPipeline(pipelineName, params, workspaces, store.Namespace(), "--use-param-defaults")
 			pipelines.ValidatePipelineRun(store.Clients(), pipelineRunName, "successful", "no", store.Namespace())
 		}(value)
+
+		time.Sleep(3 * time.Second)
 	}
 	wg.Wait()
 })
@@ -68,6 +71,8 @@ var _ = gauge.Step("Start and verify dotnet pipeline <pipelineName> with values 
 			pipelineRunName := tkn.StartPipeline(pipelineName, params, workspaces, store.Namespace(), "--use-param-defaults")
 			pipelines.ValidatePipelineRun(store.Clients(), pipelineRunName, "successful", "no", store.Namespace())
 		}(pipelineName, params, workspaces)
+
+		time.Sleep(3 * time.Second)
 	}
 	wg.Wait()
 })
