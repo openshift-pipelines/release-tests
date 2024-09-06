@@ -21,6 +21,13 @@ RUN wget https://mirror.openshift.com/pub/openshift-v4/clients/ocp/fast-${OC_VER
     chmod u+x /usr/bin/oc-mirror &&\
     rm /tmp/oc-mirror.tar.gz
 
+RUN wget https://mirror.openshift.com/pub/openshift-v4/clients/ocp/fast-${OC_VERSION}/opm-linux.tar.gz \
+    -O /tmp/opm.tar.gz &&\
+    tar xzf /tmp/opm.tar.gz -C /usr/bin opm-rhel8 &&\
+    mv /usr/bin/opm-rhel8 /usr/bin/opm &&\
+    chmod u+x /usr/bin/opm &&\
+    rm /tmp/opm.tar.gz
+
 RUN wget https://mirror.openshift.com/pub/openshift-v4/clients/rosa/latest/rosa-linux.tar.gz \
     -O /tmp/rosa.tar.gz &&\
     tar xzf /tmp/rosa.tar.gz -C /usr/bin --no-same-owner rosa &&\
