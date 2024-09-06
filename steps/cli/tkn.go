@@ -4,6 +4,7 @@ import (
 	"log"
 	"strconv"
 	"strings"
+	"sync"
 
 	"regexp"
 
@@ -18,15 +19,23 @@ var _ = gauge.Step("Start and verify pipeline <pipelineName> with param <paramNa
 	params := make(map[string]string)
 	workspaces := make(map[string]string)
 	workspaces[strings.Split(workspaceValue, ",")[0]] = strings.Split(workspaceValue, ",")[1]
+	var wg sync.WaitGroup // wait for all goroutine to finish
 	for _, value := range values {
 		if value == "latest" {
 			continue
 		}
-		log.Printf("Starting pipeline %s with param %s=%s", pipelineName, paramName, value)
-		params[paramName] = value
-		pipelineRunName := tkn.StartPipeline(pipelineName, params, workspaces, store.Namespace(), "--use-param-defaults")
-		pipelines.ValidatePipelineRun(store.Clients(), pipelineRunName, "successful", "no", store.Namespace())
+
+		wg.Add(1)
+
+		go func(value string) {
+			defer wg.Done()
+			log.Printf("Starting pipeline %s with param %s=%s", pipelineName, paramName, value)
+			params[paramName] = value
+			pipelineRunName := tkn.StartPipeline(pipelineName, params, workspaces, store.Namespace(), "--use-param-defaults")
+			pipelines.ValidatePipelineRun(store.Clients(), pipelineRunName, "successful", "no", store.Namespace())
+		}(value)
 	}
+	wg.Wait()
 })
 
 var _ = gauge.Step("Start and verify dotnet pipeline <pipelineName> with values stored in variable <variableName> with workspace <workspaceValue>", func(pipelineName, variableName, workspaceValue string) {
@@ -37,6 +46,7 @@ var _ = gauge.Step("Start and verify dotnet pipeline <pipelineName> with values 
 	paramName := "VERSION"
 	re := regexp.MustCompile(`\d+\.\d+`)
 	var exampleRevision string
+	var wg sync.WaitGroup // wait for all goroutine to finish
 	for _, value := range values {
 		if value == "latest" {
 			continue
@@ -50,7 +60,14 @@ var _ = gauge.Step("Start and verify dotnet pipeline <pipelineName> with values 
 			params["EXAMPLE_REVISION"] = "dotnetcore-" + exampleRevision
 		}
 		log.Printf("Starting pipeline %s with param %s=%s and EXAMPLE_REVISION=%s", pipelineName, paramName, value, params["EXAMPLE_REVISION"])
-		pipelineRunName := tkn.StartPipeline(pipelineName, params, workspaces, store.Namespace(), "--use-param-defaults")
-		pipelines.ValidatePipelineRun(store.Clients(), pipelineRunName, "successful", "no", store.Namespace())
+
+		wg.Add(1)
+
+		go func(pipelineName string, params map[string]string, workspaces map[string]string) {
+			defer wg.Done()
+			pipelineRunName := tkn.StartPipeline(pipelineName, params, workspaces, store.Namespace(), "--use-param-defaults")
+			pipelines.ValidatePipelineRun(store.Clients(), pipelineRunName, "successful", "no", store.Namespace())
+		}(pipelineName, params, workspaces)
 	}
+	wg.Wait()
 })
