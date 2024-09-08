@@ -77,6 +77,12 @@ const (
 
 	// A token used in triggers tests
 	TriggersSecretToken = "1234567"
+
+	// Gitlab template project ID
+	ProjectID = "61179266"
+
+	// Gitlab forked group namespace
+	GitlabGroupNamespace = "test2602035"
 )
 
 // Name prefixes of installerset
