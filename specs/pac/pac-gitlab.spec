@@ -19,4 +19,5 @@ Steps:
   * Create & Link secret "gitlab-secret" to service account "pipeline"
   * Expose Event listener "gitlab-listener"
   * Create Smee Deployment with "gitlab-listener"
-  * Configure Gitlab repo
+  * Configure & Validate Gitlab repo for pipelinerun
+  * Cleanup PAC

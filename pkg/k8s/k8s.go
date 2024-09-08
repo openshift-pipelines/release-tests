@@ -153,6 +153,20 @@ func GetPrivilegedSCC(cs *clients.Clients) (*secv1.SecurityContextConstraints, e
 	return sec.SecurityContextConstraints().Get(cs.Ctx, "privileged", metav1.GetOptions{})
 }
 
+func DeleteDeployment(cs *clients.Clients, ns string, deploymentName string) error {
+	kc := cs.KubeClient.Kube
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	defer cancel()
+
+	err := kc.AppsV1().Deployments(ns).Delete(ctx, deploymentName, metav1.DeleteOptions{})
+	if err != nil {
+		return fmt.Errorf("failed to delete deployment %s in namespace %s: %v", deploymentName, ns, err)
+	}
+
+	ValidateDeploymentDeletion(cs, ns, deploymentName)
+	return nil
+}
+
 func ValidateDeploymentDeletion(cs *clients.Clients, ns string, deployments ...string) {
 	for _, d := range deployments {
 		err := WaitForDeploymentDeletion(cs, ns, d)
