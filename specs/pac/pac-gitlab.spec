@@ -11,6 +11,7 @@ Importance: Critical
 This scenario tests enable/disable of pipelines as code from tektonconfig custom resource
 
 Steps:
+  * Configure Gitlab token for PAC tests
   * Create
     |S.NO|resource_dir                                      |
     |----|--------------------------------------------------|

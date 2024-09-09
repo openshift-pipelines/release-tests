@@ -8,6 +8,11 @@ import (
 	"github.com/openshift-pipelines/release-tests/pkg/store"
 )
 
+var _ = gauge.Step("Configure Gitlab token for PAC tests", func() {
+
+	pac.ConfigureGitlabToken()
+})
+
 var _ = gauge.Step("Create Smee Deployment with <elname>", func(elname string) {
 
 	pac.SmeeDeployment(elname)
@@ -17,9 +22,7 @@ var _ = gauge.Step("Create Smee Deployment with <elname>", func(elname string) {
 
 var _ = gauge.Step("Configure & Validate Gitlab repo for pipelinerun", func() {
 
-	gitlabPAT := "<GITLAB TOKEN>"
-	client := pac.InitGitLabClient(gitlabPAT)
-
+	client := pac.InitGitLabClient()
 	project := pac.SetupGitLabProject(client)
 	pac.ConfigurePreviewChanges(client, project.ID)
 	pipelines.ValidatePipelineRun(store.Clients(), "gitlab-run", "successful", "no", store.Namespace())
