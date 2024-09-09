@@ -34,11 +34,11 @@ func ConfigureGitlabToken() {
 		log.Printf("Token for authorization to the Gitlab repository was not exported as a system variable")
 	} else {
 		if !oc.SecretExists("gitlab-auth-secret", "openshift-pipelines") {
-			store.PutScenarioData("gitlabPAT", secretData)
 			oc.CreateSecretForGitLab(secretData)
 		} else {
 			log.Printf("Secret \"gitlab-auth-secret\" already exists")
 		}
+		store.PutScenarioData("gitlabToken", secretData)
 	}
 }
 
@@ -226,7 +226,7 @@ func deleteGitlabProject(client *gitlab.Client, projectID int) error {
 }
 
 func InitGitLabClient() *gitlab.Client {
-	privateToken := store.GetScenarioData("gitlabPAT")
+	privateToken := store.GetScenarioData("gitlabToken")
 	client, err := gitlab.NewClient(privateToken)
 	if err != nil {
 		testsuit.T.Fail(fmt.Errorf("failed to create GitLab client: %w", err))
