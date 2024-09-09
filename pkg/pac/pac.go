@@ -17,6 +17,7 @@ import (
 	"github.com/openshift-pipelines/release-tests/pkg/cmd"
 	"github.com/openshift-pipelines/release-tests/pkg/config"
 	"github.com/openshift-pipelines/release-tests/pkg/k8s"
+	"github.com/openshift-pipelines/release-tests/pkg/oc"
 	"github.com/openshift-pipelines/release-tests/pkg/store"
 	"github.com/openshift-pipelines/release-tests/pkg/triggers"
 	"github.com/openshift-pipelines/release-tests/pkg/wait"
@@ -26,6 +27,20 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
+
+func ConfigureGitlabToken() {
+	secretData := os.Getenv("GITLAB_TOKEN")
+	if secretData == "" {
+		log.Printf("Token for authorization to the Gitlab repository was not exported as a system variable")
+	} else {
+		if !oc.SecretExists("gitlab-auth-secret", "openshift-pipelines") {
+			store.PutScenarioData("gitlabPAT", secretData)
+			oc.CreateSecretForGitLab(secretData)
+		} else {
+			log.Printf("Secret \"gitlab-auth-secret\" already exists")
+		}
+	}
+}
 
 func getNewSmeeURL() (string, error) {
 	curlCommand := `curl -Ls -o /dev/null -w %{url_effective} https://smee.io/new`
@@ -210,7 +225,8 @@ func deleteGitlabProject(client *gitlab.Client, projectID int) error {
 	return nil
 }
 
-func InitGitLabClient(privateToken string) *gitlab.Client {
+func InitGitLabClient() *gitlab.Client {
+	privateToken := store.GetScenarioData("gitlabPAT")
 	client, err := gitlab.NewClient(privateToken)
 	if err != nil {
 		testsuit.T.Fail(fmt.Errorf("failed to create GitLab client: %w", err))
