@@ -27,7 +27,7 @@ spec:
       resolver: http
       params:
       - name: url
-        value: https://raw.githubusercontent.com/openshift-pipelines/tektoncd-catalog/p/stepactions/stepaction-git-clone/0.4.0/stepaction-git-clone.yaml
+        value: https://raw.githubusercontent.com/openshift-pipelines/tektoncd-catalog/p/stepactions/stepaction-git-clone/0.4.1/stepaction-git-clone.yaml
     params:
     - name: URL
       value: $(params.repo-url)
