@@ -18,7 +18,9 @@ spec:
       workspace: source
     params:
     - name: url
-      value: https://github.com/sclorg/django-ex
+      value: https://github.com/openshift-pipelines/release-tests
+    - name: revision
+      value: master
     - name: subdirectory
       value: s2i-python-$(params.VERSION)
     - name: deleteExisting
@@ -36,7 +38,7 @@ spec:
     - name: IMAGE
       value: image-registry.openshift-image-registry.svc:5000/$(context.pipelineRun.namespace)/s2i-python-$(params.VERSION)
     - name: PATH_CONTEXT
-      value: s2i-python-$(params.VERSION)
+      value: s2i-python-$(params.VERSION)/testdata/s2i_python
     - name: TLSVERIFY
       value: "true"
     - name: VERSION

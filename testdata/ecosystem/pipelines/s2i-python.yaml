@@ -24,7 +24,7 @@ spec:
       workspace: source
     params:
     - name: URL
-      value: https://github.com/sclorg/django-ex
+      value: https://github.com/openshift-pipelines/release-tests
     - name: REVISION
       value: master
     - name: SUBDIRECTORY
@@ -50,7 +50,7 @@ spec:
     - name: IMAGE
       value: image-registry.openshift-image-registry.svc:5000/$(context.pipelineRun.namespace)/s2i-python-$(params.VERSION)
     - name: CONTEXT
-      value: s2i-python-$(params.VERSION)
+      value: s2i-python-$(params.VERSION)/testdata/s2i_python
     - name: TLSVERIFY
       value: "true"
     - name: VERSION
