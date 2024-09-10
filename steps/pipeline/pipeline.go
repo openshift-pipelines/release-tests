@@ -67,6 +67,20 @@ var _ = gauge.Step("<cts> clustertasks are <status>", func(cts, status string) {
 	}
 })
 
+var _ = gauge.Step("Tasks <ts> are <status> in namespace <namespace>", func(ts, status string, namespace string) {
+	log.Printf("Checking if tasks %v is/are %v in namespace %v", ts, status, namespace)
+	tsList := strings.Split(ts, ",")
+	if status == "present" {
+		for _, c := range tsList {
+			pipelines.AssertTaskPresent(store.Clients(), namespace, c)
+		}
+	} else {
+		for _, c := range tsList {
+			pipelines.AssertTaskNotPresent(store.Clients(), namespace, c)
+		}
+	}
+})
+
 var _ = gauge.Step("Assert pipelines are <status> in <namespace> namespace", func(status, namespace string) {
 	if status == "present" {
 		pipelines.AssertPipelinesPresent(store.Clients(), namespace)

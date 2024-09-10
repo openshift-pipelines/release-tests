@@ -1,0 +1,9 @@
+apiVersion: tekton.dev/v1
+kind: Task
+metadata:
+  name: hello
+spec:
+  steps:
+    - name: echo
+      image: image-registry.openshift-image-registry.svc:5000/openshift/golang
+      script: "#!/bin/sh\necho \"Hello World\""
