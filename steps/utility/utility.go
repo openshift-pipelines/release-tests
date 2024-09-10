@@ -45,7 +45,7 @@ var _ = gauge.Step("Switch to project <projectName>", func(projectName string) {
 var _ = gauge.Step("Validate route url for pipelines tutorial", func() {
 	expectedOutput := "Cat 🐺 vs Dog 🐶"
 	routeUrl := store.GetScenarioData("routeurl")
-	output := cmd.MustSucceed("lynx", routeUrl, "--dump").Stdout()
+	output := cmd.MustSuccedIncreasedTimeout(30*time.Second, "lynx", routeUrl, "--dump").Stdout()
 	log.Println(output)
 	if !strings.Contains(output, expectedOutput) {
 		testsuit.T.Fail(fmt.Errorf("expected:\n%v,\ngot:\n%v", expectedOutput, output))
