@@ -1,0 +1,12 @@
+apiVersion: tekton.dev/v1
+kind: PipelineRun
+metadata: 
+  name: http-resolver-pipelinerun 
+spec: 
+  pipelineRef: 
+    name: http-resolver-pipeline 
+  params: 
+    - name: url 
+      value: "https://github.com/tektoncd/catalog" 
+    - name: method 
+      value: "GET"

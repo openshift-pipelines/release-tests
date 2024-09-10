@@ -1,0 +1,18 @@
+apiVersion: tekton.dev/v1
+kind: Task
+metadata:
+  name: http-resolver-task
+spec: 
+  params: 
+    - name: url 
+      type: string 
+    - name: method 
+      type: string 
+      default: "GET" 
+  steps: 
+    - name: http-request 
+      image: curlimages/curl:latest 
+      script: | 
+        #!/bin/sh 
+        curl -X $(params.method) 
+        $(params.url)

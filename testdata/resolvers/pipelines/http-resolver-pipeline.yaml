@@ -1,0 +1,19 @@
+apiVersion: tekton.dev/v1
+kind: Pipeline
+metadata:
+  name: http-resolver-pipeline
+spec: 
+  params: 
+    - name: url 
+      description: URL to resolve 
+    - name: method 
+      default: "GET" 
+  tasks: 
+    - name: resolve-http 
+      taskRef: 
+        name: http-resolver-task 
+      params: 
+        - name: url 
+          value: $(params.url) 
+        - name: method 
+          value: $(params.method)
