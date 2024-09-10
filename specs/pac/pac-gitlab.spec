@@ -2,7 +2,7 @@ PIPELINES-29
 # Pipelines As Code tests
 
 ## Enable/Disable PAC: PIPELINES-29-TC01
-Tags: pac, sanity
+Tags: pac, sanity, e2e
 Component: PAC
 Level: Integration
 Type: Functional

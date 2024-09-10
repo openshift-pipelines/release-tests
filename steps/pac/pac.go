@@ -9,19 +9,15 @@ import (
 )
 
 var _ = gauge.Step("Configure Gitlab token for PAC tests", func() {
-
 	pac.ConfigureGitlabToken()
 })
 
 var _ = gauge.Step("Create Smee Deployment with <elname>", func(elname string) {
-
-	pac.SmeeDeployment(elname)
+	pac.SetupSmeeDeployment(elname)
 	k8s.ValidateDeployments(store.Clients(), store.Namespace(), store.GetScenarioData("smee_deployment_name"))
-
 })
 
 var _ = gauge.Step("Configure & Validate Gitlab repo for pipelinerun", func() {
-
 	client := pac.InitGitLabClient()
 	project := pac.SetupGitLabProject(client)
 	pac.ConfigurePreviewChanges(client, project.ID)
