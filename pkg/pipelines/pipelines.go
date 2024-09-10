@@ -211,16 +211,16 @@ func ValidatePipelineRun(c *clients.Clients, prname, status, labelCheck, namespa
 	// Verify status of PipelineRun (wait for it)
 	switch {
 	case strings.Contains(strings.ToLower(status), "success"):
-		log.Printf("validating pipeline run for success state...")
+		log.Printf("validating pipeline run %s for success state...", prname)
 		validatePipelineRunForSuccessStatus(c, pr.GetName(), labelCheck, namespace)
 	case strings.Contains(strings.ToLower(status), "fail"):
-		log.Printf("validating pipeline run for failure state...")
+		log.Printf("validating pipeline run %s for failure state...", prname)
 		validatePipelineRunForFailedStatus(c, pr.GetName(), namespace)
 	case strings.Contains(strings.ToLower(status), "timeout"):
-		log.Printf("validating pipeline run timeout...")
+		log.Printf("validating pipeline run %s to time out...", prname)
 		validatePipelineRunTimeoutFailure(c, pr.GetName(), namespace)
 	case strings.Contains(strings.ToLower(status), "cancel"):
-		log.Printf("validating pipeline run timeout...")
+		log.Printf("validating pipeline run %s to be cancelled...", prname)
 		validatePipelineRunCancel(c, pr.GetName(), namespace)
 	default:
 		testsuit.T.Errorf("Error: %s ", "Not valid input")
