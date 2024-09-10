@@ -1,0 +1,10 @@
+apiVersion: tekton.dev/v1
+kind: Task
+metadata:
+  name: http-resolver-task
+spec:
+  taskRef:
+    name: git-clone
+  podTemplate:
+    securityContext:
+      fsGroup: 65532
