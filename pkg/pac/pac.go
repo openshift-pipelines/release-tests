@@ -31,7 +31,7 @@ import (
 func ConfigureGitlabToken() {
 	secretData := os.Getenv("GITLAB_TOKEN")
 	if secretData == "" {
-		log.Printf("Token for authorization to the Gitlab repository was not exported as a system variable")
+		testsuit.T.Fail(fmt.Errorf("Token for authorization to the Gitlab repository was not exported as a system variable"))
 	} else {
 		if !oc.SecretExists("gitlab-auth-secret", "openshift-pipelines") {
 			oc.CreateSecretForGitLab(secretData)
@@ -61,12 +61,13 @@ func getNewSmeeURL() (string, error) {
 }
 
 func createSmeeDeployment(c *clients.Clients, namespace, smeeURL, targetURL string) error {
+	replicas := int32(1)
 	deployment := &v1.Deployment{
 		ObjectMeta: metav1.ObjectMeta{
 			Name: "gosmee-client",
 		},
 		Spec: v1.DeploymentSpec{
-			Replicas: int32Ptr(1),
+			Replicas: &replicas,
 			Selector: &metav1.LabelSelector{
 				MatchLabels: map[string]string{
 					"app": "gosmee-client",
@@ -121,8 +122,6 @@ func createSmeeDeployment(c *clients.Clients, namespace, smeeURL, targetURL stri
 	log.Printf("Created deployment %q in namespace %q.\n", result.GetObjectMeta().GetName(), namespace)
 	return nil
 }
-
-func int32Ptr(i int32) *int32 { return &i }
 
 func forkProject(client *gitlab.Client, projectID, targetGroupNamespace string) (*gitlab.Project, error) {
 	var project *gitlab.Project
@@ -234,7 +233,7 @@ func InitGitLabClient() *gitlab.Client {
 	return client
 }
 
-func SmeeDeployment(elname string) {
+func SetupSmeeDeployment(elname string) {
 	var err error
 	smeeDeploymentName := "gosmee-client"
 	store.PutScenarioData("smee_deployment_name", smeeDeploymentName)
@@ -255,9 +254,13 @@ func SmeeDeployment(elname string) {
 }
 
 func SetupGitLabProject(client *gitlab.Client) *gitlab.Project {
+	gitlabGroupNamespace := os.Getenv("GITLAB_GROUP_NAMESPACE")
+	projectIDOrPath := os.Getenv("GITLAB_PROJECT_ID")
 
-	gitlabGroupNamespace := config.GitlabGroupNamespace
-	projectIDOrPath := config.ProjectID
+	if gitlabGroupNamespace == "" || projectIDOrPath == "" {
+		testsuit.T.Fail(fmt.Errorf("Failed to get system variables"))
+	}
+
 	smeeURL := store.GetScenarioData("SMEE_URL")
 	token := config.TriggersSecretToken
 
@@ -308,47 +311,38 @@ func CleanupPAC(c *clients.Clients, elName, smeeDeploymentName, namespace string
 	// Delete EventListener
 	err := c.TriggersClient.TriggersV1alpha1().EventListeners(namespace).Delete(c.Ctx, elName, metav1.DeleteOptions{})
 	if err != nil {
-		testsuit.T.Fail(err)
+		testsuit.T.Fail(fmt.Errorf("Failed to Delete EventListener: %v", err))
 	}
-
-	log.Println("Deleted EventListener")
 
 	// Verify the EventListener's Deployment is deleted
 	err = wait.WaitFor(c.Ctx, wait.DeploymentNotExist(c, namespace, fmt.Sprintf("%s-%s", eventReconciler.GeneratedResourcePrefix, elName)))
 	if err != nil {
-		testsuit.T.Fail(err)
+		testsuit.T.Fail(fmt.Errorf("Failed to Delete EventListener's deployment: %v", err))
 	}
-
-	log.Println("EventListener's Deployment was deleted")
 
 	// Verify the EventListener's Service is deleted
 	err = wait.WaitFor(c.Ctx, wait.ServiceNotExist(c, namespace, fmt.Sprintf("%s-%s", eventReconciler.GeneratedResourcePrefix, elName)))
 	if err != nil {
-		testsuit.T.Fail(err)
+		testsuit.T.Fail(fmt.Errorf("Failed to Delete EventListener's service: %v", err))
 	}
-
-	log.Println("EventListener's Service was deleted")
 
 	// Delete Route exposed earlier
 	err = c.Route.Routes(namespace).Delete(c.Ctx, fmt.Sprintf("%s-%s", eventReconciler.GeneratedResourcePrefix, elName), metav1.DeleteOptions{})
 	if err != nil {
-		testsuit.T.Fail(err)
+		testsuit.T.Fail(fmt.Errorf("Failed to Delete Exposed route: %v", err))
 	}
 
 	// Verify the EventListener's Route is deleted
 	err = wait.WaitFor(c.Ctx, wait.RouteNotExist(c, namespace, fmt.Sprintf("%s-%s", eventReconciler.GeneratedResourcePrefix, elName)))
 	if err != nil {
-		testsuit.T.Fail(err)
+		testsuit.T.Fail(fmt.Errorf("Failed to Delete EventListener's route: %v", err))
 	}
-	log.Println("EventListener's Route got deleted successfully...")
 
 	// Delete Smee Deployment
 	err = k8s.DeleteDeployment(c, namespace, smeeDeploymentName)
 	if err != nil {
-		testsuit.T.Fail(err)
+		testsuit.T.Fail(fmt.Errorf("Failed to Delete Smee Deployment: %v", err))
 	}
-
-	log.Println("Deleted Smee Deployment")
 
 	// This is required when EL runs as TLS
 	cmd.MustSucceed("rm", "-rf", os.Getenv("GOPATH")+"/src/github.com/openshift-pipelines/release-tests/testdata/triggers/certs")
