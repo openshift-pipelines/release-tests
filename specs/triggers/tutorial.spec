@@ -64,9 +64,11 @@ Steps:
    * Expose Event listener "vote-app"
    * Mock post event to "github" interceptor with event-type "push", payload "testdata/push-vote-api.json", with TLS "false"
    * Assert eventlistener response
+   * "1" pipelinerun(s) should be present within "15" seconds
    * Verify the latest pipelinerun for "successful" state
    * Mock post event to "github" interceptor with event-type "push", payload "testdata/push-vote-ui.json", with TLS "false"
    * Assert eventlistener response
+   * "2" pipelinerun(s) should be present within "15" seconds
    * Verify the latest pipelinerun for "successful" state
    * Get route url of the route "pipelines-vote-ui"
    * Wait for pipelines-vote-ui deployment

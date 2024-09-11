@@ -93,7 +93,7 @@ var _ = gauge.Step("Verify the latest pipelinerun for <state> state", func(state
 	namespace := store.Namespace()
 	prname, err := pipelines.GetLatestPipelinerun(store.Clients(), namespace)
 	if err != nil {
-		testsuit.T.Fail(fmt.Errorf("failed to get pipelinerun from %s", namespace))
+		testsuit.T.Fail(fmt.Errorf("failed to get pipelinerun from %s: %v", namespace, err))
 	}
 	pipelines.ValidatePipelineRun(store.Clients(), prname, state, "no", namespace)
 })
