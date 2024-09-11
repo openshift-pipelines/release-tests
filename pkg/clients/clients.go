@@ -10,6 +10,8 @@ import (
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/clientcmd"
 
+	pacclientset "github.com/openshift-pipelines/pipelines-as-code/pkg/generated/clientset/versioned/typed/pipelinesascode/v1alpha1"
+
 	apclient "github.com/openshift-pipelines/manual-approval-gate/pkg/client/clientset/versioned/typed/approvaltask/v1alpha1"
 	configV1 "github.com/openshift/client-go/config/clientset/versioned/typed/config/v1"
 	consolev1 "github.com/openshift/client-go/console/clientset/versioned/typed/console/v1"
@@ -43,6 +45,7 @@ type Clients struct {
 	ConsoleCLIDownload consolev1.ConsoleCLIDownloadInterface
 	Tekton             pversioned.Interface
 	PipelineClient     v1.PipelineInterface
+	PacClientset       pacclientset.PipelinesascodeV1alpha1Interface
 	TaskClient         v1.TaskInterface
 	TaskRunClient      v1.TaskRunInterface
 	PipelineRunClient  v1.PipelineRunInterface
@@ -98,6 +101,11 @@ func NewClients(configPath string, clusterName, namespace string) (*Clients, err
 	clients.TriggersClient, err = triggersclientset.NewForConfig(clients.KubeConfig)
 	if err != nil {
 		return nil, fmt.Errorf("Failed to create triggers clientset from config file at %s: %s", configPath, err)
+	}
+
+	clients.PacClientset, err = pacclientset.NewForConfig(clients.KubeConfig)
+	if err != nil {
+		return nil, fmt.Errorf("Failed to create pac clientset from config file at %s: %s", configPath, err)
 	}
 	clients.NewClientSet(namespace)
 	return clients, nil
@@ -170,6 +178,10 @@ func (c *Clients) ManualApprovalGate() operatorv1alpha1.ManualApprovalGateInterf
 	return c.Operator.ManualApprovalGates()
 }
 
+func (c *Clients) PipelinesAsCode() operatorv1alpha1.OpenShiftPipelinesAsCodeInterface {
+	return c.Operator.OpenShiftPipelinesAsCodes()
+}
+
 func (c *Clients) NewClientSet(namespace string) {
 	c.PipelineClient = c.Tekton.TektonV1().Pipelines(namespace)
 	c.TaskClient = c.Tekton.TektonV1().Tasks(namespace)
@@ -181,4 +193,5 @@ func (c *Clients) NewClientSet(namespace string) {
 	c.ConsoleCLIDownload = consolev1.NewForConfigOrDie(c.KubeConfig).ConsoleCLIDownloads()
 	c.ClustertaskClient = c.Tekton.TektonV1beta1().ClusterTasks()
 	c.ApprovalTask = apclient.NewForConfigOrDie(c.KubeConfig).ApprovalTasks(namespace)
+	c.PacClientset = pacclientset.NewForConfigOrDie(c.KubeConfig)
 }
