@@ -6,6 +6,7 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"net/url"
 	"os"
 	"os/exec"
 	"strconv"
@@ -13,6 +14,7 @@ import (
 	"time"
 
 	"github.com/getgauge-contrib/gauge-go/testsuit"
+	pacv1alpha1 "github.com/openshift-pipelines/pipelines-as-code/pkg/apis/pipelinesascode/v1alpha1"
 	"github.com/openshift-pipelines/release-tests/pkg/clients"
 	"github.com/openshift-pipelines/release-tests/pkg/cmd"
 	"github.com/openshift-pipelines/release-tests/pkg/config"
@@ -27,6 +29,65 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
+
+type Repository struct {
+	metav1.TypeMeta   `json:",inline"`
+	metav1.ObjectMeta `json:"metadata,omitempty"`
+
+	Spec RepositorySpec `json:"spec,omitempty"`
+}
+
+type RepositorySpec struct {
+	URL         string      `json:"url"`
+	GitProvider GitProvider `json:"git_provider"`
+}
+
+type GitProvider struct {
+	URL           string    `json:"url"`
+	Secret        SecretRef `json:"secret"`
+	WebhookSecret SecretRef `json:"webhook_secret"`
+}
+
+type SecretRef struct {
+	Name string `json:"name"`
+	Key  string `json:"key"`
+}
+
+func createNewRepository(c *clients.Clients, projectName, targetGroupNamespace, namespace string) error {
+
+	repo := &pacv1alpha1.Repository{
+		TypeMeta: metav1.TypeMeta{
+			APIVersion: "pipelinesascode.tekton.dev/v1alpha1",
+			Kind:       "Repository",
+		},
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      projectName,
+			Namespace: namespace,
+		},
+		Spec: pacv1alpha1.RepositorySpec{
+			URL: fmt.Sprintf("https://gitlab.com/%s/%s", targetGroupNamespace, projectName),
+			GitProvider: &pacv1alpha1.GitProvider{
+				URL: "https://gitlab.com",
+				Secret: &pacv1alpha1.Secret{
+					Name: "gitlab-webhook-config",
+					Key:  token,
+				},
+				WebhookSecret: &pacv1alpha1.Secret{
+					Name: "gitlab-webhook-config",
+					Key:  webhookSecretKey,
+				},
+			},
+		},
+	}
+
+	repo, err := c.PacClientset.Repositories(namespace).Create(context.Background(), repo, metav1.CreateOptions{})
+	if err != nil {
+		return fmt.Errorf("failed to create repository: %v", err)
+	}
+
+	log.Printf("Repository '%s' created successfully in namespace '%s'", repo.GetName(), repo.GetNamespace())
+	return nil
+}
 
 func ConfigureGitlabToken() {
 	secretData := os.Getenv("GITLAB_TOKEN")
@@ -215,6 +276,63 @@ func createMergeRequest(client *gitlab.Client, projectID int, sourceBranch, targ
 	return mr.WebURL, nil
 }
 
+func extractMergeRequestID(mrURL string) (int, error) {
+	parsedURL, err := url.Parse(mrURL)
+	if err != nil {
+		return 0, fmt.Errorf("failed to parse merge request URL: %w", err)
+	}
+	segments := strings.Split(parsedURL.Path, "/")
+	mrIDStr := segments[len(segments)-1]
+	mrID, err := strconv.Atoi(mrIDStr)
+	if err != nil {
+		return 0, fmt.Errorf("failed to convert MR ID to integer: %w", err)
+	}
+	return mrID, nil
+}
+
+func isTerminalStatus(status string) bool {
+	switch status {
+	case "success", "failed", "canceled":
+		return true
+	default:
+		return false
+	}
+}
+
+func checkPipelineStatus(client *gitlab.Client, projectID, mergeRequestID int) error {
+
+	const maxRetries = 10
+	var retryCount int
+
+	for {
+		pipelines, _, err := client.MergeRequests.ListMergeRequestPipelines(projectID, mergeRequestID)
+		if err != nil {
+			return fmt.Errorf("failed to list merge request pipelines: %w", err)
+		}
+
+		if len(pipelines) == 0 {
+			if retryCount >= maxRetries {
+				log.Printf("No pipelines found for the MR id %d after %d retries\n", mergeRequestID, maxRetries)
+				return nil
+			}
+			log.Println("No pipelines found, retrying...")
+			retryCount++
+			time.Sleep(time.Duration(2^retryCount) * time.Second)
+			continue
+		}
+
+		latestPipeline := pipelines[0]
+
+		if isTerminalStatus(latestPipeline.Status) {
+			log.Printf("Latest pipeline status for MR #%d: %s\n", mergeRequestID, latestPipeline.Status)
+			return nil
+		} else {
+			log.Println("waiting for Pipeline status to be updated...")
+			time.Sleep(30 * time.Second)
+		}
+	}
+}
+
 func deleteGitlabProject(client *gitlab.Client, projectID int) error {
 	_, err := client.Projects.DeleteProject(projectID)
 	if err != nil {
@@ -282,6 +400,11 @@ func SetupGitLabProject(client *gitlab.Client) *gitlab.Project {
 		testsuit.T.Fail(fmt.Errorf("failed to add webhook: %w", err))
 	}
 
+	err = createNewRepository(project.Name, gitlabGroupNamespace, store.Namespace())
+	if err != nil {
+		testsuit.T.Fail(fmt.Errorf("failed to create repository"))
+	}
+
 	return project
 }
 
@@ -305,6 +428,17 @@ func ConfigurePreviewChanges(client *gitlab.Client, projectID int) {
 	}
 
 	log.Printf("Merge Request Created: %s\n", mrURL)
+
+	mrID, err := extractMergeRequestID(mrURL)
+	if err != nil {
+		testsuit.T.Fail(fmt.Errorf("Failed to extract merge request ID: %v", err))
+	}
+
+	err = checkPipelineStatus(client, projectID, mrID)
+	if err != nil {
+		testsuit.T.Fail(fmt.Errorf("Failed to check pipeline status: %v", err))
+	}
+
 }
 
 func CleanupPAC(c *clients.Clients, elName, smeeDeploymentName, namespace string) {

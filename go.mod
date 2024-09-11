@@ -19,6 +19,7 @@ require (
 	github.com/tektoncd/operator v0.73.1
 	github.com/tektoncd/pipeline v0.62.3
 	github.com/tektoncd/triggers v0.29.1
+	github.com/xanzy/go-gitlab v0.107.0
 	go.opencensus.io v0.24.0
 	gotest.tools/v3 v3.5.1
 	k8s.io/api v0.30.0
@@ -46,11 +47,7 @@ require (
 	github.com/blang/semver/v4 v4.0.0 // indirect
 	github.com/blendle/zapdriver v1.3.1 // indirect
 	github.com/census-instrumentation/opencensus-proto v0.4.1 // indirect
-<<<<<<< HEAD
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
-=======
-	github.com/cespare/xxhash/v2 v2.2.0 // indirect
->>>>>>> fa77249 (complete working pac changes)
 	github.com/cloudevents/sdk-go/v2 v2.15.2 // indirect
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc // indirect
 	github.com/dmotylev/goproperties v0.0.0-20140630191356-7cbffbaada47 // indirect
