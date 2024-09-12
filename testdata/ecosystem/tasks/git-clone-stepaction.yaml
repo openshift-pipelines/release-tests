@@ -1,0 +1,50 @@
+apiVersion: tekton.dev/v1
+kind: Task
+metadata:
+  name: git-clone-stepaction
+spec:
+  description: |
+    validate-tag-sha takes a git repository, tag name, and a commit SHA and
+    checks whether the given tag resolves to that commit. This example
+    Task demonstrates the following:
+      - How to use the git-clone catalog StepAction
+      - How to use the git-clone Step's "commit" Step Result from another Step.
+      - How to discard the contents of the git repo when it isn't needed by
+        passing an `emptyDir` Volume as its "output" workspace.
+  params:
+  - name: repo-url
+    description: The git repository URL to clone from.
+  - name: tag-name
+    description: The git tag to clone.
+  - name: expected-sha
+    description: The expected SHA to be received for the supplied revision.
+  workspaces:
+  - name: output
+  steps:
+  - name: fetch-repository
+    ref:
+      # TODO switch to cluster resolver when it's supported
+      resolver: http
+      params:
+      - name: url
+        value: https://raw.githubusercontent.com/openshift-pipelines/tektoncd-catalog/p/stepactions/stepaction-git-clone/0.4.1/stepaction-git-clone.yaml
+    params:
+    - name: URL
+      value: $(params.repo-url)
+    - name: REVISION
+      value: $(params.tag-name)
+    - name: OUTPUT_PATH
+      value: $(workspaces.output.path)
+  - name: validate-revision-sha
+    image: image-registry.openshift-image-registry.svc:5000/openshift/golang
+    env:
+      - name: RESULT_COMMIT
+        value: $(steps.fetch-repository.results.COMMIT)
+    script: |
+      #!/usr/bin/env bash
+      if [ "$(params.expected-sha)" != "${RESULT_COMMIT}" ]; then
+        echo "Expected revision $(params.tag-name) to have SHA $(params.expected-sha)."
+        exit 1
+      else
+        echo "Revision $(params.tag-name) has expected SHA $(params.expected-sha)."
+      fi
