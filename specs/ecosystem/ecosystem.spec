@@ -76,9 +76,9 @@ Steps:
   * Create
       |S.NO|resource_dir                                               |
       |----|-----------------------------------------------------------|
-      |1   |testdata/ecosystem/pipelines/git-cli-read-private.yaml|
+      |1   |testdata/ecosystem/pipelines/git-cli-read-private.yaml     |
       |2   |testdata/pvc/pvc.yaml                                      |
-      |3   |testdata/ecosystem/secrets/ssh-key.yaml               |
+      |3   |testdata/ecosystem/secrets/ssh-key.yaml                    |
   * Link secret "ssh-key" to service account "pipeline"
   * Create
       |S.NO|resource_dir                                                  |
@@ -101,16 +101,16 @@ Steps:
   * Create
       |S.NO|resource_dir                                               |
       |----|-----------------------------------------------------------|
-      |1   |testdata/ecosystem/pipelines/git-cli-read-private.yaml|
+      |1   |testdata/ecosystem/pipelines/git-cli-read-private.yaml     |
       |2   |testdata/pvc/pvc.yaml                                      |
-      |3   |testdata/ecosystem/secrets/ssh-key.yaml               |
-      |4   |testdata/ecosystem/serviceaccount/ssh-sa.yaml         |
-      |5   |testdata/ecosystem/rolebindings/ssh-sa-scc.yaml       |
+      |3   |testdata/ecosystem/secrets/ssh-key.yaml                    |
+      |4   |testdata/ecosystem/serviceaccount/ssh-sa.yaml              |
+      |5   |testdata/ecosystem/rolebindings/ssh-sa-scc.yaml            |
   * Link secret "ssh-key" to service account "ssh-sa"
   * Create
       |S.NO|resource_dir                                                     |
       |----|-----------------------------------------------------------------|
-      |1   |testdata/ecosystem/pipelineruns/git-cli-read-private-sa.yaml|
+      |1   |testdata/ecosystem/pipelineruns/git-cli-read-private-sa.yaml     |
   * Verify pipelinerun
       |S.NO|pipeline_run_name          |status    |check_label_propagation|
       |----|---------------------------|----------|-----------------------|
@@ -129,14 +129,14 @@ Steps:
   * Create
       | S.NO | resource_dir                                                  |
       |------|---------------------------------------------------------------|
-      | 1    | testdata/ecosystem/pipelines/git-clone-read-private.yaml |
+      | 1    | testdata/ecosystem/pipelines/git-clone-read-private.yaml      |
       | 2    | testdata/pvc/pvc.yaml                                         |
-      | 3    | testdata/ecosystem/secrets/ssh-key.yaml                  |
+      | 3    | testdata/ecosystem/secrets/ssh-key.yaml                       |
   * Link secret "ssh-key" to service account "pipeline"
   * Create
       | S.NO | resource_dir                                                    |
       |------|-----------------------------------------------------------------|
-      | 1    | testdata/ecosystem/pipelineruns/git-clone-read-private.yaml|
+      | 1    | testdata/ecosystem/pipelineruns/git-clone-read-private.yaml     |
   * Verify pipelinerun
       | S.NO | pipeline_run_name                   | status     | check_label_propagation |
       |------|-------------------------------------|------------|-------------------------|
@@ -154,11 +154,11 @@ Steps:
   * Create
       | S.NO | resource_dir                                                  |
       |------|---------------------------------------------------------------|
-      | 1    | testdata/ecosystem/pipelines/git-clone-read-private.yaml |
+      | 1    | testdata/ecosystem/pipelines/git-clone-read-private.yaml      |
       | 2    | testdata/pvc/pvc.yaml                                         |
-      | 3    | testdata/ecosystem/secrets/ssh-key.yaml                  |
-      | 4    | testdata/ecosystem/serviceaccount/ssh-sa.yaml            |
-      | 5    | testdata/ecosystem/rolebindings/ssh-sa-scc.yaml          |
+      | 3    | testdata/ecosystem/secrets/ssh-key.yaml                       |
+      | 4    | testdata/ecosystem/serviceaccount/ssh-sa.yaml                 |
+      | 5    | testdata/ecosystem/rolebindings/ssh-sa-scc.yaml               |
   * Link secret "ssh-key" to service account "ssh-sa"
   * Create
       | S.NO | resource_dir                                                       |
@@ -280,4 +280,22 @@ Steps:
       |----|-----------------|----------|-----------------------|
       |1   |maven-run        |successful|no                     |
 
-TODO need to add from clustertasks s2i, kn, kn-apply, tkn-pac, to be added.
+## Test the functionality of step action resolvers: PIPELINES-29-TC14
+Tags: e2e, sanity, ecosystem, non-admin
+Component: Resolvers
+Level: Integration
+Type: Functional
+Importance: High
+
+Steps:
+    * Verify ServiceAccount "pipeline" exist
+    * Create 
+      |S.NO|resource_dir                                                     |
+      |----|-----------------------------------------------------------------|
+      |1   |testdata/ecosystem/tasks/git-clone-stepaction.yaml               |
+      |2   |testdata/pvc/pvc.yaml                                            |
+      |3   |testdata/ecosystem/pipelineruns/git-clone-stepaction.yaml        |
+    * Verify pipelinerun
+      |S.NO|pipeline_run_name                  |status      |check_label_propagation  |
+      |----|-----------------------------------|--------------------------------------|
+      |1   |git-clone-stepaction-run           |successful  |no                       |
