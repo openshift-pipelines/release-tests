@@ -1,0 +1,23 @@
+apiVersion: tekton.dev/v1
+kind: Pipeline
+metadata: 
+  name: pipeline-with-step-action 
+spec: 
+  params: 
+    - name: repo-url 
+      description: The URL of the Git repository to clone. 
+      type: string 
+    - name: revision 
+      default: main
+      type: string 
+  workspaces: 
+    - name: shared-workspace 
+  tasks: 
+    - name: use-git-clone-step-action 
+      taskRef: 
+        name: step-action-git-clone # This references the reusable StepAction defined above 
+      params: 
+        - name: repo-url 
+          value: $(params.repo-url) 
+        - name: revision 
+          value: $(params.revision)
