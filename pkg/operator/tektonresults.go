@@ -1,7 +1,7 @@
 package operator
 
 import (
-	"log"
+	"fmt"
 	"strings"
 	"time"
 
@@ -49,6 +49,11 @@ func VerifyResultsLogs(resourceType string) {
 	var results_api string
 	log_uuid, _ = GetResultsAnnotations(resourceType)
 	results_api = GetResultsApi()
+
+	if log_uuid == "" {
+		testsuit.T.Fail(fmt.Errorf("Annotation results.tekton.dev/log is not set"))
+	}
+
 	var results_log string = cmd.MustSucceed("opc", "results", "logs", "get", "--insecure", "--addr", results_api, log_uuid).Stdout()
 	if strings.Contains(results_log, "record not found") {
 		testsuit.T.Errorf("Results log not found")
@@ -98,7 +103,6 @@ func VerifyResultsRecords(resourceType string) {
 		if err != nil {
 			testsuit.T.Errorf("Error decoding base64 data: %v", err)
 		}
-		log.Print(string(decodedResultsLogs))
 		if !strings.Contains(string(decodedResultsLogs), "Hello, Results!") || !strings.Contains(string(decodedResultsLogs), "Goodbye, Results!") {
 			testsuit.T.Errorf("Records are incorrect")
 		}
