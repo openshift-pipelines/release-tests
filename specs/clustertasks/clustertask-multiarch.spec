@@ -5,7 +5,7 @@ Pre condition:
   * Validate Operator should be installed
 
 ## jib-maven pipelinerun: PIPELINES-17-TC01
-Tags: e2e, linux/amd64, clustertasks, non-admin, jib-maven, sanity
+Tags: linux/amd64, clustertasks, non-admin, jib-maven, sanity
 Component: Pipelines
 Level: Integration
 Type: Functional
@@ -25,7 +25,7 @@ Steps:
       |1   |jib-maven-run    |successful|no                     |
 
 ## jib-maven P&Z pipelinerun: PIPELINES-17-TC02
-Tags: e2e, linux/ppc64le, linux/s390x, linux/arm64, clustertasks, non-admin, jib-maven, sanity
+Tags: linux/ppc64le, linux/s390x, linux/arm64, clustertasks, non-admin, jib-maven, sanity
 Component: Pipelines
 Level: Integration
 Type: Functional
