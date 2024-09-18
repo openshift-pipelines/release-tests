@@ -39,6 +39,9 @@ RUN wget https://mirror.openshift.com/pub/openshift-v4/clients/pipelines/${TKN_V
    tar xzf /tmp/tkn.tar.gz -C /usr/bin --no-same-owner tkn tkn-pac opc &&\
    rm /tmp/tkn.tar.gz
 
+RUN wget https://dl.min.io/client/mc/release/linux-amd64/mc -O /usr/bin/mc &&\
+    chmod u+x /usr/bin/mc
+
 ENV GAUGE_VERSION=1.6.8
 RUN wget https://github.com/getgauge/gauge/releases/download/v${GAUGE_VERSION}/gauge-${GAUGE_VERSION}-linux.x86_64.zip \
     -O /tmp/gauge.zip &&\
