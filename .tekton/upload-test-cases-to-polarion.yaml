@@ -18,28 +18,40 @@ spec:
     tasks:
       - name: clone-release-tests-repo
         params:
-          - name: url
+          - name: URL
             value: 'https://github.com/openshift-pipelines/release-tests.git'
-          - name: revision
+          - name: REVISION
             value: $(params.RELEASE_TESTS_BRANCH)
         taskRef:
-          kind: ClusterTask
-          name: git-clone
+          resolver: cluster
+          params:
+            - name: kind
+              value: task
+            - name: name
+              value: git-clone
+            - name: namespace
+              value: openshift-pipelines
         workspaces:
           - name: output
             subPath: release-tests-git
             workspace: git
       - name: clone-plumbing-repo
         params:
-          - name: url
+          - name: URL
             value: 'https://gitlab.cee.redhat.com/tekton/plumbing.git'
-          - name: revision
+          - name: REVISION
             value: master
-          - name: sslVerify
+          - name: SSL_VERIFY
             value: 'false'
         taskRef:
-          kind: ClusterTask
-          name: git-clone
+          resolver: cluster
+          params:
+            - name: kind
+              value: task
+            - name: name
+              value: git-clone
+            - name: namespace
+              value: openshift-pipelines
         workspaces:
           - name: output
             subPath: plumbing-git

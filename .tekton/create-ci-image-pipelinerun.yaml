@@ -27,15 +27,21 @@ spec:
     tasks:
       - name: fetch-repository
         taskRef:
-          kind: ClusterTask
-          name: git-clone
+          resolver: cluster
+          params:
+            - name: kind
+              value: task
+            - name: name
+              value: git-clone
+            - name: namespace
+              value: openshift-pipelines
         workspaces:
           - name: output
             workspace: source
         params:
-          - name: url
+          - name: URL
             value: $(params.repo_url)
-          - name: revision
+          - name: REVISION
             value: $(params.revision)
       - name: generate-image-name
         taskSpec: 
@@ -83,8 +89,14 @@ spec:
           - fetch-repository
       - name: buildah-push
         taskRef:
-          kind: ClusterTask
-          name: buildah
+          resolver: cluster
+          params:
+            - name: kind
+              value: task
+            - name: name
+              value: buildah
+            - name: namespace
+              value: openshift-pipelines
         params:
           - name: IMAGE
             value: $(tasks.generate-image-name.results.image-name)
@@ -103,9 +115,15 @@ spec:
             values: 
               - "push"
       - name: buildah-pull-request
-        taskRef: 
-          kind: ClusterTask
-          name: buildah
+        taskRef:
+          resolver: cluster
+          params:
+            - name: kind
+              value: task
+            - name: name
+              value: buildah
+            - name: namespace
+              value: openshift-pipelines
         params:
           - name: IMAGE
             value: $(tasks.generate-image-name.results.image-name)
@@ -122,16 +140,22 @@ spec:
             values: 
               -  "pull_request"
       - name: skopeo-copy
-        taskRef: 
-          kind: ClusterTask
-          name: skopeo-copy
+        taskRef:
+          resolver: cluster
+          params:
+            - name: kind
+              value: task
+            - name: name
+              value: skopeo-copy
+            - name: namespace
+              value: openshift-pipelines
         workspaces:
           - name: images-url
             workspace: images-url
         params:
-          - name: srcImageURL
+          - name: SOURCE_IMAGE_URL
             value: docker://$(tasks.generate-image-name.results.image-name)
-          - name: destImageURL
+          - name: DESTINATION_IMAGE_URL
             value: docker://$(tasks.generate-image-name.results.image-name-timestamp)
         runAfter:
           - buildah-push
