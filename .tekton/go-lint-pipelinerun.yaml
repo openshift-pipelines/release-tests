@@ -26,17 +26,23 @@ spec:
     tasks:
       - name: fetch-repository
         taskRef:
-          kind: ClusterTask
-          name: git-clone
+          resolver: cluster
+          params:
+            - name: kind
+              value: task
+            - name: name
+              value: git-clone
+            - name: namespace
+              value: openshift-pipelines
         workspaces:
           - name: output
             workspace: source
           - name: basic-auth
             workspace: basic-auth
         params:
-          - name: url
+          - name: URL
             value: $(params.repo_url)
-          - name: revision
+          - name: REVISION
             value: $(params.revision)
       - name: golangci-lint
         runAfter:
