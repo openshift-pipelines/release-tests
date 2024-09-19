@@ -10,11 +10,13 @@ Importance: High
 
 Steps:
     * Create project "releasetest-tasks"
+    * Verify ServiceAccount "pipeline" exist
     * Create
       |S.NO|resource_dir                                                |
       |----|------------------------------------------------------------|
       |1   |testdata/resolvers/tasks/resolver-task2.yaml                |
     * Create project "releasetest-pipelines"
+    * Verify ServiceAccount "pipeline" exist
     * Create
       |S.NO|resource_dir                                                |
       |----|------------------------------------------------------------|
@@ -42,6 +44,7 @@ Importance: High
 
 Steps: 
     * Create project "releasetest-tasks"
+    * Verify ServiceAccount "pipeline" exist
     * Create 
       |S.NO|resource_dir                                                |
       |----|------------------------------------------------------------|            
