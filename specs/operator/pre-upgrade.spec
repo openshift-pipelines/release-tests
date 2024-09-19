@@ -12,12 +12,12 @@ Creates Openshift Pipelines resources before upgrade
 
 Steps:
   * Create project "releasetest-upgrade-triggers"
+  * Verify ServiceAccount "pipeline" exist
   * Create
     |S.NO|resource_dir                                                      |
     |----|------------------------------------------------------------------|
     |1   |testdata/triggers/github-ctb/Embeddedtriggertemplate-git-push.yaml|
     |2   |testdata/triggers/github-ctb/eventlistener-ctb-git-push.yaml      |
-  * Verify ServiceAccount "pipeline" exist
   * Verify that image stream "golang" exists
   * Create & Link secret "github-secret" to service account "pipeline"
   * Expose Event listener "listener-ctb-github-push"
@@ -67,6 +67,7 @@ Importance: Critical
 
 Steps:
   * Create project "releasetest-upgrade-s2i"
+  * Verify ServiceAccount "pipeline" exist
   * Create
       |S.NO|resource_dir                                          |
       |----|------------------------------------------------------|
