@@ -108,7 +108,8 @@ func DeleteResourceInNamespace(resourceType, name, namespace string) {
 }
 
 func CheckProjectExists(projectName string) bool {
-	return !strings.Contains(cmd.Run("oc", "get", "project", projectName).String(), "NotFound")
+	commandResult := cmd.Run("oc", "project", projectName)
+	return commandResult.ExitCode == 0 && !strings.Contains(commandResult.String(), "error")
 }
 
 func SecretExists(secretName string, namespace string) bool {
