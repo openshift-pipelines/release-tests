@@ -17,3 +17,13 @@ spec:
   db_enable_auto_migration: true
   server_port: 8080
   prometheus_port: 9090
+  options:
+    deployments:
+      tekton-results-watcher:
+        spec:
+          template:
+            spec:
+              containers:
+              - name: watcher
+                args:
+                - "--logs_api=true"
