@@ -155,10 +155,30 @@ Steps:
       |----|-----------------|----------|-----------------------|
       |1   |tkn-version-run  |successful|no                     |
 
+## maven pipelinerun: PIPELINES-29-TC09
+Tags: e2e, ecosystem, tasks, non-admin, maven
+Component: Pipelines
+Level: Integration
+Type: Functional
+Importance: Critical
+
+Steps:
+  * Verify ServiceAccount "pipeline" exist
+  * Create
+      |S.NO|resource_dir                                          |
+      |----|------------------------------------------------------|
+      |1   |testdata/ecosystem/pipelines/maven.yaml               |
+      |2   |testdata/pvc/pvc.yaml                                 |
+      |3   |testdata/v1/clustertask/configmaps/maven-settings.yaml|
+      |4   |testdata/ecosystem/pipelineruns/maven.yaml            |
+  * Verify pipelinerun
+      |S.NO|pipeline_run_name|status    |check_label_propagation|
+      |----|-----------------|----------|-----------------------|
+      |1   |maven-run        |successful|no                     |
+
 ## need to add from clustertasks  
 ## git-clone read private repo taskrun PIPELINES-29
 ## git-clone read private repo using different service account taskrun PIPELINES-29
 ## git-cli read private repo pipelinerun: PIPELINES-29
 ## git-cli read private repo using different service account pipelinerun: PIPELINES-29
-## maven pipelinerun: PIPELINES-29
 ## s2i, kn, kn-apply, tkn-pac, to be added.

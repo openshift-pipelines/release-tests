@@ -1,0 +1,16 @@
+apiVersion: tekton.dev/v1
+kind: PipelineRun
+metadata:
+  name: maven-run
+spec:
+  pipelineRef:
+    name: maven-pipeline
+  timeouts: 
+    pipeline: 15m
+  workspaces:
+  - name: source
+    persistentVolumeClaim:
+      claimName: shared-pvc
+  - name: maven_settings
+    configMap:
+      name: maven-settings
