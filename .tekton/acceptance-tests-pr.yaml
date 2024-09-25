@@ -17,6 +17,7 @@ metadata:
     pipelinesascode.tekton.dev/task-7: "https://gitlab.cee.redhat.com/tekton/plumbing/-/raw/master/ci/tasks/get-cluster-version.yaml"
     pipelinesascode.tekton.dev/task-8: "https://gitlab.cee.redhat.com/tekton/plumbing/-/raw/master/ci/tasks/get-component-versions.yaml"
     pipelinesascode.tekton.dev/task-9: "https://gitlab.cee.redhat.com/tekton/plumbing/-/raw/master/ci/tasks/install-cluster.yaml"
+    pipelinesascode.tekton.dev/task-9a: "https://gitlab.cee.redhat.com/tekton/plumbing/-/raw/master/ci/tasks/install-logging-operator.yaml"
     pipelinesascode.tekton.dev/task-10: "https://gitlab.cee.redhat.com/tekton/plumbing/-/raw/master/ci/tasks/install-serverless-operator.yaml"
     pipelinesascode.tekton.dev/task-11: "https://gitlab.cee.redhat.com/tekton/plumbing/-/raw/master/ci/tasks/mirror-and-tag-imagestreams.yaml"
     pipelinesascode.tekton.dev/task-12: "https://gitlab.cee.redhat.com/tekton/plumbing/-/raw/master/ci/tasks/mirror-operator-images.yaml"
