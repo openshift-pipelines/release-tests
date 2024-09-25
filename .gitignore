@@ -15,7 +15,10 @@
 vendor/
 
 # Temporary TLS certificates used for testing
-testdata/triggers/certs/
+testdata/triggers/certs/ca.srl
+testdata/triggers/certs/server.crt
+testdata/triggers/certs/server.csr
+testdata/triggers/certs/server.ext
 
 # Temporary cosign public key used for testing
 testdata/chains/key 
