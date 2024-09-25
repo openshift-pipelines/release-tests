@@ -3,6 +3,7 @@ package triggers
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"log"
 	"net/http"
@@ -69,14 +70,22 @@ func ExposeEventListnerForTLS(c *clients.Clients, elname, namespace string) stri
 	tlsCsr := resource.Path("testdata/triggers/certs/server.csr")
 	serverEXT := resource.Path("testdata/triggers/certs/server.ext")
 
-	cmd.MustSucceed("openssl", "genrsa", "-out", rootcaKey, "4096").Stdout()
+	// first 3 files can be reused so they are committed in git repository
+	if _, err := os.Stat(rootcaKey); errors.Is(err, os.ErrNotExist) {
+		cmd.MustSucceed("openssl", "genrsa", "-out", rootcaKey, "4096").Stdout()
+	}
 
-	cmd.MustSucceed("openssl", "req", "-x509", "-new", "-nodes", "-key", rootcaKey,
-		"-sha256", "-days", "4096", "-out", rootcaCert, "-subj",
-		"/C=IN/ST=Kar/L=Blr/O=RedHat").Stdout()
+	if _, err := os.Stat(rootcaCert); errors.Is(err, os.ErrNotExist) {
+		cmd.MustSucceed("openssl", "req", "-x509", "-new", "-nodes", "-key", rootcaKey,
+			"-sha256", "-days", "4096", "-out", rootcaCert, "-subj",
+			"/C=IN/ST=Kar/L=Blr/O=RedHat").Stdout()
+	}
 
-	cmd.MustSucceed("openssl", "genrsa", "-out", tlsKey, "4096").Stdout()
+	if _, err := os.Stat(rootcaCert); errors.Is(err, os.ErrNotExist) {
+		cmd.MustSucceed("openssl", "genrsa", "-out", tlsKey, "4096").Stdout()
+	}
 
+	// other files depend on domain name which changes for every test cluster
 	cmd.MustSucceed("openssl", "req", "-new", "-key", tlsKey, "-out", tlsCsr,
 		"-subj", fmt.Sprintf("/C=IN/ST=Kar/L=Blr/O=RedHat/CN=%s", domain)).Stdout()
 
@@ -251,7 +260,21 @@ func CleanupTriggers(c *clients.Clients, elName, namespace string) {
 
 func GetRoute(elname, namespace string) string {
 	route := cmd.MustSucceed("oc", "-n", namespace, "get", "route", "--selector=eventlistener="+elname, "-o", "jsonpath='{range .items[*]}{.metadata.name}'").Stdout()
+	serverCert := cmd.MustSucceed("oc", "-n", namespace, "get", "route", "--selector=eventlistener="+elname, "-o", "jsonpath='{.items[].spec.tls.certificate}'").Stdout()
+	serverCert = strings.Trim(serverCert, "'")
 
+	// event listener is using TLS
+	if serverCert != "" {
+		file, err := os.Create(resource.Path("testdata/triggers/certs/server.crt"))
+		if err != nil {
+			testsuit.T.Fail(err)
+		}
+		defer file.Close()
+
+		if _, err := file.WriteString(serverCert); err != nil {
+			testsuit.T.Fail(err)
+		}
+	}
 	return GetRouteURL(route, namespace)
 }
 
