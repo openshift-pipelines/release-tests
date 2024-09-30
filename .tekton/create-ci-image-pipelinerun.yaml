@@ -22,7 +22,7 @@ spec:
       - name: revision
     workspaces:
       - name: source
-      - name: images-url
+      - name: images_url
       - name: dockerconfig
     tasks:
       - name: fetch-repository
@@ -150,8 +150,8 @@ spec:
             - name: namespace
               value: openshift-pipelines
         workspaces:
-          - name: images-url
-            workspace: images-url
+          - name: images_url
+            workspace: images_url
         params:
           - name: SOURCE_IMAGE_URL
             value: docker://$(tasks.generate-image-name.results.image-name)
@@ -191,7 +191,7 @@ spec:
     - name: dockerconfig
       secret: 
         secretName: quay-io-dockerconfig
-    - name: images-url
+    - name: images_url
       emptyDir: {}
     - name: source
       volumeClaimTemplate:
