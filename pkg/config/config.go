@@ -23,7 +23,7 @@ const (
 	// when waiting for a specific condition to be true.
 	APITimeout = time.Minute * 10
 	// CLITimeout defines the amount of maximum execution time for CLI commands
-	CLITimeout = time.Second * 15
+	CLITimeout = time.Second * 20
 
 	// ConsistentlyDuration sets  the default duration for Consistently. Consistently will verify that your condition is satisfied for this long.
 	ConsistentlyDuration = 30 * time.Second
