@@ -58,7 +58,7 @@ func ExposeEventListner(c *clients.Clients, elname, namespace string) string {
 	return GetRoute(elname, namespace)
 }
 
-func ExposeEventListnerForTLS(c *clients.Clients, elname, namespace string) string {
+func ExposeEventListenerForTLS(c *clients.Clients, elname, namespace string) string {
 	svcName, portName := getServiceNameAndPort(c, elname, namespace)
 	domain := getDomain()
 	cmd.MustSucceed("mkdir", "-p", resource.Path("testdata/triggers/certs")).Stdout()
