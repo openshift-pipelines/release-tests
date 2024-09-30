@@ -58,53 +58,58 @@ func ExposeEventListner(c *clients.Clients, elname, namespace string) string {
 	return GetRoute(elname, namespace)
 }
 
-func ExposeEventListnerForTLS(c *clients.Clients, elname, namespace string) string {
+func ExposeEventListenerForTLS(c *clients.Clients, elname, namespace string) string {
 	svcName, portName := getServiceNameAndPort(c, elname, namespace)
 	domain := getDomain()
 	cmd.MustSucceed("mkdir", "-p", resource.Path("testdata/triggers/certs")).Stdout()
 
-	rootcaKey := resource.Path("testdata/triggers/certs/ca.key")
-	rootcaCert := resource.Path("testdata/triggers/certs/ca.crt")
-	tlsKey := resource.Path("testdata/triggers/certs/server.key")
-	tlsCert := resource.Path("testdata/triggers/certs/server.crt")
-	tlsCsr := resource.Path("testdata/triggers/certs/server.csr")
-	serverEXT := resource.Path("testdata/triggers/certs/server.ext")
+	caKey := resource.Path("testdata/triggers/certs/ca.key")
+	caCrt := resource.Path("testdata/triggers/certs/ca.crt")
+	serverKey := resource.Path("testdata/triggers/certs/server.key")
+	serverCrt := resource.Path("testdata/triggers/certs/server.crt")
+	serverCsr := resource.Path("testdata/triggers/certs/server.csr")
+	serverExt := resource.Path("testdata/triggers/certs/server.ext")
 
 	// first 3 files can be reused so they are committed in git repository
-	if _, err := os.Stat(rootcaKey); errors.Is(err, os.ErrNotExist) {
-		cmd.MustSucceed("openssl", "genrsa", "-out", rootcaKey, "4096").Stdout()
+	if _, err := os.Stat(caKey); errors.Is(err, os.ErrNotExist) {
+		log.Println("Generating ca.key")
+		cmd.MustSucceed("openssl", "genrsa", "-out", caKey, "4096").Stdout()
 	}
 
-	if _, err := os.Stat(rootcaCert); errors.Is(err, os.ErrNotExist) {
-		cmd.MustSucceed("openssl", "req", "-x509", "-new", "-nodes", "-key", rootcaKey,
-			"-sha256", "-days", "4096", "-out", rootcaCert, "-subj",
+	if _, err := os.Stat(caCrt); errors.Is(err, os.ErrNotExist) {
+		log.Println("Generating ca.crt")
+		cmd.MustSucceed("openssl", "req", "-x509", "-new", "-nodes", "-key", caKey,
+			"-sha256", "-days", "4096", "-out", caCrt, "-subj",
 			"/C=IN/ST=Kar/L=Blr/O=RedHat").Stdout()
 	}
 
-	if _, err := os.Stat(rootcaCert); errors.Is(err, os.ErrNotExist) {
-		cmd.MustSucceed("openssl", "genrsa", "-out", tlsKey, "4096").Stdout()
+	if _, err := os.Stat(serverKey); errors.Is(err, os.ErrNotExist) {
+		log.Println("Generating server.key")
+		cmd.MustSucceed("openssl", "genrsa", "-out", serverKey, "4096").Stdout()
 	}
 
 	// other files depend on domain name which changes for every test cluster
-	cmd.MustSucceed("openssl", "req", "-new", "-key", tlsKey, "-out", tlsCsr,
+	log.Println("Generating server.csr")
+	cmd.MustSucceed("openssl", "req", "-new", "-key", serverKey, "-out", serverCsr,
 		"-subj", fmt.Sprintf("/C=IN/ST=Kar/L=Blr/O=RedHat/CN=%s", domain)).Stdout()
 
 	extData := fmt.Sprintf("authorityKeyIdentifier=keyid,issuer\nbasicConstraints=CA:FALSE\nkeyUsage = digitalSignature, nonRepudiation, keyEncipherment, dataEncipherment\n"+
 		"subjectAltName = @alt_names\n\n\n[alt_names]\nDNS.1 = %s\n", domain)
 
-	err := os.WriteFile(serverEXT, []byte(extData), 0600)
+	log.Println("Generating server.ext")
+	err := os.WriteFile(serverExt, []byte(extData), 0600)
 	if err != nil {
 		testsuit.T.Fail(err)
 	}
 
-	cmd.MustSucceed("openssl", "x509", "-req", "-in", tlsCsr,
-		"-CA", rootcaCert, "-CAkey",
-		rootcaKey, "-CAcreateserial", "-out",
-		tlsCert,
-		"-days", "4096", "-sha256", "-extfile", serverEXT).Stdout()
+	log.Println("Generating server.crt")
+	cmd.MustSucceed("openssl", "x509", "-req", "-in", serverCsr, "-CA", caCrt, "-CAkey",
+		caKey, "-CAcreateserial", "-out", serverCrt,
+		"-days", "4096", "-sha256", "-extfile", serverExt).Stdout()
 
-	routeName := cmd.MustSucceed("oc", "create", "route", "reencrypt", "--ca-cert="+rootcaCert,
-		"--cert="+tlsCert, "--key="+tlsKey,
+	log.Println("Creating route")
+	routeName := cmd.MustSucceed("oc", "create", "route", "reencrypt", "--ca-cert="+caCrt,
+		"--cert="+serverCrt, "--key="+serverKey,
 		"--service="+svcName, "--hostname="+domain, "--port="+portName, "-n", namespace).Stdout()
 
 	route_url := cmd.MustSucceed("oc", "-n", namespace, "get", strings.Split(routeName, " ")[0], "--template='http://{{.spec.host}}'").Stdout()
