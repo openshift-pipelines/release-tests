@@ -15,7 +15,7 @@ var _ = gauge.Step("Expose Event listener <elname>", func(elname string) {
 })
 
 var _ = gauge.Step("Expose Event listener for TLS <elname>", func(elname string) {
-	routeurl := triggers.ExposeEventListnerForTLS(store.Clients(), elname, store.Namespace())
+	routeurl := triggers.ExposeEventListenerForTLS(store.Clients(), elname, store.Namespace())
 	store.PutScenarioData("route", routeurl)
 	store.PutScenarioData("elname", elname)
 })
