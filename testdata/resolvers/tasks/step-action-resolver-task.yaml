@@ -1,0 +1,22 @@
+apiVersion: tekton.dev/v1
+kind: Task 
+metadata: 
+  name: step-action-git-clone 
+  labels: 
+    app: tekton-pipeline 
+spec: 
+  description: |
+    A reusable step that performs a git clone.
+  params: 
+    - name: repo-url 
+      description: The URL of the Git repository to clone. 
+      type: string 
+    - name: revision 
+      default: main
+      type: string 
+  steps: 
+    - name: clone 
+      image: alpine/git 
+      script: | 
+        #!/bin/sh 
+        git clone $(params.repo-url) --branch $(params.revision) /workspace/source 
