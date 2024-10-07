@@ -25,12 +25,18 @@ spec:
           tasks:
             - name: git-clone
               taskRef:
-                name: git-clone
-                kind: ClusterTask
+                resolver: cluster
+                params:
+                - name: kind
+                  value: task
+                - name: name
+                  value: git-clone
+                - name: namespace
+                  value: openshift-pipelines
               params:
-                - name: url
+                - name: URL
                   value: $(tt.params.gitrepositoryurl)
-                - name: revision
+                - name: REVISION
                   value: $(tt.params.gitrevision)
               workspaces:
                 - name: output
