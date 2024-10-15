@@ -16,7 +16,7 @@ require (
 	github.com/prometheus/client_golang v1.19.1
 	github.com/prometheus/common v0.55.0
 	github.com/tektoncd/cli v0.38.1
-	github.com/tektoncd/operator v0.73.0
+	github.com/tektoncd/operator v0.73.1
 	github.com/tektoncd/pipeline v0.62.3
 	github.com/tektoncd/triggers v0.29.1
 	go.opencensus.io v0.24.0
