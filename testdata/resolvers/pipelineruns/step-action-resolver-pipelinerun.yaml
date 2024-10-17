@@ -1,0 +1,13 @@
+apiVersion: tekton.dev/v1
+kind: PipelineRun 
+metadata: 
+  name: run-pipeline-with-step-action 
+spec: 
+  pipelineRef: 
+    name: pipeline-with-step-action 
+  params: 
+    - name: repo-url 
+      value: https://github.com/tektoncd/catalog.git 
+    - name: revision 
+      value: main
+
