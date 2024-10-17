@@ -50,7 +50,6 @@ RUN wget https://github.com/getgauge/gauge/releases/download/v${GAUGE_VERSION}/g
     ln -s /usr/bin/oc /usr/bin/kubectl &&\
     gauge install go &&\
     gauge install html-report &&\
-    gauge install screenshot &&\
     gauge install xml-report &&\
     gauge install reportportal &&\
     gauge config check_updates false &&\
