@@ -120,10 +120,6 @@ func CreateSecretForGitResolver(secretData string) {
 	cmd.MustSucceed("oc", "create", "secret", "generic", "github-auth-secret", "--from-literal", "github-auth-key="+secretData, "-n", "openshift-pipelines")
 }
 
-func CreateSecretForGitLab(secretData string) {
-	cmd.MustSucceed("oc", "create", "secret", "generic", "gitlab-auth-secret", "--from-literal", "gitlab-auth-key="+secretData, "-n", "openshift-pipelines")
-}
-
 func CreateSecretForWebhook(tokenSecretData, webhookSecretData, namespace string) {
 	cmd.MustSucceed("oc", "create", "secret", "generic", "gitlab-webhook-config", "--from-literal", "provider.token="+tokenSecretData, "--from-literal", "webhook.secret="+webhookSecretData, "-n", namespace)
 }
