@@ -16,42 +16,16 @@ import (
 	"github.com/getgauge-contrib/gauge-go/testsuit"
 	pacv1alpha1 "github.com/openshift-pipelines/pipelines-as-code/pkg/apis/pipelinesascode/v1alpha1"
 	"github.com/openshift-pipelines/release-tests/pkg/clients"
-	"github.com/openshift-pipelines/release-tests/pkg/cmd"
 	"github.com/openshift-pipelines/release-tests/pkg/config"
 	"github.com/openshift-pipelines/release-tests/pkg/k8s"
 	"github.com/openshift-pipelines/release-tests/pkg/oc"
+	"github.com/openshift-pipelines/release-tests/pkg/pipelines"
 	"github.com/openshift-pipelines/release-tests/pkg/store"
-	"github.com/openshift-pipelines/release-tests/pkg/triggers"
-	"github.com/openshift-pipelines/release-tests/pkg/wait"
-	eventReconciler "github.com/tektoncd/triggers/pkg/reconciler/eventlistener"
 	"github.com/xanzy/go-gitlab"
 	v1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
-
-type Repository struct {
-	metav1.TypeMeta   `json:",inline"`
-	metav1.ObjectMeta `json:"metadata,omitempty"`
-
-	Spec RepositorySpec `json:"spec,omitempty"`
-}
-
-type RepositorySpec struct {
-	URL         string      `json:"url"`
-	GitProvider GitProvider `json:"git_provider"`
-}
-
-type GitProvider struct {
-	URL           string    `json:"url"`
-	Secret        SecretRef `json:"secret"`
-	WebhookSecret SecretRef `json:"webhook_secret"`
-}
-
-type SecretRef struct {
-	Name string `json:"name"`
-	Key  string `json:"key"`
-}
 
 func createNewRepository(c *clients.Clients, projectName, targetGroupNamespace, namespace string) error {
 
@@ -70,11 +44,11 @@ func createNewRepository(c *clients.Clients, projectName, targetGroupNamespace, 
 				URL: "https://gitlab.com",
 				Secret: &pacv1alpha1.Secret{
 					Name: "gitlab-webhook-config",
-					Key:  token,
+					Key:  "provider.token",
 				},
 				WebhookSecret: &pacv1alpha1.Secret{
 					Name: "gitlab-webhook-config",
-					Key:  webhookSecretKey,
+					Key:  "webhook.secret",
 				},
 			},
 		},
@@ -90,16 +64,17 @@ func createNewRepository(c *clients.Clients, projectName, targetGroupNamespace, 
 }
 
 func ConfigureGitlabToken() {
-	secretData := os.Getenv("GITLAB_TOKEN")
-	if secretData == "" {
+	tokenSecretData := os.Getenv("GITLAB_TOKEN")
+	webhookSecretData := os.Getenv("WEBHOOK_TOKEN")
+	if tokenSecretData == "" && webhookSecretData == "" {
 		testsuit.T.Fail(fmt.Errorf("Token for authorization to the Gitlab repository was not exported as a system variable"))
 	} else {
-		if !oc.SecretExists("gitlab-auth-secret", "openshift-pipelines") {
-			oc.CreateSecretForGitLab(secretData)
+		if !oc.SecretExists("gitlab-webhook-config", store.Namespace()) {
+			oc.CreateSecretForWebhook(tokenSecretData, webhookSecretData, store.Namespace())
 		} else {
-			log.Printf("Secret \"gitlab-auth-secret\" already exists")
+			log.Printf("Secret \"gitlab-webhook-config\" already exists")
 		}
-		store.PutScenarioData("gitlabToken", secretData)
+		store.PutScenarioData("gitlabToken", tokenSecretData)
 	}
 }
 
@@ -121,8 +96,9 @@ func getNewSmeeURL() (string, error) {
 	return smeeURL, nil
 }
 
-func createSmeeDeployment(c *clients.Clients, namespace, smeeURL, targetURL string) error {
+func createSmeeDeployment(c *clients.Clients, namespace, smeeURL string) error {
 	replicas := int32(1)
+	targetURL := "http://pipelines-as-code-controller.openshift-pipelines:8080"
 	deployment := &v1.Deployment{
 		ObjectMeta: metav1.ObjectMeta{
 			Name: "gosmee-client",
@@ -223,12 +199,18 @@ func forkProject(client *gitlab.Client, projectID, targetGroupNamespace string) 
 func addWebhook(client *gitlab.Client, projectID int, webhookURL, token string) error {
 	pushEvents := true
 	mergeRequestsEvents := true
+	noteEvents := true
+	tagPushEvents := true
+
 	hookOptions := &gitlab.AddProjectHookOptions{
 		URL:                 &webhookURL,
 		PushEvents:          &pushEvents,
 		MergeRequestsEvents: &mergeRequestsEvents,
+		NoteEvents:          &noteEvents,
+		TagPushEvents:       &tagPushEvents,
 		Token:               &token,
 	}
+
 	_, _, err := client.Projects.AddProjectHook(projectID, hookOptions)
 	if err != nil {
 		return fmt.Errorf("failed to add webhook: %w", err)
@@ -351,7 +333,7 @@ func InitGitLabClient() *gitlab.Client {
 	return client
 }
 
-func SetupSmeeDeployment(elname string) {
+func SetupSmeeDeployment() {
 	var err error
 	smeeDeploymentName := "gosmee-client"
 	store.PutScenarioData("smee_deployment_name", smeeDeploymentName)
@@ -362,11 +344,7 @@ func SetupSmeeDeployment(elname string) {
 	}
 	store.PutScenarioData("SMEE_URL", smeeURL)
 
-	routeurl := triggers.GetRoute(elname, store.Namespace())
-	store.PutScenarioData("route", routeurl)
-	store.PutScenarioData("elname", elname)
-
-	if err = createSmeeDeployment(store.Clients(), store.Namespace(), smeeURL, routeurl); err != nil {
+	if err = createSmeeDeployment(store.Clients(), store.Namespace(), smeeURL); err != nil {
 		testsuit.T.Fail(fmt.Errorf("Failed to create deployment: %v", err))
 	}
 }
@@ -387,20 +365,12 @@ func SetupGitLabProject(client *gitlab.Client) *gitlab.Project {
 		testsuit.T.Fail(fmt.Errorf("error during project forking: %w", err))
 	}
 
-	defer func() {
-		if err != nil {
-			if cleanupErr := deleteGitlabProject(client, project.ID); cleanupErr != nil {
-				testsuit.T.Fail(fmt.Errorf("cleanup failed: %v", cleanupErr))
-			}
-		}
-	}()
-
 	err = addWebhook(client, project.ID, smeeURL, token)
 	if err != nil {
 		testsuit.T.Fail(fmt.Errorf("failed to add webhook: %w", err))
 	}
 
-	err = createNewRepository(project.Name, gitlabGroupNamespace, store.Namespace())
+	err = createNewRepository(store.Clients(), project.Name, gitlabGroupNamespace, store.Namespace())
 	if err != nil {
 		testsuit.T.Fail(fmt.Errorf("failed to create repository"))
 	}
@@ -408,7 +378,7 @@ func SetupGitLabProject(client *gitlab.Client) *gitlab.Project {
 	return project
 }
 
-func ConfigurePreviewChanges(client *gitlab.Client, projectID int) {
+func ConfigurePreviewChanges(client *gitlab.Client, projectID int) string {
 
 	randomSuffix := strconv.FormatInt(time.Now().UnixNano(), 10)[:8]
 	branchName := "preview-branch-" + randomSuffix
@@ -439,45 +409,23 @@ func ConfigurePreviewChanges(client *gitlab.Client, projectID int) {
 		testsuit.T.Fail(fmt.Errorf("Failed to check pipeline status: %v", err))
 	}
 
+	pipelineName, err := pipelines.GetLatestPipelinerun(store.Clients(), store.Namespace())
+	if err != nil {
+		testsuit.T.Fail(fmt.Errorf("Failed to get the latest Pipelinerun: %v", err))
+	}
+	return pipelineName
 }
 
-func CleanupPAC(c *clients.Clients, elName, smeeDeploymentName, namespace string) {
-	// Delete EventListener
-	err := c.TriggersClient.TriggersV1alpha1().EventListeners(namespace).Delete(c.Ctx, elName, metav1.DeleteOptions{})
-	if err != nil {
-		testsuit.T.Fail(fmt.Errorf("Failed to Delete EventListener: %v", err))
-	}
+func CleanupPAC(client *gitlab.Client, c *clients.Clients, projectID int, smeeDeploymentName, namespace string) {
 
-	// Verify the EventListener's Deployment is deleted
-	err = wait.WaitFor(c.Ctx, wait.DeploymentNotExist(c, namespace, fmt.Sprintf("%s-%s", eventReconciler.GeneratedResourcePrefix, elName)))
-	if err != nil {
-		testsuit.T.Fail(fmt.Errorf("Failed to Delete EventListener's deployment: %v", err))
-	}
-
-	// Verify the EventListener's Service is deleted
-	err = wait.WaitFor(c.Ctx, wait.ServiceNotExist(c, namespace, fmt.Sprintf("%s-%s", eventReconciler.GeneratedResourcePrefix, elName)))
-	if err != nil {
-		testsuit.T.Fail(fmt.Errorf("Failed to Delete EventListener's service: %v", err))
-	}
-
-	// Delete Route exposed earlier
-	err = c.Route.Routes(namespace).Delete(c.Ctx, fmt.Sprintf("%s-%s", eventReconciler.GeneratedResourcePrefix, elName), metav1.DeleteOptions{})
-	if err != nil {
-		testsuit.T.Fail(fmt.Errorf("Failed to Delete Exposed route: %v", err))
-	}
-
-	// Verify the EventListener's Route is deleted
-	err = wait.WaitFor(c.Ctx, wait.RouteNotExist(c, namespace, fmt.Sprintf("%s-%s", eventReconciler.GeneratedResourcePrefix, elName)))
-	if err != nil {
-		testsuit.T.Fail(fmt.Errorf("Failed to Delete EventListener's route: %v", err))
+	// Remove Created Project
+	if cleanupErr := deleteGitlabProject(client, projectID); cleanupErr != nil {
+		testsuit.T.Fail(fmt.Errorf("cleanup failed: %v", cleanupErr))
 	}
 
 	// Delete Smee Deployment
-	err = k8s.DeleteDeployment(c, namespace, smeeDeploymentName)
+	err := k8s.DeleteDeployment(c, namespace, smeeDeploymentName)
 	if err != nil {
 		testsuit.T.Fail(fmt.Errorf("Failed to Delete Smee Deployment: %v", err))
 	}
-
-	// This is required when EL runs as TLS
-	cmd.MustSucceed("rm", "-rf", os.Getenv("GOPATH")+"/src/github.com/openshift-pipelines/release-tests/testdata/triggers/certs")
 }

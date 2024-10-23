@@ -12,13 +12,6 @@ This scenario tests enable/disable of pipelines as code from tektonconfig custom
 
 Steps:
   * Configure Gitlab token for PAC tests
-  * Create
-    |S.NO|resource_dir                                      |
-    |----|--------------------------------------------------|
-    |1   |testdata/triggers/gitlab/gitlab-push-listener.yaml|
   * Verify ServiceAccount "pipeline" exist
-  * Create & Link secret "gitlab-secret" to service account "pipeline"
-  * Expose Event listener "gitlab-listener"
-  * Create Smee Deployment with "gitlab-listener"
+  * Create Smee Deployment
   * Configure & Validate Gitlab repo for pipelinerun
-  * Cleanup PAC
