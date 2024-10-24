@@ -217,7 +217,7 @@ func AssertElResponse(c *clients.Clients, resp *http.Response, elname, namespace
 	logs := cmd.MustSucceed("oc", "-n", namespace, "logs", "pods/"+sinkPods.Items[0].Name, "--all-containers", "--tail=2").Stdout()
 	if strings.Contains(logs, "error") {
 		testsuit.T.Errorf("Error: sink logs: \n %s", logs)
-		gauge.WriteMessage(fmt.Sprintf("sink logs: \n %s", logs))
+		gauge.WriteMessage("sink logs: \n %s", logs)
 	}
 }
 
