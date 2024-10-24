@@ -8,16 +8,16 @@ import (
 	"github.com/openshift-pipelines/release-tests/pkg/store"
 )
 
-var _ = gauge.Step("Configure Gitlab token for PAC tests", func() {
-	pac.ConfigureGitlabToken()
+var _ = gauge.Step("Configure GitLab token for PAC tests", func() {
+	pac.CreateGitlabSecret()
 })
 
-var _ = gauge.Step("Create Smee Deployment", func() {
+var _ = gauge.Step("Create Smee deployment", func() {
 	pac.SetupSmeeDeployment()
 	k8s.ValidateDeployments(store.Clients(), store.Namespace(), store.GetScenarioData("smee_deployment_name"))
 })
 
-var _ = gauge.Step("Configure & Validate Gitlab repo for pipelinerun", func() {
+var _ = gauge.Step("Configure GitLab repo and validate pipelinerun", func() {
 	client := pac.InitGitLabClient()
 	project := pac.SetupGitLabProject(client)
 	pipelineName := pac.ConfigurePreviewChanges(client, project.ID)
