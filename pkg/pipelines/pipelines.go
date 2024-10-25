@@ -36,23 +36,21 @@ func validatePipelineRunForSuccessStatus(c *clients.Clients, prname, labelCheck,
 	// Verify status of PipelineRun (wait for it)
 	err := wait.WaitForPipelineRunState(c, prname, wait.PipelineRunSucceed(prname), "PipelineRunCompleted")
 	if err != nil {
-		var printMsg string
 		buf, logsErr := getPipelinerunLogs(c, prname, namespace)
 		events, eventError := k8s.GetWarningEvents(c, namespace)
 		if logsErr != nil {
 			if eventError != nil {
-				printMsg = fmt.Sprintf("error waiting for pipeline run %s to finish \n%v \npipelinerun logs error: \n%v \npipelinerun events error: \n%v", prname, err, logsErr, eventError)
+				testsuit.T.Errorf("error waiting for pipeline run %s to finish \n%v \npipelinerun logs error: \n%v \npipelinerun events error: \n%v", prname, err, logsErr, eventError)
 			} else {
-				printMsg = fmt.Sprintf("error waiting for pipeline run %s to finish \n%v \npipelinerun logs error: \n%v \npipelinerun events: \n%v", prname, err, logsErr, events)
+				testsuit.T.Errorf("error waiting for pipeline run %s to finish \n%v \npipelinerun logs error: \n%v \npipelinerun events: \n%v", prname, err, logsErr, events)
 			}
 		} else {
 			if eventError != nil {
-				printMsg = fmt.Sprintf("error waiting for pipeline run %s to finish \n%v \npipelinerun logs: \n%v \npipelinerun events error: \n%v", prname, err, buf.String(), eventError)
+				testsuit.T.Errorf("error waiting for pipeline run %s to finish \n%v \npipelinerun logs: \n%v \npipelinerun events error: \n%v", prname, err, buf.String(), eventError)
 			} else {
-				printMsg = fmt.Sprintf("error waiting for pipeline run %s to finish \n%v \npipelinerun logs: \n%v \npipelinerun events: \n%v", prname, err, buf.String(), events)
+				testsuit.T.Errorf("error waiting for pipeline run %s to finish \n%v \npipelinerun logs: \n%v \npipelinerun events: \n%v", prname, err, buf.String(), events)
 			}
 		}
-		testsuit.T.Errorf(printMsg)
 	}
 
 	log.Printf("pipelineRun: %s is successful under namespace : %s", prname, namespace)
@@ -85,23 +83,21 @@ func validatePipelineRunForFailedStatus(c *clients.Clients, prname, namespace st
 	log.Printf("Waiting for PipelineRun in namespace %s to fail", namespace)
 	err = wait.WaitForPipelineRunState(c, prname, wait.PipelineRunFailed(prname), "BuildValidationFailed")
 	if err != nil {
-		var printMsg string
 		buf, logsErr := getPipelinerunLogs(c, prname, namespace)
 		events, eventError := k8s.GetWarningEvents(c, namespace)
 		if logsErr != nil {
 			if eventError != nil {
-				printMsg = fmt.Sprintf("error waiting for pipeline run %s to finish \n%v \npipelinerun logs error: \n%v \npipelinerun events error: \n%v", prname, err, logsErr, eventError)
+				testsuit.T.Errorf("error waiting for pipeline run %s to finish \n%v \npipelinerun logs error: \n%v \npipelinerun events error: \n%v", prname, err, logsErr, eventError)
 			} else {
-				printMsg = fmt.Sprintf("error waiting for pipeline run %s to finish \n%v \npipelinerun logs error: \n%v \npipelinerun events: \n%v", prname, err, logsErr, events)
+				testsuit.T.Errorf("error waiting for pipeline run %s to finish \n%v \npipelinerun logs error: \n%v \npipelinerun events: \n%v", prname, err, logsErr, events)
 			}
 		} else {
 			if eventError != nil {
-				printMsg = fmt.Sprintf("error waiting for pipeline run %s to finish \n%v \npipelinerun logs: \n%v \npipelinerun events error: \n%v", prname, err, buf.String(), eventError)
+				testsuit.T.Errorf("error waiting for pipeline run %s to finish \n%v \npipelinerun logs: \n%v \npipelinerun events error: \n%v", prname, err, buf.String(), eventError)
 			} else {
-				printMsg = fmt.Sprintf("error waiting for pipeline run %s to finish \n%v \npipelinerun logs: \n%v \npipelinerun events: \n%v", prname, err, buf.String(), events)
+				testsuit.T.Errorf("error waiting for pipeline run %s to finish \n%v \npipelinerun logs: \n%v \npipelinerun events: \n%v", prname, err, buf.String(), events)
 			}
 		}
-		testsuit.T.Errorf(printMsg)
 	}
 }
 

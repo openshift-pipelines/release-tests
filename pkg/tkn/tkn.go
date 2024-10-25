@@ -49,7 +49,7 @@ func AssertComponentVersion(version string, component string) {
 
 	actualVersion = strings.Trim(actualVersion, "\n")
 	if !strings.Contains(actualVersion, version) {
-		testsuit.T.Errorf("The " + component + " has an unexpected version: " + actualVersion + ", expected: " + version)
+		testsuit.T.Errorf("The %s has an unexpected version: %s, expected: %s", component, actualVersion, version)
 	}
 }
 
@@ -58,7 +58,7 @@ func DownloadCLIFromCluster() {
 	var cliDownloadURL = cmd.MustSucceed("oc", "get", "consoleclidownloads", "tkn", "-o", "jsonpath={.spec.links[?(@.text==\"Download tkn and tkn-pac for "+architecture+"\")].href}").Stdout()
 	result := cmd.MustSuccedIncreasedTimeout(time.Minute*10, "curl", "-o", "/tmp/tkn-binary.tar.gz", "-k", cliDownloadURL)
 	if result.ExitCode != 0 {
-		testsuit.T.Errorf(result.Stderr())
+		testsuit.T.Errorf("%s", result.Stderr())
 	}
 	cmd.MustSucceed("tar", "-xf", "/tmp/tkn-binary.tar.gz", "-C", "/tmp")
 }
@@ -70,7 +70,7 @@ func AssertClientVersion(binary string) {
 		commandResult = cmd.MustSucceed("/tmp/tkn-pac", "version").Stdout()
 		expectedVersion := os.Getenv("PAC_VERSION")
 		if !strings.Contains(commandResult, expectedVersion) {
-			testsuit.T.Errorf("tkn-pac has an unexpected version: " + commandResult + ". Expected: " + expectedVersion)
+			testsuit.T.Errorf("tkn-pac has an unexpected version: %s. Expected: %s", commandResult, expectedVersion)
 		}
 	} else if binary == "tkn" {
 		expectedVersion := os.Getenv("TKN_CLIENT_VERSION")
@@ -80,7 +80,7 @@ func AssertClientVersion(binary string) {
 			if strings.Contains(splittedCommandResult[i], "Client") {
 				if !strings.Contains(splittedCommandResult[i], expectedVersion) {
 					unexpectedVersion = splittedCommandResult[i]
-					testsuit.T.Errorf("tkn client has an unexpected version: " + unexpectedVersion + " Expected: " + expectedVersion)
+					testsuit.T.Errorf("tkn client has an unexpected version: %s. Expected: %s", unexpectedVersion, expectedVersion)
 				}
 			}
 		}
@@ -93,7 +93,7 @@ func AssertClientVersion(binary string) {
 			if strings.Contains(splittedCommandResult[i], components[i]) {
 				if !strings.Contains(splittedCommandResult[i], expectedVersions[i]) {
 					unexpectedVersion = splittedCommandResult[i]
-					testsuit.T.Errorf(components[i] + " has an unexpected version: \"" + unexpectedVersion + "\". Expected: " + expectedVersions[i])
+					testsuit.T.Errorf("%s has an unexpected version: %s. Expected: %s", components[i], unexpectedVersion, expectedVersions[i])
 				}
 			}
 		}
