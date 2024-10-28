@@ -9,7 +9,7 @@ import (
 )
 
 var _ = gauge.Step("Configure GitLab token for PAC tests", func() {
-	pac.CreateGitlabSecret()
+	pac.CreateGitLabSecret()
 })
 
 var _ = gauge.Step("Create Smee deployment", func() {

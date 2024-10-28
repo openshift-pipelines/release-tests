@@ -19,13 +19,12 @@ import (
 	"github.com/openshift-pipelines/pipelines-as-code/pkg/git"
 	"github.com/openshift-pipelines/pipelines-as-code/pkg/params/info"
 	"github.com/openshift-pipelines/release-tests/pkg/clients"
-	"github.com/openshift-pipelines/release-tests/pkg/config"
 	"github.com/openshift-pipelines/release-tests/pkg/k8s"
 	"github.com/openshift-pipelines/release-tests/pkg/oc"
 	"github.com/openshift-pipelines/release-tests/pkg/pipelines"
 	"github.com/openshift-pipelines/release-tests/pkg/store"
-	"github.com/xanzy/go-gitlab"
-	"gopkg.in/yaml.v2"
+	gitlab "github.com/xanzy/go-gitlab"
+	yaml "gopkg.in/yaml.v2"
 	v1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -41,11 +40,12 @@ const (
 	webhookConfigName        = "gitlab-webhook-config"
 )
 
-func CreateGitlabSecret() {
+func CreateGitLabSecret() {
 	tokenSecretData := os.Getenv("GITLAB_TOKEN")
 	webhookSecretData := os.Getenv("WEBHOOK_TOKEN")
+	store.PutScenarioData("WEBHOOK_URL", webhookSecretData)
 	if tokenSecretData == "" && webhookSecretData == "" {
-		testsuit.T.Fail(fmt.Errorf("token for authorization to the Gitlab repository was not exported as a system variable"))
+		testsuit.T.Fail(fmt.Errorf("token for authorization to the GitLab repository was not exported as a system variable"))
 	} else {
 		if !oc.SecretExists(webhookConfigName, store.Namespace()) {
 			oc.CreateSecretForWebhook(tokenSecretData, webhookSecretData, store.Namespace())
@@ -77,8 +77,9 @@ func getNewSmeeURL() (string, error) {
 
 func createSmeeDeployment(c *clients.Clients, namespace, smeeURL string) error {
 	/*
-		https://github.com/openshift-pipelines/pipelines-as-code
-		/pkg/cmd/tknpac/bootstrap/templates/gosmee.yaml
+		Reference for gosmee.yaml
+			https://github.com/openshift-pipelines/pipelines-as-code
+			/blob/main/pkg/cmd/tknpac/bootstrap/templates/gosmee.yaml
 	*/
 	replicas := int32(1)
 	deployment := &v1.Deployment{
@@ -167,7 +168,7 @@ func InitGitLabClient() *gitlab.Client {
 // Specified Gitlab Project ID is forked into Group Namespace
 func forkProject(client *gitlab.Client, projectID, targetNamespace string) (*gitlab.Project, error) {
 	for i := 0; i < maxRetriesForkProject; i++ {
-		projectName := fmt.Sprintf("openshift-pipelines-test-fork-%08d", time.Now().UnixNano()%1e8)
+		projectName := fmt.Sprintf("release-tests-fork-%08d", time.Now().UnixNano()%1e8)
 		project, _, err := client.Projects.ForkProject(projectID, &gitlab.ForkProjectOptions{
 			Namespace: &targetNamespace,
 			Name:      &projectName,
@@ -251,14 +252,14 @@ func SetupGitLabProject(client *gitlab.Client) *gitlab.Project {
 	}
 
 	smeeURL := store.GetScenarioData("SMEE_URL")
-	token := config.TriggersSecretToken
+	webhookToken := store.GetScenarioData("WEBHOOK_URL")
 
 	project, err := forkProject(client, projectIDOrPath, gitlabGroupNamespace)
 	if err != nil {
 		testsuit.T.Fail(fmt.Errorf("error during project forking: %w", err))
 	}
 
-	err = addWebhook(client, project.ID, smeeURL, token)
+	err = addWebhook(client, project.ID, smeeURL, webhookToken)
 	if err != nil {
 		testsuit.T.Fail(fmt.Errorf("failed to add webhook: %w", err))
 	}
@@ -332,7 +333,7 @@ func validateYAML(yamlContent []byte) error {
 	return nil
 }
 
-func CreateCommit(client *gitlab.Client, projectID int, branch, commitMessage, fileDesPath string) error {
+func createCommit(client *gitlab.Client, projectID int, branch, commitMessage, fileDesPath string) error {
 	err := generatePipelineRun()
 	if err != nil {
 		return fmt.Errorf("could not generate PipelineRun in %s: %v", filePath, err)
@@ -439,7 +440,7 @@ func ConfigurePreviewChanges(client *gitlab.Client, projectID int) string {
 		testsuit.T.Fail(fmt.Errorf("failed to create branch: %v", err))
 	}
 
-	if err := CreateCommit(client, projectID, branchName, commitMessage, ".tekton/pull-request.yaml"); err != nil {
+	if err := createCommit(client, projectID, branchName, commitMessage, ".tekton/pull-request.yaml"); err != nil {
 		testsuit.T.Fail(fmt.Errorf("failed to create commit: %v", err))
 	}
 
