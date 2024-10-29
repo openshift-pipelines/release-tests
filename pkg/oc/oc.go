@@ -120,6 +120,10 @@ func CreateSecretForGitResolver(secretData string) {
 	cmd.MustSucceed("oc", "create", "secret", "generic", "github-auth-secret", "--from-literal", "github-auth-key="+secretData, "-n", "openshift-pipelines")
 }
 
+func CreateSecretForWebhook(tokenSecretData, webhookSecretData, namespace string) {
+	cmd.MustSucceed("oc", "create", "secret", "generic", "gitlab-webhook-config", "--from-literal", "provider.token="+tokenSecretData, "--from-literal", "webhook.secret="+webhookSecretData, "-n", namespace)
+}
+
 func EnableConsolePlugin() {
 	json_output := cmd.MustSucceed("oc", "get", "consoles.operator.openshift.io", "cluster", "-o", "jsonpath={.spec.plugins}").Stdout()
 	log.Printf("Already enabled console plugins: %s", json_output)
