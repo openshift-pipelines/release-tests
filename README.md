@@ -85,6 +85,13 @@ gauge run --log-level=debug --verbose --tags e2e specs/pipelines
 gauge run --log-level=debug --verbose --tags 'e2e & !tls' specs/triggers
 gauge run --log-level=debug --verbose --tags disconnected-e2e specs/clustertasks/clustertask.spec
 gauge run --log-level=debug --verbose --tags 'e2e & !skip_linux/amd64' specs/clustertasks/clustertask-s2i.spec
+gauge run --log-level=debug --verbose --tags e2e specs/pac/pac-gitlab.spec
+```
+
+## Running PAC GitLab Tests:
+Before running PAC GitLab tests, Configure the environment variable from `/spec/pac/README.md`.
+```
+gauge run --log-level=debug --verbose --tags e2e specs/pac/pac-gitlab.spec
 ```
 
 ## Authoring a new test specification
