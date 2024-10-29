@@ -42,8 +42,8 @@ const (
 
 func CreateGitLabSecret() {
 	tokenSecretData := os.Getenv("GITLAB_TOKEN")
-	webhookSecretData := os.Getenv("WEBHOOK_TOKEN")
-	store.PutScenarioData("WEBHOOK_TOKEN", webhookSecretData)
+	webhookSecretData := os.Getenv("GITLAB_WEBHOOK_TOKEN")
+	store.PutScenarioData("GITLAB_WEBHOOK_TOKEN", webhookSecretData)
 	if tokenSecretData == "" && webhookSecretData == "" {
 		testsuit.T.Fail(fmt.Errorf("token for authorization to the GitLab repository was not exported as a system variable"))
 	} else {
@@ -252,7 +252,7 @@ func SetupGitLabProject(client *gitlab.Client) *gitlab.Project {
 	}
 
 	smeeURL := store.GetScenarioData("SMEE_URL")
-	webhookToken := store.GetScenarioData("WEBHOOK_TOKEN")
+	webhookToken := store.GetScenarioData("GITLAB_WEBHOOK_TOKEN")
 
 	project, err := forkProject(client, projectIDOrPath, gitlabGroupNamespace)
 	if err != nil {
