@@ -29,5 +29,6 @@
     "PIPELINES-28": "specs/operator/manual-approval-gate.spec",
     "PIPELINES-29": "specs/ecosystem/ecosystem.spec",
     "PIPELINES-30": "specs/pac/pac-gitlab.spec",
+    "PIPELINES-31": "specs/pipelines/http-resolvers.spec",
     "PIPELINES-32": "specs/ecosystem/ecosystem-multiarch.spec"
 }
