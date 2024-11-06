@@ -1,0 +1,10 @@
+apiVersion: tekton.dev/v1
+kind: PipelineRun
+metadata:
+  name: http-resolver-pipelinerun
+spec:
+  pipelineRef:
+    resolver: http
+    params:
+    - name: url
+      value: "https://raw.githubusercontent.com/openshift-pipelines/release-tests/refs/heads/master/testdata/resolvers/pipelines/http-resolver-pipeline.yaml"
