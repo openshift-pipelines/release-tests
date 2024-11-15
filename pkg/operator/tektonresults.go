@@ -2,6 +2,7 @@ package operator
 
 import (
 	"fmt"
+	"strconv"
 	"strings"
 	"time"
 
@@ -36,33 +37,51 @@ func GetResultsApi() string {
 	return results_api
 }
 
-func GetResultsAnnotations(resourceType string) (string, string) {
-	var log_uuid string = cmd.MustSucceed("tkn", resourceType, "describe", "--last", "-o", "jsonpath='{.metadata.annotations.results\\.tekton\\.dev/log}'").Stdout()
+func GetResultsAnnotations(resourceType string) (string, string, string) {
+	var result_uuid string = cmd.MustSucceed("tkn", resourceType, "describe", "--last", "-o", "jsonpath='{.metadata.annotations.results\\.tekton\\.dev/result}'").Stdout()
 	var record_uuid string = cmd.MustSucceed("tkn", resourceType, "describe", "--last", "-o", "jsonpath='{.metadata.annotations.results\\.tekton\\.dev/record}'").Stdout()
+	var stored string = cmd.MustSucceed("tkn", resourceType, "describe", "--last", "-o", "jsonpath='{.metadata.annotations.results\\.tekton\\.dev/stored}'").Stdout()
 	record_uuid = strings.ReplaceAll(record_uuid, "'", "")
-	log_uuid = strings.ReplaceAll(log_uuid, "'", "")
-	return log_uuid, record_uuid
+	result_uuid = strings.ReplaceAll(result_uuid, "'", "")
+	stored = strings.ReplaceAll(stored, "'", "")
+	return result_uuid, record_uuid, stored
+}
+
+func VerifyResultsStored(resourceType string) {
+	_, _, storedAnnotation := GetResultsAnnotations(resourceType)
+
+	if storedAnnotation == "" {
+		testsuit.T.Fail(fmt.Errorf("Annotation results.tekton.dev/stored is not set"))
+	}
+
+	stored, err := strconv.ParseBool(storedAnnotation)
+
+	if err != nil {
+		testsuit.T.Fail(fmt.Errorf("Annotation results.tekton.dev/record doesn't contain a boolean value"))
+	}
+	if stored == false {
+		testsuit.T.Fail(fmt.Errorf("Annotation results.tekton.dev/record is set to false"))
+	}
 }
 
 func VerifyResultsLogs(resourceType string) {
-	var log_uuid string
+	var record_uuid string
 	var results_api string
-	log_uuid, _ = GetResultsAnnotations(resourceType)
+	_, record_uuid, _ = GetResultsAnnotations(resourceType)
 	results_api = GetResultsApi()
 
-	if log_uuid == "" {
-		testsuit.T.Fail(fmt.Errorf("Annotation results.tekton.dev/log is not set"))
+	if record_uuid == "" {
+		testsuit.T.Fail(fmt.Errorf("Annotation results.tekton.dev/record is not set"))
 	}
 
-	var results_log string = cmd.MustSucceed("opc", "results", "logs", "get", "--insecure", "--addr", results_api, log_uuid).Stdout()
-	if strings.Contains(results_log, "record not found") {
+	var resultsJsonData string = cmd.MustSucceed("opc", "results", "logs", "get", "--insecure", "--addr", results_api, record_uuid).Stdout()
+	if strings.Contains(resultsJsonData, "record not found") {
 		testsuit.T.Errorf("Results log not found")
 	} else {
 		type ResultLogs struct {
 			Name string `json:"name"`
 			Data string `json:"data"`
 		}
-		resultsJsonData := cmd.MustSucceed("opc", "results", "logs", "get", "--insecure", "--addr", results_api, log_uuid).Stdout()
 		var resultLogs ResultLogs
 		err := json.Unmarshal([]byte(resultsJsonData), &resultLogs)
 		if err != nil {
@@ -81,7 +100,7 @@ func VerifyResultsLogs(resourceType string) {
 func VerifyResultsRecords(resourceType string) {
 	var record_uuid string
 	var results_api string
-	_, record_uuid = GetResultsAnnotations(resourceType)
+	_, record_uuid, _ = GetResultsAnnotations(resourceType)
 	results_api = GetResultsApi()
 	var results_record string = cmd.MustSucceed("opc", "results", "records", "get", "--insecure", "--addr", results_api, record_uuid).Stdout()
 	if strings.Contains(results_record, "record not found") {
