@@ -59,7 +59,7 @@ func VerifyResultsStored(resourceType string) {
 	if err != nil {
 		testsuit.T.Fail(fmt.Errorf("Annotation results.tekton.dev/record doesn't contain a boolean value"))
 	}
-	if stored == false {
+	if !stored {
 		testsuit.T.Fail(fmt.Errorf("Annotation results.tekton.dev/record is set to false"))
 	}
 }
