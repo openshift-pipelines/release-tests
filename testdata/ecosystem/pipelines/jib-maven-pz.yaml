@@ -1,0 +1,56 @@
+apiVersion: tekton.dev/v1
+kind: Pipeline
+metadata:
+  name: jib-maven-pipeline
+spec:
+  params:
+  - name: SUBDIR
+    description: where to clone the git repo
+    default: jib-maven
+  workspaces:
+  - name: source
+  tasks:
+  - name: clone-git-repo
+    taskRef:
+      resolver: cluster
+        params:
+        - name: kind
+          value: task
+        - name: name
+          value: git-clone
+        - name: namespace
+          value: openshift-pipelines
+    workspaces:
+    - name: output
+      workspace: source
+    params:
+    - name: url
+      value: https://github.com/che-samples/console-java-simple
+    - name: subdirectory
+      value: $(params.SUBDIR)
+    - name: deleteExisting
+      value: "true"
+  - name: build
+    taskRef:
+      resolver: cluster
+        params:
+        - name: kind
+          value: task
+        - name: name
+          value: jib-maven
+        - name: namespace
+          value: openshift-pipelines
+    runAfter:
+    - clone-git-repo
+    workspaces:
+    - name: source
+      workspace: source
+    params:
+    - name: DIRECTORY
+      value: $(params.SUBDIR)
+    - name: IMAGE
+      value: image-registry.openshift-image-registry.svc:5000/$(context.pipelineRun.namespace)/jib-maven
+    - name: INSECUREREGISTRY
+      value: "false"
+    - name: MAVEN_IMAGE
+      value: maven:3.8.3-adoptopenjdk-11

@@ -1,0 +1,28 @@
+apiVersion: tekton.dev/v1
+kind: PipelineRun
+metadata:
+  name: kn-pz-run
+spec:
+  pipelineSpec:
+    tasks:
+    - name: run-kn
+      taskRef:
+        resolver: cluster
+        params:
+        - name: kind
+          value: task
+        - name: name
+          value: kn
+        - name: namespace
+          value: openshift-pipelines
+      params:
+      - name: ARGS
+        value:
+        - "service"
+        - "create"
+        - "hello"
+        - "--force"
+        - "--image=quay.io/multi-arch/knative-samples-helloworld-go:latest"
+        - "-eTARGET=Pipeline"
+  timeouts: 
+    pipeline: 10m
