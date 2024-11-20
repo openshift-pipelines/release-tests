@@ -22,6 +22,7 @@ Steps:
    |S.NO|pipeline_run_name|status    |
    |----|-----------------|----------|
    |1   |results-task     |successful|
+* Verify "taskrun" Results stored
 * Verify "taskrun" Results records
 * Verify "taskrun" Results logs
 
@@ -44,5 +45,6 @@ Steps:
    |S.NO|pipeline_run_name|status    |check_label_propagation|
    |----|-----------------|----------|-----------------------|
    |1   |pipeline-results |successful|no                     |
+* Verify "pipelinerun" Results stored
 * Verify "pipelinerun" Results records
 * Verify "pipelinerun" Results logs
