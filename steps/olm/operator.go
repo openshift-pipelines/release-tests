@@ -159,6 +159,10 @@ var _ = gauge.Step("Create Results route", func() {
 	operator.CreateResultsRoute()
 })
 
+var _ = gauge.Step("Verify <resourceType> Results stored", func(resourceType string) {
+	operator.VerifyResultsStored(resourceType)
+})
+
 var _ = gauge.Step("Verify <resourceType> Results records", func(resourceType string) {
 	operator.VerifyResultsRecords(resourceType)
 })
