@@ -80,16 +80,13 @@ const (
 )
 
 // Name prefixes of installerset
-var TektonInstallersetNamePrefixes [37]string = [37]string{
-	"addon-custom-clustertask",
-	"addon-custom-communityclustertask",
+var TektonInstallersetNamePrefixes [34]string = [34]string{
 	"addon-custom-consolecli",
 	"addon-custom-openshiftconsole",
 	"addon-custom-pipelinestemplate",
 	"addon-custom-resolverstepaction",
 	"addon-custom-resolvertask",
 	"addon-custom-triggersresources",
-	"addon-versioned-clustertasks",
 	"addon-versioned-resolverstepactions",
 	"addon-versioned-resolvertasks",
 	"chain",
