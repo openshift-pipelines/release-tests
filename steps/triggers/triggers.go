@@ -20,6 +20,10 @@ var _ = gauge.Step("Expose Event listener for TLS <elname>", func(elname string)
 	store.PutScenarioData("elname", elname)
 })
 
+var _ = gauge.Step("Expose Deployment config <elname> on port <port>", func(elname, port string) {
+	triggers.ExposeDeploymentConfig(store.Clients(), elname, port, store.Namespace())
+})
+
 var _ = gauge.Step("Mock post event with empty payload", func() {
 	gauge.GetScenarioStore()["response"] = triggers.MockPostEventWithEmptyPayload(store.GetScenarioData("route"))
 })
