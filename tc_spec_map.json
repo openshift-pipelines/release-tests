@@ -30,5 +30,6 @@
     "PIPELINES-29": "specs/ecosystem/ecosystem.spec",
     "PIPELINES-30": "specs/pac/pac-gitlab.spec",
     "PIPELINES-31": "specs/pipelines/http-resolvers.spec",
-    "PIPELINES-32": "specs/ecosystem/ecosystem-multiarch.spec"
+    "PIPELINES-32": "specs/ecosystem/ecosystem-multiarch.spec",
+    "PIPELINES-33": "specs/ecosystem/ecosystem-s2i.spec"
 }
