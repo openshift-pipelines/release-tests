@@ -24,7 +24,6 @@ Steps:
       |----|-----------------|----------|-----------------------|
       |1   |buildah-run      |successful|no                     |
 
-## needs more tweaks
 ## buildah disconnected pipelinerun: PIPELINES-29-TC02
 Tags: disconnected-e2e, ecosystem, tasks, non-admin, buildah
 Component: Pipelines
@@ -281,5 +280,4 @@ Steps:
       |----|-----------------|----------|-----------------------|
       |1   |maven-run        |successful|no                     |
 
-## need to add from clustertasks  
-## s2i, kn, kn-apply, tkn-pac, to be added.
+TODO need to add from clustertasks s2i, kn, kn-apply, tkn-pac, to be added.
