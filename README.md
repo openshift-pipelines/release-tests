@@ -91,7 +91,7 @@ gauge run --log-level=debug --verbose --tags e2e specs/pac/pac-gitlab.spec
 ## Running PAC GitLab Tests
 Pipelines as code is a project allowing you to define your CI/CD using Tekton PipelineRuns and Tasks in a file located in your source control management (SCM) system, such as GitHub or GitLab. This file is then used to automatically create a pipeline for a Pull Request or a Push to a branch.
 
-### _Settingup PAC in Gitlab_
+### Setting up PAC in GitLab
 
 - Create a New project in gitlab.com
 - Change the visibility of the project to Public
