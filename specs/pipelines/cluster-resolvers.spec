@@ -1,6 +1,11 @@
 PIPELINES-23
 # Cluster resolvers spec
 
+Pre condition:
+  * Delete project "releasetest-tasks"
+  * Delete project "releasetest-pipelines"
+  * Delete project "releasetest-pipelineruns"
+
 ## Checking the functionality of cluster resolvers#1: PIPELINES-23-TC01
 Tags: e2e, sanity
 Component: Resolvers
