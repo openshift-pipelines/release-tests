@@ -6,6 +6,10 @@ RUN dnf update -y &&\
 
 RUN pip install pyyaml reportportal-client
 
+RUN wget https://certs.corp.redhat.com/certs/Current-IT-Root-CAs.pem \
+    -O /etc/pki/ca-trust/source/anchors/Current-IT-Root-CAs.pem && \
+    update-ca-trust extract
+
 RUN wget https://github.com/mikefarah/yq/releases/download/v4.44.3/yq_linux_amd64 -O /usr/bin/yq &&\
     chmod +x /usr/bin/yq
 
