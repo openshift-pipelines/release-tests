@@ -16,3 +16,5 @@ spec:
           value: master
         - name: pathInRepo
           value: testdata/resolvers/tasks/git-resolver-task.yaml
+        - name: serverURL
+          value: https://github.com

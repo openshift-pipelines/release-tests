@@ -16,3 +16,5 @@ spec:
       value: main
     - name: pathInRepo
       value: resolver-pipeline.yaml
+    - name: serverURL
+      value: https://github.com
