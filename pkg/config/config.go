@@ -72,9 +72,6 @@ const (
 	// Name of console deployment
 	ConsolePluginDeployment = "pipelines-console-plugin"
 
-	// Community Clustertasks
-	CommunityClustertasks = "jib-maven,helm-upgrade-from-source,helm-upgrade-from-repo,trigger-jenkins-job,git-cli,pull-request,kubeconfig-creator,argocd-task-sync-and-wait"
-
 	// A token used in triggers tests
 	TriggersSecretToken = "1234567"
 )

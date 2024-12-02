@@ -8,7 +8,6 @@ import (
 	"github.com/getgauge-contrib/gauge-go/gauge"
 	m "github.com/getgauge-contrib/gauge-go/models"
 	"github.com/getgauge-contrib/gauge-go/testsuit"
-	"github.com/openshift-pipelines/release-tests/pkg/config"
 	"github.com/openshift-pipelines/release-tests/pkg/pipelines"
 	"github.com/openshift-pipelines/release-tests/pkg/store"
 )
@@ -50,23 +49,6 @@ var _ = gauge.Step("<numberOfTr> taskrun(s) should be present within <timeoutSec
 	pipelines.AssertNumberOfTaskruns(store.Clients(), store.Namespace(), numberOfTr, timeoutSeconds)
 })
 
-var _ = gauge.Step("<cts> clustertasks are <status>", func(cts, status string) {
-	if cts == "community" {
-		cts = config.CommunityClustertasks
-	}
-	log.Printf("Checking if clustertasks %v is/are %v", cts, status)
-	ctsList := strings.Split(cts, ",")
-	if status == "present" {
-		for _, c := range ctsList {
-			pipelines.AssertClustertaskPresent(store.Clients(), c)
-		}
-	} else {
-		for _, c := range ctsList {
-			pipelines.AssertClustertaskNotPresent(store.Clients(), c)
-		}
-	}
-})
-
 var _ = gauge.Step("Tasks <ts> are <status> in namespace <namespace>", func(ts, status string, namespace string) {
 	log.Printf("Checking if tasks %v is/are %v in namespace %v", ts, status, namespace)
 	tsList := strings.Split(ts, ",")
@@ -77,6 +59,20 @@ var _ = gauge.Step("Tasks <ts> are <status> in namespace <namespace>", func(ts, 
 	} else {
 		for _, c := range tsList {
 			pipelines.AssertTaskNotPresent(store.Clients(), namespace, c)
+		}
+	}
+})
+
+var _ = gauge.Step("StepActions <stepActions> are <status> in namespace <namespace>", func(stepActions, status string, namespace string) {
+	log.Printf("Checking if stepactions %v is/are %v in namespace %v", stepActions, status, namespace)
+	saList := strings.Split(stepActions, ",")
+	if status == "present" {
+		for _, c := range saList {
+			pipelines.AssertStepActionPresent(store.Clients(), namespace, c)
+		}
+	} else {
+		for _, c := range saList {
+			pipelines.AssertStepActionNotPresent(store.Clients(), namespace, c)
 		}
 	}
 })
