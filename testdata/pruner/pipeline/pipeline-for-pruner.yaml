@@ -7,7 +7,7 @@ spec:
     - name: message
       type: string
   steps:
-    - image: registry.redhat.io/ubi7/ubi-minimal
+    - image: registry.redhat.io/ubi8/ubi-minimal
       script: |
         echo $(params.message)
 ---
