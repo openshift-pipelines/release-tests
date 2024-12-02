@@ -285,7 +285,7 @@ func AssertForNoNewPipelineRunCreation(c *clients.Clients, namespace string) {
 }
 
 func AssertNumberOfPipelineruns(c *clients.Clients, namespace, numberOfPr, timeoutSeconds string) {
-	log.Printf("Verifying if %s number of pipelinerun are present", numberOfPr)
+	log.Printf("Verifying if %s pipelineruns are present", numberOfPr)
 	timeoutSecondsInt, _ := strconv.Atoi(timeoutSeconds)
 	err := w.PollUntilContextTimeout(c.Ctx, config.APIRetry, time.Second*time.Duration(timeoutSecondsInt), false, func(context.Context) (bool, error) {
 		prlist, err := c.PipelineRunClient.List(c.Ctx, metav1.ListOptions{})
@@ -297,12 +297,12 @@ func AssertNumberOfPipelineruns(c *clients.Clients, namespace, numberOfPr, timeo
 	})
 	if err != nil {
 		prlist, _ := c.PipelineRunClient.List(c.Ctx, metav1.ListOptions{})
-		testsuit.T.Fail(fmt.Errorf("Error: Expected %v number of pipelineruns but found %v number of pipelineruns", numberOfPr, len(prlist.Items)))
+		testsuit.T.Fail(fmt.Errorf("Error: Expected %v pipelineruns but found %v pipelineruns: %s", numberOfPr, len(prlist.Items), err))
 	}
 }
 
 func AssertNumberOfTaskruns(c *clients.Clients, namespace, numberOfTr, timeoutSeconds string) {
-	log.Printf("Verifying if %s number of taskruns are present", numberOfTr)
+	log.Printf("Verifying if %s taskruns are present", numberOfTr)
 	timeoutSecondsInt, _ := strconv.Atoi(timeoutSeconds)
 	err := w.PollUntilContextTimeout(c.Ctx, config.APIRetry, time.Second*time.Duration(timeoutSecondsInt), false, func(context.Context) (bool, error) {
 		trlist, err := c.TaskRunClient.List(c.Ctx, metav1.ListOptions{})
@@ -314,7 +314,7 @@ func AssertNumberOfTaskruns(c *clients.Clients, namespace, numberOfTr, timeoutSe
 	})
 	if err != nil {
 		trlist, _ := c.TaskRunClient.List(c.Ctx, metav1.ListOptions{})
-		testsuit.T.Fail(fmt.Errorf("Error: Expected %v number of taskruns but found %v number of taskruns", numberOfTr, len(trlist.Items)))
+		testsuit.T.Fail(fmt.Errorf("Error: Expected %v taskruns but found %v taskruns: %s", numberOfTr, len(trlist.Items), err))
 	}
 }
 func AssertPipelinesPresent(c *clients.Clients, namespace string) {
