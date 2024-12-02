@@ -138,8 +138,26 @@ var _ = gauge.Step("Update addon config with clusterTasks as <clusterTaskStatus>
 	}
 })
 
+var _ = gauge.Step("Update addon config with resolverTasks as <resolverTaskStatus> and pipelineTemplates as <pipelineTemplateStatus> and expect message <expectedMessage>", func(resolverTaskStatus, pipeTemplateStatus, expectedMessage string) {
+	patchData := fmt.Sprintf("{\"spec\":{\"addon\":{\"params\":[{\"name\":\"resolverTasks\",\"value\":\"%s\"},{\"name\":\"pipelineTemplates\",\"value\":\"%s\"}]}}}", resolverTaskStatus, pipeTemplateStatus)
+	if expectedMessage == "" {
+		oc.UpdateTektonConfig(patchData)
+	} else {
+		oc.UpdateTektonConfigwithInvalidData(patchData, expectedMessage)
+	}
+})
+
 var _ = gauge.Step("Update addon config with resolverTasks as <resolverTasksStatus> and expect message <expectedMessage>", func(resolverTasksStatus, expectedMessage string) {
 	patchData := fmt.Sprintf("{\"spec\":{\"addon\":{\"params\":[{\"name\":\"resolverTasks\",\"value\":\"%s\"}]}}}", resolverTasksStatus)
+	if expectedMessage == "" {
+		oc.UpdateTektonConfig(patchData)
+	} else {
+		oc.UpdateTektonConfigwithInvalidData(patchData, expectedMessage)
+	}
+})
+
+var _ = gauge.Step("Update addon config with resolverStepActions as <resolverStepActionsStatus> and expect message <expectedMessage>", func(resolverStepActionsStatus, expectedMessage string) {
+	patchData := fmt.Sprintf("{\"spec\":{\"addon\":{\"params\":[{\"name\":\"resolverStepActions\",\"value\":\"%s\"}]}}}", resolverStepActionsStatus)
 	if expectedMessage == "" {
 		oc.UpdateTektonConfig(patchData)
 	} else {
