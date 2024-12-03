@@ -273,7 +273,7 @@ Steps:
       |----|------------------------------------------------------|
       |1   |testdata/ecosystem/pipelines/maven.yaml               |
       |2   |testdata/pvc/pvc.yaml                                 |
-      |3   |testdata/v1/clustertask/configmaps/maven-settings.yaml|
+      |3   |testdata/ecosystem/configmaps/maven-settings.yaml     |
       |4   |testdata/ecosystem/pipelineruns/maven.yaml            |
   * Verify pipelinerun
       |S.NO|pipeline_run_name|status    |check_label_propagation|
