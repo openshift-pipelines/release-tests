@@ -71,7 +71,7 @@ Steps:
   * Create
       |S.NO|resource_dir                                          |
       |----|------------------------------------------------------|
-      |1   |testdata/v1beta1/clustertask/pipelines/s2i-nodejs.yaml|
+      |1   |testdata/ecosystem/pipelines/s2i-nodejs.yaml|
       |2   |testdata/pvc/pvc.yaml                                 |
 
 ## Setup Eventlistener with TLS enabled pre upgrade: PIPELINES-18-TC03
@@ -114,14 +114,14 @@ Steps:
   * Create
       | S.NO | resource_dir                                                       |
       |------|--------------------------------------------------------------------|
-      | 1    | testdata/v1beta1/clustertask/pipelines/git-clone-read-private.yaml |
+      | 1    | testdata/ecosystem/pipelines/git-clone-read-private.yaml |
       | 2    | testdata/pvc/pvc.yaml                                              |
-      | 3    | testdata/v1/clustertask/secrets/ssh-key.yaml                  |
+      | 3    | testdata/ecosystem/secrets/ssh-key.yaml                  |
   * Link secret "ssh-key" to service account "pipeline"
   * Create
       | S.NO | resource_dir                                                          |
       |------|-----------------------------------------------------------------------|
-      | 1    | testdata/v1beta1/clustertask/pipelineruns/git-clone-read-private.yaml |
+      | 1    | testdata/ecosystem/pipelineruns/git-clone-read-private.yaml |
   * Verify pipelinerun
       | S.NO | pipeline_run_name                   | status     | check_label_propagation |
       |------|-------------------------------------|------------|-------------------------|

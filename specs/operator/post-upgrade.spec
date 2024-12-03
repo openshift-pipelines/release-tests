@@ -79,7 +79,7 @@ Steps:
   * Create
       | S.NO | resource_dir                                                          |
       |------|-----------------------------------------------------------------------|
-      | 1    | testdata/v1beta1/clustertask/pipelineruns/git-clone-read-private.yaml |
+      | 1    | testdata/ecosystem/pipelineruns/git-clone-read-private.yaml |
   * Verify pipelinerun
       | S.NO | pipeline_run_name                   | status     | check_label_propagation |
       |------|-------------------------------------|------------|-------------------------|
