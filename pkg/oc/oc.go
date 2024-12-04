@@ -5,6 +5,7 @@ import (
 	"log"
 	"slices"
 	"strings"
+	"time"
 
 	"github.com/getgauge-contrib/gauge-go/testsuit"
 	"github.com/openshift-pipelines/release-tests/pkg/cmd"
@@ -29,7 +30,10 @@ func Apply(path_dir, namespace string) {
 
 // Delete resources using oc command
 func Delete(path_dir, namespace string) {
-	log.Printf("output: %s\n", cmd.MustSucceed("oc", "delete", "-f", resource.Path(path_dir), "-n", namespace).Stdout())
+	// Tekton Results sets a finalizer that prevent resource removal for some time
+	// see parameters "store_deadline" and "forward_buffer"
+	// by default, it waits at least 150 seconds
+	log.Printf("output: %s\n", cmd.MustSuccedIncreasedTimeout(time.Second*300, "oc", "delete", "-f", resource.Path(path_dir), "-n", namespace).Stdout())
 }
 
 // CreateNewProject Helps you to create new project
@@ -100,7 +104,10 @@ func LabelNamespace(namespace, label string) {
 }
 
 func DeleteResource(resourceType, name string) {
-	log.Printf("output: %s\n", cmd.MustSucceed("oc", "delete", resourceType, name, "-n", store.Namespace()).Stdout())
+	// Tekton Results sets a finalizer that prevent resource removal for some time
+	// see parameters "store_deadline" and "forward_buffer"
+	// by default, it waits at least 150 seconds
+	log.Printf("output: %s\n", cmd.MustSuccedIncreasedTimeout(time.Second*300, "oc", "delete", resourceType, name, "-n", store.Namespace()).Stdout())
 }
 
 func DeleteResourceInNamespace(resourceType, name, namespace string) {
