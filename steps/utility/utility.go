@@ -1,8 +1,10 @@
 package utility
 
 import (
+	"bytes"
 	"fmt"
 	"log"
+	"os/exec"
 	"strconv"
 	"strings"
 	"time"
@@ -49,6 +51,17 @@ var _ = gauge.Step("Validate route url for pipelines tutorial", func() {
 	log.Println(output)
 	if !strings.Contains(output, expectedOutput) {
 		testsuit.T.Fail(fmt.Errorf("expected:\n%v,\ngot:\n%v", expectedOutput, output))
+	}
+})
+
+var _ = gauge.Step("Validate deployed application", func() {
+	routeUrl := store.GetScenarioData("routeurl")
+	output := exec.Command("lynx", routeUrl, "--dump")
+	var out bytes.Buffer
+	output.Stdout = &out
+	err := output.Run()
+	if err != nil {
+		testsuit.T.Fail(fmt.Errorf("Error in validating deployed Application", err))
 	}
 })
 
