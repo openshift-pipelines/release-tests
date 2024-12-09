@@ -95,7 +95,7 @@ Pipelines as code is a project allowing you to define your CI/CD using Tekton Pi
 
 - Create a New project in gitlab.com
 - Change the visibility of the project to Public
-- Set the main branch as unprotected branch
+- Change the main branch to unprotect under `Settings --> Repository --> Protected branches`
 - Copy the project ID by clicking on three dots in project root directory and`export GITLAB_PROJECT_ID=<ProjectID>`
 - Click on your profile under `preferences` Under `User Settings --> Access tokens`
 - Create a New Personal Access Token and `export GITLAB_TOKEN=<Token>`
