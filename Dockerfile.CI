@@ -1,4 +1,4 @@
-FROM quay.io/fedora/fedora:40
+FROM quay.io/fedora/fedora:41
 
 RUN dnf update -y &&\
     dnf install -y --setopt=tsflags=nodocs azure-cli git go jq lynx make openssl python-unversioned-command python3 python3-antlr4-runtime python3-pip unzip vim wget &&\
@@ -10,7 +10,7 @@ RUN wget https://certs.corp.redhat.com/certs/Current-IT-Root-CAs.pem \
     -O /etc/pki/ca-trust/source/anchors/Current-IT-Root-CAs.pem && \
     update-ca-trust extract
 
-RUN wget https://github.com/mikefarah/yq/releases/download/v4.44.3/yq_linux_amd64 -O /usr/bin/yq &&\
+RUN wget https://github.com/mikefarah/yq/releases/download/v4.44.6/yq_linux_amd64 -O /usr/bin/yq &&\
     chmod +x /usr/bin/yq
 
 ENV OC_VERSION=4.17
