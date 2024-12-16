@@ -106,6 +106,29 @@ func AssertClientVersion(binary string) {
 	}
 }
 
+func AssertServerVersion(binary string) {
+	var commandResult, unexpectedVersion string
+
+	switch binary {
+	case "opc":
+		commandResult = cmd.MustSucceed("/tmp/opc", "version", "--server").Stdout()
+		components := [4]string{"Chains version", "Pipeline version", "Triggers version", "Operator version"}
+		expectedVersions := [4]string{os.Getenv("CHAINS_VERSION"), os.Getenv("PIPELINE_VERSION"), os.Getenv("TRIGGERS_VERSION"), os.Getenv("OPERATOR_VERSION")}
+		splittedCommandResult := strings.Split(commandResult, "\n")
+		for i := 0; i < 4; i++ {
+			if strings.Contains(splittedCommandResult[i], components[i]) {
+				if !strings.Contains(splittedCommandResult[i], expectedVersions[i]) {
+					unexpectedVersion = splittedCommandResult[i]
+					testsuit.T.Errorf("%s has an unexpected version: %s. Expected: %s", components[i], unexpectedVersion, expectedVersions[i])
+				}
+			}
+		}
+	default:
+		testsuit.T.Errorf("Unknown binary or client")
+	}
+
+}
+
 func ValidateQuickstarts() {
 	cmd.MustSucceed("oc", "get", "consolequickstart", "install-app-and-associate-pipeline").Stdout()
 	cmd.MustSucceed("oc", "get", "consolequickstart", "configure-pipeline-metrics").Stdout()
