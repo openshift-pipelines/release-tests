@@ -25,6 +25,8 @@ spec:
     params:
     - name: URL
       value: https://github.com/sclorg/s2i-php-container
+    - name: REVISION
+      value: master
     - name: SUBDIRECTORY
       value: s2i-php-$(params.VERSION)
     - name: DELETE_EXISTING
