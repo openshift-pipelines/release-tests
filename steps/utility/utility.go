@@ -51,6 +51,6 @@ var _ = gauge.Step("Validate that route URL contains <expectedOutput>", func(exp
 	}
 })
 
-var _ = gauge.Step("Wait for pipelines-vote-ui deployment", func() {
-	k8s.ValidateDeployments(store.Clients(), store.Namespace(), "pipelines-vote-ui")
+var _ = gauge.Step("Wait for <deploymentName> deployment", func(deploymentName string) {
+	k8s.ValidateDeployments(store.Clients(), store.Namespace(), deploymentName)
 })
