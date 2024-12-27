@@ -12,5 +12,6 @@ Configure `openshift-pipelines` operator
 Steps:
   * Wait for TektonConfig CR availability
   * Verify namespace "openshift-pipelines" exists
+  * Validate Operator should be installed
   * Configure GitHub token for git resolver in TektonConfig
 
