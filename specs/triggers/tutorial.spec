@@ -23,20 +23,15 @@ Steps:
       |3   |https://raw.githubusercontent.com/openshift/pipelines-tutorial/{OSP_TUTORIAL_BRANCH}/01_pipeline/03_persistent_volume_claim.yaml         |
       |4   |https://raw.githubusercontent.com/openshift/pipelines-tutorial/{OSP_TUTORIAL_BRANCH}/01_pipeline/04_pipeline.yaml                        |
       |5   |https://raw.githubusercontent.com/openshift/pipelines-tutorial/{OSP_TUTORIAL_BRANCH}/02_pipelinerun/01_build_deploy_api_pipelinerun.yaml |
+      |6   |https://raw.githubusercontent.com/openshift/pipelines-tutorial/{OSP_TUTORIAL_BRANCH}/02_pipelinerun/02_build_deploy_ui_pipelinerun.yaml|
    * Verify pipelinerun
       |S.NO|pipeline_run_name           |status    |check_label_propagation|
       |----|----------------------------|----------|-----------------------|
       |1   |build-deploy-api-pipelinerun|successful|no                     |
-   * Create remote
-      |S.NO|resource_dir                                                                                                                           |
-      |----|---------------------------------------------------------------------------------------------------------------------------------------|
-      |1   |https://raw.githubusercontent.com/openshift/pipelines-tutorial/{OSP_TUTORIAL_BRANCH}/02_pipelinerun/02_build_deploy_ui_pipelinerun.yaml|
-   * Verify pipelinerun
-      |S.NO|pipeline_run_name          |status    |check_label_propagation|
-      |----|---------------------------|----------|-----------------------|
-      |1   |build-deploy-ui-pipelinerun|successful|no                     |
+      |2   |build-deploy-ui-pipelinerun |successful|no                     |
    * Get route url of the route "pipelines-vote-ui"
-   * Wait for pipelines-vote-ui deployment
+   * Wait for "pipelines-vote-api" deployment
+   * Wait for "pipelines-vote-ui" deployment
    * Validate that route URL contains "Cat 🐺 vs Dog 🐶"
 
 ## Run pipelines tutorial using triggers: PIPELINES-06-TC02
@@ -71,5 +66,5 @@ Steps:
    * "2" pipelinerun(s) should be present within "15" seconds
    * Verify the latest pipelinerun for "successful" state
    * Get route url of the route "pipelines-vote-ui"
-   * Wait for pipelines-vote-ui deployment
+   * Wait for "pipelines-vote-ui" deployment
    * Validate that route URL contains "Cat 🐺 vs Dog 🐶"
