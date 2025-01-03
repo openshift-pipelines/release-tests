@@ -135,10 +135,6 @@ var _ = gauge.Step("Check <binary> client version", func(binary string) {
 	tkn.AssertClientVersion(binary)
 })
 
-var _ = gauge.Step("Check <binary> server version", func(binary string) {
-	tkn.AssertServerVersion(binary)
-})
-
 var _ = gauge.Step("Check <binary> version", func(binary string) {
 	tkn.AssertClientVersion(binary)
 })
