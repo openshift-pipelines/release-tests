@@ -29,4 +29,3 @@ Steps:
   * Check "tkn" client version
   * Check "tkn-pac" version
   * Check "opc" client version
-  * Check "opc" server version
