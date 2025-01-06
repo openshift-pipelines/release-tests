@@ -14,4 +14,7 @@ Steps:
   * Validate Operator should be installed
   * Verify namespace "openshift-pipelines" exists
   * Configure GitHub token for git resolver in TektonConfig
+  * Create signing-secrets for Tekton Chains
+  * Validate chains deployment
+
 
