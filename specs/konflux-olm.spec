@@ -17,4 +17,11 @@ Steps:
   * Create signing-secrets for Tekton Chains
   * Validate chains deployment
 
+  * Apply
+    | S.NO | resource_dir                                          |
+    |------|-------------------------------------------------------|
+    | 1    | testdata/manualapprovalgate/manual-approval-gate.yaml |
+
+  * Validate manual approval gate deployment
+
 
