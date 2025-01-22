@@ -9,6 +9,9 @@ metadata:
     pipelinesascode.tekton.dev/task: "git-clone"
     pipelinesascode.tekton.dev/task-1: "golangci-lint"
     pipelinesascode.tekton.dev/max-keep-runs: "5"
+    # Expression to check for .go files inside pkg & steps directory
+    pipelinesascode.tekton.dev/on-cel-expression: |
+      "*/*/*.go".pathChanged() || "*/*.go".pathChanged()
 spec:
   params:
     - name: repo_url
