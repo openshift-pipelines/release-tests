@@ -58,22 +58,6 @@ Steps:
     |1   |bitbucket-run    |Failure|
   * Delete "taskrun" named "bitbucket-run"
 
-## Setup S2I nodejs pipeline pre upgrade: PIPELINES-18-TC02
-Tags: pre-upgrade, e2e, clustertasks, non-admin, s2i
-Component: Pipelines
-Level: Integration
-Type: Functional
-Importance: Critical
-
-Steps:
-  * Create project "releasetest-upgrade-s2i"
-  * Verify ServiceAccount "pipeline" exist
-  * Create
-      |S.NO|resource_dir                                          |
-      |----|------------------------------------------------------|
-      |1   |testdata/ecosystem/pipelines/s2i-nodejs.yaml|
-      |2   |testdata/pvc/pvc.yaml                                 |
-
 ## Setup Eventlistener with TLS enabled pre upgrade: PIPELINES-18-TC03
 Tags: pre-upgrade, tls, triggers, admin, e2e, sanity
 Component: Triggers
@@ -127,3 +111,19 @@ Steps:
       |------|-------------------------------------|------------|-------------------------|
       | 1    | git-clone-read-private-pipeline-run | successful | no                      |
   * Delete "pipelinerun" named "git-clone-read-private-pipeline-run"
+
+## Setup S2I golang pipeline pre upgrade: PIPELINES-18-TC05
+Tags: pre-upgrade, e2e, clustertasks, non-admin, s2i
+Component: Pipelines
+Level: Integration
+Type: Functional
+Importance: Critical
+
+Steps:
+  * Create project "releasetest-upgrade-s2i"
+  * Verify ServiceAccount "pipeline" exist
+  * Create
+      |S.NO|resource_dir                                          |
+      |----|------------------------------------------------------|
+      |1   |testdata/ecosystem/pipelines/s2i-go.yaml|
+      |2   |testdata/pvc/pvc.yaml                                 |
