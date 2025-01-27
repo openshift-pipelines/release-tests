@@ -1,9 +1,6 @@
 module github.com/openshift-pipelines/release-tests
 
 go 1.22.5
-
-toolchain go1.22.7
-
 require (
 	github.com/getgauge-contrib/gauge-go v0.4.0
 	github.com/google/go-cmp v0.6.0
@@ -17,7 +14,7 @@ require (
 	github.com/prometheus/client_golang v1.20.2
 	github.com/prometheus/common v0.55.0
 	github.com/tektoncd/cli v0.38.1
-	github.com/tektoncd/operator v0.74.0
+	github.com/tektoncd/operator v0.74.1
 	github.com/tektoncd/pipeline v0.65.1
 	github.com/tektoncd/triggers v0.30.0
 	github.com/xanzy/go-gitlab v0.109.0
@@ -130,10 +127,10 @@ require (
 	golang.org/x/exp v0.0.0-20240613232115-7f521ea00fb8 // indirect
 	golang.org/x/net v0.28.0 // indirect
 	golang.org/x/oauth2 v0.23.0 // indirect
-	golang.org/x/sync v0.9.0 // indirect
-	golang.org/x/sys v0.25.0 // indirect
-	golang.org/x/term v0.24.0 // indirect
-	golang.org/x/text v0.18.0 // indirect
+	golang.org/x/sync v0.10.0 // indirect
+	golang.org/x/sys v0.28.0 // indirect
+	golang.org/x/term v0.27.0 // indirect
+	golang.org/x/text v0.21.0 // indirect
 	golang.org/x/time v0.6.0 // indirect
 	golang.org/x/xerrors v0.0.0-20231012003039-104605ab7028 // indirect
 	gomodules.xyz/jsonpatch/v2 v2.4.0 // indirect
