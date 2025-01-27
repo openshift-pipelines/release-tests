@@ -36,18 +36,6 @@ Steps:
     |----|-----------------|-------|
     |1   |bitbucket-run    |Failure|
 
-## Verify S2I nodejs pipeline after upgrade: PIPELINES-19-TC02
-Tags: post-upgrade, e2e, clustertasks, non-admin, s2i
-Component: Pipelines
-Level: Integration
-Type: Functional
-Importance: Critical
-
-Steps:
-  * Switch to project "releasetest-upgrade-s2i"
-  * Get tags of the imagestream "nodejs" from namespace "openshift" and store to variable "nodejs-tags"
-  * Start and verify pipeline "s2i-nodejs-pipeline" with param "VERSION" with values stored in variable "nodejs-tags" with workspace "name=source,claimName=shared-pvc"
-
 ## Verify Event listener with TLS after upgrade: PIPELINES-19-TC03
 Tags: post-upgrade, tls, triggers, admin, e2e, sanity
 Component: Triggers
@@ -84,3 +72,15 @@ Steps:
       | S.NO | pipeline_run_name                   | status     | check_label_propagation |
       |------|-------------------------------------|------------|-------------------------|
       | 1    | git-clone-read-private-pipeline-run | successful | no                      |
+    
+## Verify S2I golang pipeline after upgrade: PIPELINES-19-TC05
+Tags: post-upgrade, e2e, clustertasks, non-admin, s2i
+Component: Pipelines
+Level: Integration
+Type: Functional
+Importance: Critical
+
+Steps:
+  * Switch to project "releasetest-upgrade-s2i"
+  * Get tags of the imagestream "golang" from namespace "openshift" and store to variable "golang-tags"
+  * Start and verify pipeline "s2i-go-pipeline" with param "VERSION" with values stored in variable "golang-tags" with workspace "name=source,claimName=shared-pvc"
