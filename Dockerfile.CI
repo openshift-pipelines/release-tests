@@ -10,7 +10,7 @@ RUN wget https://certs.corp.redhat.com/certs/Current-IT-Root-CAs.pem \
     -O /etc/pki/ca-trust/source/anchors/Current-IT-Root-CAs.pem && \
     update-ca-trust extract
 
-RUN wget https://github.com/mikefarah/yq/releases/download/v4.44.6/yq_linux_amd64 -O /usr/bin/yq &&\
+RUN wget https://github.com/mikefarah/yq/releases/download/v4.45.1/yq_linux_amd64 -O /usr/bin/yq &&\
     chmod +x /usr/bin/yq
 
 ENV OC_VERSION=4.17
@@ -46,7 +46,7 @@ RUN wget https://mirror.openshift.com/pub/openshift-v4/clients/pipelines/${TKN_V
 RUN wget https://dl.min.io/client/mc/release/linux-amd64/mc -O /usr/bin/mc &&\
     chmod u+x /usr/bin/mc
 
-ENV GAUGE_VERSION=1.6.10
+ENV GAUGE_VERSION=1.6.11
 RUN wget https://github.com/getgauge/gauge/releases/download/v${GAUGE_VERSION}/gauge-${GAUGE_VERSION}-linux.x86_64.zip \
     -O /tmp/gauge.zip &&\
     unzip /tmp/gauge.zip gauge -d /usr/bin &&\
