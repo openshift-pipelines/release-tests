@@ -30,11 +30,13 @@ Steps:
   * Configure GitHub token for git resolver in TektonConfig
   * Configure the bundles resolver
   * Enable console plugin
-  * Validate pipelines deployment
+  * Enable statefulset in tektonconfig
   * Validate triggers deployment
   * Validate PAC deployment
   * Validate chains deployment
   * Validate hub deployment
+  * Validate "tekton-pipelines-controller" statefulset deployment
+  * Validate "tekton-pipelines-remote-resolvers" statefulset deployment
   * Validate tkn server cli deployment
   * Validate console plugin deployment
   * Ensure that Tekton Results is ready

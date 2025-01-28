@@ -95,7 +95,7 @@ var TektonInstallersetNamePrefixes [34]string = [34]string{
 	"openshiftpipelinesascode-main-deployment",
 	"openshiftpipelinesascode-main-static",
 	"openshiftpipelinesascode-post",
-	"pipeline-main-deployment",
+	"pipeline-main-statefulset",
 	"pipeline-main-static",
 	"pipeline-post",
 	"pipeline-pre",
