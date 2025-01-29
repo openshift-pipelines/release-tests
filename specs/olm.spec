@@ -31,6 +31,7 @@ Steps:
   * Configure GitHub token for git resolver in TektonConfig
   * Configure the bundles resolver
   * Enable console plugin
+  * Sleep for "120" seconds
   * Validate pipelines deployment
   * Validate triggers deployment
   * Validate PAC deployment
