@@ -21,6 +21,8 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"os"
+	"strings"
 
 	"github.com/getgauge-contrib/gauge-go/testsuit"
 	"github.com/openshift-pipelines/release-tests/pkg/clients"
@@ -142,4 +144,38 @@ func verifyNoTektonAddonCR(clients *clients.Clients) error {
 		return errors.New("Unable to verify cluster-scoped resources are deleted if any TektonAddon exists")
 	}
 	return nil
+}
+
+// VerifyVersionedTasks checks if the required tasks are available with the expected version
+func VerifyVersionedTasks(taskList string, requiredTasks []string) {
+	getRequiredVersion := os.Getenv("OSP_VERSION")
+	// Get the arch of the cluster as kn and Kn-apply task are not available on arm64 cluster
+	if config.Flags.ClusterArch == "arm64" {
+		updatedTasks := []string{}
+		for _, task := range requiredTasks {
+			if task != "kn" && task != "kn-apply" {
+				updatedTasks = append(updatedTasks, task)
+			}
+		}
+		requiredTasks = updatedTasks
+	}
+	requiredVersion := strings.ReplaceAll(getRequiredVersion, ".", "-")
+	for _, task := range requiredTasks {
+		taskWithVersion := task + "-" + requiredVersion + "-0"
+		if !strings.Contains(taskList, taskWithVersion) {
+			testsuit.T.Errorf("Task %s not found in namespace openshift-pipelines", taskWithVersion)
+		}
+	}
+}
+
+// VerifyVersionedAction checks if the required actions are available with the expected version
+func VerifyVersionedAction(stepActionList string, requiredStepActions []string) {
+	getRequiredVersion := os.Getenv("OSP_VERSION")
+	requiredVersion := strings.ReplaceAll(getRequiredVersion, ".", "-")
+	for _, stepaction := range requiredStepActions {
+		stepActionWithVersion := stepaction + "-" + requiredVersion + "-0"
+		if !strings.Contains(stepActionList, stepActionWithVersion) {
+			testsuit.T.Errorf("Step action %s not found in namespace openshift-pipelines", stepActionWithVersion)
+		}
+	}
 }
