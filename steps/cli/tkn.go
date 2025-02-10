@@ -32,7 +32,8 @@ var _ = gauge.Step("Start and verify pipeline <pipelineName> with param <paramNa
 			defer wg.Done()
 			log.Printf("Starting pipeline %s with param %s=%s", pipelineName, paramName, value)
 			params[paramName] = value
-			pipelineRunName := tkn.StartPipeline(pipelineName, params, workspaces, store.Namespace(), "--use-param-defaults")
+			customPipelineRunName := pipelineName + "-run-" + value
+			pipelineRunName := tkn.StartPipeline(pipelineName, params, workspaces, store.Namespace(), "--use-param-defaults", "--prefix-name", customPipelineRunName)
 			pipelines.ValidatePipelineRun(store.Clients(), pipelineRunName, "successful", "no", store.Namespace())
 		}(value)
 
@@ -68,7 +69,8 @@ var _ = gauge.Step("Start and verify dotnet pipeline <pipelineName> with values 
 
 		go func(pipelineName string, params map[string]string, workspaces map[string]string) {
 			defer wg.Done()
-			pipelineRunName := tkn.StartPipeline(pipelineName, params, workspaces, store.Namespace(), "--use-param-defaults")
+			customPipelineRunName := pipelineName + "-run-" + value
+			pipelineRunName := tkn.StartPipeline(pipelineName, params, workspaces, store.Namespace(), "--use-param-defaults", "--prefix-name", customPipelineRunName)
 			pipelines.ValidatePipelineRun(store.Clients(), pipelineRunName, "successful", "no", store.Namespace())
 		}(pipelineName, params, workspaces)
 
