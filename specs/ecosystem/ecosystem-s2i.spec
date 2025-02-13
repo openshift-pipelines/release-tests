@@ -47,7 +47,7 @@ Steps:
   * Start and verify dotnet pipeline "s2i-dotnet-pipeline" with values stored in variable "dotnet-tags" with workspace "name=source,claimName=shared-pvc"
 
 ## S2I golang pipelinerun: PIPELINES-33-TC03
-Tags: e2e, ecosystem, non-admin, s2i
+Tags: e2e, ecosystem, non-admin, s2i, sanity
 Component: Pipelines
 Level: Integration
 Type: Functional
@@ -64,7 +64,7 @@ Steps:
   * Start and verify pipeline "s2i-go-pipeline" with param "VERSION" with values stored in variable "golang-tags" with workspace "name=source,claimName=shared-pvc"
 
 ## S2I java pipelinerun: PIPELINES-33-TC04
-Tags: e2e, ecosystem, non-admin, s2i, sanity
+Tags: ecosystem, non-admin, s2i
 Component: Pipelines
 Level: Integration
 Type: Functional
