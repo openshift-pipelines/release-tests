@@ -34,7 +34,7 @@ func AssertComponentVersion(version string, component string) {
 	case "pipeline", "triggers", "operator", "chains":
 		actualVersion = cmd.MustSucceed("tkn", "version", "--component", component).Stdout()
 	case "OSP":
-		actualVersion = cmd.MustSucceed("oc", "get", "tektonconfig", "config", "-o", "jsonpath={.status.version}").Stdout()
+		actualVersion = cmd.MustSucceed("occccc", "get", "tektonconfig", "config", "-o", "jsonpath={.status.version}").Stdout()
 	case "pac":
 		actualVersion = cmd.MustSucceed("oc", "get", "pac", "pipelines-as-code", "-o", "jsonpath={.status.version}").Stdout()
 	case "hub":
@@ -54,8 +54,8 @@ func AssertComponentVersion(version string, component string) {
 }
 
 func DownloadCLIFromCluster() {
-	var architecture = strings.Trim(cmd.MustSucceed("uname").Stdout(), "\n") + " " + strings.Trim(cmd.MustSucceed("uname", "-m").Stdout(), "\n")
-	var cliDownloadURL = cmd.MustSucceed("oc", "get", "consoleclidownloads", "tkn", "-o", "jsonpath={.spec.links[?(@.text==\"Download tkn and tkn-pac for "+architecture+"\")].href}").Stdout()
+	architecture := strings.Trim(cmd.MustSucceed("uname").Stdout(), "\n") + " " + strings.Trim(cmd.MustSucceed("uname", "-m").Stdout(), "\n")
+	cliDownloadURL := cmd.MustSucceed("oc", "get", "consoleclidownloads", "tkn", "-o", "jsonpath={.spec.links[?(@.text==\"Download tkn and tkn-pac for "+architecture+"\")].href}").Stdout()
 	result := cmd.MustSuccedIncreasedTimeout(time.Minute*10, "curl", "-o", "/tmp/tkn-binary.tar.gz", "-k", cliDownloadURL)
 	if result.ExitCode != 0 {
 		testsuit.T.Errorf("%s", result.Stderr())
@@ -77,7 +77,7 @@ func AssertClientVersion(binary string) {
 	case "tkn":
 		expectedVersion := os.Getenv("TKN_CLIENT_VERSION")
 		commandResult = cmd.MustSucceed("/tmp/tkn", "version").Stdout()
-		var splittedCommandResult = strings.Split(commandResult, "\n")
+		splittedCommandResult := strings.Split(commandResult, "\n")
 		for i := range splittedCommandResult {
 			if strings.Contains(splittedCommandResult[i], "Client") {
 				if !strings.Contains(splittedCommandResult[i], expectedVersion) {
@@ -126,7 +126,6 @@ func AssertServerVersion(binary string) {
 	default:
 		testsuit.T.Errorf("Unknown binary or client")
 	}
-
 }
 
 func ValidateQuickstarts() {
