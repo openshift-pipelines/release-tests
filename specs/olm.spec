@@ -19,12 +19,7 @@ Steps:
     | S.NO | resource_dir                   |
     |------|--------------------------------|
     | 1    | testdata/hub/tektonhub.yaml    |
-  * Create secrets for Tekton Results
-  * Apply in namespace "openshift-pipelines"
-    | S.NO | resource_dir                   |
-    |------|--------------------------------|
-    | 1    | testdata/pvc/tekton-logs.yaml  |
-    | 2    | testdata/results/result.yaml   | 
+  * Configure Results with Loki
   * Create Results route
   * Create signing-secrets for Tekton Chains
   * Configure GitHub token for git resolver in TektonConfig

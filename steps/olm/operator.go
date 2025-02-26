@@ -153,14 +153,6 @@ var _ = gauge.Step("Validate quickstarts", func() {
 	tkn.ValidateQuickstarts()
 })
 
-var _ = gauge.Step("Create secrets for Tekton Results", func() {
-	if !oc.SecretExists("tekton-results-postgres", "openshift-pipelines") && !oc.SecretExists("tekton-results-tls", "openshift-pipelines") {
-		operator.CreateSecretsForTektonResults()
-	} else {
-		log.Printf("\"tekton-results-postgres\" or \"tekton-results-tls\" secrets already exist")
-	}
-})
-
 var _ = gauge.Step("Ensure that Tekton Results is ready", func() {
 	operator.EnsureResultsReady()
 })
