@@ -21,6 +21,7 @@ import (
 	"github.com/openshift-pipelines/release-tests/pkg/clients"
 	"github.com/openshift-pipelines/release-tests/pkg/k8s"
 	"github.com/openshift-pipelines/release-tests/pkg/oc"
+	"github.com/openshift-pipelines/release-tests/pkg/opc"
 	"github.com/openshift-pipelines/release-tests/pkg/pipelines"
 	"github.com/openshift-pipelines/release-tests/pkg/store"
 	gitlab "github.com/xanzy/go-gitlab"
@@ -607,7 +608,14 @@ func GetPipelineNameFromMR() (pipelineName string) {
 	return pipelineName
 }
 
-func deleteGitlabProject(projectID int) error {
+func AssertPACInfoInstall() {
+	_, err := opc.GetOpcPacInfoInstall()
+	if err != nil {
+		testsuit.T.Fail(fmt.Errorf("failed to get pac info: %v", err))
+	}
+}
+
+func deleteGitlabProject(client *gitlab.Client, projectID int) error {
 	_, err := client.Projects.DeleteProject(projectID)
 	if err != nil {
 		return fmt.Errorf("failed to delete project: %w", err)

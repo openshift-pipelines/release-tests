@@ -91,7 +91,16 @@ func ValidateManualApprovalGateDeployments(cs *clients.Clients, rnames utils.Res
 }
 
 func ValidateOperatorInstallStatus(cs *clients.Clients, rnames utils.ResourceNames) {
-	operatorVersion := cmd.MustSucceed("tkn", "version", "--component", "operator").Stdout()
+	output := cmd.MustSucceed("opc", "version", "-s").Stdout()
+	var operatorVersion string
+	for _, line := range strings.Split(output, "\n") {
+		if strings.HasPrefix(line, "Operator version:") {
+			if parts := strings.SplitN(line, ":", 2); len(parts) == 2 {
+				operatorVersion = strings.TrimSpace(parts[1])
+			}
+			break
+		}
+	}
 	if strings.Contains(operatorVersion, "unknown") {
 		testsuit.T.Errorf("Operator is not installed")
 		return
