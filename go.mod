@@ -1,7 +1,8 @@
 module github.com/openshift-pipelines/release-tests
 
-go 1.22.7
-toolchain go1.23.5
+go 1.23.4
+
+toolchain go1.23.6
 
 require (
 	github.com/getgauge-contrib/gauge-go v0.4.0
