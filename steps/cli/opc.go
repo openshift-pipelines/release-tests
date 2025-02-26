@@ -10,9 +10,10 @@ import (
 	"regexp"
 
 	"github.com/getgauge-contrib/gauge-go/gauge"
+	"github.com/getgauge-contrib/gauge-go/testsuit"
+	"github.com/openshift-pipelines/release-tests/pkg/opc"
 	"github.com/openshift-pipelines/release-tests/pkg/pipelines"
 	"github.com/openshift-pipelines/release-tests/pkg/store"
-	"github.com/openshift-pipelines/release-tests/pkg/tkn"
 )
 
 var _ = gauge.Step("Start and verify pipeline <pipelineName> with param <paramName> with values stored in variable <variableName> with workspace <workspaceValue>", func(pipelineName, paramName, variableName, workspaceValue string) {
@@ -33,7 +34,7 @@ var _ = gauge.Step("Start and verify pipeline <pipelineName> with param <paramNa
 			log.Printf("Starting pipeline %s with param %s=%s", pipelineName, paramName, value)
 			params[paramName] = value
 			customPipelineRunName := pipelineName + "-run-" + value
-			pipelineRunName := tkn.StartPipeline(pipelineName, params, workspaces, store.Namespace(), "--use-param-defaults", "--prefix-name", customPipelineRunName)
+			pipelineRunName := opc.StartPipeline(pipelineName, params, workspaces, store.Namespace(), "--use-param-defaults", "--prefix-name", customPipelineRunName)
 			pipelines.ValidatePipelineRun(store.Clients(), pipelineRunName, "successful", "no", store.Namespace())
 		}(value)
 
@@ -70,7 +71,7 @@ var _ = gauge.Step("Start and verify dotnet pipeline <pipelineName> with values 
 		go func(pipelineName string, params map[string]string, workspaces map[string]string) {
 			defer wg.Done()
 			customPipelineRunName := pipelineName + "-run-" + value
-			pipelineRunName := tkn.StartPipeline(pipelineName, params, workspaces, store.Namespace(), "--use-param-defaults", "--prefix-name", customPipelineRunName)
+			pipelineRunName := opc.StartPipeline(pipelineName, params, workspaces, store.Namespace(), "--use-param-defaults", "--prefix-name", customPipelineRunName)
 			pipelines.ValidatePipelineRun(store.Clients(), pipelineRunName, "successful", "no", store.Namespace())
 		}(pipelineName, params, workspaces)
 
@@ -93,4 +94,45 @@ var _ = gauge.Step("Start the <pipelineName> pipeline with params <parameters> w
 	pipelineRunName := tkn.StartPipeline(pipelineName, params, workspaces, store.Namespace(), "--use-param-defaults")
 	pipelines.ValidatePipelineRun(store.Clients(), pipelineRunName, "successful", "no", store.Namespace())
 	store.PutScenarioData(variableName, pipelineRunName)
+})
+
+var _ = gauge.Step("Hub Search for <resource>", func(resource string) {
+	if err := opc.HubSearch(resource); err != nil {
+		testsuit.T.Errorf("Hub search error: %v", err)
+	}
+})
+
+var _ = gauge.Step("Verify event listener <elname> exists", func(elname string) {
+	ns := store.Namespace()
+	if err := opc.VerifyEventListenerExists(elname, ns); err != nil {
+		testsuit.T.Errorf("Event listener verification failed: %v", err)
+	} else {
+		log.Printf("Event listener %q exists", elname)
+	}
+})
+
+var _ = gauge.Step("Verify cluster trigger binding <clustertriggerbindingName> exists", func(clustertriggerbindingName string) {
+	if err := opc.VerifyClusterTriggerBindingExists(clustertriggerbindingName); err != nil {
+		testsuit.T.Errorf("Cluster trigger binding verification failed: %v", err)
+	} else {
+		log.Printf("Cluster trigger binding %q exists", clustertriggerbindingName)
+	}
+})
+
+var _ = gauge.Step("Verify trigger binding <triggerbindingName> exists", func(triggerbindingName string) {
+	ns := store.Namespace()
+	if err := opc.VerifyTriggerBindingExists(triggerbindingName, ns); err != nil {
+		testsuit.T.Errorf("Trigger binding verification failed: %v", err)
+	} else {
+		log.Printf("Trigger binding %q exists", triggerbindingName)
+	}
+})
+
+var _ = gauge.Step("Verify trigger template <triggertemplateName> exists", func(triggertemplateName string) {
+	ns := store.Namespace()
+	if err := opc.VerifyTriggerTemplateExists(triggertemplateName, ns); err != nil {
+		testsuit.T.Errorf("Trigger template verification failed: %v", err)
+	} else {
+		log.Printf("Trigger template %q exists", triggertemplateName)
+	}
 })
