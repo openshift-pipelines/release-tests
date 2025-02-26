@@ -17,6 +17,7 @@ import (
 	"github.com/openshift-pipelines/release-tests/pkg/cmd"
 	"github.com/openshift-pipelines/release-tests/pkg/config"
 	"github.com/openshift-pipelines/release-tests/pkg/k8s"
+	"github.com/openshift-pipelines/release-tests/pkg/opc"
 	"github.com/openshift-pipelines/release-tests/pkg/wait"
 	"github.com/tektoncd/cli/pkg/cli"
 	clipr "github.com/tektoncd/cli/pkg/cmd/pipelinerun"
@@ -178,7 +179,7 @@ func validatePipelineRunCancel(c *clients.Clients, prname, namespace string) {
 	}
 
 	var wg sync.WaitGroup
-	log.Printf("Canceling pipeline run: %s\n", cmd.MustSucceed("tkn", "pipelinerun", "cancel", prname, "-n", namespace).Stdout())
+	log.Printf("Canceling pipeline run: %s\n", cmd.MustSucceed("opc", "pipelinerun", "cancel", prname, "-n", namespace).Stdout())
 
 	if err := wait.WaitForPipelineRunState(c, prname, wait.FailedWithReason("Cancelled", prname), "Cancelled"); err != nil {
 		testsuit.T.Errorf("Error waiting for PipelineRun `%s` to finished: %s", prname, err)
@@ -203,6 +204,26 @@ func ValidatePipelineRun(c *clients.Clients, prname, status, labelCheck, namespa
 	pr, err := c.PipelineRunClient.Get(c.Ctx, prname, metav1.GetOptions{})
 	if err != nil {
 		testsuit.T.Errorf("failed to get pipeline run %s in namespace %s \n %v", prname, namespace, err)
+	}
+
+	runs, err := opc.GetOpcPrList()
+	if err != nil {
+		testsuit.T.Errorf("failed to list pipeline runs: %v", err)
+		return
+	}
+
+	// Check if the pipelinerun exists in the list.
+	found := false
+	for _, run := range runs {
+		log.Printf("Pipeline run: %+v", run)
+		if run.Name == prname {
+			found = true
+			break
+		}
+	}
+	if !found {
+		testsuit.T.Errorf("PipelineRun %q not found in opc pr list", prname)
+		return
 	}
 
 	// Verify status of PipelineRun (wait for it)
