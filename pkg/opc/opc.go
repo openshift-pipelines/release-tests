@@ -302,7 +302,7 @@ func resourceExists(output, resourceName string) bool {
 	for _, line := range lines {
 		trimmed := strings.TrimSpace(line)
 		if trimmed == "" || trimmed == "NAME" {
-			continue
+			continue // skip empty lines and headers
 		}
 
 		fields := strings.Fields(trimmed)
