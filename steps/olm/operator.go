@@ -162,7 +162,7 @@ var _ = gauge.Step("Create Results route", func() {
 })
 
 var _ = gauge.Step("Verify <resourceType> Results stored", func(resourceType string) {
-	operator.VerifyResultsStored(resourceType)
+	operator.VerifyResultsAnnotationStored(resourceType)
 })
 
 var _ = gauge.Step("Verify <resourceType> Results records", func(resourceType string) {
