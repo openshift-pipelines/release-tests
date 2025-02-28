@@ -1,8 +1,9 @@
 package operator
 
 import (
+	"context"
 	"fmt"
-	"strconv"
+	"log"
 	"strings"
 	"time"
 
@@ -10,7 +11,12 @@ import (
 	"encoding/json"
 
 	"github.com/getgauge-contrib/gauge-go/testsuit"
+	"github.com/openshift-pipelines/release-tests/pkg/clients"
 	"github.com/openshift-pipelines/release-tests/pkg/cmd"
+	"github.com/openshift-pipelines/release-tests/pkg/config"
+	"github.com/openshift-pipelines/release-tests/pkg/store"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/util/wait"
 )
 
 func CreateSecretsForTektonResults() {
@@ -47,20 +53,48 @@ func GetResultsAnnotations(resourceType string) (string, string, string) {
 	return result_uuid, record_uuid, stored
 }
 
-func VerifyResultsStored(resourceType string) {
-	_, _, storedAnnotation := GetResultsAnnotations(resourceType)
-
-	if storedAnnotation == "" {
-		testsuit.T.Fail(fmt.Errorf("Annotation results.tekton.dev/stored is not set"))
+func getRunsAnnotations(cs *clients.Clients, resourceType, name string) (map[string]string, error) {
+	switch resourceType {
+	case "taskrun":
+		taskRun, err := cs.TaskRunClient.Get(cs.Ctx, name, metav1.GetOptions{})
+		if err != nil {
+			return nil, err
+		}
+		return taskRun.GetAnnotations(), nil
+	case "pipelinerun":
+		pipelineRuns, err := cs.PipelineRunClient.Get(cs.Ctx, name, metav1.GetOptions{})
+		if err != nil {
+			return nil, err
+		}
+		return pipelineRuns.GetAnnotations(), nil
+	default:
+		return nil, fmt.Errorf("invalid resource type: %s", resourceType)
 	}
+}
 
-	stored, err := strconv.ParseBool(storedAnnotation)
+func VerifyResultsAnnotationStored(resourceType string) {
+	resourceName := cmd.MustSucceed("tkn", resourceType, "describe", "--last", "-o", "jsonpath='{.metadata.name}'").Stdout()
+	resourceName = strings.ReplaceAll(resourceName, "'", "")
+	cs := store.Clients()
+
+	log.Printf("Waiting for annotation 'results.tekton.dev/stored' to be true \n")
+	err := wait.PollUntilContextTimeout(cs.Ctx, config.APIRetry, config.APITimeout, true, func(context.Context) (done bool, err error) {
+		annotations, err := getRunsAnnotations(cs, resourceType, resourceName)
+		if err != nil {
+			return false, err
+		}
+		if annotations == nil || annotations["results.tekton.dev/stored"] == "" {
+			log.Printf("Annotation 'results.tekton.dev/stored' is not set yet\n")
+			return false, nil
+		}
+		if annotations["results.tekton.dev/stored"] == "true" {
+			return true, nil
+		}
+		return false, nil
+	})
 
 	if err != nil {
-		testsuit.T.Fail(fmt.Errorf("Annotation results.tekton.dev/record doesn't contain a boolean value"))
-	}
-	if !stored {
-		testsuit.T.Fail(fmt.Errorf("Annotation results.tekton.dev/record is set to false"))
+		testsuit.T.Fail(fmt.Errorf("Annotation 'results.tekton.dev/stored' is not true: %v", err))
 	}
 }
 
