@@ -78,3 +78,19 @@ var _ = gauge.Step("Start and verify dotnet pipeline <pipelineName> with values 
 	}
 	wg.Wait()
 })
+
+var _ = gauge.Step("Start the <pipelineName> pipeline with params <parameters> with workspace <workspaceValue> and store the pipelineRunName to variable <variableName>", func(pipelineName, parameters, workspaceValue, variableName string) {
+	params := make(map[string]string)
+	paramPairs := strings.Split(parameters, ",")
+	for _, param := range paramPairs {
+		keyValue := strings.Split(param, "=")
+		if len(keyValue) == 2 {
+			params[keyValue[0]] = keyValue[1]
+		}
+	}
+	workspaces := make(map[string]string)
+	workspaces[strings.Split(workspaceValue, ",")[0]] = strings.Split(workspaceValue, ",")[1]
+	pipelineRunName := tkn.StartPipeline(pipelineName, params, workspaces, store.Namespace(), "--use-param-defaults")
+	pipelines.ValidatePipelineRun(store.Clients(), pipelineRunName, "successful", "no", store.Namespace())
+	store.PutScenarioData(variableName, pipelineRunName)
+})
