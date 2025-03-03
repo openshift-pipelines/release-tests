@@ -299,3 +299,41 @@ Steps:
       |S.NO|pipeline_run_name                  |status      |check_label_propagation  |
       |----|-----------------------------------|--------------------------------------|
       |1   |git-clone-stepaction-run           |successful  |no                       |
+
+## Test the functionality of cache-upload stepaction : PIPELINES-29-TC15
+Tags: e2e, sanity, ecosystem, non-admin, cache
+Component: Pipelines
+Level: Integration
+Type: Functional
+Importance: High
+
+Steps:
+    * Verify ServiceAccount "pipeline" exist
+    * Create 
+      |S.NO|resource_dir                                                     |
+      |----|-----------------------------------------------------------------|
+      |1   |testdata/ecosystem/pipelines/cache-stepactions-python.yaml       |
+      |2   |testdata/pvc/pvc.yaml                                            |
+    * Start the "caches-python-pipeline" pipeline with params "revision=release-v1.17" with workspace "name=source,claimName=shared-pvc" and store the pipelineRunName to variable "pipeline-run-name"
+    * Validate pipelinerun stored in variable "pipeline-run-name" with task "cache-upload" logs contains "Upload /workspace/source/cache/lib content to oci image"
+    * Start the "caches-python-pipeline" pipeline with params "revision=release-v1.17" with workspace "name=source,claimName=shared-pvc" and store the pipelineRunName to variable "pipeline-run-name"
+    * Validate pipelinerun stored in variable "pipeline-run-name" with task "cache-upload" logs contains "no need to upload cache"
+
+## Validate cache uploads with change in revision : PIPELINES-29-TC16
+Tags: e2e, ecosystem, non-admin, cache
+Component: Pipelines
+Level: Integration
+Type: Functional
+Importance: High
+
+Steps:
+    * Verify ServiceAccount "pipeline" exist
+    * Create 
+      |S.NO|resource_dir                                                     |
+      |----|-----------------------------------------------------------------|
+      |1   |testdata/ecosystem/pipelines/cache-stepactions-python.yaml       |
+      |2   |testdata/pvc/pvc.yaml                                            |
+    * Start the "caches-python-pipeline" pipeline with params "revision=release-v1.17" with workspace "name=source,claimName=shared-pvc" and store the pipelineRunName to variable "pipeline-run-name"
+    * Validate pipelinerun stored in variable "pipeline-run-name" with task "cache-upload" logs contains "Upload /workspace/source/cache/lib content to oci image"
+    * Start the "caches-python-pipeline" pipeline with params "revision=master" with workspace "name=source,claimName=shared-pvc" and store the pipelineRunName to variable "pipeline-run-name"
+    * Validate pipelinerun stored in variable "pipeline-run-name" with task "cache-upload" logs contains "Upload /workspace/source/cache/lib content to oci image"
