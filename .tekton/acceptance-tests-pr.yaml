@@ -6,7 +6,7 @@ metadata:
   annotations:
     pipelinesascode.tekton.dev/max-keep-runs: "2" 
     pipelinesascode.tekton.dev/on-event: "[pull_request]"
-    pipelinesascode.tekton.dev/on-target-branch: "[*]"
+    pipelinesascode.tekton.dev/on-target-branch: "[master]"
     pipelinesascode.tekton.dev/pipeline: "https://gitlab.cee.redhat.com/tekton/plumbing/-/raw/master/ci/pipelines/acceptance-tests.yaml"
     pipelinesascode.tekton.dev/task-10: "https://gitlab.cee.redhat.com/tekton/plumbing/-/raw/master/ci/tasks/cli-tests-in-container.yaml"
     pipelinesascode.tekton.dev/task-20: "https://gitlab.cee.redhat.com/tekton/plumbing/-/raw/master/ci/tasks/configure-operator.yaml"
@@ -41,6 +41,8 @@ spec:
       value: custom-operators
     - name: CLI_TESTS_TYPE
       value: downstream
+    - name: CLUSTER_LIFETIME
+      value: 2h
     - name: CLUSTER_POOL
       value: "openstack"
     - name: GIT_RELEASE_TESTS_BRANCH
