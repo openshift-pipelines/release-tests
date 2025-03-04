@@ -11,8 +11,10 @@ import (
 	"github.com/getgauge-contrib/gauge-go/gauge"
 	m "github.com/getgauge-contrib/gauge-go/models"
 	"github.com/getgauge-contrib/gauge-go/testsuit"
+	"github.com/openshift-pipelines/release-tests/pkg/cmd"
 	"github.com/openshift-pipelines/release-tests/pkg/oc"
 	"github.com/openshift-pipelines/release-tests/pkg/openshift"
+	"github.com/openshift-pipelines/release-tests/pkg/operator"
 	"github.com/openshift-pipelines/release-tests/pkg/store"
 )
 
@@ -163,6 +165,18 @@ var _ = gauge.Step("Update addon config with resolverStepActions as <resolverSte
 	} else {
 		oc.UpdateTektonConfigwithInvalidData(patchData, expectedMessage)
 	}
+})
+
+var _ = gauge.Step("Verify versioned ecosystem tasks", func() {
+	taskList := cmd.MustSucceed("oc", "get", "task", "-n", "openshift-pipelines").Stdout()
+	requiredTasks := []string{"buildah", "git-cli", "git-clone", "kn", "kn-apply", "maven", "openshift-client", "s2i-dotnet", "s2i-go", "s2i-java", "s2i-nodejs", "s2i-perl", "s2i-php", "s2i-python", "s2i-ruby", "skopeo-copy", "tkn"}
+	operator.VerifyVersionedTasks(taskList, requiredTasks)
+})
+
+var _ = gauge.Step("Verify versioned ecosystem step actions", func() {
+	stepActionList := cmd.MustSucceed("oc", "get", "stepaction", "-n", "openshift-pipelines").Stdout()
+	requiredStepActions := []string{"git-clone"}
+	operator.VerifyVersionedAction(stepActionList, requiredStepActions)
 })
 
 var _ = gauge.Step("Create project <projectName>", func(projectName string) {
