@@ -19,8 +19,6 @@ Steps:
     | S.NO | resource_dir                   |
     |------|--------------------------------|
     | 1    | testdata/hub/tektonhub.yaml    |
-  * Configure Results with Loki
-  * Create Results route
   * Create signing-secrets for Tekton Chains
   * Configure GitHub token for git resolver in TektonConfig
   * Configure the bundles resolver
@@ -30,6 +28,8 @@ Steps:
   * Validate PAC deployment
   * Validate chains deployment
   * Validate hub deployment
+  * Configure Results with Loki
+  * Create Results route
   * Validate "tekton-pipelines-controller" statefulset deployment
   * Validate "tekton-pipelines-remote-resolvers" statefulset deployment
   * Validate tkn server cli deployment
