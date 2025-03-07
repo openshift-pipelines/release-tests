@@ -21,6 +21,7 @@ spec:
       value:
       - kube:admin
       - system:admin
+      - cluster-admin
       - tekton
     - name: numberOfApprovalsRequired
       value: 1
