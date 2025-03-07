@@ -13,33 +13,35 @@ spec:
   - name: clone-git-repo
     taskRef:
       resolver: cluster
-        params:
-        - name: kind
-          value: task
-        - name: name
-          value: git-clone
-        - name: namespace
-          value: openshift-pipelines
+      params:
+      - name: kind
+        value: task
+      - name: name
+        value: git-clone
+      - name: namespace
+        value: openshift-pipelines
     workspaces:
     - name: output
       workspace: source
     params:
-    - name: url
+    - name: URL
       value: https://github.com/che-samples/console-java-simple
-    - name: subdirectory
+    - name: REVISION
+      value: master
+    - name: SUBDIRECTORY
       value: $(params.SUBDIR)
-    - name: deleteExisting
+    - name: DELETE_EXISTING
       value: "true"
   - name: build
     taskRef:
       resolver: cluster
-        params:
-        - name: kind
-          value: task
-        - name: name
-          value: jib-maven
-        - name: namespace
-          value: openshift-pipelines
+      params:
+      - name: kind
+        value: task
+      - name: name
+        value: jib-maven
+      - name: namespace
+        value: openshift-pipelines
     runAfter:
     - clone-git-repo
     workspaces:
