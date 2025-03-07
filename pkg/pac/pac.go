@@ -31,19 +31,23 @@ import (
 )
 
 const (
-	filePath                 = "pull-request.yaml"
 	initialBackoffDuration   = 5 * time.Second
-	mainBranch               = "main"
 	maxRetriesForkProject    = 5
 	maxRetriesPipelineStatus = 10
 	targetURL                = "http://pipelines-as-code-controller.openshift-pipelines:8080"
 	webhookConfigName        = "gitlab-webhook-config"
 )
 
-func CreateGitLabSecret() {
+var client *gitlab.Client
+
+func SetGitLabClient(c *gitlab.Client) {
+	client = c
+}
+
+// Initialize Gitlab Client
+func InitGitLabClient() *gitlab.Client {
 	tokenSecretData := os.Getenv("GITLAB_TOKEN")
 	webhookSecretData := os.Getenv("GITLAB_WEBHOOK_TOKEN")
-	store.PutScenarioData("GITLAB_WEBHOOK_TOKEN", webhookSecretData)
 	if tokenSecretData == "" && webhookSecretData == "" {
 		testsuit.T.Fail(fmt.Errorf("token for authorization to the GitLab repository was not exported as a system variable"))
 	} else {
@@ -52,8 +56,14 @@ func CreateGitLabSecret() {
 		} else {
 			log.Printf("Secret \"%s\" already exists", webhookConfigName)
 		}
-		store.PutScenarioData("gitlabToken", tokenSecretData)
 	}
+	store.PutScenarioData("GITLAB_WEBHOOK_TOKEN", webhookSecretData)
+	client, err := gitlab.NewClient(tokenSecretData)
+	if err != nil {
+		testsuit.T.Fail(fmt.Errorf("failed to initialize GitLab client: %v", err))
+	}
+
+	return client
 }
 
 func getNewSmeeURL() (string, error) {
@@ -141,7 +151,7 @@ func createSmeeDeployment(c *clients.Clients, namespace, smeeURL string) error {
 func SetupSmeeDeployment() {
 	var err error
 	smeeDeploymentName := "gosmee-client"
-	store.PutScenarioData("smee_deployment_name", smeeDeploymentName)
+	store.PutScenarioData("smeeDeploymentName", smeeDeploymentName)
 
 	smeeURL, err := getNewSmeeURL()
 	if err != nil {
@@ -154,19 +164,8 @@ func SetupSmeeDeployment() {
 	}
 }
 
-// Initialize Gitlab Client
-func InitGitLabClient() *gitlab.Client {
-	token := store.GetScenarioData("gitlabToken")
-	client, err := gitlab.NewClient(token)
-	if err != nil {
-		testsuit.T.Fail(fmt.Errorf("failed to initialize GitLab client: %v", err))
-	}
-
-	return client
-}
-
 // Specified Gitlab Project ID is forked into Group Namespace
-func forkProject(client *gitlab.Client, projectID, targetNamespace string) (*gitlab.Project, error) {
+func forkProject(projectID, targetNamespace string) (*gitlab.Project, error) {
 	for i := 0; i < maxRetriesForkProject; i++ {
 		projectName := fmt.Sprintf("release-tests-fork-%08d", time.Now().UnixNano()%1e8)
 		project, _, err := client.Projects.ForkProject(projectID, &gitlab.ForkProjectOptions{
@@ -185,7 +184,7 @@ func forkProject(client *gitlab.Client, projectID, targetNamespace string) (*git
 }
 
 // Add WebhookURL to forked Project
-func addWebhook(client *gitlab.Client, projectID int, webhookURL, token string) error {
+func addWebhook(projectID int, webhookURL, token string) error {
 	pushEvents := true
 	mergeRequestsEvents := true
 	noteEvents := true
@@ -243,7 +242,37 @@ func createNewRepository(c *clients.Clients, projectName, targetGroupNamespace, 
 	return nil
 }
 
-func SetupGitLabProject(client *gitlab.Client) *gitlab.Project {
+// addLabelToProject adds a label to a GitLab project
+func addLabelToProject(projectID int, labelName, color, description string) error {
+	// Check if the label already exists
+	labels, _, err := client.Labels.ListLabels(projectID, &gitlab.ListLabelsOptions{})
+	if err != nil {
+		return fmt.Errorf("failed to fetch project labels: %w", err)
+	}
+
+	for _, label := range labels {
+		if label.Name == labelName {
+			fmt.Printf("Label '%s' already exists in project ID %d\n", labelName, projectID)
+			return nil
+		}
+	}
+
+	// Create label if it doesn't exist
+	_, _, err = client.Labels.CreateLabel(projectID, &gitlab.CreateLabelOptions{
+		Name:        gitlab.Ptr(labelName),
+		Color:       gitlab.Ptr(color),
+		Description: gitlab.Ptr(description),
+	})
+
+	if err != nil {
+		return fmt.Errorf("failed to create label '%s': %w", labelName, err)
+	}
+
+	fmt.Printf("Successfully added label '%s' to project ID %d\n", labelName, projectID)
+	return nil
+}
+
+func SetupGitLabProject() *gitlab.Project {
 	gitlabGroupNamespace := os.Getenv("GITLAB_GROUP_NAMESPACE")
 	projectIDOrPath := os.Getenv("GITLAB_PROJECT_ID")
 
@@ -254,12 +283,12 @@ func SetupGitLabProject(client *gitlab.Client) *gitlab.Project {
 	smeeURL := store.GetScenarioData("SMEE_URL")
 	webhookToken := store.GetScenarioData("GITLAB_WEBHOOK_TOKEN")
 
-	project, err := forkProject(client, projectIDOrPath, gitlabGroupNamespace)
+	project, err := forkProject(projectIDOrPath, gitlabGroupNamespace)
 	if err != nil {
 		testsuit.T.Fail(fmt.Errorf("error during project forking: %w", err))
 	}
 
-	err = addWebhook(client, project.ID, smeeURL, webhookToken)
+	err = addWebhook(project.ID, smeeURL, webhookToken)
 	if err != nil {
 		testsuit.T.Fail(fmt.Errorf("failed to add webhook: %w", err))
 	}
@@ -268,12 +297,55 @@ func SetupGitLabProject(client *gitlab.Client) *gitlab.Project {
 	if err != nil {
 		testsuit.T.Fail(fmt.Errorf("failed to create repository"))
 	}
+	store.PutScenarioData("projectID", strconv.Itoa(project.ID))
 
 	return project
 }
 
+// adds a comment to the specified merge request.
+func AddComment(comment string) error {
+
+	projectID, _ := strconv.Atoi(store.GetScenarioData("projectID"))
+	mrID, _ := strconv.Atoi(store.GetScenarioData("mrID"))
+	opts := &gitlab.CreateMergeRequestNoteOptions{
+		Body: gitlab.Ptr(comment),
+	}
+
+	_, _, err := client.Notes.CreateMergeRequestNote(projectID, mrID, opts)
+	if err != nil {
+		return fmt.Errorf("failed to add comment to MR %d in project %d: %v", mrID, projectID, err)
+	}
+
+	return nil
+}
+
+func AddLabel(label, color, description string) error {
+
+	projectID, _ := strconv.Atoi(store.GetScenarioData("projectID"))
+	mrID, _ := strconv.Atoi(store.GetScenarioData("mrID"))
+
+	// Add a label to the project
+	err := addLabelToProject(projectID, label, color, description)
+	if err != nil {
+		testsuit.T.Fail(fmt.Errorf("failed to add label to project: %w", err))
+	}
+	// Create a LabelOptions instance
+	addLabels := gitlab.LabelOptions{label}
+
+	// Update the merge request to add the label
+	_, _, err = client.MergeRequests.UpdateMergeRequest(projectID, mrID, &gitlab.UpdateMergeRequestOptions{
+		AddLabels: &addLabels,
+	})
+	if err != nil {
+		return fmt.Errorf("failed to update merge request with label 'bug': %w", err)
+	}
+
+	fmt.Printf("Successfully added label %s to merge request %d\n", label, mrID)
+	return nil
+}
+
 // Create new branch to push the commit
-func createBranch(client *gitlab.Client, projectID int, branchName string) error {
+func createBranch(projectID int, branchName string) error {
 	_, _, err := client.Branches.CreateBranch(projectID, &gitlab.CreateBranchOptions{
 		Branch: gitlab.Ptr(branchName),
 		Ref:    gitlab.Ptr("main"),
@@ -281,20 +353,20 @@ func createBranch(client *gitlab.Client, projectID int, branchName string) error
 	return err
 }
 
-func createPacGenerateOpts() *pacgenerate.Opts {
+func createPacGenerateOpts(eventType, branch, fileName string) *pacgenerate.Opts {
 	// Initialize PAC generate options
 	opts := pacgenerate.MakeOpts()
 
 	// Set Event information
 	opts.Event = &info.Event{
-		EventType:  "pull_request",
-		BaseBranch: mainBranch,
+		EventType:  eventType,
+		BaseBranch: branch,
 	}
 	// Set Project URL and Branch name to GitInfo
 	// ProjectURL is used as PipelineRun name with suffix
 	opts.GitInfo = &git.Info{
 		URL:    store.GetScenarioData("PROJECT_URL"),
-		Branch: mainBranch,
+		Branch: branch,
 	}
 	// Initialize I/O streams
 	var outputBuffer bytes.Buffer
@@ -304,14 +376,14 @@ func createPacGenerateOpts() *pacgenerate.Opts {
 		In:     os.Stdin,
 	}
 	// Specify the FileName of the pipelinerun yaml
-	opts.FileName = filePath
+	opts.FileName = fileName
 
 	return opts
 }
 
 // Generate sample PipelineRun, pull-request.yaml
-func generatePipelineRun() error {
-	opts := createPacGenerateOpts()
+func generatePipelineRun(eventType, branch, fileName string) error {
+	opts := createPacGenerateOpts(eventType, branch, fileName)
 
 	err := pacgenerate.Generate(opts, true)
 	if err != nil {
@@ -333,31 +405,84 @@ func validateYAML(yamlContent []byte) error {
 	return nil
 }
 
-func createCommit(client *gitlab.Client, projectID int, branch, commitMessage, fileDesPath string) error {
-	err := generatePipelineRun()
-	if err != nil {
-		return fmt.Errorf("could not generate PipelineRun in %s: %v", filePath, err)
+func GeneratePipelineRunYaml(eventType, branch string) error {
+	fileName := eventType + ".yaml"
+
+	// Generate the PipelineRun YAML.
+	if err := generatePipelineRun(eventType, branch, fileName); err != nil {
+		return fmt.Errorf("could not generate PipelineRun in %s: %v", fileName, err)
 	}
-	fileContent, err := os.ReadFile(filePath)
+
+	fileContent, err := os.ReadFile(fileName)
 	if err != nil {
-		return fmt.Errorf("could not read file %s: %v", filePath, err)
+		return fmt.Errorf("could not read file %s: %v", fileName, err)
 	}
 
 	if err := validateYAML(fileContent); err != nil {
 		return fmt.Errorf("invalid YAML content: %v", err)
 	}
+	store.PutScenarioData("fileContent", string(fileContent))
+	store.PutScenarioData("branch", string(branch))
+	store.PutScenarioData("fileName", string(fileName))
 
+	return nil
+}
+
+// updateAnnotation updates the specified annotation in the pull-request.yaml file
+func UpdateAnnotation(annotationKey, annotationValue string) error {
+	fileName := store.GetScenarioData("fileName")
+	data, err := os.ReadFile(fileName)
+	if err != nil {
+		return fmt.Errorf("failed to read YAML file: %v", err)
+	}
+
+	var content map[string]interface{}
+	if err := yaml.Unmarshal(data, &content); err != nil {
+		return fmt.Errorf("failed to unmarshal YAML: %v", err)
+	}
+
+	meta := content["metadata"].(map[interface{}]interface{})
+	anns := meta["annotations"].(map[interface{}]interface{})
+
+	// If the annotation exists, append the new value; otherwise, set it.
+	if currValue, exists := anns[annotationKey].(string); exists {
+		anns[annotationKey] = currValue + " " + annotationValue
+	} else {
+		anns[annotationKey] = annotationValue
+	}
+
+	out, err := yaml.Marshal(content)
+	if err != nil {
+		return fmt.Errorf("failed to marshal YAML: %v", err)
+	}
+
+	if err := os.WriteFile(fileName, out, 0644); err != nil {
+		return fmt.Errorf("failed to write YAML file: %v", err)
+	}
+
+	if err := validateYAML(out); err != nil {
+		return fmt.Errorf("invalid YAML content: %v", err)
+	}
+
+	store.PutScenarioData("fileContent", string(out))
+
+	fmt.Println("Annotation updated successfully")
+	return nil
+}
+
+func createCommit(projectID int, branch, commitMessage, fileDesPath string) error {
 	// Commit the PAC generated PLR
+	fileContent := store.GetScenarioData("fileContent")
 	action := gitlab.FileCreate
 	commitOpts := &gitlab.CreateCommitOptions{
 		Branch:        &branch,
 		CommitMessage: &commitMessage,
 		Actions: []*gitlab.CommitActionOptions{
-			{Action: &action, FilePath: gitlab.Ptr(fileDesPath), Content: gitlab.Ptr(string(fileContent))},
+			{Action: &action, FilePath: gitlab.Ptr(fileDesPath), Content: gitlab.Ptr(fileContent)},
 		},
 	}
 
-	_, _, err = client.Commits.CreateCommit(projectID, commitOpts)
+	_, _, err := client.Commits.CreateCommit(projectID, commitOpts)
 	if err != nil {
 		return fmt.Errorf("failed to create commit: %v", err)
 	}
@@ -365,7 +490,7 @@ func createCommit(client *gitlab.Client, projectID int, branch, commitMessage, f
 }
 
 // Creates MR to a forked project with a PipelineRun YAML under .tekton directory
-func createMergeRequest(client *gitlab.Client, projectID int, sourceBranch, targetBranch, title string) (string, error) {
+func createMergeRequest(projectID int, sourceBranch, targetBranch, title string) (string, error) {
 	mrOptions := &gitlab.CreateMergeRequestOptions{
 		SourceBranch: &sourceBranch,
 		TargetBranch: &targetBranch,
@@ -397,7 +522,7 @@ func isTerminalStatus(status string) bool {
 	return status == "success" || status == "failed" || status == "canceled"
 }
 
-func checkPipelineStatus(client *gitlab.Client, projectID, mergeRequestID int) error {
+func checkPipelineStatus(projectID, mergeRequestID int) error {
 	var retryCount int
 
 	// Fetch pipelines for the specified MergeRequest ID
@@ -431,20 +556,26 @@ func checkPipelineStatus(client *gitlab.Client, projectID, mergeRequestID int) e
 	}
 }
 
-func ConfigurePreviewChanges(client *gitlab.Client, projectID int) string {
+func ConfigurePreviewChanges() {
 	randomSuffix := strconv.FormatInt(time.Now().UnixNano(), 10)[:8]
 	branchName := "preview-branch-" + randomSuffix
 	commitMessage := "Add preview changes for feature"
+	fileDesPath := ".tekton/pull-request.yaml"
 
-	if err := createBranch(client, projectID, branchName); err != nil {
+	projectID, err := strconv.Atoi(store.GetScenarioData("projectID"))
+	if err != nil {
+		testsuit.T.Fail(fmt.Errorf("failed to convert project ID to integer: %v", err))
+	}
+
+	if err := createBranch(projectID, branchName); err != nil {
 		testsuit.T.Fail(fmt.Errorf("failed to create branch: %v", err))
 	}
 
-	if err := createCommit(client, projectID, branchName, commitMessage, ".tekton/pull-request.yaml"); err != nil {
+	if err := createCommit(projectID, branchName, commitMessage, fileDesPath); err != nil {
 		testsuit.T.Fail(fmt.Errorf("failed to create commit: %v", err))
 	}
 
-	mrURL, err := createMergeRequest(client, projectID, branchName, "main", "Add preview changes for feature")
+	mrURL, err := createMergeRequest(projectID, branchName, "main", "Add preview changes for feature")
 	if err != nil {
 		testsuit.T.Fail(fmt.Errorf("failed to create merge request: %v", err))
 	}
@@ -456,19 +587,32 @@ func ConfigurePreviewChanges(client *gitlab.Client, projectID int) string {
 		testsuit.T.Fail(fmt.Errorf("failed to extract merge request ID: %v", err))
 	}
 
-	err = checkPipelineStatus(client, projectID, mrID)
+	store.PutScenarioData("mrID", strconv.Itoa(mrID))
+}
+
+func GetPipelineNameFromMR() (pipelineName string) {
+	projectID, err := strconv.Atoi(store.GetScenarioData("projectID"))
+	if err != nil {
+		testsuit.T.Fail(fmt.Errorf("failed to convert project ID to integer: %v", err))
+	}
+	mrID, err := strconv.Atoi(store.GetScenarioData("mrID"))
+	if err != nil {
+		testsuit.T.Fail(fmt.Errorf("failed to convert project ID to integer: %v", err))
+	}
+
+	err = checkPipelineStatus(projectID, mrID)
 	if err != nil {
 		testsuit.T.Fail(fmt.Errorf("failed to check pipeline status: %v", err))
 	}
 
-	pipelineName, err := pipelines.GetLatestPipelinerun(store.Clients(), store.Namespace())
+	pipelineName, err = pipelines.GetLatestPipelinerun(store.Clients(), store.Namespace())
 	if err != nil {
 		testsuit.T.Fail(fmt.Errorf("failed to get the latest Pipelinerun: %v", err))
 	}
 	return pipelineName
 }
 
-func deleteGitlabProject(client *gitlab.Client, projectID int) error {
+func deleteGitlabProject(projectID int) error {
 	_, err := client.Projects.DeleteProject(projectID)
 	if err != nil {
 		return fmt.Errorf("failed to delete project: %w", err)
@@ -477,14 +621,26 @@ func deleteGitlabProject(client *gitlab.Client, projectID int) error {
 	return nil
 }
 
-func CleanupPAC(client *gitlab.Client, c *clients.Clients, projectID int, smeeDeploymentName, namespace string) {
+func CleanupPAC(c *clients.Clients, smeeDeploymentName, namespace string) {
+	// Remove the generated PipelineRun YAML file
+	fileName := store.GetScenarioData("fileName")
+	if fileName != "" {
+		if err := os.Remove(fileName); err != nil {
+			testsuit.T.Fail(fmt.Errorf("failed to remove file %s: %v", fileName, err))
+		}
+	}
+
+	projectID, err := strconv.Atoi(store.GetScenarioData("projectID"))
+	if err != nil {
+		testsuit.T.Fail(fmt.Errorf("failed to convert project ID to integer: %v", err))
+	}
 	// Remove Forked Project
-	if cleanupErr := deleteGitlabProject(client, projectID); cleanupErr != nil {
+	if cleanupErr := deleteGitlabProject(projectID); cleanupErr != nil {
 		testsuit.T.Fail(fmt.Errorf("cleanup failed: %v", cleanupErr))
 	}
 
 	// Delete Smee Deployment
-	err := k8s.DeleteDeployment(c, namespace, smeeDeploymentName)
+	err = k8s.DeleteDeployment(c, namespace, smeeDeploymentName)
 	if err != nil {
 		testsuit.T.Fail(fmt.Errorf("failed to Delete Smee Deployment: %v", err))
 	}
