@@ -61,16 +61,16 @@ func EnsureTektonChainsExists(clients chainv1alpha.TektonChainInterface, names u
 
 func VerifySignature(resourceType string) {
 	// Get a signature of taskrun payload
-	resourceUID := cmd.MustSucceed("tkn", resourceType, "describe", "--last", "-o", "jsonpath='{.metadata.uid}'").Stdout()
+	resourceUID := cmd.MustSucceed("opc", resourceType, "describe", "--last", "-o", "jsonpath='{.metadata.uid}'").Stdout()
 	resourceUID = strings.Trim(resourceUID, "'")
 	jsonpath := fmt.Sprintf("jsonpath=\"{.metadata.annotations.chains\\.tekton\\.dev/signature-%s-%s}\"", resourceType, resourceUID)
 	log.Println("Waiting 30 seconds")
 	cmd.MustSuccedIncreasedTimeout(time.Second*45, "sleep", "30")
-	signature := cmd.MustSucceed("tkn", resourceType, "describe", "--last", "-o", jsonpath).Stdout()
+	signature := cmd.MustSucceed("opc", resourceType, "describe", "--last", "-o", jsonpath).Stdout()
 	signature = strings.Trim(signature, "\"")
 
 	jsonpath = "jsonpath=\"{.metadata.annotations.chains\\.tekton\\.dev/signed}\""
-	isSigned := cmd.MustSucceed("tkn", resourceType, "describe", "--last", "-o", jsonpath).Stdout()
+	isSigned := cmd.MustSucceed("opc", resourceType, "describe", "--last", "-o", jsonpath).Stdout()
 	isSigned = strings.Trim(isSigned, "\"")
 
 	if isSigned != "true" {
@@ -103,7 +103,7 @@ func StartKanikoTask() {
 	var tag string = time.Now().Format("060102150405")
 	cmd.MustSucceed("oc", "secrets", "link", "pipeline", "chains-image-registry-credentials", "--for=pull,mount")
 	image := fmt.Sprintf("IMAGE=%s:%s", repo, tag)
-	cmd.MustSucceed("tkn", "task", "start", "--param", image, "--use-param-defaults", "--workspace", "name=source,claimName=chains-pvc", "--workspace", "name=dockerconfig,secret=chains-image-registry-credentials", "kaniko-chains")
+	cmd.MustSucceed("opc", "task", "start", "--param", image, "--use-param-defaults", "--workspace", "name=source,claimName=chains-pvc", "--workspace", "name=dockerconfig,secret=chains-image-registry-credentials", "kaniko-chains")
 	log.Println("Waiting 2 minutes for images to appear in image registry")
 	cmd.MustSuccedIncreasedTimeout(time.Second*130, "sleep", "120")
 }
@@ -111,7 +111,7 @@ func StartKanikoTask() {
 func GetImageUrlAndDigest() (string, string) {
 	// Get Image digest
 	var imageDigest string
-	jsonOutput := cmd.MustSucceed("tkn", "tr", "describe", "--last", "-o", "jsonpath={.status.results}").Stdout()
+	jsonOutput := cmd.MustSucceed("opc", "tr", "describe", "--last", "-o", "jsonpath={.status.results}").Stdout()
 	// Parse Json Output
 	type Result struct {
 		Name  string `json:"name"`
