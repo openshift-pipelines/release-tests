@@ -37,6 +37,8 @@ Steps:
   * Validate hub deployment
   * Validate tkn server cli deployment
   * Validate console plugin deployment
+  * Configure Results with Loki
+  * Create Results route
   * Ensure that Tekton Results is ready
   * Verify TektonAddons Install status
   * Validate RBAC
