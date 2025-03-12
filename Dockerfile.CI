@@ -1,7 +1,7 @@
 FROM quay.io/fedora/fedora:41
 
 RUN dnf update -y &&\
-    dnf install -y --setopt=tsflags=nodocs azure-cli git go jq lynx make openssl python-unversioned-command python3 python3-antlr4-runtime python3-pip unzip vim wget &&\
+    dnf install -y --setopt=tsflags=nodocs azure-cli git go jq make openssl python-unversioned-command python3 python3-antlr4-runtime python3-pip unzip vim wget &&\
     dnf clean all -y && rm -fR /var/cache/dnf
 
 RUN pip install pyyaml reportportal-client
