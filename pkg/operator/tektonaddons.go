@@ -152,15 +152,24 @@ func VerifyVersionedTasks() {
 	taskList := cmd.MustSucceed("oc", "get", "task", "-n", "openshift-pipelines").Stdout()
 	requiredTasks := []string{"buildah", "git-cli", "git-clone", "maven", "openshift-client", "s2i-dotnet", "s2i-go", "s2i-java", "s2i-nodejs", "s2i-perl", "s2i-php", "s2i-python", "s2i-ruby", "skopeo-copy", "tkn"}
 	getRequiredVersion := os.Getenv("OSP_VERSION")
+	requiredVersion := ""
+
 	// Get the arch of the cluster as kn and Kn-apply task are not available on arm64 cluster
 	if config.Flags.ClusterArch != "arm64" {
 		requiredTasks = append(requiredTasks, "kn", "kn-apply")
 	}
-	requiredVersion := strings.ReplaceAll(getRequiredVersion, ".", "-")
+
+	// Remove z-stream version from OSP_VERSION
+	versionParts := strings.Split(getRequiredVersion, ".")
+	if len(versionParts) >= 2 && getRequiredVersion != "5.0.5" {
+		requiredVersion = versionParts[0] + "-" + versionParts[1] + "-0"
+	}
+
 	for _, task := range requiredTasks {
-		taskWithVersion := task + "-" + requiredVersion + "-0"
-		if getRequiredVersion == "5.0.5" {
-			taskWithVersion = task
+		taskWithVersion := task
+
+		if requiredVersion != "" {
+			taskWithVersion = task + "-" + requiredVersion
 		}
 		if !strings.Contains(taskList, taskWithVersion) {
 			testsuit.T.Errorf("Task %s not found in namespace openshift-pipelines", taskWithVersion)
@@ -173,11 +182,19 @@ func VerifyVersionedStepActions() {
 	stepActionList := cmd.MustSucceed("oc", "get", "stepaction", "-n", "openshift-pipelines").Stdout()
 	requiredStepActions := []string{"git-clone"}
 	getRequiredVersion := os.Getenv("OSP_VERSION")
-	requiredVersion := strings.ReplaceAll(getRequiredVersion, ".", "-")
+	requiredVersion := ""
+
+	// Remove z-stream version from OSP_VERSION
+	versionParts := strings.Split(getRequiredVersion, ".")
+	if len(versionParts) >= 2 && getRequiredVersion != "5.0.5" {
+		requiredVersion = versionParts[0] + "-" + versionParts[1] + "-0"
+	}
+
 	for _, stepAction := range requiredStepActions {
-		stepActionWithVersion := stepAction + "-" + requiredVersion + "-0"
-		if getRequiredVersion == "5.0.5" {
-			stepActionWithVersion = stepAction
+		stepActionWithVersion := stepAction
+
+		if requiredVersion != "" {
+			stepActionWithVersion = stepAction + "-" + requiredVersion
 		}
 		if !strings.Contains(stepActionList, stepActionWithVersion) {
 			testsuit.T.Errorf("Step action %s not found in namespace openshift-pipelines", stepActionWithVersion)
