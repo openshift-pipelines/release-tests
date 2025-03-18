@@ -5,7 +5,7 @@ import (
 
 	"github.com/getgauge-contrib/gauge-go/gauge"
 	"github.com/openshift-pipelines/release-tests/pkg/clients"
-	"github.com/openshift-pipelines/release-tests/pkg/tkn"
+	"github.com/openshift-pipelines/release-tests/pkg/opc"
 	"github.com/tektoncd/operator/test/utils"
 )
 
@@ -49,12 +49,12 @@ func GetPayload() []byte {
 	}
 }
 
-func Tkn() tkn.Cmd {
-	switch n := gauge.GetSuiteStore()["tkn"].(type) {
-	case tkn.Cmd:
+func Opc() opc.Cmd {
+	switch n := gauge.GetSuiteStore()["opc"].(type) {
+	case opc.Cmd:
 		return n
 	default:
-		panic("Error: type for tkn is not as expected")
+		panic("Error: type for opc is not as expected")
 	}
 }
 

@@ -13,11 +13,11 @@ import (
 	"github.com/openshift-pipelines/release-tests/pkg/k8s"
 	"github.com/openshift-pipelines/release-tests/pkg/oc"
 	"github.com/openshift-pipelines/release-tests/pkg/olm"
+	"github.com/openshift-pipelines/release-tests/pkg/opc"
 	"github.com/openshift-pipelines/release-tests/pkg/openshift"
 	"github.com/openshift-pipelines/release-tests/pkg/operator"
 	"github.com/openshift-pipelines/release-tests/pkg/statefulset"
 	"github.com/openshift-pipelines/release-tests/pkg/store"
-	"github.com/openshift-pipelines/release-tests/pkg/tkn"
 )
 
 var once sync.Once
@@ -125,32 +125,32 @@ var _ = gauge.Step("Validate tektoninstallersets names", func() {
 
 var _ = gauge.Step("Check version of component <component>", func(component string) {
 	defaultVersion := os.Getenv(strings.ToUpper(component + "_version"))
-	tkn.AssertComponentVersion(defaultVersion, component)
+	opc.AssertComponentVersion(defaultVersion, component)
 })
 
 var _ = gauge.Step("Check version of OSP", func() {
 	defaultVersion := os.Getenv("OSP_VERSION")
-	tkn.AssertComponentVersion(defaultVersion, "OSP")
+	opc.AssertComponentVersion(defaultVersion, "OSP")
 })
 
 var _ = gauge.Step("Download and extract CLI from cluster", func() {
-	tkn.DownloadCLIFromCluster()
+	opc.DownloadCLIFromCluster()
 })
 
 var _ = gauge.Step("Check <binary> client version", func(binary string) {
-	tkn.AssertClientVersion(binary)
+	opc.AssertClientVersion(binary)
 })
 
 var _ = gauge.Step("Check <binary> server version", func(binary string) {
-	tkn.AssertServerVersion(binary)
+	opc.AssertServerVersion(binary)
 })
 
 var _ = gauge.Step("Check <binary> version", func(binary string) {
-	tkn.AssertClientVersion(binary)
+	opc.AssertClientVersion(binary)
 })
 
 var _ = gauge.Step("Validate quickstarts", func() {
-	tkn.ValidateQuickstarts()
+	opc.ValidateQuickstarts()
 })
 
 var _ = gauge.Step("Ensure that Tekton Results is ready", func() {
