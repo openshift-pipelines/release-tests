@@ -20,7 +20,7 @@ Steps:
   * Cleanup PAC
 
 ## Configure PAC in GitLab Project: PIPELINES-30-TC02
-Tags: pac, sanity, e2e
+Tags: pac, e2e
 Component: PAC
 Level: Integration
 Type: Functional
@@ -41,7 +41,7 @@ Steps:
   * Cleanup PAC
 
 ## Configure PAC in GitLab Project: PIPELINES-30-TC03
-Tags: pac, sanity, e2e
+Tags: pac, e2e
 Component: PAC
 Level: Integration
 Type: Functional

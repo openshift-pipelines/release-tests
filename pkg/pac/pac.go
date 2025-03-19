@@ -252,7 +252,7 @@ func addLabelToProject(projectID int, labelName, color, description string) erro
 
 	for _, label := range labels {
 		if label.Name == labelName {
-			fmt.Printf("Label '%s' already exists in project ID %d\n", labelName, projectID)
+			log.Printf("Label '%s' already exists in project ID %d\n", labelName, projectID)
 			return nil
 		}
 	}
@@ -268,7 +268,7 @@ func addLabelToProject(projectID int, labelName, color, description string) erro
 		return fmt.Errorf("failed to create label '%s': %w", labelName, err)
 	}
 
-	fmt.Printf("Successfully added label '%s' to project ID %d\n", labelName, projectID)
+	log.Printf("Successfully added label '%s' to project ID %d\n", labelName, projectID)
 	return nil
 }
 
@@ -303,7 +303,7 @@ func SetupGitLabProject() *gitlab.Project {
 }
 
 // adds a comment to the specified merge request.
-func AddComment(comment string) error {
+func AddComment(comment string) {
 
 	projectID, _ := strconv.Atoi(store.GetScenarioData("projectID"))
 	mrID, _ := strconv.Atoi(store.GetScenarioData("mrID"))
@@ -313,13 +313,12 @@ func AddComment(comment string) error {
 
 	_, _, err := client.Notes.CreateMergeRequestNote(projectID, mrID, opts)
 	if err != nil {
-		return fmt.Errorf("failed to add comment to MR %d in project %d: %v", mrID, projectID, err)
+		testsuit.T.Fail(fmt.Errorf("failed to add comment to MR %d in project %d: %v", mrID, projectID, err))
 	}
-
-	return nil
+	log.Printf("Successfully added comment %s to merge request %d\n", comment, mrID)
 }
 
-func AddLabel(label, color, description string) error {
+func AddLabel(label, color, description string) {
 
 	projectID, _ := strconv.Atoi(store.GetScenarioData("projectID"))
 	mrID, _ := strconv.Atoi(store.GetScenarioData("mrID"))
@@ -337,11 +336,10 @@ func AddLabel(label, color, description string) error {
 		AddLabels: &addLabels,
 	})
 	if err != nil {
-		return fmt.Errorf("failed to update merge request with label 'bug': %w", err)
+		testsuit.T.Fail(fmt.Errorf("failed to update merge request with label 'bug': %w", err))
 	}
 
-	fmt.Printf("Successfully added label %s to merge request %d\n", label, mrID)
-	return nil
+	log.Printf("Successfully added label %s to merge request %d\n", label, mrID)
 }
 
 // Create new branch to push the commit
@@ -405,40 +403,39 @@ func validateYAML(yamlContent []byte) error {
 	return nil
 }
 
-func GeneratePipelineRunYaml(eventType, branch string) error {
+func GeneratePipelineRunYaml(eventType, branch string) {
 	fileName := eventType + ".yaml"
 
 	// Generate the PipelineRun YAML.
 	if err := generatePipelineRun(eventType, branch, fileName); err != nil {
-		return fmt.Errorf("could not generate PipelineRun in %s: %v", fileName, err)
+		testsuit.T.Fail(fmt.Errorf("failed to generate pipelinerun: %v", err))
 	}
 
 	fileContent, err := os.ReadFile(fileName)
 	if err != nil {
-		return fmt.Errorf("could not read file %s: %v", fileName, err)
+		testsuit.T.Fail(fmt.Errorf("could not read file %s: %v", fileName, err))
 	}
 
 	if err := validateYAML(fileContent); err != nil {
-		return fmt.Errorf("invalid YAML content: %v", err)
+		testsuit.T.Fail(fmt.Errorf("invalid YAML content: %v", err))
 	}
 	store.PutScenarioData("fileContent", string(fileContent))
 	store.PutScenarioData("branch", string(branch))
 	store.PutScenarioData("fileName", string(fileName))
 
-	return nil
 }
 
 // updateAnnotation updates the specified annotation in the pull-request.yaml file
-func UpdateAnnotation(annotationKey, annotationValue string) error {
+func UpdateAnnotation(annotationKey, annotationValue string) {
 	fileName := store.GetScenarioData("fileName")
 	data, err := os.ReadFile(fileName)
 	if err != nil {
-		return fmt.Errorf("failed to read YAML file: %v", err)
+		testsuit.T.Fail(fmt.Errorf("failed to read YAML file: %v", err))
 	}
 
 	var content map[string]interface{}
 	if err := yaml.Unmarshal(data, &content); err != nil {
-		return fmt.Errorf("failed to unmarshal YAML: %v", err)
+		testsuit.T.Fail(fmt.Errorf("failed to unmarshal YAML: %v", err))
 	}
 
 	meta := content["metadata"].(map[interface{}]interface{})
@@ -453,21 +450,20 @@ func UpdateAnnotation(annotationKey, annotationValue string) error {
 
 	out, err := yaml.Marshal(content)
 	if err != nil {
-		return fmt.Errorf("failed to marshal YAML: %v", err)
+		testsuit.T.Fail(fmt.Errorf("failed to marshal YAML: %v", err))
 	}
 
-	if err := os.WriteFile(fileName, out, 0644); err != nil {
-		return fmt.Errorf("failed to write YAML file: %v", err)
+	if err := os.WriteFile(fileName, out, 0600); err != nil {
+		testsuit.T.Fail(fmt.Errorf("failed to write YAML file: %v", err))
 	}
 
 	if err := validateYAML(out); err != nil {
-		return fmt.Errorf("invalid YAML content: %v", err)
+		testsuit.T.Fail(fmt.Errorf("invalid YAML content: %v", err))
 	}
 
 	store.PutScenarioData("fileContent", string(out))
 
-	fmt.Println("Annotation updated successfully")
-	return nil
+	log.Println("Annotation updated successfully")
 }
 
 func createCommit(projectID int, branch, commitMessage, fileDesPath string) error {
