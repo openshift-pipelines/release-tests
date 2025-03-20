@@ -57,7 +57,6 @@ func InitGitLabClient() *gitlab.Client {
 			log.Printf("Secret \"%s\" already exists", webhookConfigName)
 		}
 	}
-	store.PutScenarioData("GITLAB_WEBHOOK_TOKEN", webhookSecretData)
 	client, err := gitlab.NewClient(tokenSecretData)
 	if err != nil {
 		testsuit.T.Fail(fmt.Errorf("failed to initialize GitLab client: %v", err))
@@ -281,7 +280,7 @@ func SetupGitLabProject() *gitlab.Project {
 	}
 
 	smeeURL := store.GetScenarioData("SMEE_URL")
-	webhookToken := store.GetScenarioData("GITLAB_WEBHOOK_TOKEN")
+	webhookToken := os.Getenv("GITLAB_WEBHOOK_TOKEN")
 
 	project, err := forkProject(projectIDOrPath, gitlabGroupNamespace)
 	if err != nil {
