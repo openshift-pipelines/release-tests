@@ -8,6 +8,7 @@ import (
 	"github.com/getgauge-contrib/gauge-go/gauge"
 	m "github.com/getgauge-contrib/gauge-go/models"
 	"github.com/getgauge-contrib/gauge-go/testsuit"
+	"github.com/openshift-pipelines/release-tests/pkg/cmd"
 	"github.com/openshift-pipelines/release-tests/pkg/pipelines"
 	"github.com/openshift-pipelines/release-tests/pkg/store"
 )
@@ -92,4 +93,16 @@ var _ = gauge.Step("Verify the latest pipelinerun for <state> state", func(state
 		testsuit.T.Fail(fmt.Errorf("failed to get pipelinerun from %s: %v", namespace, err))
 	}
 	pipelines.ValidatePipelineRun(store.Clients(), prname, state, "no", namespace)
+})
+
+var _ = gauge.Step("Validate pipelinerun stored in variable <prname> with task <taskname> logs contains <expectedLogs>", func(prname, taskname, expectedLogs string) {
+	logs := cmd.MustSucceed("oc", "logs", "-l", "tekton.dev/pipelineRun="+store.GetScenarioData(prname)+",tekton.dev/pipelineTask="+taskname, "-n", store.Namespace()).Stdout()
+	logsLower := strings.ToLower(logs)
+	log.Printf("Logs output: %s\n", logsLower)
+	expectedLogsLower := strings.ToLower(expectedLogs)
+	if !strings.Contains(logsLower, expectedLogsLower) {
+		testsuit.T.Errorf("Logs validation failed: Logs did not contain expected content")
+	} else {
+		log.Print("Logs validated successfully")
+	}
 })
