@@ -41,24 +41,31 @@ func New(opcPath string) Cmd {
 	}
 }
 
+func GetOPCServerVersion(component string) string {
+	var version string
+	output := cmd.MustSucceed("opc", "version", "-s").Stdout()
+	titleComp := strings.ToUpper(component[:1]) + component[1:]
+	prefix := titleComp + " version:"
+
+	for _, line := range strings.Split(output, "\n") {
+		if strings.HasPrefix(line, prefix) {
+			version = strings.TrimSpace(strings.TrimPrefix(line, prefix))
+			break
+		}
+	}
+
+	if strings.Contains(version, "unknown") {
+		testsuite.T.Errorf("%s is not installed", titleComp)
+	}
+	return version
+}
+
 // Verify the versions of Openshift Pipelines components
 func AssertComponentVersion(version string, component string) {
 	var actualVersion string
 	switch component {
 	case "pipeline", "triggers", "operator", "chains":
-		output := cmd.MustSucceed("opc", "version", "-s").Stdout()
-		titleComp := strings.ToUpper(component[:1]) + component[1:]
-		for _, line := range strings.Split(output, "\n") {
-			if strings.HasPrefix(line, titleComp+" version:") {
-				if parts := strings.SplitN(line, ":", 2); len(parts) == 2 {
-					actualVersion = strings.TrimSpace(parts[1])
-				}
-				break
-			}
-		}
-		if strings.Contains(actualVersion, "unknown") {
-			testsuit.T.Errorf("%s is not installed", titleComp)
-		}
+		actualVersion = GetOPCServerVersion(component)
 	case "OSP":
 		actualVersion = cmd.MustSucceed("oc", "get", "tektonconfig", "config", "-o", "jsonpath={.status.version}").Stdout()
 	case "pac":
@@ -217,8 +224,7 @@ func StartPipeline(pipelineName string, params map[string]string, workspaces map
 
 // GetOpcPacInfoInstall fetches Pipelines as Code install information
 func GetOpcPacInfoInstall() (*PacInfoInstall, error) {
-	result := cmd.MustSucceed("opc", "pac", "info", "install")
-	output := result.Stdout()
+	output := cmd.MustSucceed("opc", "pac", "info", "install").Stdout()
 	lines := strings.Split(output, "\n")
 
 	var pacInfo PacInfoInstall
@@ -262,15 +268,17 @@ func HubSearch(resource string) error {
 }
 
 // GetOpcPrList fetches pipeline run lists with status of each run
-func GetOpcPrList() ([]PipelineRunList, error) {
-	result := cmd.MustSucceed("opc", "pipelinerun", "ls")
+func GetOpcPrList(pipelineRunName, namespace string) ([]PipelineRunList, error) {
+	result, err := GetResourceList("pipelinerun", pipelineRunName, namespace)
+	if err != nil {
+		testsuit.T.Errorf("Failed to get pipelinerun list: %v", err)
+	}
 	output := strings.TrimSpace(result.Stdout())
 	lines := strings.Split(output, "\n")
 
 	// Ensure output isn't empty
 	if len(lines) < 2 {
-		log.Printf("Unexpected output from opc pipelinerun ls: %s", output)
-		return nil, fmt.Errorf("unexpected pipelinerun output")
+		return nil, fmt.Errorf("unexpected pipelinerun output %s", output)
 	}
 
 	var runs []PipelineRunList
@@ -298,6 +306,10 @@ func GetOpcPrList() ([]PipelineRunList, error) {
 
 // resourceExists checks if a resource exists in output
 func resourceExists(output, resourceName string) bool {
+	trimmedOutput := strings.TrimSpace(output)
+	if strings.HasPrefix(trimmedOutput, "No") {
+		return false
+	}
 	lines := strings.Split(output, "\n")
 	for _, line := range lines {
 		trimmed := strings.TrimSpace(line)
@@ -314,42 +326,11 @@ func resourceExists(output, resourceName string) bool {
 	return false
 }
 
-// VerifyEventListenerExists checks if an event listener exists in a namespace
-func VerifyEventListenerExists(elname, namespace string) error {
-	output := cmd.MustSucceed("opc", "eventlistener", "list", "-n", namespace).Stdout()
-	if !resourceExists(output, elname) {
-		log.Printf("Event listener %q not found in namespace %q", elname, namespace)
-		return fmt.Errorf("event listener %q not found in namespace %q", elname, namespace)
-	}
-	return nil
-}
+func GetResourceList(resourceType, name, namespace string) (string, error) {
+	output := cmd.MustSucceed("opc", resourceType, "list", "-n", namespace).Stdout()
 
-// VerifyClusterTriggerBindingExists checks if a clustertriggerbinding exists
-func VerifyClusterTriggerBindingExists(clustertriggerbindingName string) error {
-	output := cmd.MustSucceed("opc", "clustertriggerbinding", "list").Stdout()
-	if !resourceExists(output, clustertriggerbindingName) {
-		log.Printf("Clustertriggerbinding %q not found", clustertriggerbindingName)
-		return fmt.Errorf("clustertriggerbinding %q not found", clustertriggerbindingName)
+	if !resourceExists(output, name) {
+		return "", fmt.Errorf("%s %q not found in namespace %q", resourceType, name, namespace)
 	}
-	return nil
-}
-
-// VerifyTriggerBindingExists ensures a triggerbinding exists in a namespace
-func VerifyTriggerBindingExists(triggerbindingName, namespace string) error {
-	output := cmd.MustSucceed("opc", "triggerbinding", "ls", "-n", namespace).Stdout()
-	if !resourceExists(output, triggerbindingName) {
-		log.Printf("Triggerbinding %q not found in namespace %q", triggerbindingName, namespace)
-		return fmt.Errorf("triggerbinding %q not found in namespace %q", triggerbindingName, namespace)
-	}
-	return nil
-}
-
-// VerifyTriggerTemplateExists checks if a triggertemplate exists in a namespace
-func VerifyTriggerTemplateExists(triggertemplateName, namespace string) error {
-	output := cmd.MustSucceed("opc", "triggertemplate", "ls", "-n", namespace).Stdout()
-	if !resourceExists(output, triggertemplateName) {
-		log.Printf("Triggertemplate %q not found in namespace %q", triggertemplateName, namespace)
-		return fmt.Errorf("triggertemplate %q not found in namespace %q", triggertemplateName, namespace)
-	}
-	return nil
+	return output, nil
 }

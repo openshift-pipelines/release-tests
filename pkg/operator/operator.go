@@ -12,6 +12,7 @@ import (
 	"github.com/openshift-pipelines/release-tests/pkg/k8s"
 	approvalgate "github.com/openshift-pipelines/release-tests/pkg/manualapprovalgate"
 	"github.com/openshift-pipelines/release-tests/pkg/olm"
+	"github.com/openshift-pipelines/release-tests/pkg/opc"
 	"github.com/openshift-pipelines/release-tests/pkg/store"
 	"github.com/tektoncd/operator/test/utils"
 )
@@ -91,19 +92,9 @@ func ValidateManualApprovalGateDeployments(cs *clients.Clients, rnames utils.Res
 }
 
 func ValidateOperatorInstallStatus(cs *clients.Clients, rnames utils.ResourceNames) {
-	output := cmd.MustSucceed("opc", "version", "-s").Stdout()
-	var operatorVersion string
-	for _, line := range strings.Split(output, "\n") {
-		if strings.HasPrefix(line, "Operator version:") {
-			if parts := strings.SplitN(line, ":", 2); len(parts) == 2 {
-				operatorVersion = strings.TrimSpace(parts[1])
-			}
-			break
-		}
-	}
+	operatorVersion := opc.GetOPCServerVersion("operator")
 	if strings.Contains(operatorVersion, "unknown") {
-		testsuit.T.Errorf("Operator is not installed")
-		return
+		testsuite.T.Errorf("Operator is not installed")
 	}
 	log.Printf("Waiting for operator to be up and running....\n")
 	EnsureTektonConfigStatusInstalled(cs.TektonConfig(), rnames)
