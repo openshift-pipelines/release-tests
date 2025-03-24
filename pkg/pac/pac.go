@@ -609,9 +609,13 @@ func GetPipelineNameFromMR() (pipelineName string) {
 }
 
 func AssertPACInfoInstall() {
-	_, err := opc.GetOpcPacInfoInstall()
+	pacInfo, err := opc.GetOpcPacInfoInstall()
 	if err != nil {
 		testsuit.T.Fail(fmt.Errorf("failed to get pac info: %v", err))
+	}
+	if pacInfo.PipelinesAsCode.InstallVersion != os.Getenv("PAC_VERSION") &&
+		pacInfo.PipelinesAsCode.InstallNamespace != "openshift-pipelines" {
+		testsuit.T.Fail(fmt.Errorf("PAC version is doen't match with the expected version"))
 	}
 }
 

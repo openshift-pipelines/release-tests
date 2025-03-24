@@ -92,6 +92,10 @@ var _ = gauge.Step("Start the <pipelineName> pipeline with params <parameters> w
 	workspaces := make(map[string]string)
 	workspaces[strings.Split(workspaceValue, ",")[0]] = strings.Split(workspaceValue, ",")[1]
 	pipelineRunName := tkn.StartPipeline(pipelineName, params, workspaces, store.Namespace(), "--use-param-defaults")
+	_, err := opc.GetOpcPrList(pipelineRunName, store.Namespace())
+	if err != nil {
+		testsuit.T.Errorf("Failed to get pipelineRun %s: %v", pipelineRunName, err)
+	}
 	pipelines.ValidatePipelineRun(store.Clients(), pipelineRunName, "successful", "no", store.Namespace())
 	store.PutScenarioData(variableName, pipelineRunName)
 })
@@ -102,37 +106,10 @@ var _ = gauge.Step("Hub Search for <resource>", func(resource string) {
 	}
 })
 
-var _ = gauge.Step("Verify event listener <elname> exists", func(elname string) {
-	ns := store.Namespace()
-	if err := opc.VerifyEventListenerExists(elname, ns); err != nil {
-		testsuit.T.Errorf("Event listener verification failed: %v", err)
+var _ = gauge.Step("Verify <resourceType> <resourceName> exists", func(resourcetype, resourcename string) {
+	if _, err := opc.GetResourceList(resourcetype, name, store.Namespace()); err != nil {
+		testsuit.T.Errorf("Failed to verify %s with %s in %s failed: %v", resourcetype, name, store.Namespace(), err)
 	} else {
-		log.Printf("Event listener %q exists", elname)
-	}
-})
-
-var _ = gauge.Step("Verify cluster trigger binding <clustertriggerbindingName> exists", func(clustertriggerbindingName string) {
-	if err := opc.VerifyClusterTriggerBindingExists(clustertriggerbindingName); err != nil {
-		testsuit.T.Errorf("Cluster trigger binding verification failed: %v", err)
-	} else {
-		log.Printf("Cluster trigger binding %q exists", clustertriggerbindingName)
-	}
-})
-
-var _ = gauge.Step("Verify trigger binding <triggerbindingName> exists", func(triggerbindingName string) {
-	ns := store.Namespace()
-	if err := opc.VerifyTriggerBindingExists(triggerbindingName, ns); err != nil {
-		testsuit.T.Errorf("Trigger binding verification failed: %v", err)
-	} else {
-		log.Printf("Trigger binding %q exists", triggerbindingName)
-	}
-})
-
-var _ = gauge.Step("Verify trigger template <triggertemplateName> exists", func(triggertemplateName string) {
-	ns := store.Namespace()
-	if err := opc.VerifyTriggerTemplateExists(triggertemplateName, ns); err != nil {
-		testsuit.T.Errorf("Trigger template verification failed: %v", err)
-	} else {
-		log.Printf("Trigger template %q exists", triggertemplateName)
+		log.Printf("%s: %s exists", resourcetype, name)
 	}
 })
