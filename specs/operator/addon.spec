@@ -115,3 +115,22 @@ Steps:
   * Tasks "s2i-java" are "present" in namespace "openshift-pipelines"
   * Tasks "hello" are "present" in namespace "openshift-pipelines"
 
+## Verify versioned ecosystem tasks: PIPELINES-15-TC09
+Tags: e2e, integration, addon
+Component: Pipelines
+Level: Integration
+Type: Functional
+Importance: Critical
+
+Steps:
+  * Verify versioned ecosystem tasks
+
+## Verify versioned stepaction tasks: PIPELINES-15-TC010
+Tags: e2e, integration, addon
+Component: Pipelines
+Level: Integration
+Type: Functional
+Importance: Critical
+
+Steps:
+  * Verify versioned ecosystem step actions
