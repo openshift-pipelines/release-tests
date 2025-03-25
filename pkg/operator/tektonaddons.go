@@ -158,8 +158,17 @@ func VerifyVersionedTasks() {
 		requiredTasks = append(requiredTasks, "kn", "kn-apply")
 	}
 
+	if expectedVersion == "" {
+		testsuit.T.Errorf("OSP_VERSION is not set. Cannot determine the required version for tasks.")
+		return
+	}
+
 	// Remove z-stream version from OSP_VERSION
 	versionParts := strings.Split(expectedVersion, ".")
+	if len(versionParts) < 2 {
+		testsuit.T.Errorf("Invalid OSP_VERSION Version: %s", expectedVersion)
+		return
+	}
 	requiredVersion := versionParts[0] + "-" + versionParts[1] + "-0"
 
 	for _, task := range requiredTasks {
@@ -176,8 +185,17 @@ func VerifyVersionedStepActions() {
 	requiredStepActions := []string{"git-clone"}
 	expectedVersion := os.Getenv("OSP_VERSION")
 
+	if expectedVersion == "" {
+		testsuit.T.Errorf("OSP_VERSION is not set. Cannot determine the required version for tasks.")
+		return
+	}
+
 	// Remove z-stream version from OSP_VERSION
 	versionParts := strings.Split(expectedVersion, ".")
+	if len(versionParts) < 2 {
+		testsuit.T.Errorf("Invalid OSP_VERSION Version: %s", expectedVersion)
+		return
+	}
 	requiredVersion := versionParts[0] + "-" + versionParts[1] + "-0"
 
 	for _, stepAction := range requiredStepActions {
