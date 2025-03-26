@@ -19,8 +19,10 @@ import (
 	"github.com/openshift-pipelines/pipelines-as-code/pkg/git"
 	"github.com/openshift-pipelines/pipelines-as-code/pkg/params/info"
 	"github.com/openshift-pipelines/release-tests/pkg/clients"
+	"github.com/openshift-pipelines/release-tests/pkg/config"
 	"github.com/openshift-pipelines/release-tests/pkg/k8s"
 	"github.com/openshift-pipelines/release-tests/pkg/oc"
+	"github.com/openshift-pipelines/release-tests/pkg/opc"
 	"github.com/openshift-pipelines/release-tests/pkg/pipelines"
 	"github.com/openshift-pipelines/release-tests/pkg/store"
 	gitlab "github.com/xanzy/go-gitlab"
@@ -605,6 +607,23 @@ func GetPipelineNameFromMR() (pipelineName string) {
 		testsuit.T.Fail(fmt.Errorf("failed to get the latest Pipelinerun: %v", err))
 	}
 	return pipelineName
+}
+
+func AssertPACInfoInstall() {
+	pacInfo, err := opc.GetOpcPacInfoInstall()
+	if err != nil {
+		testsuit.T.Fail(fmt.Errorf("failed to get pac info: %v", err))
+		return
+	}
+
+	clusterVersion := pacInfo.PipelinesAsCode.InstallVersion
+	expectedVersion := os.Getenv("PAC_VERSION")
+
+	if !strings.Contains(clusterVersion, expectedVersion) ||
+		pacInfo.PipelinesAsCode.InstallNamespace != config.TargetNamespace {
+		testsuit.T.Fail(fmt.Errorf("PAC version %s doesn't match the expected version %s or namespace %s is wrong",
+			clusterVersion, expectedVersion, pacInfo.PipelinesAsCode.InstallNamespace))
+	}
 }
 
 func deleteGitlabProject(projectID int) error {

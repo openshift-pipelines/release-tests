@@ -10,9 +10,10 @@ import (
 	"regexp"
 
 	"github.com/getgauge-contrib/gauge-go/gauge"
+	"github.com/getgauge-contrib/gauge-go/testsuit"
+	"github.com/openshift-pipelines/release-tests/pkg/opc"
 	"github.com/openshift-pipelines/release-tests/pkg/pipelines"
 	"github.com/openshift-pipelines/release-tests/pkg/store"
-	"github.com/openshift-pipelines/release-tests/pkg/tkn"
 )
 
 var _ = gauge.Step("Start and verify pipeline <pipelineName> with param <paramName> with values stored in variable <variableName> with workspace <workspaceValue>", func(pipelineName, paramName, variableName, workspaceValue string) {
@@ -33,7 +34,7 @@ var _ = gauge.Step("Start and verify pipeline <pipelineName> with param <paramNa
 			log.Printf("Starting pipeline %s with param %s=%s", pipelineName, paramName, value)
 			params[paramName] = value
 			customPipelineRunName := pipelineName + "-run-" + value
-			pipelineRunName := tkn.StartPipeline(pipelineName, params, workspaces, store.Namespace(), "--use-param-defaults", "--prefix-name", customPipelineRunName)
+			pipelineRunName := opc.StartPipeline(pipelineName, params, workspaces, store.Namespace(), "--use-param-defaults", "--prefix-name", customPipelineRunName)
 			pipelines.ValidatePipelineRun(store.Clients(), pipelineRunName, "successful", "no", store.Namespace())
 		}(value)
 
@@ -70,7 +71,7 @@ var _ = gauge.Step("Start and verify dotnet pipeline <pipelineName> with values 
 		go func(pipelineName string, params map[string]string, workspaces map[string]string) {
 			defer wg.Done()
 			customPipelineRunName := pipelineName + "-run-" + value
-			pipelineRunName := tkn.StartPipeline(pipelineName, params, workspaces, store.Namespace(), "--use-param-defaults", "--prefix-name", customPipelineRunName)
+			pipelineRunName := opc.StartPipeline(pipelineName, params, workspaces, store.Namespace(), "--use-param-defaults", "--prefix-name", customPipelineRunName)
 			pipelines.ValidatePipelineRun(store.Clients(), pipelineRunName, "successful", "no", store.Namespace())
 		}(pipelineName, params, workspaces)
 
@@ -90,7 +91,28 @@ var _ = gauge.Step("Start the <pipelineName> pipeline with params <parameters> w
 	}
 	workspaces := make(map[string]string)
 	workspaces[strings.Split(workspaceValue, ",")[0]] = strings.Split(workspaceValue, ",")[1]
-	pipelineRunName := tkn.StartPipeline(pipelineName, params, workspaces, store.Namespace(), "--use-param-defaults")
+	pipelineRunName := opc.StartPipeline(pipelineName, params, workspaces, store.Namespace(), "--use-param-defaults")
+	prList, err := opc.GetOpcPrList(pipelineRunName, store.Namespace())
+	if err != nil {
+		testsuit.T.Errorf("Failed to get pipelineRun %s: %v", pipelineRunName, err)
+	}
+	if len(prList) == 0 || prList[0].Name != pipelineRunName {
+		testsuit.T.Errorf("pipelineRun %s not found", pipelineRunName)
+	}
 	pipelines.ValidatePipelineRun(store.Clients(), pipelineRunName, "successful", "no", store.Namespace())
 	store.PutScenarioData(variableName, pipelineRunName)
+})
+
+var _ = gauge.Step("Hub Search for <resource>", func(resource string) {
+	if err := opc.HubSearch(resource); err != nil {
+		testsuit.T.Errorf("Hub search error: %v", err)
+	}
+})
+
+var _ = gauge.Step("Verify that <resourceType> <resourceName> exists", func(resourcetype, resourcename string) {
+	if _, err := opc.VerifyResourceListMatchesName(resourcetype, resourcename, store.Namespace()); err != nil {
+		testsuit.T.Errorf("Failed to verify %s with %s in %s failed: %v", resourcetype, resourcename, store.Namespace(), err)
+	} else {
+		log.Printf("%s %s exists", resourcetype, resourcename)
+	}
 })

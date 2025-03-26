@@ -19,6 +19,7 @@ import (
 	"github.com/openshift-pipelines/release-tests/pkg/clients"
 	"github.com/openshift-pipelines/release-tests/pkg/cmd"
 	resource "github.com/openshift-pipelines/release-tests/pkg/config"
+	"github.com/openshift-pipelines/release-tests/pkg/opc"
 	"github.com/openshift-pipelines/release-tests/pkg/wait"
 	"github.com/tektoncd/pipeline/pkg/names"
 	eventReconciler "github.com/tektoncd/triggers/pkg/reconciler/eventlistener"
@@ -52,6 +53,10 @@ func getServiceNameAndPort(c *clients.Clients, elname, namespace string) (string
 }
 
 func ExposeEventListner(c *clients.Clients, elname, namespace string) string {
+	if _, err := opc.VerifyResourceListMatchesName("eventlistener", elname, namespace); err != nil {
+		testsuit.T.Errorf("%v", err)
+	}
+
 	svcName, _ := getServiceNameAndPort(c, elname, namespace)
 	cmd.MustSucceed("oc", "expose", "service", svcName, "-n", namespace)
 

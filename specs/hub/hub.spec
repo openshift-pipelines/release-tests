@@ -20,3 +20,4 @@ Steps:
   * Verify that the HUB UI contains tasks which are present in "https://github.com/VeereshAradhya/catalog" 
   * Update task in "https://github.com/VeereshAradhya/catalog"  repo
   * Verify the updates are visible in HUB UI
+  * Hub Search for "git-cli"

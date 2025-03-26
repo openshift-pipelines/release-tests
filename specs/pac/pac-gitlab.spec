@@ -12,6 +12,7 @@ This scenario tests configuring PAC in Public GitLab project
 
 Steps:
   * Setup Gitlab Client
+  * Validate PAC Info Install
   * Verify ServiceAccount "pipeline" exist
   * Create Smee deployment
   * Configure GitLab repo for "pull_request" in "main"
