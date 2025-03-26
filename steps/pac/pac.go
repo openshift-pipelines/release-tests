@@ -32,6 +32,10 @@ var _ = gauge.Step("Validate PipelineRun for <state>", func(state string) {
 	pipelines.ValidatePipelineRun(store.Clients(), pipelineName, state, "no", store.Namespace())
 })
 
+var _ = gauge.Step("Validate PAC Info Install", func() {
+	pac.AssertPACInfoInstall()
+})
+
 var _ = gauge.Step("Update Annotation <annotationKey> with <annotationValue>", func(annotationKey, annotationValue string) {
 	pac.UpdateAnnotation(annotationKey, annotationValue)
 })
