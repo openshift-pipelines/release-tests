@@ -19,6 +19,7 @@ import (
 	"github.com/openshift-pipelines/pipelines-as-code/pkg/git"
 	"github.com/openshift-pipelines/pipelines-as-code/pkg/params/info"
 	"github.com/openshift-pipelines/release-tests/pkg/clients"
+	"github.com/openshift-pipelines/release-tests/pkg/config"
 	"github.com/openshift-pipelines/release-tests/pkg/k8s"
 	"github.com/openshift-pipelines/release-tests/pkg/oc"
 	"github.com/openshift-pipelines/release-tests/pkg/opc"
@@ -612,14 +613,20 @@ func AssertPACInfoInstall() {
 	pacInfo, err := opc.GetOpcPacInfoInstall()
 	if err != nil {
 		testsuit.T.Fail(fmt.Errorf("failed to get pac info: %v", err))
+		return
 	}
-	if pacInfo.PipelinesAsCode.InstallVersion != os.Getenv("PAC_VERSION") &&
-		pacInfo.PipelinesAsCode.InstallNamespace != "openshift-pipelines" {
-		testsuit.T.Fail(fmt.Errorf("PAC version is doen't match with the expected version"))
+
+	clusterVersion := pacInfo.PipelinesAsCode.InstallVersion
+	expectedVersion := os.Getenv("PAC_VERSION")
+
+	if !strings.Contains(clusterVersion, expectedVersion) ||
+		pacInfo.PipelinesAsCode.InstallNamespace != config.TargetNamespace {
+		testsuit.T.Fail(fmt.Errorf("PAC version %s doesn't match the expected version %s or namespace %s is wrong",
+			clusterVersion, expectedVersion, pacInfo.PipelinesAsCode.InstallNamespace))
 	}
 }
 
-func deleteGitlabProject(client *gitlab.Client, projectID int) error {
+func deleteGitlabProject(projectID int) error {
 	_, err := client.Projects.DeleteProject(projectID)
 	if err != nil {
 		return fmt.Errorf("failed to delete project: %w", err)

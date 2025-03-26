@@ -91,10 +91,13 @@ var _ = gauge.Step("Start the <pipelineName> pipeline with params <parameters> w
 	}
 	workspaces := make(map[string]string)
 	workspaces[strings.Split(workspaceValue, ",")[0]] = strings.Split(workspaceValue, ",")[1]
-	pipelineRunName := tkn.StartPipeline(pipelineName, params, workspaces, store.Namespace(), "--use-param-defaults")
-	_, err := opc.GetOpcPrList(pipelineRunName, store.Namespace())
+	pipelineRunName := opc.StartPipeline(pipelineName, params, workspaces, store.Namespace(), "--use-param-defaults")
+	prList, err := opc.GetOpcPrList(pipelineRunName, store.Namespace())
 	if err != nil {
 		testsuit.T.Errorf("Failed to get pipelineRun %s: %v", pipelineRunName, err)
+	}
+	if len(prList) == 0 || prList[0].Name != pipelineRunName {
+		testsuit.T.Errorf("pipelineRun %s not found", pipelineRunName)
 	}
 	pipelines.ValidatePipelineRun(store.Clients(), pipelineRunName, "successful", "no", store.Namespace())
 	store.PutScenarioData(variableName, pipelineRunName)
@@ -106,10 +109,10 @@ var _ = gauge.Step("Hub Search for <resource>", func(resource string) {
 	}
 })
 
-var _ = gauge.Step("Verify <resourceType> <resourceName> exists", func(resourcetype, resourcename string) {
-	if _, err := opc.GetResourceList(resourcetype, name, store.Namespace()); err != nil {
-		testsuit.T.Errorf("Failed to verify %s with %s in %s failed: %v", resourcetype, name, store.Namespace(), err)
+var _ = gauge.Step("Verify that <resourceType> <resourceName> exists", func(resourcetype, resourcename string) {
+	if _, err := opc.VerifyResourceListMatchesName(resourcetype, resourcename, store.Namespace()); err != nil {
+		testsuit.T.Errorf("Failed to verify %s with %s in %s failed: %v", resourcetype, resourcename, store.Namespace(), err)
 	} else {
-		log.Printf("%s: %s exists", resourcetype, name)
+		log.Printf("%s %s exists", resourcetype, resourcename)
 	}
 })
