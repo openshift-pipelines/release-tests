@@ -94,7 +94,7 @@ func ValidateManualApprovalGateDeployments(cs *clients.Clients, rnames utils.Res
 func ValidateOperatorInstallStatus(cs *clients.Clients, rnames utils.ResourceNames) {
 	operatorVersion := opc.GetOPCServerVersion("operator")
 	if strings.Contains(operatorVersion, "unknown") {
-		testsuite.T.Errorf("Operator is not installed")
+		testsuit.T.Errorf("Operator is not installed")
 	}
 	log.Printf("Waiting for operator to be up and running....\n")
 	EnsureTektonConfigStatusInstalled(cs.TektonConfig(), rnames)

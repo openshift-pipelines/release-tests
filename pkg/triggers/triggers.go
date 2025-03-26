@@ -53,7 +53,7 @@ func getServiceNameAndPort(c *clients.Clients, elname, namespace string) (string
 }
 
 func ExposeEventListner(c *clients.Clients, elname, namespace string) string {
-	if err := opc.VerifyEventListenerExists(elname, namespace); err != nil {
+	if _, err := opc.VerifyResourceListMatchesName("eventlistener", elname, namespace); err != nil {
 		testsuit.T.Errorf("%v", err)
 	}
 

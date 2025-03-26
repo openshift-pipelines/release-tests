@@ -55,7 +55,7 @@ func GetOPCServerVersion(component string) string {
 	}
 
 	if strings.Contains(version, "unknown") {
-		testsuite.T.Errorf("%s is not installed", titleComp)
+		testsuit.T.Errorf("%s is not installed", titleComp)
 	}
 	return version
 }
@@ -269,11 +269,11 @@ func HubSearch(resource string) error {
 
 // GetOpcPrList fetches pipeline run lists with status of each run
 func GetOpcPrList(pipelineRunName, namespace string) ([]PipelineRunList, error) {
-	result, err := GetResourceList("pipelinerun", pipelineRunName, namespace)
+	result, err := VerifyResourceListMatchesName("pipelinerun", pipelineRunName, namespace)
 	if err != nil {
 		testsuit.T.Errorf("Failed to get pipelinerun list: %v", err)
 	}
-	output := strings.TrimSpace(result.Stdout())
+	output := strings.TrimSpace(result)
 	lines := strings.Split(output, "\n")
 
 	// Ensure output isn't empty
@@ -310,25 +310,27 @@ func resourceExists(output, resourceName string) bool {
 	if strings.HasPrefix(trimmedOutput, "No") {
 		return false
 	}
-	lines := strings.Split(output, "\n")
-	for _, line := range lines {
-		trimmed := strings.TrimSpace(line)
-		if trimmed == "" || trimmed == "NAME" {
-			continue // skip empty lines and headers
-		}
 
+	lines := strings.Split(trimmedOutput, "\n")
+	resourceLines := lines[1:] // Skip header line
+
+	for _, line := range resourceLines {
+		// Trim spaces from each line
+		trimmed := strings.TrimSpace(line)
+		if trimmed == "" {
+			continue // Skip empty lines
+		}
+		// Split the line into fields
 		fields := strings.Fields(trimmed)
 		if len(fields) > 0 && fields[0] == resourceName {
 			return true
 		}
 	}
-
 	return false
 }
 
-func GetResourceList(resourceType, name, namespace string) (string, error) {
+func VerifyResourceListMatchesName(resourceType, name, namespace string) (string, error) {
 	output := cmd.MustSucceed("opc", resourceType, "list", "-n", namespace).Stdout()
-
 	if !resourceExists(output, name) {
 		return "", fmt.Errorf("%s %q not found in namespace %q", resourceType, name, namespace)
 	}
