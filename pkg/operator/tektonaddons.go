@@ -182,7 +182,7 @@ func VerifyVersionedTasks() {
 // VerifyVersionedStepActions checks if the required actions are available with the expected version
 func VerifyVersionedStepActions() {
 	stepActionList := cmd.MustSucceed("oc", "get", "stepaction", "-n", "openshift-pipelines").Stdout()
-	requiredStepActions := []string{"git-clone"}
+	requiredStepActions := []string{"git-clone", "cache-fetch", "cache-upload"}
 	expectedVersion := os.Getenv("OSP_VERSION")
 
 	if expectedVersion == "" {
