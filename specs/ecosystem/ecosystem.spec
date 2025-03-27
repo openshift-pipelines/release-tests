@@ -337,3 +337,45 @@ Steps:
     * Validate pipelinerun stored in variable "pipeline-run-name" with task "cache-upload" logs contains "Upload /workspace/source/cache/lib content to oci image"
     * Start the "caches-python-pipeline" pipeline with params "revision=master" with workspace "name=source,claimName=shared-pvc" and store the pipelineRunName to variable "pipeline-run-name"
     * Validate pipelinerun stored in variable "pipeline-run-name" with task "cache-upload" logs contains "Upload /workspace/source/cache/lib content to oci image"
+
+## helm-upgrade-from-repo pipelinerun: PIPELINES-29-TC17
+Tags: e2e, ecosystem, tasks, non-admin, helm
+Component: Pipelines
+Level: Integration
+Type: Functional
+Importance: Critical
+
+Steps:
+  * Verify ServiceAccount "pipeline" exist
+  * Create
+      |S.NO|resource_dir                                     |
+      |----|-------------------------------------------------|
+      |1   |testdata/ecosystem/pipelines/helm-upgrade-from-repo.yaml        |
+      |2   |testdata/pvc/pvc.yaml                                           |
+      |3   |testdata/ecosystem/pipelineruns/helm-upgrade-from-repo.yaml     |
+  * Verify pipelinerun
+      |S.NO|pipeline_run_name|status    |check_label_propagation|
+      |----|-----------------|----------|-----------------------|
+      |1   |helm-upgrade-from-repo-run      |successful|no      |
+  * Wait for "test-hello-world" deployment
+
+## helm-upgrade-from-source pipelinerun: PIPELINES-29-TC18
+Tags: e2e, ecosystem, tasks, non-admin, helm
+Component: Pipelines
+Level: Integration
+Type: Functional
+Importance: Critical
+
+Steps:
+  * Verify ServiceAccount "pipeline" exist
+  * Create
+      |S.NO|resource_dir                                     |
+      |----|-------------------------------------------------|
+      |1   |testdata/ecosystem/pipelines/helm-upgrade-from-source.yaml        |
+      |2   |testdata/pvc/pvc.yaml                                             |
+      |3   |testdata/ecosystem/pipelineruns/helm-upgrade-from-source.yaml     |
+  * Verify pipelinerun
+      |S.NO|pipeline_run_name|status    |check_label_propagation|
+      |----|-----------------|----------|-----------------------|
+      |1   |helm-upgrade-from-source-run      |successful|no    |
+  * Wait for "test-hello-world" deployment

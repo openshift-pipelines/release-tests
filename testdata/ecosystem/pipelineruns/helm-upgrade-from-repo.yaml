@@ -1,0 +1,18 @@
+apiVersion: tekton.dev/v1
+kind: PipelineRun
+metadata:
+  name: helm-upgrade-from-repo-run
+spec:  
+  pipelineRef:
+    name: helm-upgrade-from-repo
+  params:
+  - name: helm_repo
+    value: https://helm.github.io/examples
+  - name: overwrite_values
+    value: image.repository=quay.io/lib/nginx,image.tag=stable,serviceAccount.create=false,serviceAccount.name=pipeline
+  timeouts: 
+    pipeline: 10m
+  workspaces:
+    - name: source
+      persistentVolumeClaim:
+        claimName: shared-pvc
