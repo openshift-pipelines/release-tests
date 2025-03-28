@@ -1,0 +1,13 @@
+apiVersion: tekton.dev/v1
+kind: PipelineRun
+metadata:
+  name: pull-request-pipeline-run
+spec:
+  pipelineRef:
+    name: pull-request-pipeline
+  workspaces:
+  - name: pr  
+    persistentVolumeClaim:
+      claimName: shared-pvc
+  timeouts: 
+    pipeline: 10m
