@@ -1,0 +1,64 @@
+apiVersion: tekton.dev/v1
+kind: Pipeline
+metadata:
+  name: pull-request-pipeline
+spec:
+  params:
+  - name: mode
+    default: download
+  - name: url
+    default: https://github.com/openshift-pipelines/release-tests/pull/400
+  - name: provider
+    default: github
+  - name: secret-key-ref
+    default: github-auth-secret
+  workspaces:
+  - name: pr  
+  tasks:
+  - name: pull-request-task
+    taskRef:
+      resolver: cluster
+      params:
+      - name: kind
+        value: task
+      - name: name
+        value: pull-request
+      - name: namespace
+        value: openshift-pipelines
+    workspaces:
+    - name: pr
+    params:
+    - name: mode
+      value: $(params.mode)
+    - name: url
+      value: $(params.url)
+    - name: provider
+      value: $(params.provider)
+    - name: secret-key-ref
+      value: $(params.secret-key-ref)
+  - name: count-comments
+    runAfter: 
+    - pull-request-task
+    taskSpec: 
+      results:
+      - name: count
+      workspaces:
+      - name: pr
+      steps: 
+        - name: count-comments
+          image: image-registry.openshift-image-registry.svc:5000/openshift/golang
+          script: | 
+            #!/usr/bin/env bash
+            set -xe
+            # Count the number of comments by looking at the 'comments' directory inside the workspace
+            NUM=$(ls $(workspaces.pr.path)/comments | wc -l )          
+            # Output the result (number of comments)
+            echo -n $NUM > $(results.count.path)
+            # Assert that there is at least one comment
+            if [ $NUM -ge 1 ]; then
+              echo "There are $NUM comments."
+            else
+              echo "Assertion failed: There are less than 1 comment."
+              exit 1
+            fi
+          
