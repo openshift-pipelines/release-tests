@@ -16,6 +16,7 @@ import (
 	"github.com/openshift-pipelines/release-tests/pkg/opc"
 	"github.com/openshift-pipelines/release-tests/pkg/openshift"
 	"github.com/openshift-pipelines/release-tests/pkg/operator"
+	"github.com/openshift-pipelines/release-tests/pkg/pipelines"
 	"github.com/openshift-pipelines/release-tests/pkg/statefulset"
 	"github.com/openshift-pipelines/release-tests/pkg/store"
 )
@@ -188,4 +189,8 @@ var _ = gauge.Step("Create signing-secrets for Tekton Chains", func() {
 
 var _ = gauge.Step("Store Cosign public key in file", func() {
 	operator.CreateFileWithCosignPubKey()
+})
+
+var _ = gauge.Step("Check <binary> version installed", func(binary string) {
+	pipelines.CheckInstalledVersion(store.Clients(), binary, store.Namespace())
 })
