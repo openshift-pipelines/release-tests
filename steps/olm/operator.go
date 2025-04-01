@@ -191,6 +191,6 @@ var _ = gauge.Step("Store Cosign public key in file", func() {
 	operator.CreateFileWithCosignPubKey()
 })
 
-var _ = gauge.Step("Verify <binary> version from the pipelinerun logs", func(binary string) {
-	pipelines.CheckLogVersion(store.Clients(), binary, store.Namespace())
+var _ = gauge.Step("Check <binary> version installed", func(binary string) {
+	pipelines.CheckInstalledVersion(store.Clients(), binary, store.Namespace())
 })
