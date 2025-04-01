@@ -222,7 +222,7 @@ Steps:
       |S.NO|pipeline_run_name|status    |check_label_propagation|
       |----|-----------------|----------|-----------------------|
       |1   |tkn-run          |successful|no                     |
-
+      
 ## tkn pac pipelinerun: PIPELINES-29-TC11
 Tags: e2e, ecosystem, tasks, non-admin, tkn
 Component: Pipelines
@@ -240,6 +240,7 @@ Steps:
       |S.NO|pipeline_run_name|status    |check_label_propagation|
       |----|-----------------|----------|-----------------------|
       |1   |tkn-pac-run      |successful|no                     |
+  * Check "tkn-pac" version installed
 
 ## tkn version pipelinerun: PIPELINES-29-TC12
 Tags: e2e, ecosystem, tasks, non-admin, tkn
@@ -258,6 +259,7 @@ Steps:
       |S.NO|pipeline_run_name|status    |check_label_propagation|
       |----|-----------------|----------|-----------------------|
       |1   |tkn-version-run  |successful|no                     |
+  * Check "tkn" version installed
 
 ## maven pipelinerun: PIPELINES-29-TC13
 Tags: e2e, ecosystem, tasks, non-admin, maven

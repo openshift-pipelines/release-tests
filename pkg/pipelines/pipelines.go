@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"regexp"
 	"strconv"
 	"strings"
 	"sync"
@@ -17,6 +18,7 @@ import (
 	"github.com/openshift-pipelines/release-tests/pkg/cmd"
 	"github.com/openshift-pipelines/release-tests/pkg/config"
 	"github.com/openshift-pipelines/release-tests/pkg/k8s"
+	"github.com/openshift-pipelines/release-tests/pkg/store"
 	"github.com/openshift-pipelines/release-tests/pkg/wait"
 	"github.com/tektoncd/cli/pkg/cli"
 	clipr "github.com/tektoncd/cli/pkg/cmd/pipelinerun"
@@ -36,7 +38,7 @@ func validatePipelineRunForSuccessStatus(c *clients.Clients, prname, labelCheck,
 	// Verify status of PipelineRun (wait for it)
 	err := wait.WaitForPipelineRunState(c, prname, wait.PipelineRunSucceed(prname), "PipelineRunCompleted")
 	if err != nil {
-		buf, logsErr := getPipelinerunLogs(c, prname, namespace)
+		buf, logsErr := GetPipelinerunLogs(c, prname, namespace)
 		events, eventError := k8s.GetWarningEvents(c, namespace)
 		if logsErr != nil {
 			if eventError != nil {
@@ -84,7 +86,7 @@ func validatePipelineRunForFailedStatus(c *clients.Clients, prname, namespace st
 	log.Printf("Waiting for PipelineRun in namespace %s to fail", namespace)
 	err = wait.WaitForPipelineRunState(c, prname, wait.PipelineRunFailed(prname), "BuildValidationFailed")
 	if err != nil {
-		buf, logsErr := getPipelinerunLogs(c, prname, namespace)
+		buf, logsErr := GetPipelinerunLogs(c, prname, namespace)
 		events, eventError := k8s.GetWarningEvents(c, namespace)
 		if logsErr != nil {
 			if eventError != nil {
@@ -357,7 +359,7 @@ func AssertPipelinesNotPresent(c *clients.Clients, namespace string) {
 	log.Printf("Pipelines are present in namespace %v", namespace)
 }
 
-func getPipelinerunLogs(c *clients.Clients, prname, namespace string) (*bytes.Buffer, error) {
+func GetPipelinerunLogs(c *clients.Clients, prname, namespace string) (*bytes.Buffer, error) {
 	buf := new(bytes.Buffer)
 
 	// Set params
@@ -397,4 +399,61 @@ func GetLatestPipelinerun(c *clients.Clients, namespace string) (string, error) 
 	prsort.SortByStartTime(prs.Items)
 	return prs.Items[0].Name, nil
 
+}
+
+func CheckInstalledVersion(c *clients.Clients, binary, namespace string) {
+	prname, err := GetLatestPipelinerun(store.Clients(), store.Namespace())
+	if err != nil {
+		testsuit.T.Errorf("Failed to get PipelineRun: %v", err)
+		return
+	}
+
+	switch binary {
+	case "tkn-pac":
+		expectedVersion := os.Getenv("PAC_VERSION")
+		// Get PipelineRun logs
+		logsBuffer, err := GetPipelinerunLogs(c, prname, namespace)
+		if err != nil {
+			testsuit.T.Errorf("Failed to get PipelineRun logs: %v", err)
+			return
+		}
+		// Convert logs to string and extract tkn version using regex
+		logs := logsBuffer.String()
+		re := regexp.MustCompile(`\b(\d+\.\d+\.\d+)\b`)
+		installedVersion := re.FindAllString(logs, -1)
+		parts := strings.Split(installedVersion[0], ".")
+		if len(parts) < 2 {
+			testsuit.T.Errorf("Invalid tkn-pac Version: %s", installedVersion[0])
+			return
+		}
+		installedVersion[0] = strings.Join(parts[:2], ".")
+
+		// Compare extracted version with expected version
+		if installedVersion[0] != expectedVersion {
+			testsuit.T.Errorf("tkn-pac has an unexpected version: %s, Expected %s", installedVersion[0], expectedVersion)
+		}
+
+	case "tkn":
+		expectedVersion := os.Getenv("OSP_VERSION")
+		// Get PipelineRun logs
+		logsBuffer, err := GetPipelinerunLogs(c, prname, namespace)
+		if err != nil {
+			testsuit.T.Errorf("Failed to get PipelineRun logs: %v", err)
+			return
+		}
+		// Convert logs to string and extract tkn version using regex
+		logs := logsBuffer.String()
+		if !strings.Contains(logs, "client version:") {
+			testsuit.T.Errorf("tkn client version not found!!")
+			return
+		}
+		re := regexp.MustCompile(`Client version:\s*([\d]+\.[\d]+(?:\.\d+)?)`)
+		matches := re.FindStringSubmatch(logs)
+		installedVersion := strings.Join(strings.Split(matches[1], ".")[:2], ".")
+
+		// Compare extracted version with expected version
+		if installedVersion != expectedVersion {
+			testsuit.T.Errorf("tkn client has an unexpected version: %s, Expected %s", installedVersion, expectedVersion)
+		}
+	}
 }
