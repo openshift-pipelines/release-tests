@@ -1,0 +1,39 @@
+apiVersion: tekton.dev/v1
+kind: Pipeline
+metadata:
+  name: helm-upgrade-from-repo
+spec:
+  params:
+  - name: helm_repo
+    default: https://helm.github.io/examples
+  - name: chart_name
+    default: charts/hello-world
+  - name: release_version
+    default: 0.1.0
+  - name: release_name
+    default: test
+  - name: overwrite_values
+  workspaces:
+  - name: source
+  tasks:
+  - name: helm-upgrade-from-repo
+    taskRef:
+      resolver: cluster
+      params:
+      - name: kind
+        value: task
+      - name: name
+        value: helm-upgrade-from-repo
+      - name: namespace
+        value: openshift-pipelines
+    params:
+    - name: helm_repo
+      value: $(params.helm_repo)
+    - name: chart_name
+      value: $(params.chart_name)
+    - name: release_version
+      value: $(params.release_version)
+    - name: release_name
+      value: $(params.release_name)
+    - name: overwrite_values
+      value: $(params.overwrite_values)
