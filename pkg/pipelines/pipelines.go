@@ -401,10 +401,10 @@ func GetLatestPipelinerun(c *clients.Clients, namespace string) (string, error) 
 
 }
 
-func CheckInstalledVersion(c *clients.Clients, binary, namespace string) {
+func CheckLogVersion(c *clients.Clients, binary, namespace string) {
 	prname, err := GetLatestPipelinerun(store.Clients(), store.Namespace())
 	if err != nil {
-		testsuit.T.Errorf("Failed to get PipelineRun: %v", err)
+		testsuit.T.Fail(fmt.Errorf("Failed to get PipelineRun: %v", err))
 		return
 	}
 
@@ -414,23 +414,23 @@ func CheckInstalledVersion(c *clients.Clients, binary, namespace string) {
 		// Get PipelineRun logs
 		logsBuffer, err := GetPipelinerunLogs(c, prname, namespace)
 		if err != nil {
-			testsuit.T.Errorf("Failed to get PipelineRun logs: %v", err)
+			testsuit.T.Fail(fmt.Errorf("Failed to get PipelineRun logs: %v", err))
 			return
 		}
-		// Convert logs to string and extract tkn version using regex
+		// Convert logs to string and extract tkn-pac version using regex
 		logs := logsBuffer.String()
 		re := regexp.MustCompile(`\b(\d+\.\d+\.\d+)\b`)
-		installedVersion := re.FindAllString(logs, -1)
-		parts := strings.Split(installedVersion[0], ".")
+		logVersion := re.FindAllString(logs, -1)
+		parts := strings.Split(logVersion[0], ".")
 		if len(parts) < 2 {
-			testsuit.T.Errorf("Invalid tkn-pac Version: %s", installedVersion[0])
+			testsuit.T.Fail(fmt.Errorf("Invalid tkn-pac Version: %s", logVersion[0]))
 			return
 		}
-		installedVersion[0] = strings.Join(parts[:2], ".")
+		logVersion[0] = strings.Join(parts[:2], ".")
 
-		// Compare extracted version with expected version
-		if installedVersion[0] != expectedVersion {
-			testsuit.T.Errorf("tkn-pac has an unexpected version: %s, Expected %s", installedVersion[0], expectedVersion)
+		// Compare log version with expected version
+		if logVersion[0] != expectedVersion {
+			testsuit.T.Fail(fmt.Errorf("tkn-pac has an unexpected version: %s, Expected %s", logVersion[0], expectedVersion))
 		}
 
 	case "tkn":
@@ -438,22 +438,24 @@ func CheckInstalledVersion(c *clients.Clients, binary, namespace string) {
 		// Get PipelineRun logs
 		logsBuffer, err := GetPipelinerunLogs(c, prname, namespace)
 		if err != nil {
-			testsuit.T.Errorf("Failed to get PipelineRun logs: %v", err)
+			testsuit.T.Fail(fmt.Errorf("Failed to get PipelineRun logs: %v", err))
 			return
 		}
 		// Convert logs to string and extract tkn version using regex
 		logs := logsBuffer.String()
-		if !strings.Contains(logs, "client version:") {
-			testsuit.T.Errorf("tkn client version not found!!")
+		if !strings.Contains(logs, "Client version:") {
+			testsuit.T.Fail(fmt.Errorf("tkn client version not found!"))
 			return
 		}
 		re := regexp.MustCompile(`Client version:\s*([\d]+\.[\d]+(?:\.\d+)?)`)
 		matches := re.FindStringSubmatch(logs)
-		installedVersion := strings.Join(strings.Split(matches[1], ".")[:2], ".")
+		logVersion := strings.Join(strings.Split(matches[1], ".")[:2], ".")
 
-		// Compare extracted version with expected version
-		if installedVersion != expectedVersion {
-			testsuit.T.Errorf("tkn client has an unexpected version: %s, Expected %s", installedVersion, expectedVersion)
+		// Compare log version with expected version
+		if logVersion != expectedVersion {
+			testsuit.T.Fail(fmt.Errorf("tkn client has an unexpected version: %s, Expected %s", logVersion, expectedVersion))
 		}
+	default:
+		testsuit.T.Fail(fmt.Errorf("Unknown binary or client"))
 	}
 }
