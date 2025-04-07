@@ -38,7 +38,7 @@ func validatePipelineRunForSuccessStatus(c *clients.Clients, prname, labelCheck,
 	// Verify status of PipelineRun (wait for it)
 	err := wait.WaitForPipelineRunState(c, prname, wait.PipelineRunSucceed(prname), "PipelineRunCompleted")
 	if err != nil {
-		buf, logsErr := GetPipelinerunLogs(c, prname, namespace)
+		buf, logsErr := getPipelinerunLogs(c, prname, namespace)
 		events, eventError := k8s.GetWarningEvents(c, namespace)
 		if logsErr != nil {
 			if eventError != nil {
@@ -86,7 +86,7 @@ func validatePipelineRunForFailedStatus(c *clients.Clients, prname, namespace st
 	log.Printf("Waiting for PipelineRun in namespace %s to fail", namespace)
 	err = wait.WaitForPipelineRunState(c, prname, wait.PipelineRunFailed(prname), "BuildValidationFailed")
 	if err != nil {
-		buf, logsErr := GetPipelinerunLogs(c, prname, namespace)
+		buf, logsErr := getPipelinerunLogs(c, prname, namespace)
 		events, eventError := k8s.GetWarningEvents(c, namespace)
 		if logsErr != nil {
 			if eventError != nil {
@@ -359,7 +359,7 @@ func AssertPipelinesNotPresent(c *clients.Clients, namespace string) {
 	log.Printf("Pipelines are present in namespace %v", namespace)
 }
 
-func GetPipelinerunLogs(c *clients.Clients, prname, namespace string) (*bytes.Buffer, error) {
+func getPipelinerunLogs(c *clients.Clients, prname, namespace string) (*bytes.Buffer, error) {
 	buf := new(bytes.Buffer)
 
 	// Set params
@@ -407,18 +407,19 @@ func CheckLogVersion(c *clients.Clients, binary, namespace string) {
 		testsuit.T.Fail(fmt.Errorf("Failed to get PipelineRun: %v", err))
 		return
 	}
+	// Get PipelineRun logs
+	logsBuffer, err := getPipelinerunLogs(c, prname, namespace)
+	if err != nil {
+		testsuit.T.Fail(fmt.Errorf("Failed to get PipelineRun logs: %v", err))
+		return
+	}
+	logs := logsBuffer.String()
 
 	switch binary {
 	case "tkn-pac":
 		expectedVersion := os.Getenv("PAC_VERSION")
-		// Get PipelineRun logs
-		logsBuffer, err := GetPipelinerunLogs(c, prname, namespace)
-		if err != nil {
-			testsuit.T.Fail(fmt.Errorf("Failed to get PipelineRun logs: %v", err))
-			return
-		}
+
 		// Convert logs to string and extract tkn-pac version using regex
-		logs := logsBuffer.String()
 		re := regexp.MustCompile(`\b(\d+\.\d+\.\d+)\b`)
 		logVersion := re.FindAllString(logs, -1)
 		parts := strings.Split(logVersion[0], ".")
@@ -435,14 +436,7 @@ func CheckLogVersion(c *clients.Clients, binary, namespace string) {
 
 	case "tkn":
 		expectedVersion := os.Getenv("OSP_VERSION")
-		// Get PipelineRun logs
-		logsBuffer, err := GetPipelinerunLogs(c, prname, namespace)
-		if err != nil {
-			testsuit.T.Fail(fmt.Errorf("Failed to get PipelineRun logs: %v", err))
-			return
-		}
 		// Convert logs to string and extract tkn version using regex
-		logs := logsBuffer.String()
 		if !strings.Contains(logs, "Client version:") {
 			testsuit.T.Fail(fmt.Errorf("tkn client version not found!"))
 			return
