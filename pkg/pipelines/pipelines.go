@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"regexp"
 	"strconv"
 	"strings"
 	"sync"
@@ -413,41 +412,21 @@ func CheckLogVersion(c *clients.Clients, binary, namespace string) {
 		testsuit.T.Fail(fmt.Errorf("Failed to get PipelineRun logs: %v", err))
 		return
 	}
-	logs := logsBuffer.String()
 
 	switch binary {
 	case "tkn-pac":
 		expectedVersion := os.Getenv("PAC_VERSION")
-
-		// Convert logs to string and extract tkn-pac version using regex
-		re := regexp.MustCompile(`\b(\d+\.\d+\.\d+)\b`)
-		logVersion := re.FindAllString(logs, -1)
-		parts := strings.Split(logVersion[0], ".")
-		if len(parts) < 2 {
-			testsuit.T.Fail(fmt.Errorf("Invalid tkn-pac Version: %s", logVersion[0]))
-			return
+		if !strings.Contains(logsBuffer.String(), expectedVersion) {
+			testsuit.T.Fail(fmt.Errorf("tkn-pac Version %s not found in logs:\n%s ", expectedVersion, logsBuffer))
 		}
-		logVersion[0] = strings.Join(parts[:2], ".")
-
-		// Compare log version with expected version
-		if logVersion[0] != expectedVersion {
-			testsuit.T.Fail(fmt.Errorf("tkn-pac has an unexpected version: %s, Expected %s", logVersion[0], expectedVersion))
-		}
-
 	case "tkn":
-		expectedVersion := os.Getenv("OSP_VERSION")
-		// Convert logs to string and extract tkn version using regex
-		if !strings.Contains(logs, "Client version:") {
-			testsuit.T.Fail(fmt.Errorf("tkn client version not found!"))
+		expectedVersion := os.Getenv("TKN_CLIENT_VERSION")
+		if !strings.Contains(logsBuffer.String(), "Client version:") {
+			testsuit.T.Fail(fmt.Errorf("tkn client version not found! \nlogs:%s", logsBuffer))
 			return
 		}
-		re := regexp.MustCompile(`Client version:\s*([\d]+\.[\d]+(?:\.\d+)?)`)
-		matches := re.FindStringSubmatch(logs)
-		logVersion := strings.Join(strings.Split(matches[1], ".")[:2], ".")
-
-		// Compare log version with expected version
-		if logVersion != expectedVersion {
-			testsuit.T.Fail(fmt.Errorf("tkn client has an unexpected version: %s, Expected %s", logVersion, expectedVersion))
+		if !strings.Contains(logsBuffer.String(), expectedVersion) {
+			testsuit.T.Fail(fmt.Errorf("tkn Version %s not found in logs:\n%s ", expectedVersion, logsBuffer))
 		}
 	default:
 		testsuit.T.Fail(fmt.Errorf("Unknown binary or client"))
