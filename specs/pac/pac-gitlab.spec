@@ -13,7 +13,6 @@ This scenario tests configuring PAC in Public GitLab project
 Steps:
   * Setup Gitlab Client
   * Validate PAC Info Install
-  * Verify ServiceAccount "pipeline" exist
   * Create Smee deployment
   * Configure GitLab repo for "pull_request" in "main"
   * Configure PipelineRun
@@ -31,7 +30,6 @@ This scenario tests on-label annotation in PAC
 
 Steps:
   * Setup Gitlab Client
-  * Verify ServiceAccount "pipeline" exist
   * Create Smee deployment
   * Configure GitLab repo for "pull_request" in "main"
   * Update Annotation "pipelinesascode.tekton.dev/on-label" with "[bug]"
@@ -52,7 +50,6 @@ This scenario tests on-comment annotation in PAC
 
 Steps:
   * Setup Gitlab Client
-  * Verify ServiceAccount "pipeline" exist
   * Create Smee deployment
   * Configure GitLab repo for "pull_request" in "main"
   * Update Annotation "pipelinesascode.tekton.dev/on-comment" with "^/hello-world"

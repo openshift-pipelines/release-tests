@@ -12,7 +12,6 @@ Type: Functional
 Importance: Critical
 
 Steps:
-  * Verify ServiceAccount "pipeline" exist
   * Create
       |S.NO|resource_dir                                     |
       |----|-------------------------------------------------|
@@ -32,7 +31,6 @@ Type: Functional
 Importance: Critical
 
 Steps:
-  * Verify ServiceAccount "pipeline" exist
   * Create
       |S.NO|resource_dir                                                  |
       |----|--------------------------------------------------------------|
@@ -52,7 +50,6 @@ Type: Functional
 Importance: Critical
 
 Steps:
-  * Verify ServiceAccount "pipeline" exist
   * Create
       |S.NO|resource_dir                                     |
       |----|-------------------------------------------------|
@@ -72,7 +69,6 @@ Type: Functional
 Importance: Critical
 
 Steps:
-  * Verify ServiceAccount "pipeline" exist
   * Create
       |S.NO|resource_dir                                               |
       |----|-----------------------------------------------------------|
@@ -97,7 +93,6 @@ Type: Functional
 Importance: Critical
 
 Steps:
-  * Verify ServiceAccount "pipeline" exist
   * Create
       |S.NO|resource_dir                                               |
       |----|-----------------------------------------------------------|
@@ -125,7 +120,6 @@ Importance: Critical
 CustomerScenario: yes
 
 Steps:
-  * Verify ServiceAccount "pipeline" exist
   * Create
       | S.NO | resource_dir                                                  |
       |------|---------------------------------------------------------------|
@@ -150,7 +144,6 @@ Type: Functional
 Importance: Critical
 
 Steps:
-  * Verify ServiceAccount "pipeline" exist
   * Create
       | S.NO | resource_dir                                                  |
       |------|---------------------------------------------------------------|
@@ -177,7 +170,6 @@ Type: Functional
 Importance: Critical
 
 Steps:
-  * Verify ServiceAccount "pipeline" exist
   * Create
       |S.NO|resource_dir                                              |
       |----|----------------------------------------------------------|
@@ -195,7 +187,6 @@ Type: Functional
 Importance: Critical
 
 Steps:
-  * Verify ServiceAccount "pipeline" exist
   * Create
       |S.NO|resource_dir                                         |
       |----|-----------------------------------------------------|
@@ -213,7 +204,6 @@ Type: Functional
 Importance: Critical
 
 Steps:
-  * Verify ServiceAccount "pipeline" exist
   * Create
       |S.NO|resource_dir                                 |
       |----|---------------------------------------------|
@@ -231,7 +221,6 @@ Type: Functional
 Importance: Critical
 
 Steps:
-  * Verify ServiceAccount "pipeline" exist
   * Create
       |S.NO|resource_dir                                     |
       |----|-------------------------------------------------|
@@ -250,7 +239,6 @@ Type: Functional
 Importance: Critical
 
 Steps:
-  * Verify ServiceAccount "pipeline" exist
   * Create
       |S.NO|resource_dir                                         |
       |----|-----------------------------------------------------|
@@ -269,7 +257,6 @@ Type: Functional
 Importance: Critical
 
 Steps:
-  * Verify ServiceAccount "pipeline" exist
   * Create
       |S.NO|resource_dir                                          |
       |----|------------------------------------------------------|
@@ -290,7 +277,6 @@ Type: Functional
 Importance: High
 
 Steps:
-    * Verify ServiceAccount "pipeline" exist
     * Create 
       |S.NO|resource_dir                                                     |
       |----|-----------------------------------------------------------------|
@@ -310,7 +296,6 @@ Type: Functional
 Importance: High
 
 Steps:
-    * Verify ServiceAccount "pipeline" exist
     * Create 
       |S.NO|resource_dir                                                     |
       |----|-----------------------------------------------------------------|
@@ -329,7 +314,6 @@ Type: Functional
 Importance: High
 
 Steps:
-    * Verify ServiceAccount "pipeline" exist
     * Create 
       |S.NO|resource_dir                                                     |
       |----|-----------------------------------------------------------------|
@@ -348,7 +332,6 @@ Type: Functional
 Importance: Critical
 
 Steps:
-  * Verify ServiceAccount "pipeline" exist
   * Create
       |S.NO|resource_dir                                     |
       |----|-------------------------------------------------|
@@ -369,7 +352,6 @@ Type: Functional
 Importance: Critical
 
 Steps:
-  * Verify ServiceAccount "pipeline" exist
   * Create
       |S.NO|resource_dir                                     |
       |----|-------------------------------------------------|
@@ -390,7 +372,6 @@ Type: Functional
 Importance: Critical
 
 Steps:
-  * Verify ServiceAccount "pipeline" exist
   * Copy secret "github-auth-secret" from "openshift-pipelines" namespace to autogenerated namespace
   * Create
       |S.NO|resource_dir                                     |
