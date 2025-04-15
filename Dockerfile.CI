@@ -32,13 +32,13 @@ RUN wget https://mirror.openshift.com/pub/openshift-v4/clients/rosa/latest/rosa-
     tar xzf /tmp/rosa.tar.gz -C /usr/bin --no-same-owner rosa &&\
     rm /tmp/rosa.tar.gz
 
-ENV TKN_VERSION=1.14.3
+ENV TKN_VERSION=1.14.6
 RUN wget https://mirror.openshift.com/pub/openshift-v4/clients/pipelines/${TKN_VERSION}/tkn-linux-amd64.tar.gz \
    -O /tmp/tkn.tar.gz &&\
    tar xzf /tmp/tkn.tar.gz -C /usr/bin --no-same-owner tkn tkn-pac opc &&\
    rm /tmp/tkn.tar.gz
 
-ENV GAUGE_VERSION=1.6.7
+ENV GAUGE_VERSION=1.6.14
 RUN wget https://github.com/getgauge/gauge/releases/download/v${GAUGE_VERSION}/gauge-${GAUGE_VERSION}-linux.x86_64.zip \
     -O /tmp/gauge.zip &&\
     unzip /tmp/gauge.zip gauge -d /usr/bin &&\
