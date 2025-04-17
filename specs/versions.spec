@@ -30,3 +30,12 @@ Steps:
   * Check "tkn-pac" version
   * Check "opc" client version
   * Check "opc" server version
+
+## Check OperatorVersion in OlmSkipRange : PIPELINES-22-TC03
+Tags: e2e, sanity, olm
+Component: Operator
+Level: Integration
+Type: Functional
+Importance: High
+Steps: 
+  * Validate OperatorVersion in OlmSkipRange
