@@ -127,3 +127,13 @@ Steps:
       |----|------------------------------------------------------|
       |1   |testdata/ecosystem/pipelines/s2i-go.yaml|
       |2   |testdata/pvc/pvc.yaml                                 |
+
+## Validate olm skiprange pre upgrade: PIPELINES-18-TC06
+Tags: pre-upgrade, olm
+Component: Pipelines
+Level: Integration
+Type: Functional
+Importance: Critical
+
+Steps:
+ * Get olm-skip-range "pre-upgrade" and save to field "pre-upgrade-olm-skip-range" in file "testdata/olm/skiprange.json"
