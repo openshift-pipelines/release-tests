@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"os"
 	"slices"
 	"strings"
 	"time"
@@ -169,4 +170,102 @@ func CopySecret(secretName string, sourceNamespace string, destNamespace string)
 	cmdOutput := cmd.MustSucceed("bash", "-c", fmt.Sprintf(`echo '%s' | jq 'del(.metadata["namespace", "creationTimestamp", "resourceVersion", "selfLink", "uid", "annotations"]) | .data |= with_entries(if .key == "github-auth-key" then .key = "token" else . end)'`, secretJson)).Stdout()
 	cmd.MustSucceed("bash", "-c", fmt.Sprintf(`echo '%s' | kubectl apply -n %s -f -`, cmdOutput, destNamespace))
 	log.Printf("Successfully copied secret %s from %s to %s", secretName, sourceNamespace, destNamespace)
+}
+
+func FetchOlmSkipRange() (string, error) {
+	olmManifestJson := cmd.MustSucceed("oc", "get", "packagemanifests", "openshift-pipelines-operator-rh", "-n", "openshift-marketplace", "-o", "json").Stdout()
+	SkipRange := cmd.MustSucceed("bash", "-c", fmt.Sprintf(`echo '%s' | jq -r '.status.channels[].currentCSVDesc.annotations["olm.skipRange"]'`, olmManifestJson)).Stdout()
+	if SkipRange == "" {
+		return "", fmt.Errorf("OLM Skip Range is empty")
+	}
+	return SkipRange, nil
+}
+
+func GetOlmSkipRange(upgradeType, fieldName, fileName string) {
+	SkipRange, err := FetchOlmSkipRange()
+	if err != nil {
+		log.Printf("Error fetching OLM Skip Range: %v", err)
+		return
+	}
+	file, err := os.OpenFile(resource.Path(fileName), os.O_RDWR, 0644)
+	if err != nil {
+		log.Printf("Error opening file %s: %v", fileName, err)
+		return
+	}
+	defer file.Close()
+	var existingData map[string]string
+	if err := json.NewDecoder(file).Decode(&existingData); err != nil {
+		log.Printf("Error decoding existing data from file %s: %v", fileName, err)
+		return
+	}
+	if upgradeType == "pre-upgrade" {
+		existingData["pre-upgrade-olm-skip-range"] = SkipRange
+		log.Printf("Pre-upgrade OLM Skip Range is stored as: %s", SkipRange)
+	} else if upgradeType == "post-upgrade" {
+		existingData["post-upgrade-olm-skip-range"] = SkipRange
+		log.Printf("Post-upgrade OLM Skip Range is stored as: %s", SkipRange)
+	}
+	if _, err := file.Seek(0, 0); err != nil {
+		log.Printf("Error seeking file %s: %v", fileName, err)
+		return
+	}
+	encoder := json.NewEncoder(file)
+	encoder.SetIndent("", "  ") // Pretty-print the JSON output
+	if err := encoder.Encode(existingData); err != nil {
+		log.Printf("Error writing updated data to file %s: %v", fileName, err)
+		return
+	}
+	log.Printf("OLM Skip Range for '%s' has been saved to file %s", fieldName, fileName)
+}
+
+func ValidateOlmSkipRange() {
+	SkipRange, err := FetchOlmSkipRange()
+	if err != nil {
+		log.Printf("Error fetching OLM Skip Range: %v", err)
+		return
+	}
+	lines := strings.Split(SkipRange, "\n")
+	if len(lines) == 0 {
+		log.Printf("Error: No lines found in OLM Skip Range")
+		return
+	}
+	firstLine := lines[0]
+	pipelineVersion := os.Getenv("OPERATOR_VERSION")
+	if strings.Contains(firstLine, pipelineVersion) {
+		log.Printf("Success: OPERATOR_VERSION '%s' matches the first line of OLM Skip Range: '%s'", pipelineVersion, firstLine)
+	} else {
+		testsuit.T.Fail(fmt.Errorf("Error: OPERATOR_VERSION '%s' does not match the first line of OLM Skip Range: '%s'", pipelineVersion, firstLine))
+	}
+}
+
+func ValidateOlmSkipRangeDiff(fileName string, preUpgradeSkipRange string, postUpgradeSkipRange string) {
+	file, err := os.Open(resource.Path(fileName))
+	if err != nil {
+		log.Printf("Error opening file %s: %v", fileName, err)
+		testsuit.T.Fail(fmt.Errorf("Error opening file %s: %v", fileName, err))
+		return
+	}
+	defer file.Close()
+	var skipRangeData map[string]string
+	decoder := json.NewDecoder(file)
+	if err := decoder.Decode(&skipRangeData); err != nil {
+		log.Printf("Error decoding JSON from file %s: %v", fileName, err)
+		testsuit.T.Fail(fmt.Errorf("Error decoding JSON from file %s: %v", fileName, err))
+		return
+	}
+	preUpgradeSkipRange, preExists := skipRangeData[preUpgradeSkipRange]
+	postUpgradeSkipRange, postExists := skipRangeData[postUpgradeSkipRange]
+	if !preExists || !postExists || preUpgradeSkipRange == "" || postUpgradeSkipRange == "" {
+		log.Printf("Error: One of the skip ranges is missing or empty. Pre-Upgrade: %v, Post-Upgrade: %v", preUpgradeSkipRange, postUpgradeSkipRange)
+		testsuit.T.Fail(fmt.Errorf("One of the skip ranges is missing or empty. Pre-Upgrade: %v, Post-Upgrade: %v", preUpgradeSkipRange, postUpgradeSkipRange))
+		return
+	}
+	log.Printf("Pre-Upgrade Skip Range: %v", preUpgradeSkipRange)
+	log.Printf("Post-Upgrade Skip Range: %v", postUpgradeSkipRange)
+	if preUpgradeSkipRange == postUpgradeSkipRange {
+		log.Printf("OLM Skip Range before and after upgrade are the same. Pre-Upgrade: %s, Post-Upgrade: %s", preUpgradeSkipRange, postUpgradeSkipRange)
+	} else {
+		log.Printf("OLM Skip Range mismatch detected! Pre-Upgrade: '%s', Post-Upgrade: '%s'", preUpgradeSkipRange, postUpgradeSkipRange)
+		testsuit.T.Fail(fmt.Errorf("OLM Skip Range mismatch detected! Pre-Upgrade: '%s', Post-Upgrade: '%s'", preUpgradeSkipRange, postUpgradeSkipRange))
+	}
 }
