@@ -14,7 +14,6 @@ Importance: Critical
 This scenario tests the pipeline tutorials (https://github.com/openshift/pipelines-tutorial) pipelines related resources 
 
 Steps:
-  * Verify ServiceAccount "pipeline" exist
   * Create remote
       |S.NO|resource_dir                                                                                                                             |
       |----|-----------------------------------------------------------------------------------------------------------------------------------------|
@@ -44,7 +43,6 @@ Importance: Critical
 This scenario tests the pipeline tutorials (https://github.com/openshift/pipelines-tutorial) triggers related resources 
 
 Steps:
-  * Verify ServiceAccount "pipeline" exist
   * Create remote
       |S.NO|resource_dir                                                                                                                             |
       |----|-----------------------------------------------------------------------------------------------------------------------------------------|
