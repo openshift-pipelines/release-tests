@@ -10,7 +10,6 @@ Importance: Critical
 
 Steps:
   * Validate manual approval gate deployment
-  * Verify ServiceAccount "pipeline" exist
   * Create
      | S.NO | resource_dir                                             |
      |------|----------------------------------------------------------|
@@ -28,7 +27,6 @@ Type: Functional
 Importance: Critical
 
 Steps:
-  * Verify ServiceAccount "pipeline" exist
   * Create
      | S.NO | resource_dir                                             |
      |------|----------------------------------------------------------|
