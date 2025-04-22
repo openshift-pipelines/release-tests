@@ -12,7 +12,6 @@ Type: Functional
 Importance: High
 
 Steps:
-    * Verify ServiceAccount "pipeline" exist
     * Create 
       |S.NO|resource_dir                                                     |
       |----|-----------------------------------------------------------------|
