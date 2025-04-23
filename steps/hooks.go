@@ -31,6 +31,21 @@ var _ = gauge.BeforeScenario(func(exInfo *gauge_messages.ExecutionInfo) {
 	store["namespace"] = namespace
 	store["scenario.cleanup"] = cleanup
 	store["targetNamespace"] = config.TargetNamespace
+
+	// Skip pipelines SA check if scenario has @install tag
+	skipSAWait := false
+	for _, tag := range exInfo.CurrentScenario.Tags {
+		if tag == "install" {
+			skipSAWait = true
+			break
+		}
+	}
+	if !skipSAWait {
+		sa := k8s.WaitForServiceAccount(cs, namespace, "pipeline")
+		if sa != nil {
+			testsuit.T.Fail(fmt.Errorf("Service account 'pipeline' not available in namespace %s", sa))
+		}
+	}
 }, []string{}, testsuit.AND)
 
 // Runs After every Secenario
