@@ -44,11 +44,6 @@ func NewClientSet() (*clients.Clients, string, func()) {
 
 	oc.CreateNewProject(ns)
 
-	// Wait for "pipeline" service account to be created by the operator
-	sa := WaitForServiceAccount(cs, ns, "pipeline")
-	if sa == nil {
-		testsuit.T.Fail(fmt.Errorf("Service account 'pipeline' not available in namespace %s", ns))
-	}
 	return cs, ns, func() {
 		oc.DeleteProjectIgnoreErors(ns)
 	}
