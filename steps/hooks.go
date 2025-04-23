@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"slices"
 	"strconv"
 	"strings"
 
@@ -34,11 +35,8 @@ var _ = gauge.BeforeScenario(func(exInfo *gauge_messages.ExecutionInfo) {
 
 	// Skip pipelines SA check if scenario has @install tag
 	skipSAWait := false
-	for _, tag := range exInfo.CurrentScenario.Tags {
-		if tag == "install" {
-			skipSAWait = true
-			break
-		}
+	if slices.Contains(exInfo.CurrentScenario.Tags, "install") {
+		skipSAWait = true
 	}
 	if !skipSAWait {
 		sa := k8s.WaitForServiceAccount(cs, namespace, "pipeline")
