@@ -38,8 +38,8 @@ var _ = gauge.BeforeScenario(func(exInfo *gauge_messages.ExecutionInfo) {
 		log.Printf("Skipping service account check as the scenario has @install tag")
 	} else {
 		sa := k8s.WaitForServiceAccount(cs, namespace, "pipeline")
-		if sa != nil {
-			testsuit.T.Fail(fmt.Errorf("Service account 'pipeline' not available in namespace %s", sa))
+		if sa == nil {
+			testsuit.T.Fail(fmt.Errorf("Service account 'pipeline' not available in namespace %s", namespace))
 		}
 	}
 }, []string{}, testsuit.AND)
