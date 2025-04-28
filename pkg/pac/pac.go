@@ -8,6 +8,7 @@ import (
 	"net/url"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"strconv"
 	"strings"
 	"time"
@@ -412,7 +413,7 @@ func GeneratePipelineRunYaml(eventType, branch string) {
 		testsuit.T.Fail(fmt.Errorf("failed to generate pipelinerun: %v", err))
 	}
 
-	fileContent, err := os.ReadFile(fileName)
+	fileContent, err := os.ReadFile(filepath.Clean(fileName))
 	if err != nil {
 		testsuit.T.Fail(fmt.Errorf("could not read file %s: %v", fileName, err))
 	}
@@ -429,7 +430,7 @@ func GeneratePipelineRunYaml(eventType, branch string) {
 // updateAnnotation updates the specified annotation in the pull-request.yaml file
 func UpdateAnnotation(annotationKey, annotationValue string) {
 	fileName := store.GetScenarioData("fileName")
-	data, err := os.ReadFile(fileName)
+	data, err := os.ReadFile(filepath.Clean(fileName))
 	if err != nil {
 		testsuit.T.Fail(fmt.Errorf("failed to read YAML file: %v", err))
 	}
