@@ -219,7 +219,7 @@ func Read(path string) ([]byte, error) {
 func TempDir() (string, error) {
 	tmp := filepath.Join(Dir(), "..", "tmp")
 	if _, err := os.Stat(tmp); os.IsNotExist(err) {
-		err := os.Mkdir(tmp, 0755)
+		err := os.Mkdir(tmp, 0750)
 		return tmp, err
 	}
 	return tmp, nil
