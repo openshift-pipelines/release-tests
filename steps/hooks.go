@@ -39,7 +39,7 @@ var _ = gauge.BeforeScenario(func(exInfo *gauge_messages.ExecutionInfo) {
 	} else {
 		sa := k8s.WaitForServiceAccount(cs, namespace, "pipeline")
 		if sa == nil {
-			testsuit.T.Fail(fmt.Errorf("Service account 'pipeline' not available in namespace %s", namespace))
+			testsuit.T.Fail(fmt.Errorf("service account 'pipeline' not available in namespace %s", namespace))
 		}
 	}
 }, []string{}, testsuit.AND)
@@ -88,7 +88,7 @@ var _ = gauge.BeforeSpec(func(exInfo *gauge_messages.ExecutionInfo) {
 	}
 	log.Print("Annotating the namespaces with 'operator.tekton.dev/prune.skip=true' so that the pipelineruns should not get deleted")
 	for _, ns := range namespaces.Items {
-		if !(strings.HasPrefix(ns.Name, "openshift-") || strings.HasPrefix(ns.Name, "kube-") || ns.Name == "default") {
+		if !strings.HasPrefix(ns.Name, "openshift-") && !strings.HasPrefix(ns.Name, "kube-") && ns.Name != "default" {
 			oc.AnnotateNamespaceIgnoreErrors(ns.Name, "operator.tekton.dev/prune.skip=true")
 		}
 	}

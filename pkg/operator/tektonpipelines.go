@@ -104,7 +104,7 @@ func TektonPipelineCRDelete(clients *clients.Clients, crNames utils.ResourceName
 		return false, err
 	})
 	if err != nil {
-		testsuit.T.Fail(fmt.Errorf("Timed out waiting on TektonPipeline to delete, Error: %v", err))
+		testsuit.T.Fail(fmt.Errorf("timed out waiting on TektonPipeline to delete, Error: %v", err))
 	}
 	if err := verifyNoTektonPipelineCR(clients); err != nil {
 		testsuit.T.Fail(err)
@@ -117,7 +117,7 @@ func verifyNoTektonPipelineCR(clients *clients.Clients) error {
 		return err
 	}
 	if len(pipelines.Items) > 0 {
-		return errors.New("Unable to verify cluster-scoped resources are deleted if any TektonPipeline exists")
+		return errors.New("unable to verify cluster-scoped resources are deleted if any TektonPipeline exists")
 	}
 	return nil
 }
