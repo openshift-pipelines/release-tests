@@ -99,7 +99,7 @@ func VerifySignature(resourceType string) {
 }
 
 func StartKanikoTask() {
-	var tag string = time.Now().Format("060102150405")
+	var tag = time.Now().Format("060102150405")
 	cmd.MustSucceed("oc", "secrets", "link", "pipeline", "chains-image-registry-credentials", "--for=pull,mount")
 	image := fmt.Sprintf("IMAGE=%s:%s", repo, tag)
 	cmd.MustSucceed("opc", "task", "start", "--param", image, "--use-param-defaults", "--workspace", "name=source,claimName=chains-pvc", "--workspace", "name=dockerconfig,secret=chains-image-registry-credentials", "kaniko-chains")
