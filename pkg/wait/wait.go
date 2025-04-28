@@ -127,10 +127,13 @@ func Succeed(name string) ConditionAccessorFn {
 	return func(ca apis.ConditionAccessor) (bool, error) {
 		c := ca.GetCondition(apis.ConditionSucceeded)
 		if c != nil {
-			if c.Status == corev1.ConditionTrue {
+			switch c.Status {
+			case corev1.ConditionTrue:
 				return true, nil
-			} else if c.Status == corev1.ConditionFalse {
+			case corev1.ConditionFalse:
 				return true, fmt.Errorf("%q failed", name)
+			default:
+				return false, nil
 			}
 		}
 		return false, nil
@@ -143,10 +146,13 @@ func Failed(name string) ConditionAccessorFn {
 	return func(ca apis.ConditionAccessor) (bool, error) {
 		c := ca.GetCondition(apis.ConditionSucceeded)
 		if c != nil {
-			if c.Status == corev1.ConditionTrue {
+			switch c.Status {
+			case corev1.ConditionTrue:
 				return true, fmt.Errorf("%q succeeded", name)
-			} else if c.Status == corev1.ConditionFalse {
+			case corev1.ConditionFalse:
 				return true, nil
+			default:
+				return false, nil
 			}
 		}
 		return false, nil
@@ -159,13 +165,16 @@ func FailedWithReason(reason, name string) ConditionAccessorFn {
 	return func(ca apis.ConditionAccessor) (bool, error) {
 		c := ca.GetCondition(apis.ConditionSucceeded)
 		if c != nil {
-			if c.Status == corev1.ConditionFalse {
+			switch c.Status {
+			case corev1.ConditionFalse:
 				if c.Reason == reason {
 					return true, nil
 				}
 				return true, fmt.Errorf("%q completed with the wrong reason, was: %s, expected: %s", name, reason, c.Reason)
-			} else if c.Status == corev1.ConditionTrue {
+			case corev1.ConditionTrue:
 				return true, fmt.Errorf("%q completed successfully, should have been failed with reason %q", name, reason)
+			default:
+				return false, nil
 			}
 		}
 		return false, nil
@@ -178,13 +187,16 @@ func FailedWithMessage(message, name string) ConditionAccessorFn {
 	return func(ca apis.ConditionAccessor) (bool, error) {
 		c := ca.GetCondition(apis.ConditionSucceeded)
 		if c != nil {
-			if c.Status == corev1.ConditionFalse {
+			switch c.Status {
+			case corev1.ConditionFalse:
 				if strings.Contains(c.Message, message) {
 					return true, nil
 				}
 				return true, fmt.Errorf("%q completed with the wrong message: %s", name, c.Message)
-			} else if c.Status == corev1.ConditionTrue {
+			case corev1.ConditionTrue:
 				return true, fmt.Errorf("%q completed successfully, should have been failed with message %q", name, message)
+			default:
+				return false, nil
 			}
 		}
 		return false, nil
