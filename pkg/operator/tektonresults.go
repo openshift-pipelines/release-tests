@@ -94,7 +94,7 @@ func VerifyResultsAnnotationStored(resourceType string) {
 	})
 
 	if err != nil {
-		testsuit.T.Fail(fmt.Errorf("Annotation 'results.tekton.dev/stored' is not true: %v", err))
+		testsuit.T.Fail(fmt.Errorf("annotation 'results.tekton.dev/stored' is not true: %v", err))
 	}
 }
 
@@ -105,7 +105,7 @@ func VerifyResultsLogs(resourceType string) {
 	results_api = GetResultsApi()
 
 	if record_uuid == "" {
-		testsuit.T.Fail(fmt.Errorf("Annotation results.tekton.dev/record is not set"))
+		testsuit.T.Fail(fmt.Errorf("annotation results.tekton.dev/record is not set"))
 	}
 
 	var resultsJsonData string = cmd.MustSucceed("opc", "results", "logs", "get", "--insecure", "--addr", results_api, record_uuid).Stdout()

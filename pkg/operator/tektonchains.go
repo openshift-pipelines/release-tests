@@ -30,7 +30,6 @@ import (
 	"github.com/getgauge-contrib/gauge-go/testsuit"
 	"github.com/openshift-pipelines/release-tests/pkg/cmd"
 	"github.com/openshift-pipelines/release-tests/pkg/config"
-	resource "github.com/openshift-pipelines/release-tests/pkg/config"
 	"github.com/tektoncd/operator/pkg/apis/operator/v1alpha1"
 	chainv1alpha "github.com/tektoncd/operator/pkg/client/clientset/versioned/typed/operator/v1alpha1"
 	"github.com/tektoncd/operator/test/utils"
@@ -41,7 +40,7 @@ import (
 
 // "quay.io/openshift-pipeline/chainstest"
 var repo string = os.Getenv("CHAINS_REPOSITORY")
-var publicKeyPath = resource.Path("testdata/chains/key")
+var publicKeyPath = config.Path("testdata/chains/key")
 
 func EnsureTektonChainsExists(clients chainv1alpha.TektonChainInterface, names utils.ResourceNames) (*v1alpha1.TektonChain, error) {
 	ks, err := clients.Get(context.TODO(), names.TektonChain, metav1.GetOptions{})
@@ -77,7 +76,7 @@ func VerifySignature(resourceType string) {
 		testsuit.T.Errorf("Annotation chains.tekton.dev/signed is set to %s", isSigned)
 	}
 	if len(signature) == 0 {
-		testsuit.T.Fail(fmt.Errorf("Annotation chains.tekton.dev/signature-%s-%s is not set", resourceType, resourceUID))
+		testsuit.T.Fail(fmt.Errorf("annotation chains.tekton.dev/signature-%s-%s is not set", resourceType, resourceUID))
 	}
 
 	// Decode the signature
