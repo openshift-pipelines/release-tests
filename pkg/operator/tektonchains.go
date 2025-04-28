@@ -175,8 +175,8 @@ func CreateFileWithCosignPubKey() {
 	if err != nil {
 		testsuit.T.Errorf("Error decoding base64")
 	}
-	filepath := filepath.Join(publicKeyPath, "cosign.pub")
-	file, err := os.Create(filepath)
+	fullPath := filepath.Join(publicKeyPath, "cosign.pub")
+	file, err := os.Create(filepath.Clean(fullPath))
 	if err != nil {
 		testsuit.T.Errorf("Error creating file")
 	}
@@ -195,7 +195,10 @@ func CreateSigningSecretForTektonChains() {
 		chainsPassword = os.Getenv("COSIGN_PASSWORD")
 		cmd.MustSucceed("oc", "create", "secret", "generic", "signing-secrets", "--from-literal=cosign.key="+chainsPrivateKey, "--from-literal=cosign.password="+chainsPassword, "--from-literal=cosign.pub="+chainsPublicKey, "--namespace", "openshift-pipelines")
 	} else {
-		os.Setenv("COSIGN_PASSWORD", "chainstest")
+		err := os.Setenv("COSIGN_PASSWORD", "chainstest")
+		if err != nil {
+			testsuit.T.Errorf("Error setting environment variable COSIGN_PASSWORD")
+		}
 		cmd.MustSucceed("cosign", "generate-key-pair", "k8s://openshift-pipelines/signing-secrets")
 	}
 }
