@@ -23,11 +23,11 @@ type testsuitAdaptor struct{}
 var _ assert.TestingT = (*testsuitAdaptor)(nil)
 
 func (ta testsuitAdaptor) Fail() {
-	testsuit.T.Fail(fmt.Errorf("Step failed execute"))
+	testsuit.T.Fail(fmt.Errorf("step failed execute"))
 }
 
 func (ta testsuitAdaptor) FailNow() {
-	testsuit.T.Fail(fmt.Errorf("Step failed to execute"))
+	testsuit.T.Fail(fmt.Errorf("step failed to execute"))
 }
 
 func (ta testsuitAdaptor) Log(args ...interface{}) {
