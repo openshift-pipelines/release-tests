@@ -101,7 +101,7 @@ func TektonTriggerCRDelete(clients *clients.Clients, crNames utils.ResourceNames
 		return false, err
 	})
 	if err != nil {
-		testsuit.T.Fail(fmt.Errorf("Timed out waiting on TektonTrigger to delete, Error: %v", err))
+		testsuit.T.Fail(fmt.Errorf("timed out waiting on TektonTrigger to delete, Error: %v", err))
 	}
 
 	if err := verifyNoTektonTriggerCR(clients); err != nil {
@@ -115,7 +115,7 @@ func verifyNoTektonTriggerCR(clients *clients.Clients) error {
 		return err
 	}
 	if len(triggers.Items) > 0 {
-		return errors.New("Unable to verify cluster-scoped resources are deleted if any TektonTrigger exists")
+		return errors.New("unable to verify cluster-scoped resources are deleted if any TektonTrigger exists")
 	}
 	return nil
 }
