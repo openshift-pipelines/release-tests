@@ -1,4 +1,4 @@
-FROM quay.io/fedora/fedora:41
+FROM quay.io/fedora/fedora:42
 
 RUN dnf update -y &&\
     dnf install -y --setopt=tsflags=nodocs azure-cli git go jq make openssl python-unversioned-command python3 python3-antlr4-runtime python3-pip skopeo unzip vim wget &&\
@@ -62,13 +62,13 @@ RUN wget https://github.com/getgauge/gauge/releases/download/v${GAUGE_VERSION}/g
     go env -w GOPROXY="https://proxy.golang.org,direct" &&\
     gauge version
 
-RUN wget https://github.com/sigstore/cosign/releases/download/v2.4.1/cosign-linux-amd64 -O /usr/bin/cosign && \
+RUN wget https://github.com/sigstore/cosign/releases/download/v2.5.0/cosign-linux-amd64 -O /usr/bin/cosign && \
     chmod a+x /usr/bin/cosign
 
-RUN wget https://github.com/sigstore/rekor/releases/download/v1.3.6/rekor-cli-linux-amd64 -O /usr/bin/rekor-cli && \
+RUN wget https://github.com/sigstore/rekor/releases/download/v1.3.10/rekor-cli-linux-amd64 -O /usr/bin/rekor-cli && \
     chmod u+x /usr/bin/rekor-cli
 
-ENV GOLANGCI_LINT_VERSION=1.61.0
+ENV GOLANGCI_LINT_VERSION=2.1.5
 RUN wget -O /tmp/golangci-lint.tar.gz https://github.com/golangci/golangci-lint/releases/download/v${GOLANGCI_LINT_VERSION}/golangci-lint-${GOLANGCI_LINT_VERSION}-linux-amd64.tar.gz \
     && tar --strip-components=1 -C /usr/bin -xzf /tmp/golangci-lint.tar.gz golangci-lint-${GOLANGCI_LINT_VERSION}-linux-amd64/golangci-lint \
     && rm -f /tmp/golangci-lint.tar.gz
