@@ -51,7 +51,7 @@ spec:
     - name: GIT_RELEASE_TESTS_URI
       value: "{{ repo_url }}"
     - name: KONFLUX_INDEX_IMAGE
-      value: "quay.io/openshift-pipeline/operator-next-index-4.18:next"
+      value: "quay.io/openshift-pipeline/pipelines-index-4.18:next"
     - name: INDEX
       value: ""
     - name: INSTALLER
@@ -62,17 +62,18 @@ spec:
       value: "5.0"
     - name: TEST_SUITES
       value:
-        - release-tests-versions
         - release-tests-chains
-        - release-tests-clustertasks
-        - release-tests-clustertasks-s2i
-        - release-tests-clustertasks-multiarch
+        - release-tests-ecosystem
+        - release-tests-ecosystem-multiarch
+        - release-tests-ecosystem-s2i
         - release-tests-manual-approval
         - release-tests-metrics
+        - release-tests-pac
         - release-tests-pipelines
         - release-tests-results
         - release-tests-triggers
         - release-tests-triggers-tls
+        - release-tests-versions
         - release-tests-rbac
         - release-tests-auto-prune
         - release-tests-addon
