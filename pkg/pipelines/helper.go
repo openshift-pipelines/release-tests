@@ -33,16 +33,16 @@ func checkLabelPropagation(c *clients.Clients, namespace string, pipelineRunName
 	}
 
 	// By default, controller doesn't add any labels to Pipelines
-	for key, val := range p.ObjectMeta.Labels {
+	for key, val := range p.Labels {
 		labels[key] = val
 	}
 
 	// This label is added to every PipelineRun by the PipelineRun controller
 	labels[pipeline.PipelineLabelKey] = p.Name
-	AssertLabelsMatch(labels, pr.ObjectMeta.Labels)
+	AssertLabelsMatch(labels, pr.Labels)
 
 	// Check label propagation to TaskRuns.
-	for key, val := range pr.ObjectMeta.Labels {
+	for key, val := range pr.Labels {
 		labels[key] = val
 	}
 	// This label is added to every TaskRun by the PipelineRun controller
@@ -54,13 +54,13 @@ func checkLabelPropagation(c *clients.Clients, namespace string, pipelineRunName
 		}
 
 		// By default, controller doesn't add any labels to Tasks
-		for key, val := range task.ObjectMeta.Labels {
+		for key, val := range task.Labels {
 			labels[key] = val
 		}
 		// This label is added to TaskRuns that reference a Task by the TaskRun controller
 		labels[pipeline.TaskLabelKey] = task.Name
 	}
-	AssertLabelsMatch(labels, tr.ObjectMeta.Labels)
+	AssertLabelsMatch(labels, tr.Labels)
 
 	// PodName is "" if a retry happened and pod is deleted
 	// This label is added to every Pod by the TaskRun controller
@@ -69,7 +69,7 @@ func checkLabelPropagation(c *clients.Clients, namespace string, pipelineRunName
 		pod := GetPodForTaskRun(c, namespace, tr)
 		// This label is added to every Pod by the TaskRun controller
 		labels[pipeline.TaskRunLabelKey] = tr.Name
-		AssertLabelsMatch(labels, pod.ObjectMeta.Labels)
+		AssertLabelsMatch(labels, pod.Labels)
 	}
 }
 
@@ -89,13 +89,13 @@ func checkAnnotationPropagation(c *clients.Clients, namespace string, pipelineRu
 		testsuit.T.Errorf("failed to get pipeline for pipeline run %s \n %v", pr.Name, err)
 	}
 
-	for key, val := range p.ObjectMeta.Annotations {
+	for key, val := range p.Annotations {
 		annotations[key] = val
 	}
-	AssertAnnotationsMatch(annotations, pr.ObjectMeta.Annotations)
+	AssertAnnotationsMatch(annotations, pr.Annotations)
 
 	// Check annotation propagation to TaskRuns.
-	for key, val := range pr.ObjectMeta.Annotations {
+	for key, val := range pr.Annotations {
 		// Annotations created by Chains are created after task runs finish
 		if !strings.HasPrefix(key, "chains.tekton.dev") && !strings.HasPrefix(key, "results.tekton.dev") {
 			annotations[key] = val
@@ -106,15 +106,15 @@ func checkAnnotationPropagation(c *clients.Clients, namespace string, pipelineRu
 		if err != nil {
 			testsuit.T.Errorf("failed to get task for task run %s \n %v", tr.Name, err)
 		}
-		for key, val := range task.ObjectMeta.Annotations {
+		for key, val := range task.Annotations {
 			annotations[key] = val
 		}
 	}
-	AssertAnnotationsMatch(annotations, tr.ObjectMeta.Annotations)
+	AssertAnnotationsMatch(annotations, tr.Annotations)
 
 	// Check annotation propagation to Pods.
 	pod := GetPodForTaskRun(c, namespace, tr)
-	AssertAnnotationsMatch(annotations, pod.ObjectMeta.Annotations)
+	AssertAnnotationsMatch(annotations, pod.Annotations)
 }
 
 func GetPodForTaskRun(c *clients.Clients, namespace string, tr *v1.TaskRun) *corev1.Pod {

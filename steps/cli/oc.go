@@ -269,6 +269,6 @@ var _ = gauge.Step("Copy secret <secretName> from <sourceNamespace> namespace to
 	if oc.SecretExists(secretName, sourceNamespace) {
 		oc.CopySecret(secretName, sourceNamespace, store.Namespace())
 	} else {
-		testsuit.T.Fail(fmt.Errorf("Secret %s doesn't exist in namespace %s", secretName, sourceNamespace))
+		testsuit.T.Fail(fmt.Errorf("secret %s doesn't exist in namespace %s", secretName, sourceNamespace))
 	}
 })

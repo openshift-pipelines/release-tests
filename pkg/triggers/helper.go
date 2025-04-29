@@ -14,7 +14,6 @@ import (
 
 	"github.com/getgauge-contrib/gauge-go/testsuit"
 	"github.com/openshift-pipelines/release-tests/pkg/config"
-	resource "github.com/openshift-pipelines/release-tests/pkg/config"
 	"github.com/openshift-pipelines/release-tests/pkg/store"
 )
 
@@ -40,11 +39,11 @@ func CreateHTTPClient() *http.Client {
 // CreateHTTPSClient for connection re-use
 func CreateHTTPSClient() *http.Client {
 	// Load client cert
-	cert, err := tls.LoadX509KeyPair(resource.Path("testdata/triggers/certs/server.crt"), resource.Path("testdata/triggers/certs/server.key"))
+	cert, err := tls.LoadX509KeyPair(config.Path("testdata/triggers/certs/server.crt"), config.Path("testdata/triggers/certs/server.key"))
 	if err != nil {
 		log.Fatal(err)
 	}
-	caCert, err := os.ReadFile(resource.Path("testdata/triggers/certs/ca.crt"))
+	caCert, err := os.ReadFile(config.Path("testdata/triggers/certs/ca.crt"))
 	if err != nil {
 		log.Fatal(err)
 	}
