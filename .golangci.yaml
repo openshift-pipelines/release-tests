@@ -1,3 +1,4 @@
+version: "2"
 run:
   cache-dir: .golangci-lint-cache
   enable-cache: true
@@ -6,6 +7,7 @@ run:
   tests: true
   build-tags:
     - e2e
+  modules-download-mode: readonly
 outputs:
    print-linter-name: true
 linters-settings:
@@ -19,13 +21,14 @@ linters:
   enable:
     - forbidigo
     - misspell
-    - gofmt
-    - goimports
     - errcheck
-    - typecheck
     - unparam
     - gocritic
     - gosec
+formatters:
+  enable:
+    - gofmt
+    - goimports
 issues:
  max-issues-per-linter: 0
  max-same-issues: 0
