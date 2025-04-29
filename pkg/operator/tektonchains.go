@@ -89,6 +89,7 @@ func VerifySignature(resourceType string) {
 	if err != nil {
 		testsuit.T.Errorf("Error creating file")
 	}
+	//nolint:errcheck
 	defer file.Close()
 	_, err = file.WriteString(string(decodedSignature))
 	if err != nil {
@@ -180,6 +181,7 @@ func CreateFileWithCosignPubKey() {
 	if err != nil {
 		testsuit.T.Errorf("Error creating file")
 	}
+	//nolint:errcheck
 	defer file.Close()
 	_, err = file.WriteString(string(decodedPublicKey))
 	if err != nil {
