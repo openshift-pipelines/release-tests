@@ -82,7 +82,7 @@ spec:
     - name: TKN_DOWNLOAD_URL
       value: https://mirror.openshift.com/pub/openshift-v4/clients/pipelines/1.18.0/tkn-linux-amd64.tar.gz
   timeouts:
-    pipeline: 3h
+    pipeline: 2h
   workspaces:
     - name: git
       volumeClaimTemplate:
