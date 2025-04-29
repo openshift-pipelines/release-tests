@@ -50,8 +50,10 @@ spec:
       value: "{{ revision }}"
     - name: GIT_RELEASE_TESTS_URI
       value: "{{ repo_url }}"
+    - name: KONFLUX_INDEX_IMAGE
+      value: "quay.io/openshift-pipeline/operator-next-index-4.18:next"
     - name: INDEX
-      value: "latest"
+      value: ""
     - name: INSTALLER
       value: "hive"
     - name: OPERATOR_ENVIRONMENT
@@ -60,7 +62,6 @@ spec:
       value: "5.0"
     - name: TEST_SUITES
       value:
-        # - cli-tests-fedora
         - release-tests-versions
         - release-tests-chains
         - release-tests-clustertasks
@@ -76,7 +77,7 @@ spec:
         - release-tests-auto-prune
         - release-tests-addon
     - name: TKN_DOWNLOAD_URL
-      value: https://mirror.openshift.com/pub/openshift-v4/clients/pipelines/1.15.0/tkn-linux-amd64.tar.gz
+      value: https://mirror.openshift.com/pub/openshift-v4/clients/pipelines/1.18.0/tkn-linux-amd64.tar.gz
   timeouts:
     pipeline: 3h
   workspaces:
