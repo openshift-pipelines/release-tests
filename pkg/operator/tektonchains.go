@@ -30,7 +30,6 @@ import (
 	"github.com/getgauge-contrib/gauge-go/testsuit"
 	"github.com/openshift-pipelines/release-tests/pkg/cmd"
 	"github.com/openshift-pipelines/release-tests/pkg/config"
-	resource "github.com/openshift-pipelines/release-tests/pkg/config"
 	"github.com/tektoncd/operator/pkg/apis/operator/v1alpha1"
 	chainv1alpha "github.com/tektoncd/operator/pkg/client/clientset/versioned/typed/operator/v1alpha1"
 	"github.com/tektoncd/operator/test/utils"
@@ -41,7 +40,7 @@ import (
 
 // "quay.io/openshift-pipeline/chainstest"
 var repo string = os.Getenv("CHAINS_REPOSITORY")
-var publicKeyPath = resource.Path("testdata/chains/key")
+var publicKeyPath = config.Path("testdata/chains/key")
 
 func EnsureTektonChainsExists(clients chainv1alpha.TektonChainInterface, names utils.ResourceNames) (*v1alpha1.TektonChain, error) {
 	ks, err := clients.Get(context.TODO(), names.TektonChain, metav1.GetOptions{})
@@ -77,7 +76,7 @@ func VerifySignature(resourceType string) {
 		testsuit.T.Errorf("Annotation chains.tekton.dev/signed is set to %s", isSigned)
 	}
 	if len(signature) == 0 {
-		testsuit.T.Fail(fmt.Errorf("Annotation chains.tekton.dev/signature-%s-%s is not set", resourceType, resourceUID))
+		testsuit.T.Fail(fmt.Errorf("annotation chains.tekton.dev/signature-%s-%s is not set", resourceType, resourceUID))
 	}
 
 	// Decode the signature
@@ -90,6 +89,7 @@ func VerifySignature(resourceType string) {
 	if err != nil {
 		testsuit.T.Errorf("Error creating file")
 	}
+	//nolint:errcheck
 	defer file.Close()
 	_, err = file.WriteString(string(decodedSignature))
 	if err != nil {
@@ -100,7 +100,7 @@ func VerifySignature(resourceType string) {
 }
 
 func StartKanikoTask() {
-	var tag string = time.Now().Format("060102150405")
+	var tag = time.Now().Format("060102150405")
 	cmd.MustSucceed("oc", "secrets", "link", "pipeline", "chains-image-registry-credentials", "--for=pull,mount")
 	image := fmt.Sprintf("IMAGE=%s:%s", repo, tag)
 	cmd.MustSucceed("tkn", "task", "start", "--param", image, "--use-param-defaults", "--workspace", "name=source,claimName=chains-pvc", "--workspace", "name=dockerconfig,secret=chains-image-registry-credentials", "kaniko-chains")
@@ -176,11 +176,12 @@ func CreateFileWithCosignPubKey() {
 	if err != nil {
 		testsuit.T.Errorf("Error decoding base64")
 	}
-	filepath := filepath.Join(publicKeyPath, "cosign.pub")
-	file, err := os.Create(filepath)
+	fullPath := filepath.Join(publicKeyPath, "cosign.pub")
+	file, err := os.Create(filepath.Clean(fullPath))
 	if err != nil {
 		testsuit.T.Errorf("Error creating file")
 	}
+	//nolint:errcheck
 	defer file.Close()
 	_, err = file.WriteString(string(decodedPublicKey))
 	if err != nil {
@@ -196,7 +197,10 @@ func CreateSigningSecretForTektonChains() {
 		chainsPassword = os.Getenv("COSIGN_PASSWORD")
 		cmd.MustSucceed("oc", "create", "secret", "generic", "signing-secrets", "--from-literal=cosign.key="+chainsPrivateKey, "--from-literal=cosign.password="+chainsPassword, "--from-literal=cosign.pub="+chainsPublicKey, "--namespace", "openshift-pipelines")
 	} else {
-		os.Setenv("COSIGN_PASSWORD", "chainstest")
+		err := os.Setenv("COSIGN_PASSWORD", "chainstest")
+		if err != nil {
+			testsuit.T.Errorf("Error setting environment variable COSIGN_PASSWORD")
+		}
 		cmd.MustSucceed("cosign", "generate-key-pair", "k8s://openshift-pipelines/signing-secrets")
 	}
 }

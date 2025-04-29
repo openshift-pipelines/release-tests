@@ -10,13 +10,12 @@ import (
 	"github.com/getgauge-contrib/gauge-go/testsuit"
 	"github.com/openshift-pipelines/release-tests/pkg/cmd"
 	"github.com/openshift-pipelines/release-tests/pkg/config"
-	resource "github.com/openshift-pipelines/release-tests/pkg/config"
 	"github.com/openshift-pipelines/release-tests/pkg/store"
 )
 
 // Create resources using oc command
 func Create(path_dir, namespace string) {
-	log.Printf("output: %s\n", cmd.MustSucceed("oc", "create", "-f", resource.Path(path_dir), "-n", namespace).Stdout())
+	log.Printf("output: %s\n", cmd.MustSucceed("oc", "create", "-f", config.Path(path_dir), "-n", namespace).Stdout())
 }
 
 // Create resources using remote path using oc command
@@ -25,7 +24,7 @@ func CreateRemote(remote_path, namespace string) {
 }
 
 func Apply(path_dir, namespace string) {
-	log.Printf("output: %s\n", cmd.MustSucceed("oc", "apply", "-f", resource.Path(path_dir), "-n", namespace).Stdout())
+	log.Printf("output: %s\n", cmd.MustSucceed("oc", "apply", "-f", config.Path(path_dir), "-n", namespace).Stdout())
 }
 
 // Delete resources using oc command
@@ -33,7 +32,7 @@ func Delete(path_dir, namespace string) {
 	// Tekton Results sets a finalizer that prevent resource removal for some time
 	// see parameters "store_deadline" and "forward_buffer"
 	// by default, it waits at least 150 seconds
-	log.Printf("output: %s\n", cmd.MustSuccedIncreasedTimeout(time.Second*300, "oc", "delete", "-f", resource.Path(path_dir), "-n", namespace).Stdout())
+	log.Printf("output: %s\n", cmd.MustSuccedIncreasedTimeout(time.Second*300, "oc", "delete", "-f", config.Path(path_dir), "-n", namespace).Stdout())
 }
 
 // CreateNewProject Helps you to create new project
