@@ -198,7 +198,7 @@ func AssertElResponse(c *clients.Clients, resp *http.Response, elname, namespace
 		EventListener: elname,
 		Namespace:     namespace,
 	}
-
+	//nolint:errcheck
 	defer resp.Body.Close()
 	var gotBody sink.Response
 	err := json.NewDecoder(resp.Body).Decode(&gotBody)
@@ -281,6 +281,7 @@ func GetRoute(elname, namespace string) string {
 		if err != nil {
 			testsuit.T.Fail(err)
 		}
+		//nolint:errcheck
 		defer file.Close()
 
 		if _, err := file.WriteString(serverCert); err != nil {

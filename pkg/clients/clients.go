@@ -76,17 +76,17 @@ func NewClients(configPath string, clusterName, namespace string) (*Clients, err
 
 	clients.Dynamic, err = dynamic.NewForConfig(clients.KubeConfig)
 	if err != nil {
-		return nil, fmt.Errorf("Failed to create dynamic clients from config file at %s: %s", configPath, err)
+		return nil, fmt.Errorf("failed to create dynamic clients from config file at %s: %s", configPath, err)
 	}
 
 	clients.Operator, err = newTektonOperatorAlphaClients(clients.KubeConfig)
 	if err != nil {
-		return nil, fmt.Errorf("Failed to create Operator v1alpha1 clients from config file at %s: %s", configPath, err)
+		return nil, fmt.Errorf("failed to create Operator v1alpha1 clients from config file at %s: %s", configPath, err)
 	}
 
 	clients.OLM, err = olmversioned.NewForConfig(clients.KubeConfig)
 	if err != nil {
-		return nil, fmt.Errorf("Failed to create olm clients from config file at %s: %s", configPath, err)
+		return nil, fmt.Errorf("failed to create olm clients from config file at %s: %s", configPath, err)
 	}
 
 	clients.Tekton, err = pversioned.NewForConfig(clients.KubeConfig)
@@ -95,17 +95,17 @@ func NewClients(configPath string, clusterName, namespace string) (*Clients, err
 	}
 
 	if err != nil {
-		return nil, fmt.Errorf("Failed to create resource clientset from config file at %s: %s", configPath, err)
+		return nil, fmt.Errorf("failed to create resource clientset from config file at %s: %s", configPath, err)
 	}
 
 	clients.TriggersClient, err = triggersclientset.NewForConfig(clients.KubeConfig)
 	if err != nil {
-		return nil, fmt.Errorf("Failed to create triggers clientset from config file at %s: %s", configPath, err)
+		return nil, fmt.Errorf("failed to create triggers clientset from config file at %s: %s", configPath, err)
 	}
 
 	clients.PacClientset, err = pacclientset.NewForConfig(clients.KubeConfig)
 	if err != nil {
-		return nil, fmt.Errorf("Failed to create pac clientset from config file at %s: %s", configPath, err)
+		return nil, fmt.Errorf("failed to create pac clientset from config file at %s: %s", configPath, err)
 	}
 	clients.NewClientSet(namespace)
 	return clients, nil

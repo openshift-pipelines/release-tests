@@ -297,7 +297,7 @@ func AssertNumberOfPipelineruns(c *clients.Clients, namespace, numberOfPr, timeo
 	})
 	if err != nil {
 		prlist, _ := c.PipelineRunClient.List(c.Ctx, metav1.ListOptions{})
-		testsuit.T.Fail(fmt.Errorf("Error: Expected %v pipelineruns but found %v pipelineruns: %s", numberOfPr, len(prlist.Items), err))
+		testsuit.T.Fail(fmt.Errorf("error: Expected %v pipelineruns but found %v pipelineruns: %s", numberOfPr, len(prlist.Items), err))
 	}
 }
 
@@ -314,7 +314,7 @@ func AssertNumberOfTaskruns(c *clients.Clients, namespace, numberOfTr, timeoutSe
 	})
 	if err != nil {
 		trlist, _ := c.TaskRunClient.List(c.Ctx, metav1.ListOptions{})
-		testsuit.T.Fail(fmt.Errorf("Error: Expected %v taskruns but found %v taskruns: %s", numberOfTr, len(trlist.Items), err))
+		testsuit.T.Fail(fmt.Errorf("error: Expected %v taskruns but found %v taskruns: %s", numberOfTr, len(trlist.Items), err))
 	}
 }
 func AssertPipelinesPresent(c *clients.Clients, namespace string) {
@@ -336,7 +336,7 @@ func AssertPipelinesPresent(c *clients.Clients, namespace string) {
 	})
 	if err != nil {
 		p, _ := pclient.List(c.Ctx, metav1.ListOptions{})
-		testsuit.T.Fail(fmt.Errorf("Expected: %v pipelines present in namespace %v, Actual: %v pipelines present in namespace %v , Error: %v", expectedNumberOfPipelines, namespace, len(p.Items), namespace, err))
+		testsuit.T.Fail(fmt.Errorf("expected: %v pipelines present in namespace %v, Actual: %v pipelines present in namespace %v , Error: %v", expectedNumberOfPipelines, namespace, len(p.Items), namespace, err))
 	}
 	log.Printf("Pipelines are present in namespace %v", namespace)
 }
@@ -353,7 +353,7 @@ func AssertPipelinesNotPresent(c *clients.Clients, namespace string) {
 	})
 	if err != nil {
 		p, _ := pclient.List(c.Ctx, metav1.ListOptions{})
-		testsuit.T.Fail(fmt.Errorf("Expected: %v number of pipelines present in namespace %v, Actual: %v number of pipelines present in namespace %v , Error: %v", 0, namespace, len(p.Items), namespace, err))
+		testsuit.T.Fail(fmt.Errorf("expected: %v number of pipelines present in namespace %v, Actual: %v number of pipelines present in namespace %v , Error: %v", 0, namespace, len(p.Items), namespace, err))
 	}
 	log.Printf("Pipelines are present in namespace %v", namespace)
 }
@@ -403,13 +403,13 @@ func GetLatestPipelinerun(c *clients.Clients, namespace string) (string, error) 
 func CheckLogVersion(c *clients.Clients, binary, namespace string) {
 	prname, err := GetLatestPipelinerun(store.Clients(), store.Namespace())
 	if err != nil {
-		testsuit.T.Fail(fmt.Errorf("Failed to get PipelineRun: %v", err))
+		testsuit.T.Fail(fmt.Errorf("failed to get PipelineRun: %v", err))
 		return
 	}
 	// Get PipelineRun logs
 	logsBuffer, err := getPipelinerunLogs(c, prname, namespace)
 	if err != nil {
-		testsuit.T.Fail(fmt.Errorf("Failed to get PipelineRun logs: %v", err))
+		testsuit.T.Fail(fmt.Errorf("failed to get PipelineRun logs: %v", err))
 		return
 	}
 
@@ -429,6 +429,6 @@ func CheckLogVersion(c *clients.Clients, binary, namespace string) {
 			testsuit.T.Fail(fmt.Errorf("tkn Version %s not found in logs:\n%s ", expectedVersion, logsBuffer))
 		}
 	default:
-		testsuit.T.Fail(fmt.Errorf("Unknown binary or client"))
+		testsuit.T.Fail(fmt.Errorf("unknown binary or client"))
 	}
 }

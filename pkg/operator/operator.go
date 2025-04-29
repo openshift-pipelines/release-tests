@@ -84,7 +84,7 @@ func ValidateHubDeployments(cs *clients.Clients, rnames utils.ResourceNames) {
 
 func ValidateManualApprovalGateDeployments(cs *clients.Clients, rnames utils.ResourceNames) {
 	if _, err := approvalgate.EnsureManualApprovalGateExists(cs.ManualApprovalGate(), rnames); err != nil {
-		testsuit.T.Fail(fmt.Errorf("Manual approval gate doesn't exists\n %v", err))
+		testsuit.T.Fail(fmt.Errorf("manual approval gate doesn't exists\n %v", err))
 	}
 	k8s.ValidateDeployments(cs, rnames.TargetNamespace,
 		config.MAGController, config.MAGWebHook)

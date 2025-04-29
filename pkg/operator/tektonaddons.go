@@ -127,7 +127,7 @@ func TektonAddonCRDelete(clients *clients.Clients, crNames utils.ResourceNames) 
 		return false, err
 	})
 	if err != nil {
-		testsuit.T.Fail(fmt.Errorf("Timed out waiting on TektonAddon to delete, Error: %v", err))
+		testsuit.T.Fail(fmt.Errorf("timed out waiting on TektonAddon to delete, Error: %v", err))
 	}
 
 	err = verifyNoTektonAddonCR(clients)
@@ -142,7 +142,7 @@ func verifyNoTektonAddonCR(clients *clients.Clients) error {
 		return err
 	}
 	if len(addons.Items) > 0 {
-		return errors.New("Unable to verify cluster-scoped resources are deleted if any TektonAddon exists")
+		return errors.New("unable to verify cluster-scoped resources are deleted if any TektonAddon exists")
 	}
 	return nil
 }

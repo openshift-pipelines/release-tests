@@ -123,7 +123,7 @@ func TektonConfigCRDelete(clients *clients.Clients, crNames utils.ResourceNames)
 		return false, err
 	})
 	if err != nil {
-		testsuit.T.Fail(fmt.Errorf("Timed out waiting on TektonConfigCR to delete, Error: %v", err))
+		testsuit.T.Fail(fmt.Errorf("timed out waiting on TektonConfigCR to delete, Error: %v", err))
 	}
 	err = verifyNoTektonConfigCR(clients)
 	if err != nil {
@@ -137,7 +137,7 @@ func verifyNoTektonConfigCR(clients *clients.Clients) error {
 		return err
 	}
 	if len(configs.Items) > 0 {
-		return errors.New("Unable to verify cluster-scoped resources are deleted if any TektonConfig exists")
+		return errors.New("unable to verify cluster-scoped resources are deleted if any TektonConfig exists")
 	}
 	return nil
 }

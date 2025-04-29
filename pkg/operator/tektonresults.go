@@ -20,7 +20,7 @@ import (
 )
 
 func CreateSecretsForTektonResults() {
-	var password string = cmd.MustSucceed("openssl", "rand", "-base64", "20").Stdout()
+	var password = cmd.MustSucceed("openssl", "rand", "-base64", "20").Stdout()
 	password = strings.ReplaceAll(password, "\n", "")
 	cmd.MustSucceed("oc", "create", "secret", "-n", "openshift-pipelines", "generic", "tekton-results-postgres", "--from-literal=POSTGRES_USER=result", "--from-literal=POSTGRES_PASSWORD="+password)
 	// generating tls certificate
@@ -38,15 +38,15 @@ func CreateResultsRoute() {
 }
 
 func GetResultsApi() string {
-	var results_api string = cmd.MustSucceed("oc", "get", "route", "tekton-results-api-service", "-n", "openshift-pipelines", "--no-headers", "-o", "custom-columns=:spec.host").Stdout() + ":443"
+	var results_api = cmd.MustSucceed("oc", "get", "route", "tekton-results-api-service", "-n", "openshift-pipelines", "--no-headers", "-o", "custom-columns=:spec.host").Stdout() + ":443"
 	results_api = strings.ReplaceAll(results_api, "\n", "")
 	return results_api
 }
 
 func GetResultsAnnotations(resourceType string) (string, string, string) {
-	var result_uuid string = cmd.MustSucceed("tkn", resourceType, "describe", "--last", "-o", "jsonpath='{.metadata.annotations.results\\.tekton\\.dev/result}'").Stdout()
-	var record_uuid string = cmd.MustSucceed("tkn", resourceType, "describe", "--last", "-o", "jsonpath='{.metadata.annotations.results\\.tekton\\.dev/record}'").Stdout()
-	var stored string = cmd.MustSucceed("tkn", resourceType, "describe", "--last", "-o", "jsonpath='{.metadata.annotations.results\\.tekton\\.dev/stored}'").Stdout()
+	var result_uuid = cmd.MustSucceed("tkn", resourceType, "describe", "--last", "-o", "jsonpath='{.metadata.annotations.results\\.tekton\\.dev/result}'").Stdout()
+	var record_uuid = cmd.MustSucceed("tkn", resourceType, "describe", "--last", "-o", "jsonpath='{.metadata.annotations.results\\.tekton\\.dev/record}'").Stdout()
+	var stored = cmd.MustSucceed("tkn", resourceType, "describe", "--last", "-o", "jsonpath='{.metadata.annotations.results\\.tekton\\.dev/stored}'").Stdout()
 	record_uuid = strings.ReplaceAll(record_uuid, "'", "")
 	result_uuid = strings.ReplaceAll(result_uuid, "'", "")
 	stored = strings.ReplaceAll(stored, "'", "")
@@ -94,7 +94,7 @@ func VerifyResultsAnnotationStored(resourceType string) {
 	})
 
 	if err != nil {
-		testsuit.T.Fail(fmt.Errorf("Annotation 'results.tekton.dev/stored' is not true: %v", err))
+		testsuit.T.Fail(fmt.Errorf("annotation 'results.tekton.dev/stored' is not true: %v", err))
 	}
 }
 
@@ -105,10 +105,10 @@ func VerifyResultsLogs(resourceType string) {
 	results_api = GetResultsApi()
 
 	if record_uuid == "" {
-		testsuit.T.Fail(fmt.Errorf("Annotation results.tekton.dev/record is not set"))
+		testsuit.T.Fail(fmt.Errorf("annotation results.tekton.dev/record is not set"))
 	}
 
-	var resultsJsonData string = cmd.MustSucceed("opc", "results", "logs", "get", "--insecure", "--addr", results_api, record_uuid).Stdout()
+	var resultsJsonData = cmd.MustSucceed("opc", "results", "logs", "get", "--insecure", "--addr", results_api, record_uuid).Stdout()
 	if strings.Contains(resultsJsonData, "record not found") {
 		testsuit.T.Errorf("Results log not found")
 	} else {
@@ -136,7 +136,7 @@ func VerifyResultsRecords(resourceType string) {
 	var results_api string
 	_, record_uuid, _ = GetResultsAnnotations(resourceType)
 	results_api = GetResultsApi()
-	var results_record string = cmd.MustSucceed("opc", "results", "records", "get", "--insecure", "--addr", results_api, record_uuid).Stdout()
+	var results_record = cmd.MustSucceed("opc", "results", "records", "get", "--insecure", "--addr", results_api, record_uuid).Stdout()
 	if strings.Contains(results_record, "record not found") {
 		testsuit.T.Errorf("Results record not found")
 	} else {

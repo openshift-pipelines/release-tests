@@ -400,7 +400,7 @@ func AssertCronjobPresent(c *clients.Clients, cronJobName, namespace string) {
 		return false, nil
 	})
 	if err != nil {
-		testsuit.T.Fail(fmt.Errorf("Expected: cronjob with prefix %v present in namespace %v, Actual: cronjob with prefix %v not present in namespace %v", cronJobName, namespace, cronJobName, namespace))
+		testsuit.T.Fail(fmt.Errorf("expected: cronjob with prefix %v present in namespace %v, Actual: cronjob with prefix %v not present in namespace %v", cronJobName, namespace, cronJobName, namespace))
 	}
 	log.Printf("Cronjob with prefix %v is present in namespace %v", cronJobName, namespace)
 }
@@ -420,7 +420,7 @@ func AssertCronjobNotPresent(c *clients.Clients, cronJobName, namespace string) 
 		return true, nil
 	})
 	if err != nil {
-		testsuit.T.Fail(fmt.Errorf("Expected: cronjob with prefix %v present in namespace %v, Actual: cronjob with prefix %v not present in namespace %v", cronJobName, namespace, cronJobName, namespace))
+		testsuit.T.Fail(fmt.Errorf("expected: cronjob with prefix %v present in namespace %v, Actual: cronjob with prefix %v not present in namespace %v", cronJobName, namespace, cronJobName, namespace))
 	}
 	log.Printf("Cronjob with prefix %v is present in namespace %v", cronJobName, namespace)
 }
@@ -429,7 +429,7 @@ func ValidateTektonInstallersetStatus(c *clients.Clients) {
 	tis, err := c.Operator.TektonInstallerSets().List(c.Ctx, metav1.ListOptions{})
 	failedInstallersets := make([]string, 0)
 	if err != nil {
-		testsuit.T.Fail(fmt.Errorf("Error getting tektoninstallersets: %v", err))
+		testsuit.T.Fail(fmt.Errorf("error getting tektoninstallersets: %v", err))
 	}
 
 	for _, is := range tis.Items {
@@ -440,7 +440,7 @@ func ValidateTektonInstallersetStatus(c *clients.Clients) {
 	}
 
 	if len(failedInstallersets) > 0 {
-		testsuit.T.Fail(fmt.Errorf("The installersets %s is/are not in ready status", strings.Join(failedInstallersets, ",")))
+		testsuit.T.Fail(fmt.Errorf("the installersets %s is/are not in ready status", strings.Join(failedInstallersets, ",")))
 	}
 	log.Print("All the installersets are in ready state")
 }
@@ -448,7 +448,7 @@ func ValidateTektonInstallersetStatus(c *clients.Clients) {
 func ValidateTektonInstallersetNames(c *clients.Clients) {
 	tis, err := c.Operator.TektonInstallerSets().List(c.Ctx, metav1.ListOptions{})
 	if err != nil {
-		testsuit.T.Fail(fmt.Errorf("Error getting tektoninstallersets: %v", err))
+		testsuit.T.Fail(fmt.Errorf("error getting tektoninstallersets: %v", err))
 	}
 	missingInstallersets := make([]string, 0)
 	for _, isp := range config.TektonInstallersetNamePrefixes {
@@ -479,7 +479,7 @@ func ValidateTektonInstallersetNames(c *clients.Clients) {
 	}
 
 	if len(missingInstallersets) > 0 {
-		testsuit.T.Fail(fmt.Errorf("Installersets with prefix %s is not found", strings.Join(missingInstallersets, ",")))
+		testsuit.T.Fail(fmt.Errorf("installersets with prefix %s is not found", strings.Join(missingInstallersets, ",")))
 	}
 }
 
