@@ -60,6 +60,8 @@ spec:
       value: pre-stage
     - name: OPERATOR_VERSION
       value: "5.0"
+    - name: TAGS
+      value: "sanity"
     - name: TEST_SUITES
       value:
         - release-tests-chains
