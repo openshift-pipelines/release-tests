@@ -35,7 +35,7 @@ var _ = gauge.Step("Start and verify pipeline <pipelineName> with param <paramNa
 			params[paramName] = value
 			customPipelineRunName := pipelineName + "-run-" + value
 			pipelineRunName := opc.StartPipeline(pipelineName, params, workspaces, store.Namespace(), "--use-param-defaults", "--prefix-name", customPipelineRunName)
-			pipelines.ValidatePipelineRun(store.Clients(), pipelineRunName, "successful", "no", store.Namespace())
+			pipelines.ValidatePipelineRun(store.Clients(), pipelineRunName, "successful", store.Namespace())
 		}(value)
 
 		time.Sleep(3 * time.Second)
@@ -72,7 +72,7 @@ var _ = gauge.Step("Start and verify dotnet pipeline <pipelineName> with values 
 			defer wg.Done()
 			customPipelineRunName := pipelineName + "-run-" + value
 			pipelineRunName := opc.StartPipeline(pipelineName, params, workspaces, store.Namespace(), "--use-param-defaults", "--prefix-name", customPipelineRunName)
-			pipelines.ValidatePipelineRun(store.Clients(), pipelineRunName, "successful", "no", store.Namespace())
+			pipelines.ValidatePipelineRun(store.Clients(), pipelineRunName, "successful", store.Namespace())
 		}(pipelineName, params, workspaces)
 
 		time.Sleep(3 * time.Second)
@@ -99,7 +99,7 @@ var _ = gauge.Step("Start the <pipelineName> pipeline with params <parameters> w
 	if len(prList) == 0 || prList[0].Name != pipelineRunName {
 		testsuit.T.Errorf("pipelineRun %s not found", pipelineRunName)
 	}
-	pipelines.ValidatePipelineRun(store.Clients(), pipelineRunName, "successful", "no", store.Namespace())
+	pipelines.ValidatePipelineRun(store.Clients(), pipelineRunName, "successful", store.Namespace())
 	store.PutScenarioData(variableName, pipelineRunName)
 })
 
