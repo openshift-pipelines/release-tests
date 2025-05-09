@@ -25,8 +25,7 @@ var _ = gauge.Step("Verify pipelinerun <table>", func(table *m.Table) {
 	for _, row := range table.Rows {
 		prname := row.Cells[1]
 		status := row.Cells[2]
-		labelCheck := row.Cells[3]
-		pipelines.ValidatePipelineRun(store.Clients(), prname, status, labelCheck, store.Namespace())
+		pipelines.ValidatePipelineRun(store.Clients(), prname, status, store.Namespace())
 	}
 })
 
@@ -95,5 +94,5 @@ var _ = gauge.Step("Verify the latest pipelinerun for <state> state", func(state
 	if err != nil {
 		testsuit.T.Fail(fmt.Errorf("failed to get pipelinerun from %s: %v", namespace, err))
 	}
-	pipelines.ValidatePipelineRun(store.Clients(), prname, state, "no", namespace)
+	pipelines.ValidatePipelineRun(store.Clients(), prname, state, namespace)
 })

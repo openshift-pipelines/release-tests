@@ -19,9 +19,9 @@ Steps:
       |2   |testdata/pvc/pvc.yaml                                 |
       |3   |testdata/v1/clustertask/pipelineruns/jib-maven.yaml   |
   * Verify pipelinerun
-      |S.NO|pipeline_run_name|status    |check_label_propagation|
-      |----|-----------------|----------|-----------------------|
-      |1   |jib-maven-run    |successful|no                     |
+      |S.NO|pipeline_run_name|status    |
+      |----|-----------------|----------|
+      |1   |jib-maven-run    |successful|
 
 ## jib-maven P&Z pipelinerun: PIPELINES-17-TC02
 Tags: linux/ppc64le, linux/s390x, linux/arm64, clustertasks, non-admin, jib-maven, sanity
@@ -38,9 +38,9 @@ Steps:
       |2   |testdata/pvc/pvc.yaml                                 |
       |3   |testdata/v1/clustertask/pipelineruns/jib-maven-pz.yaml|
   * Verify pipelinerun
-      |S.NO|pipeline_run_name|status    |check_label_propagation|
-      |----|-----------------|----------|-----------------------|
-      |1   |jib-maven-pz-run |successful|no                     |
+      |S.NO|pipeline_run_name|status    |
+      |----|-----------------|----------|
+      |1   |jib-maven-pz-run |successful|
 
 ## kn-apply pipelinerun: PIPELINES-17-TC03
 Tags: e2e, linux/amd64, clustertasks, non-admin, kn-apply
@@ -55,9 +55,9 @@ Steps:
       |----|--------------------------------------------------|
       |1   |testdata/v1/clustertask/pipelineruns/kn-apply.yaml|
   * Verify pipelinerun
-      |S.NO|pipeline_run_name|status    |check_label_propagation|
-      |----|-----------------|----------|-----------------------|
-      |1   |kn-apply-run     |successful|no                     |
+      |S.NO|pipeline_run_name|status    |
+      |----|-----------------|----------|
+      |1   |kn-apply-run     |successful|
 
 ## kn-apply p&z pipelinerun: PIPELINES-17-TC04
 Tags: e2e, linux/ppc64le, linux/s390x, clustertasks, non-admin, kn-apply
@@ -72,9 +72,9 @@ Steps:
       |----|------------------------------------------------------------|
       |1   |testdata/v1/clustertask/pipelineruns/kn-apply-multiarch.yaml|
   * Verify pipelinerun
-      |S.NO|pipeline_run_name|status    |check_label_propagation|
-      |----|-----------------|----------|-----------------------|
-      |1   |kn-apply-pz-run  |successful|no                     |
+      |S.NO|pipeline_run_name|status    |
+      |----|-----------------|----------|
+      |1   |kn-apply-pz-run  |successful|
 
 ## kn pipelinerun: PIPELINES-17-TC05
 Tags: e2e, linux/amd64, clustertasks, non-admin, kn
@@ -89,9 +89,9 @@ Steps:
       |----|--------------------------------------------|
       |1   |testdata/v1/clustertask/pipelineruns/kn.yaml|
   * Verify pipelinerun
-      |S.NO|pipeline_run_name|status    |check_label_propagation|
-      |----|-----------------|----------|-----------------------|
-      |1   |kn-run           |successful|no                     |
+      |S.NO|pipeline_run_name|status    |
+      |----|-----------------|----------|
+      |1   |kn-run           |successful|
 
 ## kn p&z pipelinerun: PIPELINES-17-TC06
 Tags: e2e, linux/ppc64le, linux/s390x, clustertasks, non-admin, kn
@@ -106,6 +106,6 @@ Steps:
       |----|-----------------------------------------------|
       |1   |testdata/v1/clustertask/pipelineruns/kn-pz.yaml|
   * Verify pipelinerun
-      |S.NO|pipeline_run_name|status    |check_label_propagation|
-      |----|-----------------|----------|-----------------------|
-      |1   |kn-pz-run        |successful|no                     |
+      |S.NO|pipeline_run_name|status    |
+      |----|-----------------|----------|
+      |1   |kn-pz-run        |successful|

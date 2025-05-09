@@ -23,9 +23,9 @@ Steps:
       |----|-------------------------------------------|
       |1   |testdata/negative/v1beta1/pipelinerun.yaml |
   * Verify pipelinerun
-       |S.NO|pipeline_run_name     |status |check_label_propagation|
-       |----|----------------------|-------|-----------------------|
-       |1   |output-pipeline-run-vb|Failure|no                     |
+       |S.NO|pipeline_run_name     |status |
+       |----|----------------------|-------|
+       |1   |output-pipeline-run-vb|Failure|
 
 ## Run Task with a non-existent ServiceAccount: PIPELINES-02-TC02
 Tags: e2e, tasks, negative, non-admin
