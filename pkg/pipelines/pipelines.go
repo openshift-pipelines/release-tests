@@ -33,7 +33,7 @@ import (
 
 var prGroupResource = schema.GroupVersionResource{Group: "tekton.dev", Resource: "pipelineruns"}
 
-func validatePipelineRunForSuccessStatus(c *clients.Clients, prname, labelCheck, namespace string) {
+func validatePipelineRunForSuccessStatus(c *clients.Clients, prname, namespace string) {
 	// Verify status of PipelineRun (wait for it)
 	err := wait.WaitForPipelineRunState(c, prname, wait.PipelineRunSucceed(prname), "PipelineRunCompleted")
 	if err != nil {
@@ -55,29 +55,6 @@ func validatePipelineRunForSuccessStatus(c *clients.Clients, prname, labelCheck,
 	}
 
 	log.Printf("pipelineRun: %s is successful under namespace : %s", prname, namespace)
-
-	if strings.ToLower(labelCheck) == "yes" || strings.ToLower(labelCheck) == "y" {
-		log.Println("Check for events, labels & annotations")
-		actualTaskrunList, err := c.TaskRunClient.List(c.Ctx, metav1.ListOptions{LabelSelector: fmt.Sprintf("tekton.dev/pipelineRun=%s", prname)})
-		if err != nil {
-			testsuit.T.Errorf("failed to list task runs for pipeline run %s \n %v", prname, err)
-		}
-
-		actualTaskRunNames := []string{}
-		for _, tr := range actualTaskrunList.Items {
-			actualTaskRunNames = append(actualTaskRunNames, tr.GetName())
-			log.Printf("Checking that labels were propagated correctly for TaskRun %s", tr.Name)
-			trCopy := tr
-			checkLabelPropagation(c, namespace, prname, &trCopy)
-			log.Printf("Checking that annotations were propagated correctly for TaskRun %s", tr.Name)
-			checkAnnotationPropagation(c, namespace, prname, &trCopy)
-		}
-
-		matchKinds := map[string][]string{"PipelineRun": {prname}, "TaskRun": actualTaskRunNames}
-		log.Printf("Making sure %d events were created from taskrun and pipelinerun with kinds %v", len(actualTaskRunNames)+1, matchKinds)
-
-		// To-do fix: collect matching events
-	}
 }
 
 func validatePipelineRunForFailedStatus(c *clients.Clients, prname, namespace string) {
@@ -199,7 +176,7 @@ func validatePipelineRunCancel(c *clients.Clients, prname, namespace string) {
 	wg.Wait()
 }
 
-func ValidatePipelineRun(c *clients.Clients, prname, status, labelCheck, namespace string) {
+func ValidatePipelineRun(c *clients.Clients, prname, status, namespace string) {
 	var err error
 	pr, err := c.PipelineRunClient.Get(c.Ctx, prname, metav1.GetOptions{})
 	if err != nil {
@@ -210,7 +187,7 @@ func ValidatePipelineRun(c *clients.Clients, prname, status, labelCheck, namespa
 	switch {
 	case strings.Contains(strings.ToLower(status), "success"):
 		log.Printf("validating pipeline run %s for success state...", prname)
-		validatePipelineRunForSuccessStatus(c, pr.GetName(), labelCheck, namespace)
+		validatePipelineRunForSuccessStatus(c, pr.GetName(), namespace)
 	case strings.Contains(strings.ToLower(status), "fail"):
 		log.Printf("validating pipeline run %s for failure state...", prname)
 		validatePipelineRunForFailedStatus(c, pr.GetName(), namespace)

@@ -18,16 +18,16 @@ Steps:
   * Mock post event to "github" interceptor with event-type "push", payload "testdata/triggers/github-ctb/push.json", with TLS "false"
   * Assert eventlistener response
   * Verify pipelinerun
-    |S.NO|pipeline_run_name       |status    |check_label_propagation|
-    |----|------------------------|----------|-----------------------|
-    |1   |pipelinerun-git-push-ctb|successful|no                     |
+    |S.NO|pipeline_run_name       |status    |
+    |----|------------------------|----------|
+    |1   |pipelinerun-git-push-ctb|successful|
   * Get route for eventlistener "listener-triggerref"
   * Mock post event to "github" interceptor with event-type "pull_request", payload "testdata/triggers/triggersCRD/pull-request.json", with TLS "false"
   * Assert eventlistener response
   * Verify pipelinerun
-    |S.NO|pipeline_run_name       |status    |check_label_propagation|
-    |----|------------------------|----------|-----------------------|
-    |1   |parallel-pipelinerun    |successful|no                     |
+    |S.NO|pipeline_run_name       |status    |
+    |----|------------------------|----------|
+    |1   |parallel-pipelinerun    |successful|
   * Get route for eventlistener "bitbucket-listener"
   * Mock post event to "bitbucket" interceptor with event-type "refs_changed", payload "testdata/triggers/bitbucket/refs-change-event.json", with TLS "false"
   * Assert eventlistener response
@@ -49,9 +49,9 @@ Steps:
   * Mock post event to "github" interceptor with event-type "push", payload "testdata/push.json", with TLS "true"
   * Assert eventlistener response
   * Verify pipelinerun
-    |S.NO|pipeline_run_name  |status    |check_label_propagation|
-    |----|-------------------|----------|-----------------------|
-    |1   |simple-pipeline-run|successful|no                     |
+    |S.NO|pipeline_run_name  |status    |
+    |----|-------------------|----------|
+    |1   |simple-pipeline-run|successful|
 
 ## Verify secret is linked to SA even after upgrade: PIPELINES-19-TC04
 Tags: post-upgrade, e2e, clustertasks, non-admin, git-clone, sanity
@@ -69,9 +69,9 @@ Steps:
       |------|-----------------------------------------------------------------------|
       | 1    | testdata/ecosystem/pipelineruns/git-clone-read-private.yaml |
   * Verify pipelinerun
-      | S.NO | pipeline_run_name                   | status     | check_label_propagation |
-      |------|-------------------------------------|------------|-------------------------|
-      | 1    | git-clone-read-private-pipeline-run | successful | no                      |
+      | S.NO | pipeline_run_name                   | status     |
+      |------|-------------------------------------|------------|
+      | 1    | git-clone-read-private-pipeline-run | successful |
     
 ## Verify S2I golang pipeline after upgrade: PIPELINES-19-TC05
 Tags: post-upgrade, e2e, clustertasks, non-admin, s2i
