@@ -28,9 +28,9 @@ Steps:
       |----|--------------------------------------------------------------------------|
       |1   |testdata/resolvers/pipelineruns/resolver-pipelinerun.yaml                 |
     * Verify pipelinerun
-      |S.NO|pipeline_run_name                  |status      |check_label_propagation  |
-      |----|-----------------------------------|--------------------------------------|
-      |1   |resolver-pipelinerun               |successful  |no                       |
+      |S.NO|pipeline_run_name                  |status      |
+      |----|-----------------------------------|------------|
+      |1   |resolver-pipelinerun               |successful  |
             
 ## Checking the functionality of cluster resolvers#2: PIPELINES-23-TC02
 Tags: e2e
@@ -47,9 +47,9 @@ Steps:
       |1   |testdata/resolvers/pipelines/resolver-pipeline-same-ns.yaml               |
       |2   |testdata/resolvers/pipelineruns/resolver-pipelinerun-same-ns.yaml         |
     * Verify pipelinerun
-      |S.NO|pipeline_run_name                  |status      |check_label_propagation  |
-      |----|-----------------------------------|--------------------------------------|
-      |1   |resolver-pipelinerun-same-ns       |successful  |no                       |
+      |S.NO|pipeline_run_name                  |status      |
+      |----|-----------------------------------|------------|
+      |1   |resolver-pipelinerun-same-ns       |successful  |
   
 Teardown:
   * Delete project "releasetest-tasks"
