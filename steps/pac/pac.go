@@ -29,7 +29,7 @@ var _ = gauge.Step("Configure PipelineRun", func() {
 
 var _ = gauge.Step("Validate PipelineRun for <state>", func(state string) {
 	pipelineName := pac.GetPipelineNameFromMR()
-	pipelines.ValidatePipelineRun(store.Clients(), pipelineName, state, "no", store.Namespace())
+	pipelines.ValidatePipelineRun(store.Clients(), pipelineName, state, store.Namespace())
 })
 
 var _ = gauge.Step("Validate PAC Info Install", func() {

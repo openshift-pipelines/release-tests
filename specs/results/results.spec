@@ -40,9 +40,9 @@ Steps:
    |1   |testdata/results/pipeline.yaml   |
    |2   |testdata/results/pipelinerun.yaml|
 * Verify pipelinerun
-   |S.NO|pipeline_run_name|status    |check_label_propagation|
-   |----|-----------------|----------|-----------------------|
-   |1   |pipeline-results |successful|no                     |
+   |S.NO|pipeline_run_name|status    |
+   |----|-----------------|----------|
+   |1   |pipeline-results |successful|
 * Verify "pipelinerun" Results stored
 * Verify "pipelinerun" Results records
 * Verify "pipelinerun" Results logs
