@@ -24,9 +24,9 @@ Steps:
   * Mock post event to "github" interceptor with event-type "push", payload "testdata/triggers/github-ctb/push.json", with TLS "false"
   * Assert eventlistener response
   * Verify pipelinerun
-    |S.NO|pipeline_run_name       |status    |check_label_propagation|
-    |----|------------------------|----------|-----------------------|
-    |1   |pipelinerun-git-push-ctb|successful|no                     |
+    |S.NO|pipeline_run_name       |status    |
+    |----|------------------------|----------|
+    |1   |pipelinerun-git-push-ctb|successful|
   * Delete "pipelinerun" named "pipelinerun-git-push-ctb"
   * Create
     |S.NO|resource_dir                                               |
@@ -40,9 +40,9 @@ Steps:
   * Mock post event to "github" interceptor with event-type "pull_request", payload "testdata/triggers/triggersCRD/pull-request.json", with TLS "false"
   * Assert eventlistener response
   * Verify pipelinerun
-    |S.NO|pipeline_run_name       |status    |check_label_propagation|
-    |----|------------------------|----------|-----------------------|
-    |1   |parallel-pipelinerun    |successful|no                     |
+    |S.NO|pipeline_run_name       |status    |
+    |----|------------------------|----------|
+    |1   |parallel-pipelinerun    |successful|
   * Delete "pipelinerun" named "parallel-pipelinerun"
   * Create
     |S.NO|resource_dir                                                        |
@@ -79,9 +79,9 @@ Steps:
   * Mock post event to "github" interceptor with event-type "push", payload "testdata/push.json", with TLS "true"
   * Assert eventlistener response
   * Verify pipelinerun
-    |S.NO|pipeline_run_name  |status    |check_label_propagation|
-    |----|-------------------|----------|-----------------------|
-    |1   |simple-pipeline-run|successful|no                     |
+    |S.NO|pipeline_run_name  |status    |
+    |----|-------------------|----------|
+    |1   |simple-pipeline-run|successful|
   * Delete "pipelinerun" named "simple-pipeline-run"
 
 ## Setup link secret to pipeline SA PIPELINES-18-TC04
@@ -107,9 +107,9 @@ Steps:
       |------|-----------------------------------------------------------------------|
       | 1    | testdata/ecosystem/pipelineruns/git-clone-read-private.yaml |
   * Verify pipelinerun
-      | S.NO | pipeline_run_name                   | status     | check_label_propagation |
-      |------|-------------------------------------|------------|-------------------------|
-      | 1    | git-clone-read-private-pipeline-run | successful | no                      |
+      | S.NO | pipeline_run_name                   | status     |
+      |------|-------------------------------------|------------|
+      | 1    | git-clone-read-private-pipeline-run | successful |
   * Delete "pipelinerun" named "git-clone-read-private-pipeline-run"
 
 ## Setup S2I golang pipeline pre upgrade: PIPELINES-18-TC05

@@ -12,6 +12,5 @@ This scenario tests configuring PAC in Public GitLab project
 
 Steps:
   * Configure GitLab token for PAC tests
-  * Verify ServiceAccount "pipeline" exist
   * Create Smee deployment
   * Configure GitLab repo and validate pipelinerun

@@ -191,3 +191,7 @@ var _ = gauge.Step("Create signing-secrets for Tekton Chains", func() {
 var _ = gauge.Step("Store Cosign public key in file", func() {
 	operator.CreateFileWithCosignPubKey()
 })
+
+var _ = gauge.Step("Verify <binary> version from the pipelinerun logs", func(binary string) {
+	pipelines.CheckLogVersion(store.Clients(), binary, store.Namespace())
+})

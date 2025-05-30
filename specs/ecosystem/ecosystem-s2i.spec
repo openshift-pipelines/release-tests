@@ -12,7 +12,6 @@ Type: Functional
 Importance: Critical
 
 Steps:
-  * Verify ServiceAccount "pipeline" exist
   * Create
       |S.NO|resource_dir                                                 |
       |----|-------------------------------------------------------------|
@@ -22,9 +21,9 @@ Steps:
       |4   |testdata/ecosystem/imagestreams/nodejs-ex-git.yaml           |
       |5   |testdata/ecosystem/pipelineruns/nodejs-ex-git.yaml           |
   * Verify pipelinerun
-      |S.NO|pipeline_run_name|status     |check_lable_propagation|
-      |----|-----------------|-----------|-----------------------|
-      |1   |nodejs-ex-git-pr |successful |no                     |
+      |S.NO|pipeline_run_name|status     |
+      |----|-----------------|-----------|
+      |1   |nodejs-ex-git-pr |successful |
   * Expose Deployment config "nodejs-ex-git" on port "3000"
   * Get route url of the route "nodejs-ex-git"
   * Validate that route URL contains "See Also"
@@ -37,7 +36,6 @@ Type: Functional
 Importance: Critical
 
 Steps:
-  * Verify ServiceAccount "pipeline" exist
   * Create
       |S.NO|resource_dir                                          |
       |----|------------------------------------------------------|
@@ -54,7 +52,6 @@ Type: Functional
 Importance: Critical
 
 Steps:
-  * Verify ServiceAccount "pipeline" exist
   * Create
       |S.NO|resource_dir                                          |
       |----|------------------------------------------------------|
@@ -71,7 +68,6 @@ Type: Functional
 Importance: Critical
 
 Steps:
-  * Verify ServiceAccount "pipeline" exist
   * Create
       |S.NO|resource_dir                                          |
       |----|------------------------------------------------------|
@@ -88,7 +84,6 @@ Type: Functional
 Importance: Critical
 
 Steps:
-  * Verify ServiceAccount "pipeline" exist
   * Create
       |S.NO|resource_dir                                          |
       |----|------------------------------------------------------|
@@ -105,7 +100,6 @@ Type: Functional
 Importance: Critical
 
 Steps:
-  * Verify ServiceAccount "pipeline" exist
   * Create
       |S.NO|resource_dir                                          |
       |----|------------------------------------------------------|
@@ -122,7 +116,6 @@ Type: Functional
 Importance: Critical
 
 Steps:
-  * Verify ServiceAccount "pipeline" exist
   * Create
       |S.NO|resource_dir                                       |
       |----|---------------------------------------------------|
@@ -139,7 +132,6 @@ Type: Functional
 Importance: Critical
 
 Steps:
-  * Verify ServiceAccount "pipeline" exist
   * Create
       |S.NO|resource_dir                                          |
       |----|------------------------------------------------------|
@@ -156,7 +148,6 @@ Type: Functional
 Importance: Critical
 
 Steps:
-  * Verify ServiceAccount "pipeline" exist
   * Create
       |S.NO|resource_dir                                        |
       |----|----------------------------------------------------|

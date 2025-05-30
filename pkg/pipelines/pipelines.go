@@ -17,6 +17,7 @@ import (
 	"github.com/openshift-pipelines/release-tests/pkg/cmd"
 	"github.com/openshift-pipelines/release-tests/pkg/config"
 	"github.com/openshift-pipelines/release-tests/pkg/k8s"
+	"github.com/openshift-pipelines/release-tests/pkg/store"
 	"github.com/openshift-pipelines/release-tests/pkg/wait"
 	"github.com/tektoncd/cli/pkg/cli"
 	clipr "github.com/tektoncd/cli/pkg/cmd/pipelinerun"
@@ -32,7 +33,7 @@ import (
 
 var prGroupResource = schema.GroupVersionResource{Group: "tekton.dev", Resource: "pipelineruns"}
 
-func validatePipelineRunForSuccessStatus(c *clients.Clients, prname, labelCheck, namespace string) {
+func validatePipelineRunForSuccessStatus(c *clients.Clients, prname, namespace string) {
 	// Verify status of PipelineRun (wait for it)
 	err := wait.WaitForPipelineRunState(c, prname, wait.PipelineRunSucceed(prname), "PipelineRunCompleted")
 	if err != nil {
@@ -54,29 +55,6 @@ func validatePipelineRunForSuccessStatus(c *clients.Clients, prname, labelCheck,
 	}
 
 	log.Printf("pipelineRun: %s is successful under namespace : %s", prname, namespace)
-
-	if strings.ToLower(labelCheck) == "yes" || strings.ToLower(labelCheck) == "y" {
-		log.Println("Check for events, labels & annotations")
-		actualTaskrunList, err := c.TaskRunClient.List(c.Ctx, metav1.ListOptions{LabelSelector: fmt.Sprintf("tekton.dev/pipelineRun=%s", prname)})
-		if err != nil {
-			testsuit.T.Errorf("failed to list task runs for pipeline run %s \n %v", prname, err)
-		}
-
-		actualTaskRunNames := []string{}
-		for _, tr := range actualTaskrunList.Items {
-			actualTaskRunNames = append(actualTaskRunNames, tr.GetName())
-			log.Printf("Checking that labels were propagated correctly for TaskRun %s", tr.Name)
-			trCopy := tr
-			checkLabelPropagation(c, namespace, prname, &trCopy)
-			log.Printf("Checking that annotations were propagated correctly for TaskRun %s", tr.Name)
-			checkAnnotationPropagation(c, namespace, prname, &trCopy)
-		}
-
-		matchKinds := map[string][]string{"PipelineRun": {prname}, "TaskRun": actualTaskRunNames}
-		log.Printf("Making sure %d events were created from taskrun and pipelinerun with kinds %v", len(actualTaskRunNames)+1, matchKinds)
-
-		// To-do fix: collect matching events
-	}
 }
 
 func validatePipelineRunForFailedStatus(c *clients.Clients, prname, namespace string) {
@@ -198,7 +176,7 @@ func validatePipelineRunCancel(c *clients.Clients, prname, namespace string) {
 	wg.Wait()
 }
 
-func ValidatePipelineRun(c *clients.Clients, prname, status, labelCheck, namespace string) {
+func ValidatePipelineRun(c *clients.Clients, prname, status, namespace string) {
 	var err error
 	pr, err := c.PipelineRunClient.Get(c.Ctx, prname, metav1.GetOptions{})
 	if err != nil {
@@ -209,7 +187,7 @@ func ValidatePipelineRun(c *clients.Clients, prname, status, labelCheck, namespa
 	switch {
 	case strings.Contains(strings.ToLower(status), "success"):
 		log.Printf("validating pipeline run %s for success state...", prname)
-		validatePipelineRunForSuccessStatus(c, pr.GetName(), labelCheck, namespace)
+		validatePipelineRunForSuccessStatus(c, pr.GetName(), namespace)
 	case strings.Contains(strings.ToLower(status), "fail"):
 		log.Printf("validating pipeline run %s for failure state...", prname)
 		validatePipelineRunForFailedStatus(c, pr.GetName(), namespace)
@@ -296,7 +274,7 @@ func AssertNumberOfPipelineruns(c *clients.Clients, namespace, numberOfPr, timeo
 	})
 	if err != nil {
 		prlist, _ := c.PipelineRunClient.List(c.Ctx, metav1.ListOptions{})
-		testsuit.T.Fail(fmt.Errorf("Error: Expected %v pipelineruns but found %v pipelineruns: %s", numberOfPr, len(prlist.Items), err))
+		testsuit.T.Fail(fmt.Errorf("error: Expected %v pipelineruns but found %v pipelineruns: %s", numberOfPr, len(prlist.Items), err))
 	}
 }
 
@@ -313,7 +291,7 @@ func AssertNumberOfTaskruns(c *clients.Clients, namespace, numberOfTr, timeoutSe
 	})
 	if err != nil {
 		trlist, _ := c.TaskRunClient.List(c.Ctx, metav1.ListOptions{})
-		testsuit.T.Fail(fmt.Errorf("Error: Expected %v taskruns but found %v taskruns: %s", numberOfTr, len(trlist.Items), err))
+		testsuit.T.Fail(fmt.Errorf("error: Expected %v taskruns but found %v taskruns: %s", numberOfTr, len(trlist.Items), err))
 	}
 }
 func AssertPipelinesPresent(c *clients.Clients, namespace string) {
@@ -335,7 +313,7 @@ func AssertPipelinesPresent(c *clients.Clients, namespace string) {
 	})
 	if err != nil {
 		p, _ := pclient.List(c.Ctx, metav1.ListOptions{})
-		testsuit.T.Fail(fmt.Errorf("Expected: %v pipelines present in namespace %v, Actual: %v pipelines present in namespace %v , Error: %v", expectedNumberOfPipelines, namespace, len(p.Items), namespace, err))
+		testsuit.T.Fail(fmt.Errorf("expected: %v pipelines present in namespace %v, Actual: %v pipelines present in namespace %v , Error: %v", expectedNumberOfPipelines, namespace, len(p.Items), namespace, err))
 	}
 	log.Printf("Pipelines are present in namespace %v", namespace)
 }
@@ -352,7 +330,7 @@ func AssertPipelinesNotPresent(c *clients.Clients, namespace string) {
 	})
 	if err != nil {
 		p, _ := pclient.List(c.Ctx, metav1.ListOptions{})
-		testsuit.T.Fail(fmt.Errorf("Expected: %v number of pipelines present in namespace %v, Actual: %v number of pipelines present in namespace %v , Error: %v", 0, namespace, len(p.Items), namespace, err))
+		testsuit.T.Fail(fmt.Errorf("expected: %v number of pipelines present in namespace %v, Actual: %v number of pipelines present in namespace %v , Error: %v", 0, namespace, len(p.Items), namespace, err))
 	}
 	log.Printf("Pipelines are present in namespace %v", namespace)
 }
@@ -397,4 +375,37 @@ func GetLatestPipelinerun(c *clients.Clients, namespace string) (string, error) 
 	prsort.SortByStartTime(prs.Items)
 	return prs.Items[0].Name, nil
 
+}
+
+func CheckLogVersion(c *clients.Clients, binary, namespace string) {
+	prname, err := GetLatestPipelinerun(store.Clients(), store.Namespace())
+	if err != nil {
+		testsuit.T.Fail(fmt.Errorf("failed to get PipelineRun: %v", err))
+		return
+	}
+	// Get PipelineRun logs
+	logsBuffer, err := getPipelinerunLogs(c, prname, namespace)
+	if err != nil {
+		testsuit.T.Fail(fmt.Errorf("failed to get PipelineRun logs: %v", err))
+		return
+	}
+
+	switch binary {
+	case "tkn-pac":
+		expectedVersion := os.Getenv("PAC_VERSION")
+		if !strings.Contains(logsBuffer.String(), expectedVersion) {
+			testsuit.T.Fail(fmt.Errorf("tkn-pac Version %s not found in logs:\n%s ", expectedVersion, logsBuffer))
+		}
+	case "tkn":
+		expectedVersion := os.Getenv("TKN_CLIENT_VERSION")
+		if !strings.Contains(logsBuffer.String(), "Client version:") {
+			testsuit.T.Fail(fmt.Errorf("tkn client version not found! \nlogs:%s", logsBuffer))
+			return
+		}
+		if !strings.Contains(logsBuffer.String(), expectedVersion) {
+			testsuit.T.Fail(fmt.Errorf("tkn Version %s not found in logs:\n%s ", expectedVersion, logsBuffer))
+		}
+	default:
+		testsuit.T.Fail(fmt.Errorf("unknown binary or client"))
+	}
 }

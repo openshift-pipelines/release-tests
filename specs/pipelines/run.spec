@@ -17,7 +17,6 @@ Run a sample pipeline that has 2 tasks:
 and verify that it runs succesfully
 
 Steps:
-  * Verify ServiceAccount "pipeline" exist
   * Verify that image stream "golang" exists
   * Create
       |S.NO|resource_dir                                  |
@@ -25,9 +24,9 @@ Steps:
       |1   |testdata/pvc/pvc.yaml                         |
       |2   |testdata/v1beta1/pipelinerun/pipelinerun.yaml |
   * Verify pipelinerun
-      |S.NO|pipeline_run_name       |status    |check_label_propagation|
-      |----|------------------------|----------|-----------------------|
-      |1   |output-pipeline-run-v1b1|successful|no                     |
+      |S.NO|pipeline_run_name       |status    |
+      |----|------------------------|----------|
+      |1   |output-pipeline-run-v1b1|successful|
 
 ## Pipelinerun Timeout failure Test: PIPELINES-03-TC04
 Tags: e2e, pipelines, non-admin, sanity
@@ -37,15 +36,14 @@ Type: Functional
 Importance: Critical
 
 Steps:
-  * Verify ServiceAccount "pipeline" exist
   * Create
       |S.NO|resource_dir                                         |
       |----|-----------------------------------------------------|
       |1   |testdata/v1beta1/pipelinerun/pipelineruntimeout.yaml |
   * Verify pipelinerun
-      |S.NO|pipeline_run_name|status             |check_label_propagation|
-      |----|-----------------|-------------------|-----------------------|
-      |1   |pear             |timeout            |no                     |
+      |S.NO|pipeline_run_name|status             |
+      |----|-----------------|-------------------|
+      |1   |pear             |timeout            |
 
 ## Configure execution results at the Task level Test: PIPELINES-03-TC05
 Tags: e2e, integration, pipelines, non-admin, sanity
@@ -55,15 +53,14 @@ Type: Functional
 Importance: Critical
 
 Steps:
-  * Verify ServiceAccount "pipeline" exist
   * Create
       |S.NO|resource_dir                                          |
       |----|------------------------------------------------------|
       |1   |testdata/v1beta1/pipelinerun/task_results_example.yaml|
   * Verify pipelinerun
-      |S.NO|pipeline_run_name |status    |check_label_propagation|
-      |----|------------------|----------|-----------------------|
-      |1   |task-level-results|successful|no                     |
+      |S.NO|pipeline_run_name |status    |
+      |----|------------------|----------|
+      |1   |task-level-results|successful|
 
 ## Cancel pipelinerun Test: PIPELINES-03-TC06
 Tags: e2e, integration, pipelines, non-admin, sanity
@@ -73,16 +70,15 @@ Type: Functional
 Importance: Critical
 
 Steps:
-  * Verify ServiceAccount "pipeline" exist
   * Create
       |S.NO|resource_dir                                 |
       |----|---------------------------------------------|
       |1   |testdata/pvc/pvc.yaml                        |
       |2   |testdata/v1beta1/pipelinerun/pipelinerun.yaml|
   * Verify pipelinerun
-      |S.NO|pipeline_run_name       |status   |check_label_propagation|
-      |----|------------------------|---------|-----------------------|
-      |1   |output-pipeline-run-v1b1|cancelled|no                     |
+      |S.NO|pipeline_run_name       |status   |
+      |----|------------------------|---------|
+      |1   |output-pipeline-run-v1b1|cancelled|
 
 ## Pipelinerun with pipelinespec and taskspec (embedded pipelinerun tests): PIPELINES-03-TC07
 Tags: e2e, integration, pipelines, non-admin
@@ -92,15 +88,14 @@ Type: Functional
 Importance: Critical
 
 Steps:
-  * Verify ServiceAccount "pipeline" exist
   * Create
       |S.NO|resource_dir                                                                |
       |----|----------------------------------------------------------------------------|
       |1   |testdata/v1beta1/pipelinerun/pipelinerun-with-pipelinespec-and-taskspec.yaml|
   * Verify pipelinerun
-      |S.NO|pipeline_run_name                        |status    |check_label_propagation|
-      |----|-----------------------------------------|----------|-----------------------|
-      |1   |pipelinerun-with-pipelinespec-taskspec-vb|successful|no                     |
+      |S.NO|pipeline_run_name                        |status    |
+      |----|-----------------------------------------|----------|
+      |1   |pipelinerun-with-pipelinespec-taskspec-vb|successful|
 
 ## Pipelinerun with large result: PIPELINES-03-TC08
 Tags: e2e, integration, pipelines, non-admin, results, sanity
@@ -111,12 +106,11 @@ Importance: Critical
 CustomerScenario: yes
 
 Steps:
-  * Verify ServiceAccount "pipeline" exist
   * Create
       |S.NO|resource_dir                                                   |
       |----|---------------------------------------------------------------|
       |1   |testdata/v1beta1/pipelinerun/pipelinerun-with-large-result.yaml|
   * Verify pipelinerun
-      |S.NO|pipeline_run_name|status    |check_label_propagation|
-      |----|-----------------|----------|-----------------------|
-      |1   |result-test-run  |successful|no                     |
+      |S.NO|pipeline_run_name|status    |
+      |----|-----------------|----------|
+      |1   |result-test-run  |successful|

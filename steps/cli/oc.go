@@ -13,6 +13,7 @@ import (
 	"github.com/getgauge-contrib/gauge-go/testsuit"
 	"github.com/openshift-pipelines/release-tests/pkg/oc"
 	"github.com/openshift-pipelines/release-tests/pkg/openshift"
+	"github.com/openshift-pipelines/release-tests/pkg/operator"
 	"github.com/openshift-pipelines/release-tests/pkg/store"
 )
 
@@ -163,6 +164,14 @@ var _ = gauge.Step("Update addon config with resolverStepActions as <resolverSte
 	} else {
 		oc.UpdateTektonConfigwithInvalidData(patchData, expectedMessage)
 	}
+})
+
+var _ = gauge.Step("Verify versioned ecosystem tasks", func() {
+	operator.VerifyVersionedTasks()
+})
+
+var _ = gauge.Step("Verify versioned ecosystem step actions", func() {
+	operator.VerifyVersionedStepActions()
 })
 
 var _ = gauge.Step("Create project <projectName>", func(projectName string) {

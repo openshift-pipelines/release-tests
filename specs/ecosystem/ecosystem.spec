@@ -12,7 +12,6 @@ Type: Functional
 Importance: Critical
 
 Steps:
-  * Verify ServiceAccount "pipeline" exist
   * Create
       |S.NO|resource_dir                                     |
       |----|-------------------------------------------------|
@@ -20,9 +19,9 @@ Steps:
       |2   |testdata/pvc/pvc.yaml                            |
       |3   |testdata/ecosystem/pipelineruns/buildah.yaml     |
   * Verify pipelinerun
-      |S.NO|pipeline_run_name|status    |check_label_propagation|
-      |----|-----------------|----------|-----------------------|
-      |1   |buildah-run      |successful|no                     |
+      |S.NO|pipeline_run_name|status    |
+      |----|-----------------|----------|
+      |1   |buildah-run      |successful|
 
 ## buildah disconnected pipelinerun: PIPELINES-29-TC02
 Tags: disconnected-e2e, ecosystem, tasks, non-admin, buildah
@@ -32,7 +31,6 @@ Type: Functional
 Importance: Critical
 
 Steps:
-  * Verify ServiceAccount "pipeline" exist
   * Create
       |S.NO|resource_dir                                                  |
       |----|--------------------------------------------------------------|
@@ -40,9 +38,9 @@ Steps:
       |2   |testdata/pvc/pvc.yaml                                         |
       |3   |testdata/ecosystem/pipelineruns/buildah-disconnected.yaml     |
   * Verify pipelinerun
-      |S.NO|pipeline_run_name       |status    |check_label_propagation|
-      |----|------------------------|----------|-----------------------|
-      |1   |buildah-disconnected-run|successful|no                     |
+      |S.NO|pipeline_run_name       |status    |
+      |----|------------------------|----------|
+      |1   |buildah-disconnected-run|successful|
 
 ## git-cli pipelinerun: PIPELINES-29-TC03
 Tags: e2e, ecosystem, tasks, non-admin, git-cli
@@ -52,7 +50,6 @@ Type: Functional
 Importance: Critical
 
 Steps:
-  * Verify ServiceAccount "pipeline" exist
   * Create
       |S.NO|resource_dir                                     |
       |----|-------------------------------------------------|
@@ -60,9 +57,9 @@ Steps:
       |2   |testdata/pvc/pvc.yaml                            |
       |3   |testdata/ecosystem/pipelineruns/git-cli.yaml     |
   * Verify pipelinerun
-      |S.NO|pipeline_run_name|status    |check_label_propagation|
-      |----|-----------------|----------|-----------------------|
-      |1   |git-cli-run      |successful|no                     |
+      |S.NO|pipeline_run_name|status    |
+      |----|-----------------|----------|
+      |1   |git-cli-run      |successful|
 
 ## git-cli read private repo pipelinerun: PIPELINES-29-TC04
 Tags: e2e, ecosystem, non-admin, git-cli
@@ -72,7 +69,6 @@ Type: Functional
 Importance: Critical
 
 Steps:
-  * Verify ServiceAccount "pipeline" exist
   * Create
       |S.NO|resource_dir                                               |
       |----|-----------------------------------------------------------|
@@ -85,9 +81,9 @@ Steps:
       |----|--------------------------------------------------------------|
       |1   |testdata/ecosystem/pipelineruns/git-cli-read-private.yaml|
   * Verify pipelinerun
-      |S.NO|pipeline_run_name       |status    |check_label_propagation|
-      |----|------------------------|----------|-----------------------|
-      |1   |git-cli-read-private-run|successful|no                     |
+      |S.NO|pipeline_run_name       |status    |
+      |----|------------------------|----------|
+      |1   |git-cli-read-private-run|successful|
 
 ## git-cli read private repo using different service account pipelinerun: PIPELINES-29-TC05
 Tags: e2e, ecosystem, non-admin, git-cli
@@ -97,7 +93,6 @@ Type: Functional
 Importance: Critical
 
 Steps:
-  * Verify ServiceAccount "pipeline" exist
   * Create
       |S.NO|resource_dir                                               |
       |----|-----------------------------------------------------------|
@@ -112,9 +107,9 @@ Steps:
       |----|-----------------------------------------------------------------|
       |1   |testdata/ecosystem/pipelineruns/git-cli-read-private-sa.yaml     |
   * Verify pipelinerun
-      |S.NO|pipeline_run_name          |status    |check_label_propagation|
-      |----|---------------------------|----------|-----------------------|
-      |1   |git-cli-read-private-sa-run|successful|no                     |
+      |S.NO|pipeline_run_name          |status    |
+      |----|---------------------------|----------|
+      |1   |git-cli-read-private-sa-run|successful|
       
 ## git-clone read private repo taskrun PIPELINES-29-TC06
 Tags: e2e, ecosystem, non-admin, git-clone, sanity
@@ -125,7 +120,6 @@ Importance: Critical
 CustomerScenario: yes
 
 Steps:
-  * Verify ServiceAccount "pipeline" exist
   * Create
       | S.NO | resource_dir                                                  |
       |------|---------------------------------------------------------------|
@@ -138,9 +132,9 @@ Steps:
       |------|-----------------------------------------------------------------|
       | 1    | testdata/ecosystem/pipelineruns/git-clone-read-private.yaml     |
   * Verify pipelinerun
-      | S.NO | pipeline_run_name                   | status     | check_label_propagation |
-      |------|-------------------------------------|------------|-------------------------|
-      | 1    | git-clone-read-private-pipeline-run | successful | no                      |
+      | S.NO | pipeline_run_name                   | status     |
+      |------|-------------------------------------|------------|
+      | 1    | git-clone-read-private-pipeline-run | successful |
 
 ## git-clone read private repo using different service account taskrun PIPELINES-29-TC07
 Tags: e2e, ecosystem, non-admin, git-clone
@@ -150,7 +144,6 @@ Type: Functional
 Importance: Critical
 
 Steps:
-  * Verify ServiceAccount "pipeline" exist
   * Create
       | S.NO | resource_dir                                                  |
       |------|---------------------------------------------------------------|
@@ -165,9 +158,9 @@ Steps:
       |------|--------------------------------------------------------------------|
       | 1    | testdata/ecosystem/pipelineruns/git-clone-read-private-sa.yaml|
   * Verify pipelinerun
-      | S.NO | pipeline_run_name                      | status     | check_label_propagation |
-      |------|----------------------------------------|------------|-------------------------|
-      | 1    | git-clone-read-private-pipeline-sa-run | successful | no                      |
+      | S.NO | pipeline_run_name                      | status     |
+      |------|----------------------------------------|------------|
+      | 1    | git-clone-read-private-pipeline-sa-run | successful |
 
 ## openshift-client pipelinerun: PIPELINES-29-TC08
 Tags: e2e, ecosystem, tasks, non-admin, openshift-client
@@ -177,15 +170,14 @@ Type: Functional
 Importance: Critical
 
 Steps:
-  * Verify ServiceAccount "pipeline" exist
   * Create
       |S.NO|resource_dir                                              |
       |----|----------------------------------------------------------|
       |1   |testdata/ecosystem/pipelineruns/openshift-client.yaml     |
   * Verify pipelinerun
-      |S.NO|pipeline_run_name   |status    |check_label_propagation|
-      |----|--------------------|----------|-----------------------|
-      |1   |openshift-client-run|successful|no                     |
+      |S.NO|pipeline_run_name   |status    |
+      |----|--------------------|----------|
+      |1   |openshift-client-run|successful|
 
 ## skopeo-copy pipelinerun: PIPELINES-29-TC09
 Tags: e2e, ecosystem, tasks, non-admin, skopeo-copy
@@ -195,15 +187,14 @@ Type: Functional
 Importance: Critical
 
 Steps:
-  * Verify ServiceAccount "pipeline" exist
   * Create
       |S.NO|resource_dir                                         |
       |----|-----------------------------------------------------|
       |1   |testdata/ecosystem/pipelineruns/skopeo-copy.yaml     |
   * Verify pipelinerun
-      |S.NO|pipeline_run_name|status    |check_label_propagation|
-      |----|-----------------|----------|-----------------------|
-      |1   |skopeo-copy-run  |successful|no                     |
+      |S.NO|pipeline_run_name|status    |
+      |----|-----------------|----------|
+      |1   |skopeo-copy-run  |successful|
 
 ## tkn pipelinerun: PIPELINES-29-TC10
 Tags: e2e, ecosystem, tasks, non-admin, tkn
@@ -213,15 +204,14 @@ Type: Functional
 Importance: Critical
 
 Steps:
-  * Verify ServiceAccount "pipeline" exist
   * Create
       |S.NO|resource_dir                                 |
       |----|---------------------------------------------|
       |1   |testdata/ecosystem/pipelineruns/tkn.yaml     |
   * Verify pipelinerun
-      |S.NO|pipeline_run_name|status    |check_label_propagation|
-      |----|-----------------|----------|-----------------------|
-      |1   |tkn-run          |successful|no                     |
+      |S.NO|pipeline_run_name|status    |
+      |----|-----------------|----------|
+      |1   |tkn-run          |successful|
 
 ## tkn pac pipelinerun: PIPELINES-29-TC11
 Tags: e2e, ecosystem, tasks, non-admin, tkn
@@ -231,15 +221,15 @@ Type: Functional
 Importance: Critical
 
 Steps:
-  * Verify ServiceAccount "pipeline" exist
   * Create
       |S.NO|resource_dir                                     |
       |----|-------------------------------------------------|
       |1   |testdata/ecosystem/pipelineruns/tkn-pac.yaml     |
   * Verify pipelinerun
-      |S.NO|pipeline_run_name|status    |check_label_propagation|
-      |----|-----------------|----------|-----------------------|
-      |1   |tkn-pac-run      |successful|no                     |
+      |S.NO|pipeline_run_name|status    |
+      |----|-----------------|----------|
+      |1   |tkn-pac-run      |successful|
+  * Verify "tkn-pac" version from the pipelinerun logs
 
 ## tkn version pipelinerun: PIPELINES-29-TC12
 Tags: e2e, ecosystem, tasks, non-admin, tkn
@@ -249,15 +239,15 @@ Type: Functional
 Importance: Critical
 
 Steps:
-  * Verify ServiceAccount "pipeline" exist
   * Create
       |S.NO|resource_dir                                         |
       |----|-----------------------------------------------------|
       |1   |testdata/ecosystem/pipelineruns/tkn-version.yaml     |
   * Verify pipelinerun
-      |S.NO|pipeline_run_name|status    |check_label_propagation|
-      |----|-----------------|----------|-----------------------|
-      |1   |tkn-version-run  |successful|no                     |
+      |S.NO|pipeline_run_name|status    |
+      |----|-----------------|----------|
+      |1   |tkn-version-run  |successful|
+  * Verify "tkn" version from the pipelinerun logs
 
 ## maven pipelinerun: PIPELINES-29-TC13
 Tags: e2e, ecosystem, tasks, non-admin, maven
@@ -267,7 +257,6 @@ Type: Functional
 Importance: Critical
 
 Steps:
-  * Verify ServiceAccount "pipeline" exist
   * Create
       |S.NO|resource_dir                                          |
       |----|------------------------------------------------------|
@@ -276,9 +265,9 @@ Steps:
       |3   |testdata/ecosystem/configmaps/maven-settings.yaml     |
       |4   |testdata/ecosystem/pipelineruns/maven.yaml            |
   * Verify pipelinerun
-      |S.NO|pipeline_run_name|status    |check_label_propagation|
-      |----|-----------------|----------|-----------------------|
-      |1   |maven-run        |successful|no                     |
+      |S.NO|pipeline_run_name|status    |
+      |----|-----------------|----------|
+      |1   |maven-run        |successful|
 
 ## Test the functionality of step action resolvers: PIPELINES-29-TC14
 Tags: e2e, sanity, ecosystem, non-admin
@@ -288,7 +277,6 @@ Type: Functional
 Importance: High
 
 Steps:
-    * Verify ServiceAccount "pipeline" exist
     * Create 
       |S.NO|resource_dir                                                     |
       |----|-----------------------------------------------------------------|
@@ -296,6 +284,6 @@ Steps:
       |2   |testdata/pvc/pvc.yaml                                            |
       |3   |testdata/ecosystem/pipelineruns/git-clone-stepaction.yaml        |
     * Verify pipelinerun
-      |S.NO|pipeline_run_name                  |status      |check_label_propagation  |
-      |----|-----------------------------------|--------------------------------------|
-      |1   |git-clone-stepaction-run           |successful  |no                       |
+      |S.NO|pipeline_run_name                  |status      |
+      |----|-----------------------------------|------------|
+      |1   |git-clone-stepaction-run           |successful  |

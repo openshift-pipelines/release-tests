@@ -14,7 +14,6 @@ Importance: Critical
 This scenario tests the pipeline tutorials (https://github.com/openshift/pipelines-tutorial) pipelines related resources 
 
 Steps:
-  * Verify ServiceAccount "pipeline" exist
   * Create remote
       |S.NO|resource_dir                                                                                                                             |
       |----|-----------------------------------------------------------------------------------------------------------------------------------------|
@@ -25,10 +24,10 @@ Steps:
       |5   |https://raw.githubusercontent.com/openshift/pipelines-tutorial/{OSP_TUTORIAL_BRANCH}/02_pipelinerun/01_build_deploy_api_pipelinerun.yaml |
       |6   |https://raw.githubusercontent.com/openshift/pipelines-tutorial/{OSP_TUTORIAL_BRANCH}/02_pipelinerun/02_build_deploy_ui_pipelinerun.yaml|
    * Verify pipelinerun
-      |S.NO|pipeline_run_name           |status    |check_label_propagation|
-      |----|----------------------------|----------|-----------------------|
-      |1   |build-deploy-api-pipelinerun|successful|no                     |
-      |2   |build-deploy-ui-pipelinerun |successful|no                     |
+      |S.NO|pipeline_run_name           |status    |
+      |----|----------------------------|----------|
+      |1   |build-deploy-api-pipelinerun|successful|
+      |2   |build-deploy-ui-pipelinerun |successful|
    * Get route url of the route "pipelines-vote-ui"
    * Wait for "pipelines-vote-api" deployment
    * Wait for "pipelines-vote-ui" deployment
@@ -44,7 +43,6 @@ Importance: Critical
 This scenario tests the pipeline tutorials (https://github.com/openshift/pipelines-tutorial) triggers related resources 
 
 Steps:
-  * Verify ServiceAccount "pipeline" exist
   * Create remote
       |S.NO|resource_dir                                                                                                                             |
       |----|-----------------------------------------------------------------------------------------------------------------------------------------|

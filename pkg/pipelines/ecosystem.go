@@ -22,7 +22,7 @@ func AssertTaskPresent(c *clients.Clients, namespace string, taskName string) {
 		return false, nil
 	})
 	if err != nil {
-		testsuit.T.Fail(fmt.Errorf("Tasks %v Expected: Present, Actual: Not Present, Error: %v", taskName, err))
+		testsuit.T.Fail(fmt.Errorf("tasks %v Expected: Present, Actual: Not Present, Error: %v", taskName, err))
 	} else {
 		log.Printf("Task %v is present", taskName)
 	}
@@ -38,7 +38,7 @@ func AssertTaskNotPresent(c *clients.Clients, namespace string, taskName string)
 		return true, nil
 	})
 	if err != nil {
-		testsuit.T.Fail(fmt.Errorf("Tasks %v Expected: Not Present, Actual: Present, Error: %v", taskName, err))
+		testsuit.T.Fail(fmt.Errorf("tasks %v Expected: Not Present, Actual: Present, Error: %v", taskName, err))
 	} else {
 		log.Printf("Task %v is not present", taskName)
 	}
