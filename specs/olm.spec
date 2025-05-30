@@ -20,16 +20,16 @@ Steps:
     |------|--------------------------------|
     | 1    | testdata/hub/tektonhub.yaml    |
   * Create secrets for Tekton Results
+  * Create signing-secrets for Tekton Chains
+  * Configure GitHub token for git resolver in TektonConfig
+  * Configure the bundles resolver
+  * Enable console plugin
   * Apply in namespace "openshift-pipelines"
     | S.NO | resource_dir                   |
     |------|--------------------------------|
     | 1    | testdata/pvc/tekton-logs.yaml  |
     | 2    | testdata/results/result.yaml   | 
   * Create Results route
-  * Create signing-secrets for Tekton Chains
-  * Configure GitHub token for git resolver in TektonConfig
-  * Configure the bundles resolver
-  * Enable console plugin
   * Validate pipelines deployment
   * Validate triggers deployment
   * Validate PAC deployment
