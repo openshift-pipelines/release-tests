@@ -15,8 +15,6 @@ import (
 	"github.com/openshift-pipelines/release-tests/pkg/olm"
 	"github.com/openshift-pipelines/release-tests/pkg/openshift"
 	"github.com/openshift-pipelines/release-tests/pkg/operator"
-	"github.com/openshift-pipelines/release-tests/pkg/pipelines"
-	"github.com/openshift-pipelines/release-tests/pkg/statefulset"
 	"github.com/openshift-pipelines/release-tests/pkg/store"
 	"github.com/openshift-pipelines/release-tests/pkg/tkn"
 )
@@ -70,11 +68,6 @@ var _ = gauge.Step("Validate hub deployment", func() {
 
 var _ = gauge.Step("Validate manual approval gate deployment", func() {
 	operator.ValidateManualApprovalGateDeployments(store.Clients(), store.GetCRNames())
-})
-
-var _ = gauge.Step("Validate <deploymentName> statefulset deployment", func(deploymentName string) {
-	log.Printf("Validating statefulset %v deployment\n", deploymentName)
-	statefulset.ValidateStatefulSetDeployment(store.Clients(), deploymentName)
 })
 
 var _ = gauge.Step("Uninstall Operator", func() {

@@ -28,15 +28,13 @@ Steps:
     | S.NO | resource_dir                   |
     |------|--------------------------------|
     | 1    | testdata/pvc/tekton-logs.yaml  |
-    | 2    | testdata/results/result.yaml   |
+    | 2    | testdata/results/result.yaml   | 
   * Create Results route
-  * Enable statefulset in tektonconfig
+  * Validate pipelines deployment
   * Validate triggers deployment
   * Validate PAC deployment
   * Validate chains deployment
   * Validate hub deployment
-  * Validate "tekton-pipelines-controller" statefulset deployment
-  * Validate "tekton-pipelines-remote-resolvers" statefulset deployment
   * Validate tkn server cli deployment
   * Validate console plugin deployment
   * Ensure that Tekton Results is ready
