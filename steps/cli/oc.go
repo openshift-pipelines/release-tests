@@ -245,8 +245,3 @@ var _ = gauge.Step("Enable console plugin", func() {
 
 	oc.EnableConsolePlugin()
 })
-
-var _ = gauge.Step("Enable statefulset in tektonconfig", func() {
-	patch_data := "{\"spec\":{\"pipeline\":{\"performance\":{\"disable-ha\":false,\"statefulset-ordinals\":true,\"replicas\":2,\"buckets\":2}}}}"
-	oc.UpdateTektonConfig(patch_data)
-})
