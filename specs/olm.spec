@@ -46,6 +46,7 @@ Steps:
   * Validate manual approval gate deployment
   * Validate tektoninstallersets status
   * Validate tektoninstallersets names
+  * Validate OperatorVersion in OlmSkipRange
 
 ## Upgrade openshift-pipelines operator: PIPELINES-09-TC02
 Tags: upgrade, admin
