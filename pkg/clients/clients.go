@@ -21,7 +21,6 @@ import (
 	operatorv1alpha1 "github.com/tektoncd/operator/pkg/client/clientset/versioned/typed/operator/v1alpha1"
 	pversioned "github.com/tektoncd/pipeline/pkg/client/clientset/versioned"
 	v1 "github.com/tektoncd/pipeline/pkg/client/clientset/versioned/typed/pipeline/v1"
-	"github.com/tektoncd/pipeline/pkg/client/clientset/versioned/typed/pipeline/v1beta1"
 	triggersclientset "github.com/tektoncd/triggers/pkg/client/clientset/versioned"
 )
 
@@ -50,7 +49,6 @@ type Clients struct {
 	TaskRunClient      v1.TaskRunInterface
 	PipelineRunClient  v1.PipelineRunInterface
 	TriggersClient     triggersclientset.Interface
-	ClustertaskClient  v1beta1.ClusterTaskInterface
 	ApprovalTask       apclient.ApprovalTaskInterface
 }
 
@@ -191,7 +189,6 @@ func (c *Clients) NewClientSet(namespace string) {
 	c.ProxyConfig = configV1.NewForConfigOrDie(c.KubeConfig)
 	c.ClusterVersion = configV1.NewForConfigOrDie(c.KubeConfig).ClusterVersions()
 	c.ConsoleCLIDownload = consolev1.NewForConfigOrDie(c.KubeConfig).ConsoleCLIDownloads()
-	c.ClustertaskClient = c.Tekton.TektonV1beta1().ClusterTasks()
 	c.ApprovalTask = apclient.NewForConfigOrDie(c.KubeConfig).ApprovalTasks(namespace)
 	c.PacClientset = pacclientset.NewForConfigOrDie(c.KubeConfig)
 }
