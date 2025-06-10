@@ -12,7 +12,7 @@ spec:
   - name: clone-git-repo
     taskRef:
       name: git-clone
-      kind: ClusterTask
+      kind: Task
     workspaces:
     - name: output
       workspace: source
@@ -26,7 +26,7 @@ spec:
   - name: build
     taskRef:
       name: s2i-nodejs
-      kind: ClusterTask
+      kind: Task
     runAfter: 
     - clone-git-repo
     workspaces:
