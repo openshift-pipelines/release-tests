@@ -260,6 +260,19 @@ var _ = gauge.Step("Enable statefulset in tektonconfig", func() {
 	oc.UpdateTektonConfig(patch_data)
 })
 
+var _ = gauge.Step("Enable statefulset for <component> in tektonconfig", func(componentName string) {
+	var patch_data string
+	switch componentName {
+	case "chains":
+		patch_data = "{\"spec\":{\"chain\":{\"performance\":{\"disable-ha\":false,\"statefulset-ordinals\":true,\"replicas\":2,\"buckets\":2}}}}"
+	case "results":
+		patch_data = "{\"spec\":{\"result\":{\"performance\":{\"disable-ha\":false,\"statefulset-ordinals\":true,\"replicas\":2,\"buckets\":2}}}}"
+	default:
+		testsuit.T.Fail(fmt.Errorf("unsupported component: %s. cannot generate patch data", componentName))
+	}
+	oc.UpdateTektonConfig(patch_data)
+})
+
 var _ = gauge.Step("Configure Results with Loki", func() {
 	patch_data := "{\"spec\":{\"result\":{\"auth_disable\":true,\"disabled\":false,\"log_level\":\"debug\",\"loki_stack_name\":\"logging-loki\",\"loki_stack_namespace\":\"openshift-logging\"}}}"
 	oc.UpdateTektonConfig(patch_data)
