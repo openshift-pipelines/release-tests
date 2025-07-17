@@ -18,10 +18,13 @@ spec:
       default: ["**requirment.txt"]
     - name: image
       type: string
-      default: quay.io/openshift-pipeline/ci:latest
+      default: image-registry.openshift-image-registry.svc:5000/openshift/python
     - name: force-cache-upload
       type: string
       default: "false"
+    - name: version
+      description: The tag of 'python' imagestream for Python version
+      default: 3.12-ubi9
   workspaces:
     - name: source
   tasks:
@@ -51,7 +54,7 @@ spec:
     taskSpec:
       steps:
       - name: set-python-venv
-        image: $(params.image)
+        image: $(params.image):$(params.version)
         script: |
           echo "Setting python venv to $(workspaces.source.path)/cache"
           python -m venv $(workspaces.source.path)/cache
@@ -74,16 +77,16 @@ spec:
           - name: kind
             value: stepaction
         params:
-          - name: patterns
+          - name: PATTERNS
             value: $(params.cachePatterns)
-          - name: source
+          - name: SOURCE
             value: oci://$(params.registry):{{hash}}
-          - name: cachePath
+          - name: CACHE_PATH
             value: $(workspaces.source.path)/cache/lib
-          - name: workingdir
+          - name: WORKING_DIR
             value: $(workspaces.source.path)/repo
       - name: check-fetch-result
-        image: $(params.image)
+        image: $(params.image):$(params.version)
         results:
           - name: fetched
             description: "Whether the cache fetch was successful"
@@ -104,7 +107,7 @@ spec:
     taskSpec:
       steps:
       - name: run-build
-        image: $(params.image)
+        image: $(params.image):$(params.version)
         workingDir: $(workspaces.source.path)/repo
         env:
           - name: LOCAL_CACHE_REPO
@@ -130,17 +133,17 @@ spec:
           - name: kind
             value: stepaction
         params:
-          - name: patterns
+          - name: PATTERNS
             value: $(params.cachePatterns)
-          - name: target
+          - name: TARGET
             value: oci://$(params.registry):{{hash}}
-          - name: cachePath
+          - name: CACHE_PATH
             value: $(workspaces.source.path)/cache/lib
-          - name: workingdir
+          - name: WORKING_DIR
             value: $(workspaces.source.path)/repo
-          - name: force-cache-upload
+          - name: FORCE_CACHE_UPLOAD
             value: $(params.force-cache-upload)
-          - name: fetched
+          - name: FETCHED
             value: $(tasks.cache-fetch.results.fetched)
     runAfter:
     - run-build
