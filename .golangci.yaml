@@ -1,34 +1,31 @@
 version: "2"
+
 run:
-  cache-dir: .golangci-lint-cache
-  enable-cache: true
-  timeout: 2m
-  concurrency: 4
+  timeout: 5m
   tests: true
   build-tags:
     - e2e
-  modules-download-mode: readonly
-outputs:
-   print-linter-name: true
-linters-settings:
-  govet:
-    shadow: true
-  typecheck:
-    warning: true
-  gofumpt:
-    extra-rules: true
+
 linters:
   enable:
     - forbidigo
     - misspell
+    - gofmt
+    - goimports
     - errcheck
     - unparam
     - gocritic
     - gosec
-formatters:
-  enable:
-    - gofmt
-    - goimports
+
+settings:
+  govet:
+    shadow: true
+  gofumpt:
+    extra-rules: true
+
 issues:
- max-issues-per-linter: 0
- max-same-issues: 0
+  max-issues-per-linter: 0
+  max-same-issues: 0
+
+outputs:
+  print-linter-name: true
