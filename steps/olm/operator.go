@@ -9,6 +9,7 @@ import (
 
 	"github.com/getgauge-contrib/gauge-go/gauge"
 	"github.com/getgauge-contrib/gauge-go/testsuit"
+	"github.com/openshift-pipelines/release-tests/pkg/cmd"
 	"github.com/openshift-pipelines/release-tests/pkg/config"
 	"github.com/openshift-pipelines/release-tests/pkg/k8s"
 	"github.com/openshift-pipelines/release-tests/pkg/oc"
@@ -174,16 +175,17 @@ var _ = gauge.Step("Verify <resourceType> Results logs", func(resourceType strin
 	operator.VerifyResultsLogs(resourceType)
 })
 
-var _ = gauge.Step("Create signing-secrets for Tekton Chains", func() {
+var _ = gauge.Step("Enable generateSigningSecret for Tekton Chains in TektonConfig", func() {
+	patch_data := "{\"spec\":{\"chain\":{\"generateSigningSecret\":true}}}"
 	if oc.SecretExists("signing-secrets", "openshift-pipelines") {
 		log.Printf("Secrets \"signing-secrets\" already exists")
 		if oc.GetSecretsData("signing-secrets", "openshift-pipelines") == "\"\"" {
 			log.Printf("The \"signing-secrets\" does not contain any data")
-			oc.DeleteResourceInNamespace("secrets", "signing-secrets", "openshift-pipelines")
-			operator.CreateSigningSecretForTektonChains()
+			oc.UpdateTektonConfig(patch_data)
 		}
 	} else {
-		operator.CreateSigningSecretForTektonChains()
+		cmd.MustSucceed("oc", "create", "secret", "generic", "signing-secrets", "--namespace", "openshift-pipelines")
+		oc.UpdateTektonConfig(patch_data)
 	}
 })
 

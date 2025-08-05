@@ -188,19 +188,3 @@ func CreateFileWithCosignPubKey() {
 		testsuit.T.Errorf("Error writing to file")
 	}
 }
-
-func CreateSigningSecretForTektonChains() {
-	chainsPublicKey := os.Getenv("CHAINS_COSIGN_PUBLIC")
-	chainsPrivateKey := os.Getenv("CHAINS_COSIGN_PRIVATE")
-	var chainsPassword string
-	if chainsPublicKey != "" && chainsPrivateKey != "" && chainsPassword != "" {
-		chainsPassword = os.Getenv("COSIGN_PASSWORD")
-		cmd.MustSucceed("oc", "create", "secret", "generic", "signing-secrets", "--from-literal=cosign.key="+chainsPrivateKey, "--from-literal=cosign.password="+chainsPassword, "--from-literal=cosign.pub="+chainsPublicKey, "--namespace", "openshift-pipelines")
-	} else {
-		err := os.Setenv("COSIGN_PASSWORD", "chainstest")
-		if err != nil {
-			testsuit.T.Errorf("Error setting environment variable COSIGN_PASSWORD")
-		}
-		cmd.MustSucceed("cosign", "generate-key-pair", "k8s://openshift-pipelines/signing-secrets")
-	}
-}
