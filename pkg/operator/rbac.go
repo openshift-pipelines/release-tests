@@ -203,3 +203,14 @@ func AssertSCCNotPresent(clients *clients.Clients, sccName string) {
 		testsuit.T.Fail(fmt.Errorf("expected: security context constraint %q not present, Actual: security context constraint %q present, Error: %v", sccName, sccName, err))
 	}
 }
+
+func VerifyRolesArePresent(clients *clients.Clients, role, namespace string) {
+	err := wait.PollUntilContextTimeout(clients.Ctx, config.APIRetry, config.APITimeout, false, func(context.Context) (done bool, err error) {
+		log.Printf("Verifying that role %s exists in namespace %s\n", role, namespace)
+		fetchedRole, err := clients.KubeClient.Kube.RbacV1().Roles(namespace).Get(context.TODO(), role, metav1.GetOptions{})
+		return fetchedRole.Name == role, nil
+	})
+	if err != nil {
+		testsuit.T.Fail(fmt.Errorf("failed to verify role %q present in namespace %q. Error: %v", role, namespace, err))
+	}
+}
