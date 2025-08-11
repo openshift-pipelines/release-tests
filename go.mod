@@ -1,9 +1,9 @@
 module github.com/openshift-pipelines/release-tests
 
-go 1.23.8
+go 1.24
 
 require (
-	github.com/getgauge-contrib/gauge-go v0.4.0
+	github.com/getgauge-contrib/gauge-go v0.5.0
 	github.com/google/go-cmp v0.7.0
 	github.com/openshift-pipelines/manual-approval-gate v0.6.0
 	github.com/openshift-pipelines/pipelines-as-code v0.35.0
@@ -59,7 +59,7 @@ require (
 	github.com/fxamacker/cbor/v2 v2.8.0 // indirect
 	github.com/gdamore/encoding v1.0.0 // indirect
 	github.com/gdamore/tcell/v2 v2.6.0 // indirect
-	github.com/getgauge/common v0.0.0-20211105093448-e0aee1ccb217 // indirect
+	github.com/getgauge/common v0.0.0-20250512071011-6a075badb588 // indirect
 	github.com/go-errors/errors v1.4.2 // indirect
 	github.com/go-logr/logr v1.4.2 // indirect
 	github.com/go-openapi/jsonpointer v0.21.1 // indirect
