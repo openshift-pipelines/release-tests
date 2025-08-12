@@ -196,6 +196,18 @@ func FetchOlmSkipRange() (map[string]string, error) {
 	return channelSkipRangeMap, nil
 }
 
+// extractMajorMinor extracts major.minor version from a full version string
+// e.g., "1.19.2" -> "1.19", "1.18.1" -> "1.18"
+func extractMajorMinor(version string) string {
+	versionRegex := regexp.MustCompile(`^(\d+\.\d+)\.?\d*`)
+	matches := versionRegex.FindStringSubmatch(version)
+	if len(matches) >= 2 {
+		return matches[1]
+	}
+	// Fallback: if regex fails, return the original version
+	return version
+}
+
 func GetOlmSkipRange(upgradeType, fieldName, fileName string) {
 	skipRangeMap, err := FetchOlmSkipRange()
 	if err != nil {
@@ -264,18 +276,28 @@ func ValidateOlmSkipRange() {
 		}
 	} else {
 		log.Printf("Regular release build, validating both channel name and skipRange")
+		
+		// Extract major.minor from OSP_VERSION for channel matching
+		// e.g., "1.19.2" -> "1.19" to match with "pipelines-1.19"
+		ospMajorMinor := extractMajorMinor(ospVersion)
+		log.Printf("Extracted major.minor '%s' from OSP_VERSION '%s' for channel matching", ospMajorMinor, ospVersion)
+		
 		for channel, skipRange := range skipRangeMap {
 			if channel == "latest" {
 				log.Printf("Skipping 'latest' channel as requested")
 				continue
 			}
-			channelContainsVersion := strings.Contains(channel, ospVersion)
+			
+			// Check if channel contains the major.minor version
+			channelContainsVersion := strings.Contains(channel, ospMajorMinor)
 			skipRangeContainsVersion := strings.Contains(skipRange, ospVersion)
+			
 			log.Printf("Channel: %s, SkipRange: %s", channel, skipRange)
-			log.Printf("  - Channel contains OSP_VERSION '%s': %v", ospVersion, channelContainsVersion)
+			log.Printf("  - Channel contains major.minor '%s': %v", ospMajorMinor, channelContainsVersion)
 			log.Printf("  - SkipRange contains OSP_VERSION '%s': %v", ospVersion, skipRangeContainsVersion)
+			
 			if channelContainsVersion && skipRangeContainsVersion {
-				log.Printf("Success: OSP_VERSION '%s' found in both channel '%s' and its skipRange '%s'", ospVersion, channel, skipRange)
+				log.Printf("Success: OSP_VERSION '%s' found in channel '%s' (major.minor match) and its skipRange '%s'", ospVersion, channel, skipRange)
 				found = true
 				break
 			}
@@ -293,7 +315,8 @@ func ValidateOlmSkipRange() {
 		if ospVersion == "5.0.5" {
 			testsuit.T.Fail(fmt.Errorf("Error: OSP_VERSION '%s' not found in skipRange for any non-latest channel", ospVersion))
 		} else {
-			testsuit.T.Fail(fmt.Errorf("Error: OSP_VERSION '%s' not found in both channel name and skipRange for any non-latest channel", ospVersion))
+			ospMajorMinor := extractMajorMinor(ospVersion)
+			testsuit.T.Fail(fmt.Errorf("Error: OSP_VERSION '%s' (major.minor: %s) not found in both channel name and skipRange for any non-latest channel", ospVersion, ospMajorMinor))
 		}
 	}
 }
