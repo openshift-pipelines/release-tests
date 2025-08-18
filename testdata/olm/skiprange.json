@@ -1,0 +1,4 @@
+{
+  "post-upgrade-olm-skip-range": {},
+  "pre-upgrade-olm-skip-range": {}
+}
