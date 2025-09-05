@@ -47,6 +47,7 @@ Steps:
     | tekton-default-openshift-pipelines-view   |
     | tekton-ecosystem-stepaction-list-role     |
     | tekton-ecosystem-task-list-role           |
+    | tekton-hub-info                           |
     | tekton-operators-proxy-admin              |
     | tekton-pipelines-controller               |
     | tekton-pipelines-events-controller        |
