@@ -8,11 +8,9 @@ spec:
     params:
     - name: name
       value: resolver-pipeline
-    - name: repo
-      value: test-private
-    - name: org
-      value: openshift-pipelines
+    - name: url
+      value: https://github.com/openshift-pipelines/release-tests
     - name: revision
-      value: main
+      value: master
     - name: pathInRepo
-      value: resolver-pipeline.yaml
+      value: testdata/resolvers/pipelines/git-resolver-pipeline.yaml

@@ -42,13 +42,7 @@ spec:
   tasks:
     - name: fetch-repository
       taskRef:
-        name: git-clone
-        kind: ClusterTask
-      params:
-        - name: url
-          value: https://github.com/GoogleContainerTools/skaffold
-        - name: revision
-          value: v0.32.0
+        name: non-existent-task
       workspaces:
         - name: output
           workspace: source

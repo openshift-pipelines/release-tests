@@ -5,6 +5,7 @@ import (
 	"log"
 	"slices"
 	"strings"
+	"time"
 
 	"github.com/getgauge-contrib/gauge-go/testsuit"
 	"github.com/openshift-pipelines/release-tests/pkg/cmd"
@@ -34,7 +35,46 @@ func Delete(path_dir, namespace string) {
 
 // CreateNewProject Helps you to create new project
 func CreateNewProject(ns string) {
+	// Wait for project to be completely deleted if it's terminating
+	waitForProjectDeletion(ns)
 	log.Printf("output: %s\n", cmd.MustSucceed("oc", "new-project", ns).Stdout())
+}
+
+// waitForProjectDeletion waits for a project to be completely deleted
+func waitForProjectDeletion(projectName string) {
+	// Check if project exists and is terminating
+	statusResult := cmd.Run("oc", "get", "project", projectName, "-o", "jsonpath={.status.phase}")
+	if statusResult.ExitCode != 0 {
+		// Project doesn't exist, no need to wait
+		return
+	}
+
+	phase := strings.TrimSpace(statusResult.Stdout())
+	if phase != "Terminating" {
+		// Project is not terminating, no need to wait
+		return
+	}
+
+	log.Printf("Project %s is terminating, waiting for deletion to complete...", projectName)
+
+	checkInterval := 10 * time.Second
+	maxAttempts := 30 // 30 attempts * 10 seconds = 5 minutes max wait
+	attempts := 0
+
+	for attempts < maxAttempts {
+		checkResult := cmd.Run("oc", "get", "project", projectName)
+		if checkResult.ExitCode != 0 {
+			// Project no longer exists
+			log.Printf("Project %s has been fully deleted", projectName)
+			return
+		}
+
+		attempts++
+		log.Printf("Still waiting for project %s to be deleted... (attempt %d/%d)", projectName, attempts, maxAttempts)
+		time.Sleep(checkInterval)
+	}
+
+	log.Printf("Warning: Timed out waiting for project %s deletion after %d attempts", projectName, maxAttempts)
 }
 
 // DeleteProject Helps you to delete new project
@@ -108,6 +148,21 @@ func DeleteResourceInNamespace(resourceType, name, namespace string) {
 }
 
 func CheckProjectExists(projectName string) bool {
+	// Check project status first to avoid issues with terminating projects
+	statusResult := cmd.Run("oc", "get", "project", projectName, "-o", "jsonpath={.status.phase}")
+	if statusResult.ExitCode != 0 {
+		// Project doesn't exist
+		return false
+	}
+
+	phase := strings.TrimSpace(statusResult.Stdout())
+	// Don't consider Terminating projects as existing
+	if phase == "Terminating" {
+		log.Printf("Project %s is in Terminating state, treating as non-existent", projectName)
+		return false
+	}
+
+	// Double-check with project command
 	commandResult := cmd.Run("oc", "project", projectName)
 	return commandResult.ExitCode == 0 && !strings.Contains(commandResult.String(), "error")
 }
