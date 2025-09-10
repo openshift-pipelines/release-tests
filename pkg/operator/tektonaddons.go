@@ -21,9 +21,12 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"os"
+	"strings"
 
 	"github.com/getgauge-contrib/gauge-go/testsuit"
 	"github.com/openshift-pipelines/release-tests/pkg/clients"
+	"github.com/openshift-pipelines/release-tests/pkg/cmd"
 	"github.com/openshift-pipelines/release-tests/pkg/config"
 
 	"knative.dev/pkg/test/logging"
@@ -124,7 +127,7 @@ func TektonAddonCRDelete(clients *clients.Clients, crNames utils.ResourceNames) 
 		return false, err
 	})
 	if err != nil {
-		testsuit.T.Fail(fmt.Errorf("Timed out waiting on TektonAddon to delete, Error: %v", err))
+		testsuit.T.Fail(fmt.Errorf("timed out waiting on TektonAddon to delete, Error: %v", err))
 	}
 
 	err = verifyNoTektonAddonCR(clients)
@@ -139,7 +142,66 @@ func verifyNoTektonAddonCR(clients *clients.Clients) error {
 		return err
 	}
 	if len(addons.Items) > 0 {
-		return errors.New("Unable to verify cluster-scoped resources are deleted if any TektonAddon exists")
+		return errors.New("unable to verify cluster-scoped resources are deleted if any TektonAddon exists")
 	}
 	return nil
+}
+
+// VerifyVersionedTasks checks if the required tasks are available with the expected version
+func VerifyVersionedTasks() {
+	taskList := cmd.MustSucceed("oc", "get", "task", "-n", "openshift-pipelines").Stdout()
+	requiredTasks := []string{"buildah", "git-cli", "git-clone", "maven", "openshift-client", "s2i-dotnet", "s2i-go", "s2i-java", "s2i-nodejs", "s2i-perl", "s2i-php", "s2i-python", "s2i-ruby", "skopeo-copy", "tkn"}
+	expectedVersion := os.Getenv("OSP_VERSION")
+
+	// Get the arch of the cluster as kn and Kn-apply task are not available on arm64 cluster
+	if config.Flags.ClusterArch != "arm64" {
+		requiredTasks = append(requiredTasks, "kn", "kn-apply")
+	}
+
+	if expectedVersion == "" {
+		testsuit.T.Errorf("OSP_VERSION is not set. Cannot determine the required version for tasks.")
+		return
+	}
+
+	// Remove z-stream version from OSP_VERSION
+	versionParts := strings.Split(expectedVersion, ".")
+	if len(versionParts) < 2 {
+		testsuit.T.Errorf("Invalid OSP_VERSION Version: %s", expectedVersion)
+		return
+	}
+	requiredVersion := versionParts[0] + "-" + versionParts[1] + "-0"
+
+	for _, task := range requiredTasks {
+		taskWithVersion := task + "-" + requiredVersion
+		if !strings.Contains(taskList, taskWithVersion) {
+			testsuit.T.Errorf("Task %s not found in namespace openshift-pipelines", taskWithVersion)
+		}
+	}
+}
+
+// VerifyVersionedStepActions checks if the required actions are available with the expected version
+func VerifyVersionedStepActions() {
+	stepActionList := cmd.MustSucceed("oc", "get", "stepaction", "-n", "openshift-pipelines").Stdout()
+	requiredStepActions := []string{"git-clone", "cache-fetch", "cache-upload"}
+	expectedVersion := os.Getenv("OSP_VERSION")
+
+	if expectedVersion == "" {
+		testsuit.T.Errorf("OSP_VERSION is not set. Cannot determine the required version for tasks.")
+		return
+	}
+
+	// Remove z-stream version from OSP_VERSION
+	versionParts := strings.Split(expectedVersion, ".")
+	if len(versionParts) < 2 {
+		testsuit.T.Errorf("Invalid OSP_VERSION Version: %s", expectedVersion)
+		return
+	}
+	requiredVersion := versionParts[0] + "-" + versionParts[1] + "-0"
+
+	for _, stepAction := range requiredStepActions {
+		stepActionWithVersion := stepAction + "-" + requiredVersion
+		if !strings.Contains(stepActionList, stepActionWithVersion) {
+			testsuit.T.Errorf("Step action %s not found in namespace openshift-pipelines", stepActionWithVersion)
+		}
+	}
 }

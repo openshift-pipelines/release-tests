@@ -42,16 +42,15 @@ var _ = gauge.Step("Switch to project <projectName>", func(projectName string) {
 	gauge.GetScenarioStore()["namespace"] = projectName
 })
 
-var _ = gauge.Step("Validate route url for pipelines tutorial", func() {
-	expectedOutput := "Cat 🐺 vs Dog 🐶"
+var _ = gauge.Step("Validate that route URL contains <expectedOutput>", func(expectedOutput string) {
 	routeUrl := store.GetScenarioData("routeurl")
-	output := cmd.MustSuccedIncreasedTimeout(30*time.Second, "lynx", routeUrl, "--dump").Stdout()
-	log.Println(output)
+	output := cmd.MustSuccedIncreasedTimeout(180*time.Second, "curl", "-kL", routeUrl).Stdout()
 	if !strings.Contains(output, expectedOutput) {
 		testsuit.T.Fail(fmt.Errorf("expected:\n%v,\ngot:\n%v", expectedOutput, output))
+		log.Println(output)
 	}
 })
 
-var _ = gauge.Step("Wait for pipelines-vote-ui deployment", func() {
-	k8s.ValidateDeployments(store.Clients(), store.Namespace(), "pipelines-vote-ui")
+var _ = gauge.Step("Wait for <deploymentName> deployment", func(deploymentName string) {
+	k8s.ValidateDeployments(store.Clients(), store.Namespace(), deploymentName)
 })

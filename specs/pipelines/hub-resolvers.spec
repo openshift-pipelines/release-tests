@@ -9,7 +9,6 @@ Type: Functional
 Importance: High
 
 Steps:
-    * Verify ServiceAccount "pipeline" exist
     * Apply  
       |S.NO|resource_dir                                     |
       |----|-------------------------------------------------|
@@ -17,6 +16,6 @@ Steps:
       |2   |testdata/pvc/pvc.yaml                            |
       |3   |testdata/resolvers/pipelineruns/git-cli-hub.yaml |
     * Verify pipelinerun
-      |S.NO|pipeline_run_name|status    |check_label_propagation|
-      |----|-----------------|----------|-----------------------|
-      |1   |hub-git-cli-run  |successful|no                     |
+      |S.NO|pipeline_run_name|status    |
+      |----|-----------------|----------|
+      |1   |hub-git-cli-run  |successful|

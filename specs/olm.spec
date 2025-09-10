@@ -19,24 +19,24 @@ Steps:
     | S.NO | resource_dir                   |
     |------|--------------------------------|
     | 1    | testdata/hub/tektonhub.yaml    |
-  * Create secrets for Tekton Results
-  * Apply in namespace "openshift-pipelines"
-    | S.NO | resource_dir                   |
-    |------|--------------------------------|
-    | 1    | testdata/pvc/tekton-logs.yaml  |
-    | 2    | testdata/results/result.yaml   | 
-  * Create Results route
-  * Create signing-secrets for Tekton Chains
   * Configure GitHub token for git resolver in TektonConfig
   * Configure the bundles resolver
   * Enable console plugin
-  * Validate pipelines deployment
+  * Enable statefulset in tektonconfig
   * Validate triggers deployment
   * Validate PAC deployment
-  * Validate chains deployment
+  * Enable generateSigningSecret for Tekton Chains in TektonConfig
   * Validate hub deployment
+  * Enable statefulset for "chains" in tektonconfig
+  * Enable statefulset for "results" in tektonconfig
+  * Validate "tekton-pipelines-controller" statefulset deployment
+  * Validate "tekton-pipelines-remote-resolvers" statefulset deployment
+  * Validate "tekton-chains-controller" statefulset deployment
+  * Validate "tekton-results-watcher" statefulset deployment
   * Validate tkn server cli deployment
   * Validate console plugin deployment
+  * Configure Results with Loki
+  * Create Results route
   * Ensure that Tekton Results is ready
   * Verify TektonAddons Install status
   * Validate RBAC

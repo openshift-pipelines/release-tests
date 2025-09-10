@@ -13,7 +13,6 @@ Importance: Critical
 
 Steps:
 * Verify that image stream "golang" exists
-* Verify ServiceAccount "pipeline" exist
 * Apply
    |S.NO|resource_dir                 |
    |----|-----------------------------|
@@ -22,6 +21,7 @@ Steps:
    |S.NO|pipeline_run_name|status    |
    |----|-----------------|----------|
    |1   |results-task     |successful|
+* Verify "taskrun" Results stored
 * Verify "taskrun" Results records
 * Verify "taskrun" Results logs
 
@@ -34,15 +34,15 @@ Importance: Critical
 
 Steps:
 * Verify that image stream "golang" exists
-* Verify ServiceAccount "pipeline" exist
 * Apply
    |S.NO|resource_dir                     |
    |----|---------------------------------|
    |1   |testdata/results/pipeline.yaml   |
    |2   |testdata/results/pipelinerun.yaml|
 * Verify pipelinerun
-   |S.NO|pipeline_run_name|status    |check_label_propagation|
-   |----|-----------------|----------|-----------------------|
-   |1   |pipeline-results |successful|no                     |
+   |S.NO|pipeline_run_name|status    |
+   |----|-----------------|----------|
+   |1   |pipeline-results |successful|
+* Verify "pipelinerun" Results stored
 * Verify "pipelinerun" Results records
 * Verify "pipelinerun" Results logs

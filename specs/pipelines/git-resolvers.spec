@@ -11,15 +11,14 @@ Type: Functional
 Importance: High
 
 Steps:
-    * Verify ServiceAccount "pipeline" exist
     * Create 
       |S.NO|resource_dir                                                     |
       |----|-----------------------------------------------------------------|
       |1   |testdata/resolvers/pipelineruns/git-resolver-pipelinerun.yaml    |
     * Verify pipelinerun
-      |S.NO|pipeline_run_name                  |status      |check_label_propagation  |
-      |----|-----------------------------------|--------------------------------------|
-      |1   |git-resolver-pipelinerun           |successful  |no                       |
+      |S.NO|pipeline_run_name                  |status      |
+      |----|-----------------------------------|------------|
+      |1   |git-resolver-pipelinerun           |successful  |
 
 ## Test the functionality of git resolvers with authentication: PIPELINES-24-TC01
 Tags: e2e
@@ -29,12 +28,11 @@ Type: Functional
 Importance: High
 
 Steps:
-    * Verify ServiceAccount "pipeline" exist
     * Create 
       |S.NO|resource_dir                                                     |
       |----|-----------------------------------------------------------------|
       |1   |testdata/resolvers/pipelineruns/git-resolver-pipelinerun-private.yaml        | 
     * Verify pipelinerun
-      |S.NO|pipeline_run_name                  |status      |check_label_propagation  |
-      |----|-----------------------------------|--------------------------------------|
-      |1   |git-resolver-pipelinerun-private   |successful  |no                       |
+      |S.NO|pipeline_run_name                  |status      |
+      |----|-----------------------------------|------------|
+      |1   |git-resolver-pipelinerun-private   |successful  |

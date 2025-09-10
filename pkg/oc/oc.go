@@ -2,6 +2,7 @@ package oc
 
 import (
 	"encoding/json"
+	"fmt"
 	"log"
 	"slices"
 	"strings"
@@ -10,13 +11,12 @@ import (
 	"github.com/getgauge-contrib/gauge-go/testsuit"
 	"github.com/openshift-pipelines/release-tests/pkg/cmd"
 	"github.com/openshift-pipelines/release-tests/pkg/config"
-	resource "github.com/openshift-pipelines/release-tests/pkg/config"
 	"github.com/openshift-pipelines/release-tests/pkg/store"
 )
 
 // Create resources using oc command
 func Create(path_dir, namespace string) {
-	log.Printf("output: %s\n", cmd.MustSucceed("oc", "create", "-f", resource.Path(path_dir), "-n", namespace).Stdout())
+	log.Printf("output: %s\n", cmd.MustSucceed("oc", "create", "-f", config.Path(path_dir), "-n", namespace).Stdout())
 }
 
 // Create resources using remote path using oc command
@@ -25,12 +25,15 @@ func CreateRemote(remote_path, namespace string) {
 }
 
 func Apply(path_dir, namespace string) {
-	log.Printf("output: %s\n", cmd.MustSucceed("oc", "apply", "-f", resource.Path(path_dir), "-n", namespace).Stdout())
+	log.Printf("output: %s\n", cmd.MustSucceed("oc", "apply", "-f", config.Path(path_dir), "-n", namespace).Stdout())
 }
 
 // Delete resources using oc command
 func Delete(path_dir, namespace string) {
-	log.Printf("output: %s\n", cmd.MustSucceed("oc", "delete", "-f", resource.Path(path_dir), "-n", namespace).Stdout())
+	// Tekton Results sets a finalizer that prevent resource removal for some time
+	// see parameters "store_deadline" and "forward_buffer"
+	// by default, it waits at least 150 seconds
+	log.Printf("output: %s\n", cmd.MustSuccedIncreasedTimeout(time.Second*300, "oc", "delete", "-f", config.Path(path_dir), "-n", namespace).Stdout())
 }
 
 // CreateNewProject Helps you to create new project
@@ -140,7 +143,10 @@ func LabelNamespace(namespace, label string) {
 }
 
 func DeleteResource(resourceType, name string) {
-	log.Printf("output: %s\n", cmd.MustSucceed("oc", "delete", resourceType, name, "-n", store.Namespace()).Stdout())
+	// Tekton Results sets a finalizer that prevent resource removal for some time
+	// see parameters "store_deadline" and "forward_buffer"
+	// by default, it waits at least 150 seconds
+	log.Printf("output: %s\n", cmd.MustSuccedIncreasedTimeout(time.Second*300, "oc", "delete", resourceType, name, "-n", store.Namespace()).Stdout())
 }
 
 func DeleteResourceInNamespace(resourceType, name, namespace string) {
@@ -209,4 +215,11 @@ func GetSecretsData(secretName, namespace string) string {
 
 func CreateChainsImageRegistrySecret(dockerConfig string) {
 	cmd.MustSucceed("oc", "create", "secret", "generic", "chains-image-registry-credentials", "--from-literal=.dockerconfigjson="+dockerConfig, "--from-literal=config.json="+dockerConfig, "--type=kubernetes.io/dockerconfigjson")
+}
+
+func CopySecret(secretName string, sourceNamespace string, destNamespace string) {
+	secretJson := cmd.MustSucceed("oc", "get", "secret", secretName, "-n", sourceNamespace, "-o", "json").Stdout()
+	cmdOutput := cmd.MustSucceed("bash", "-c", fmt.Sprintf(`echo '%s' | jq 'del(.metadata["namespace", "creationTimestamp", "resourceVersion", "selfLink", "uid", "annotations"]) | .data |= with_entries(if .key == "github-auth-key" then .key = "token" else . end)'`, secretJson)).Stdout()
+	cmd.MustSucceed("bash", "-c", fmt.Sprintf(`echo '%s' | kubectl apply -n %s -f -`, cmdOutput, destNamespace))
+	log.Printf("Successfully copied secret %s from %s to %s", secretName, sourceNamespace, destNamespace)
 }

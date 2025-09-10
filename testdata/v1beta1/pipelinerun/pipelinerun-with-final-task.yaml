@@ -42,7 +42,7 @@ spec:
     - name: clone-app-repo
       taskRef:
         name: git-clone-v0-14-3
-        kind: ClusterTask
+        kind: Task
       params:
         - name: url
           value: https://github.com/tektoncd/community.git

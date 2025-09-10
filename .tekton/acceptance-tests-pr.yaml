@@ -4,9 +4,10 @@ kind: PipelineRun
 metadata:
   name: acceptance-tests-pr-{{pull_request_number}}
   annotations:
+    pipelinesascode.tekton.dev/cancel-in-progress: "true"
     pipelinesascode.tekton.dev/max-keep-runs: "2" 
     pipelinesascode.tekton.dev/on-event: "[pull_request]"
-    pipelinesascode.tekton.dev/on-target-branch: "[*]"
+    pipelinesascode.tekton.dev/on-target-branch: "[master]"
     pipelinesascode.tekton.dev/pipeline: "https://gitlab.cee.redhat.com/tekton/plumbing/-/raw/master/ci/pipelines/acceptance-tests.yaml"
     pipelinesascode.tekton.dev/task-10: "https://gitlab.cee.redhat.com/tekton/plumbing/-/raw/master/ci/tasks/cli-tests-in-container.yaml"
     pipelinesascode.tekton.dev/task-20: "https://gitlab.cee.redhat.com/tekton/plumbing/-/raw/master/ci/tasks/configure-operator.yaml"
@@ -41,41 +42,47 @@ spec:
       value: custom-operators
     - name: CLI_TESTS_TYPE
       value: downstream
+    - name: CLUSTER_LIFETIME
+      value: 2h
     - name: CLUSTER_POOL
       value: "openstack"
     - name: GIT_RELEASE_TESTS_BRANCH
       value: "{{ revision }}"
     - name: GIT_RELEASE_TESTS_URI
       value: "{{ repo_url }}"
+    - name: KONFLUX_INDEX_IMAGE
+      value: "quay.io/openshift-pipeline/pipelines-index-4.18:next"
     - name: INDEX
-      value: "latest"
+      value: ""
     - name: INSTALLER
       value: "hive"
     - name: OPERATOR_ENVIRONMENT
       value: pre-stage
     - name: OPERATOR_VERSION
       value: "5.0"
+    - name: TAGS
+      value: "sanity"
     - name: TEST_SUITES
       value:
-        # - cli-tests-fedora
-        - release-tests-versions
         - release-tests-chains
-        - release-tests-clustertasks
-        - release-tests-clustertasks-s2i
-        - release-tests-clustertasks-multiarch
+        - release-tests-ecosystem
+        - release-tests-ecosystem-multiarch
+        - release-tests-ecosystem-s2i
         - release-tests-manual-approval
         - release-tests-metrics
+        - release-tests-pac
         - release-tests-pipelines
         - release-tests-results
         - release-tests-triggers
         - release-tests-triggers-tls
+        - release-tests-versions
         - release-tests-rbac
         - release-tests-auto-prune
         - release-tests-addon
     - name: TKN_DOWNLOAD_URL
-      value: https://mirror.openshift.com/pub/openshift-v4/clients/pipelines/1.15.0/tkn-linux-amd64.tar.gz
+      value: https://mirror.openshift.com/pub/openshift-v4/clients/pipelines/1.18.0/tkn-linux-amd64.tar.gz
   timeouts:
-    pipeline: 3h
+    pipeline: 2h
   workspaces:
     - name: git
       volumeClaimTemplate:
@@ -85,4 +92,4 @@ spec:
           resources:
             requests:
               storage: 200Mi
-          storageClassName: csi-manila-netapp
+          storageClassName: standard

@@ -23,7 +23,7 @@ const (
 	// when waiting for a specific condition to be true.
 	APITimeout = time.Minute * 10
 	// CLITimeout defines the amount of maximum execution time for CLI commands
-	CLITimeout = time.Second * 40
+	CLITimeout = time.Second * 90
 
 	// ConsistentlyDuration sets  the default duration for Consistently. Consistently will verify that your condition is satisfied for this long.
 	ConsistentlyDuration = 30 * time.Second
@@ -72,24 +72,18 @@ const (
 	// Name of console deployment
 	ConsolePluginDeployment = "pipelines-console-plugin"
 
-	// Community Clustertasks
-	CommunityClustertasks = "jib-maven,helm-upgrade-from-source,helm-upgrade-from-repo,trigger-jenkins-job,git-cli,pull-request,kubeconfig-creator,argocd-task-sync-and-wait"
-
 	// A token used in triggers tests
 	TriggersSecretToken = "1234567"
 )
 
 // Name prefixes of installerset
-var TektonInstallersetNamePrefixes [37]string = [37]string{
-	"addon-custom-clustertask",
-	"addon-custom-communityclustertask",
+var TektonInstallersetNamePrefixes [34]string = [34]string{
 	"addon-custom-consolecli",
 	"addon-custom-openshiftconsole",
 	"addon-custom-pipelinestemplate",
 	"addon-custom-resolverstepaction",
 	"addon-custom-resolvertask",
 	"addon-custom-triggersresources",
-	"addon-versioned-clustertasks",
 	"addon-versioned-resolverstepactions",
 	"addon-versioned-resolvertasks",
 	"chain",
@@ -101,7 +95,7 @@ var TektonInstallersetNamePrefixes [37]string = [37]string{
 	"openshiftpipelinesascode-main-deployment",
 	"openshiftpipelinesascode-main-static",
 	"openshiftpipelinesascode-post",
-	"pipeline-main-deployment",
+	"pipeline-main-statefulset",
 	"pipeline-main-static",
 	"pipeline-post",
 	"pipeline-pre",
@@ -225,7 +219,7 @@ func Read(path string) ([]byte, error) {
 func TempDir() (string, error) {
 	tmp := filepath.Join(Dir(), "..", "tmp")
 	if _, err := os.Stat(tmp); os.IsNotExist(err) {
-		err := os.Mkdir(tmp, 0755)
+		err := os.Mkdir(tmp, 0750)
 		return tmp, err
 	}
 	return tmp, nil

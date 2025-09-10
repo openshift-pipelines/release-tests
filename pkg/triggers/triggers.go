@@ -19,6 +19,7 @@ import (
 	"github.com/openshift-pipelines/release-tests/pkg/clients"
 	"github.com/openshift-pipelines/release-tests/pkg/cmd"
 	resource "github.com/openshift-pipelines/release-tests/pkg/config"
+	"github.com/openshift-pipelines/release-tests/pkg/opc"
 	"github.com/openshift-pipelines/release-tests/pkg/wait"
 	"github.com/tektoncd/pipeline/pkg/names"
 	eventReconciler "github.com/tektoncd/triggers/pkg/reconciler/eventlistener"
@@ -52,10 +53,21 @@ func getServiceNameAndPort(c *clients.Clients, elname, namespace string) (string
 }
 
 func ExposeEventListner(c *clients.Clients, elname, namespace string) string {
+	if _, err := opc.VerifyResourceListMatchesName("eventlistener", elname, namespace); err != nil {
+		testsuit.T.Errorf("%v", err)
+	}
+
 	svcName, _ := getServiceNameAndPort(c, elname, namespace)
 	cmd.MustSucceed("oc", "expose", "service", svcName, "-n", namespace)
 
 	return GetRoute(elname, namespace)
+}
+
+func ExposeDeploymentConfig(c *clients.Clients, elname, port, namespace string) string {
+	cmd.MustSucceed("oc", "expose", "dc/"+elname, "-n", namespace, "--target-port="+port)
+	cmd.MustSucceed("oc", "expose", "svc", elname, "-n", namespace, "--target-port="+port)
+
+	return elname
 }
 
 func ExposeEventListenerForTLS(c *clients.Clients, elname, namespace string) string {
@@ -191,7 +203,7 @@ func AssertElResponse(c *clients.Clients, resp *http.Response, elname, namespace
 		EventListener: elname,
 		Namespace:     namespace,
 	}
-
+	//nolint:errcheck
 	defer resp.Body.Close()
 	var gotBody sink.Response
 	err := json.NewDecoder(resp.Body).Decode(&gotBody)
@@ -274,6 +286,7 @@ func GetRoute(elname, namespace string) string {
 		if err != nil {
 			testsuit.T.Fail(err)
 		}
+		//nolint:errcheck
 		defer file.Close()
 
 		if _, err := file.WriteString(serverCert); err != nil {

@@ -1,15 +1,19 @@
-FROM quay.io/fedora/fedora:40
+FROM quay.io/fedora/fedora:42
 
 RUN dnf update -y &&\
-    dnf install -y --setopt=tsflags=nodocs azure-cli git go jq lynx make openssl python-unversioned-command python3 python3-antlr4-runtime python3-pip unzip vim wget &&\
+    dnf install -y --setopt=tsflags=nodocs azure-cli git go jq make openssl python-unversioned-command python3 python3-antlr4-runtime python3-pip skopeo unzip vim wget &&\
     dnf clean all -y && rm -fR /var/cache/dnf
 
 RUN pip install pyyaml reportportal-client
 
-RUN wget https://github.com/mikefarah/yq/releases/download/v4.44.3/yq_linux_amd64 -O /usr/bin/yq &&\
+RUN wget https://certs.corp.redhat.com/certs/Current-IT-Root-CAs.pem \
+    -O /etc/pki/ca-trust/source/anchors/Current-IT-Root-CAs.pem && \
+    update-ca-trust extract
+
+RUN wget https://github.com/mikefarah/yq/releases/download/v4.45.1/yq_linux_amd64 -O /usr/bin/yq &&\
     chmod +x /usr/bin/yq
 
-ENV OC_VERSION=4.17
+ENV OC_VERSION=4.18
 RUN wget https://mirror.openshift.com/pub/openshift-v4/clients/ocp/fast-${OC_VERSION}/openshift-client-linux.tar.gz \
     -O /tmp/openshift-client.tar.gz &&\
     tar xzf /tmp/openshift-client.tar.gz -C /usr/bin oc &&\
@@ -33,7 +37,7 @@ RUN wget https://mirror.openshift.com/pub/openshift-v4/clients/rosa/latest/rosa-
     tar xzf /tmp/rosa.tar.gz -C /usr/bin --no-same-owner rosa &&\
     rm /tmp/rosa.tar.gz
 
-ENV TKN_VERSION=1.16.0
+ENV TKN_VERSION=1.18.0
 RUN wget https://mirror.openshift.com/pub/openshift-v4/clients/pipelines/${TKN_VERSION}/tkn-linux-amd64.tar.gz \
    -O /tmp/tkn.tar.gz &&\
    tar xzf /tmp/tkn.tar.gz -C /usr/bin --no-same-owner tkn tkn-pac opc &&\
@@ -42,7 +46,7 @@ RUN wget https://mirror.openshift.com/pub/openshift-v4/clients/pipelines/${TKN_V
 RUN wget https://dl.min.io/client/mc/release/linux-amd64/mc -O /usr/bin/mc &&\
     chmod u+x /usr/bin/mc
 
-ENV GAUGE_VERSION=1.6.10
+ENV GAUGE_VERSION=1.6.16
 RUN wget https://github.com/getgauge/gauge/releases/download/v${GAUGE_VERSION}/gauge-${GAUGE_VERSION}-linux.x86_64.zip \
     -O /tmp/gauge.zip &&\
     unzip /tmp/gauge.zip gauge -d /usr/bin &&\
@@ -51,20 +55,20 @@ RUN wget https://github.com/getgauge/gauge/releases/download/v${GAUGE_VERSION}/g
     gauge install go &&\
     gauge install html-report &&\
     gauge install xml-report &&\
-    gauge install reportportal &&\
+    gauge install reportportal -v 1.16.2 &&\
     gauge config check_updates false &&\
     gauge config runner_connection_timeout 600000 && \
     gauge config runner_request_timeout 300000 &&\
     go env -w GOPROXY="https://proxy.golang.org,direct" &&\
     gauge version
 
-RUN wget https://github.com/sigstore/cosign/releases/download/v2.4.1/cosign-linux-amd64 -O /usr/bin/cosign && \
+RUN wget https://github.com/sigstore/cosign/releases/download/v2.5.0/cosign-linux-amd64 -O /usr/bin/cosign && \
     chmod a+x /usr/bin/cosign
 
-RUN wget https://github.com/sigstore/rekor/releases/download/v1.3.6/rekor-cli-linux-amd64 -O /usr/bin/rekor-cli && \
+RUN wget https://github.com/sigstore/rekor/releases/download/v1.3.10/rekor-cli-linux-amd64 -O /usr/bin/rekor-cli && \
     chmod u+x /usr/bin/rekor-cli
 
-ENV GOLANGCI_LINT_VERSION=1.61.0
+ENV GOLANGCI_LINT_VERSION=2.1.5
 RUN wget -O /tmp/golangci-lint.tar.gz https://github.com/golangci/golangci-lint/releases/download/v${GOLANGCI_LINT_VERSION}/golangci-lint-${GOLANGCI_LINT_VERSION}-linux-amd64.tar.gz \
     && tar --strip-components=1 -C /usr/bin -xzf /tmp/golangci-lint.tar.gz golangci-lint-${GOLANGCI_LINT_VERSION}-linux-amd64/golangci-lint \
     && rm -f /tmp/golangci-lint.tar.gz

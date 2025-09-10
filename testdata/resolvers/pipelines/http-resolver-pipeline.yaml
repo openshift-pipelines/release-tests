@@ -1,0 +1,12 @@
+apiVersion: tekton.dev/v1
+kind: Pipeline
+metadata:
+  name: http-resolver-pipeline
+spec:
+  tasks:
+    - name: "http-task"
+      taskRef:
+        resolver: http
+        params:
+        - name: url
+          value: "https://raw.githubusercontent.com/openshift-pipelines/tektoncd-catalog/refs/heads/p/tasks/task-tkn/0.2.2/task-tkn.yaml"

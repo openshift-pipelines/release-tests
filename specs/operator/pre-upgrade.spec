@@ -24,9 +24,9 @@ Steps:
   * Mock post event to "github" interceptor with event-type "push", payload "testdata/triggers/github-ctb/push.json", with TLS "false"
   * Assert eventlistener response
   * Verify pipelinerun
-    |S.NO|pipeline_run_name       |status    |check_label_propagation|
-    |----|------------------------|----------|-----------------------|
-    |1   |pipelinerun-git-push-ctb|successful|no                     |
+    |S.NO|pipeline_run_name       |status    |
+    |----|------------------------|----------|
+    |1   |pipelinerun-git-push-ctb|successful|
   * Delete "pipelinerun" named "pipelinerun-git-push-ctb"
   * Create
     |S.NO|resource_dir                                               |
@@ -40,9 +40,9 @@ Steps:
   * Mock post event to "github" interceptor with event-type "pull_request", payload "testdata/triggers/triggersCRD/pull-request.json", with TLS "false"
   * Assert eventlistener response
   * Verify pipelinerun
-    |S.NO|pipeline_run_name       |status    |check_label_propagation|
-    |----|------------------------|----------|-----------------------|
-    |1   |parallel-pipelinerun    |successful|no                     |
+    |S.NO|pipeline_run_name       |status    |
+    |----|------------------------|----------|
+    |1   |parallel-pipelinerun    |successful|
   * Delete "pipelinerun" named "parallel-pipelinerun"
   * Create
     |S.NO|resource_dir                                                        |
@@ -57,22 +57,6 @@ Steps:
     |----|-----------------|-------|
     |1   |bitbucket-run    |Failure|
   * Delete "taskrun" named "bitbucket-run"
-
-## Setup S2I nodejs pipeline pre upgrade: PIPELINES-18-TC02
-Tags: pre-upgrade, e2e, clustertasks, non-admin, s2i
-Component: Pipelines
-Level: Integration
-Type: Functional
-Importance: Critical
-
-Steps:
-  * Create project "releasetest-upgrade-s2i"
-  * Verify ServiceAccount "pipeline" exist
-  * Create
-      |S.NO|resource_dir                                          |
-      |----|------------------------------------------------------|
-      |1   |testdata/v1beta1/clustertask/pipelines/s2i-nodejs.yaml|
-      |2   |testdata/pvc/pvc.yaml                                 |
 
 ## Setup Eventlistener with TLS enabled pre upgrade: PIPELINES-18-TC03
 Tags: pre-upgrade, tls, triggers, admin, e2e, sanity
@@ -95,9 +79,9 @@ Steps:
   * Mock post event to "github" interceptor with event-type "push", payload "testdata/push.json", with TLS "true"
   * Assert eventlistener response
   * Verify pipelinerun
-    |S.NO|pipeline_run_name  |status    |check_label_propagation|
-    |----|-------------------|----------|-----------------------|
-    |1   |simple-pipeline-run|successful|no                     |
+    |S.NO|pipeline_run_name  |status    |
+    |----|-------------------|----------|
+    |1   |simple-pipeline-run|successful|
   * Delete "pipelinerun" named "simple-pipeline-run"
 
 ## Setup link secret to pipeline SA PIPELINES-18-TC04
@@ -114,16 +98,32 @@ Steps:
   * Create
       | S.NO | resource_dir                                                       |
       |------|--------------------------------------------------------------------|
-      | 1    | testdata/v1beta1/clustertask/pipelines/git-clone-read-private.yaml |
+      | 1    | testdata/ecosystem/pipelines/git-clone-read-private.yaml |
       | 2    | testdata/pvc/pvc.yaml                                              |
-      | 3    | testdata/v1/clustertask/secrets/ssh-key.yaml                  |
+      | 3    | testdata/ecosystem/secrets/ssh-key.yaml                  |
   * Link secret "ssh-key" to service account "pipeline"
   * Create
       | S.NO | resource_dir                                                          |
       |------|-----------------------------------------------------------------------|
-      | 1    | testdata/v1beta1/clustertask/pipelineruns/git-clone-read-private.yaml |
+      | 1    | testdata/ecosystem/pipelineruns/git-clone-read-private.yaml |
   * Verify pipelinerun
-      | S.NO | pipeline_run_name                   | status     | check_label_propagation |
-      |------|-------------------------------------|------------|-------------------------|
-      | 1    | git-clone-read-private-pipeline-run | successful | no                      |
+      | S.NO | pipeline_run_name                   | status     |
+      |------|-------------------------------------|------------|
+      | 1    | git-clone-read-private-pipeline-run | successful |
   * Delete "pipelinerun" named "git-clone-read-private-pipeline-run"
+
+## Setup S2I golang pipeline pre upgrade: PIPELINES-18-TC05
+Tags: pre-upgrade, e2e, clustertasks, non-admin, s2i
+Component: Pipelines
+Level: Integration
+Type: Functional
+Importance: Critical
+
+Steps:
+  * Create project "releasetest-upgrade-s2i"
+  * Verify ServiceAccount "pipeline" exist
+  * Create
+      |S.NO|resource_dir                                          |
+      |----|------------------------------------------------------|
+      |1   |testdata/ecosystem/pipelines/s2i-go.yaml|
+      |2   |testdata/pvc/pvc.yaml                                 |

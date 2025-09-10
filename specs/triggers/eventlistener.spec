@@ -154,13 +154,16 @@ Steps:
     |2   |testdata/triggers/triggerbindings/triggerbinding.yaml               |
     |3   |testdata/triggers/triggertemplate/triggertemplate.yaml              |
     |4   |testdata/triggers/eventlisteners/eventlistener-embeded-binding.yaml |
+  * Verify that "triggerbinding" "pipeline-binding" exists
+  * Verify that "triggertemplate" "pipeline-template" exists
+  * Verify that "eventlistener" "listener-embed-binding" exists
   * Expose Event listener for TLS "listener-embed-binding"
   * Mock post event to "github" interceptor with event-type "push", payload "testdata/push.json", with TLS "true"
   * Assert eventlistener response
   * Verify pipelinerun
-    |S.NO|pipeline_run_name  |status    |check_label_propagation|
-    |----|-------------------|----------|-----------------------|
-    |1   |simple-pipeline-run|successful|no                     |
+    |S.NO|pipeline_run_name  |status    |
+    |----|-------------------|----------|
+    |1   |simple-pipeline-run|successful|
   * Cleanup Triggers
 
 ## Create Eventlistener embedded TriggersBindings specs: PIPELINES-05-TC08
@@ -181,13 +184,16 @@ Steps:
     |2   |testdata/triggers/triggerbindings/triggerbinding.yaml               |
     |3   |testdata/triggers/triggertemplate/triggertemplate.yaml              |
     |4   |testdata/triggers/eventlisteners/eventlistener-embeded-binding.yaml |
+  * Verify that "triggerbinding" "pipeline-binding" exists
+  * Verify that "triggertemplate" "pipeline-template" exists
+  * Verify that "eventlistener" "listener-embed-binding" exists
   * Expose Event listener "listener-embed-binding"
   * Mock post event to "github" interceptor with event-type "push", payload "testdata/push.json", with TLS "false"
   * Assert eventlistener response
   * Verify pipelinerun
-    |S.NO|pipeline_run_name  |status    |check_label_propagation|
-    |----|-------------------|----------|-----------------------|
-    |1   |simple-pipeline-run|successful|no                     |
+    |S.NO|pipeline_run_name  |status    |
+    |----|-------------------|----------|
+    |1   |simple-pipeline-run|successful|
   * Cleanup Triggers
 
 ## Create embedded TriggersTemplate: PIPELINES-05-TC09
@@ -207,13 +213,16 @@ Steps:
     |1   |testdata/triggers/triggerbindings/triggerbinding.yaml              |
     |2   |testdata/triggers/triggertemplate/embed-triggertemplate.yaml       |
     |3   |testdata/triggers/eventlisteners/eventlistener-embeded-binding.yaml|
+  * Verify that "triggerbinding" "pipeline-binding" exists
+  * Verify that "triggertemplate" "pipeline-template" exists
+  * Verify that "eventlistener" "listener-embed-binding" exists
   * Expose Event listener "listener-embed-binding"
   * Mock post event to "github" interceptor with event-type "push", payload "testdata/push.json", with TLS "false"
   * Assert eventlistener response
   * Verify pipelinerun
-    |S.NO|pipeline_run_name                        |status    |check_label_propagation|
-    |----|-----------------------------------------|----------|-----------------------|
-    |1   |pipelinerun-with-taskspec-to-echo-message|successful|no                     |
+    |S.NO|pipeline_run_name                        |status    |
+    |----|-----------------------------------------|----------|
+    |1   |pipelinerun-with-taskspec-to-echo-message|successful|
   * Cleanup Triggers
 
 ## Create Eventlistener with gitlab interceptor: PIPELINES-05-TC10
@@ -227,19 +236,21 @@ This scenario tests the creation of eventLister with gitlab interceptor, listens
 openshift-pipeline Resources defined under triggers-template, to deploy example app
 
 Steps:
-  * Verify ServiceAccount "pipeline" exist
   * Create
     |S.NO|resource_dir                                      |
     |----|--------------------------------------------------|
     |1   |testdata/triggers/gitlab/gitlab-push-listener.yaml|
+  * Verify that "triggerbinding" "gitlab-push-binding" exists
+  * Verify that "triggertemplate" "gitlab-echo-template" exists
+  * Verify that "eventlistener" "gitlab-listener" exists
   * Create & Link secret "gitlab-secret" to service account "pipeline"
   * Expose Event listener "gitlab-listener"
   * Mock post event to "gitlab" interceptor with event-type "Push Hook", payload "testdata/triggers/gitlab/gitlab-push-event.json", with TLS "false"
   * Assert eventlistener response
   * Verify pipelinerun
-    |S.NO|pipeline_run_name |status    |check_label_propagation|
-    |----|------------------|----------|-----------------------|
-    |1   |gitlab-run        |successful|no                     |
+    |S.NO|pipeline_run_name |status    |
+    |----|------------------|----------|
+    |1   |gitlab-run        |successful|
   * Cleanup Triggers
 
 ## Create Eventlistener with bitbucket interceptor: PIPELINES-05-TC11
@@ -253,11 +264,13 @@ This scenario tests the creation of eventLister with bitbucket interceptor, list
 openshift-pipeline Resources defined under triggers-template
 
 Steps:
-  * Verify ServiceAccount "pipeline" exist
   * Create
     |S.NO|resource_dir                                                        |
     |----|--------------------------------------------------------------------|
     |1   |testdata/triggers/bitbucket/bitbucket-eventlistener-interceptor.yaml|
+  * Verify that "triggerbinding" "bitbucket-binding" exists
+  * Verify that "triggertemplate" "bitbucket-template" exists
+  * Verify that "eventlistener" "bitbucket-listener" exists
   * Create & Link secret "bitbucket-secret" to service account "pipeline"
   * Expose Event listener "bitbucket-listener"
   * Mock post event to "bitbucket" interceptor with event-type "refs_changed", payload "testdata/triggers/bitbucket/refs-change-event.json", with TLS "false"
@@ -279,20 +292,21 @@ This scenario tests Github `push` event via CTB, on each event it creates/trigge
 openshift-pipeline Resources defined under triggers-template
 
 Steps:
-  * Verify ServiceAccount "pipeline" exist
   * Create
     |S.NO|resource_dir                                                      |
     |----|------------------------------------------------------------------|
     |1   |testdata/triggers/github-ctb/Embeddedtriggertemplate-git-push.yaml|
     |2   |testdata/triggers/github-ctb/eventlistener-ctb-git-push.yaml      |
+  * Verify that "triggertemplate" "pipeline-template-git-push" exists
+  * Verify that "eventlistener" "listener-ctb-github-push" exists
   * Create & Link secret "github-secret" to service account "pipeline"
   * Expose Event listener "listener-ctb-github-push"
   * Mock post event to "github" interceptor with event-type "push", payload "testdata/triggers/github-ctb/push.json", with TLS "false"
   * Assert eventlistener response
   * Verify pipelinerun
-    |S.NO|pipeline_run_name       |status    |check_label_propagation|
-    |----|------------------------|----------|-----------------------|
-    |1   |pipelinerun-git-push-ctb|successful|no                     |
+    |S.NO|pipeline_run_name       |status    |
+    |----|------------------------|----------|
+    |1   |pipelinerun-git-push-ctb|successful|
   * Cleanup Triggers
 
 ## Verify Github pull_request event with Embbeded TriggerTemplate using Github-CTB: PIPELINES-05-TC13
@@ -306,20 +320,22 @@ This scenario tests Github `pull_request` event via CTB, on each event it create
 openshift-pipeline Resources defined under triggers-template
 
 Steps:
-  * Verify ServiceAccount "pipeline" exist
   * Create
     |S.NO|resource_dir                                                    |
     |----|----------------------------------------------------------------|
     |1   |testdata/triggers/github-ctb/Embeddedtriggertemplate-git-pr.yaml|
     |2   |testdata/triggers/github-ctb/eventlistener-ctb-git-pr.yaml      |
+  * Verify that "triggertemplate" "pipeline-template-git-pr" exists
+  * Verify that "eventlistener" "listener-clustertriggerbinding-github-pr" exists
+  * Verify that "clustertriggerbinding" "github-pullreq" exists
   * Create & Link secret "github-secret" to service account "pipeline"
   * Expose Event listener "listener-clustertriggerbinding-github-pr"
   * Mock post event to "github" interceptor with event-type "pull_request", payload "testdata/triggers/github-ctb/pr.json", with TLS "false"
   * Assert eventlistener response
   * Verify pipelinerun
-    |S.NO|pipeline_run_name       |status    |check_label_propagation|
-    |----|------------------------|----------|-----------------------|
-    |1   |pipelinerun-git-pr-ctb  |successful|no                     |
+    |S.NO|pipeline_run_name       |status    |
+    |----|------------------------|----------|
+    |1   |pipelinerun-git-pr-ctb  |successful|
   * Cleanup Triggers
 
 ## Verify Github pr_review event with Embbeded TriggerTemplate using Github-CTB: PIPELINES-05-TC14
@@ -333,20 +349,22 @@ This scenario tests Github `issue_comment` event via CTB, on each event it creat
 openshift-pipeline Resources defined under triggers-template
 
 Steps:
-  * Verify ServiceAccount "pipeline" exist
   * Create
     |S.NO|resource_dir                                                           |
     |----|-----------------------------------------------------------------------|
     |1   |testdata/triggers/github-ctb/Embeddedtriggertemplate-git-pr-review.yaml|
     |2   |testdata/triggers/github-ctb/eventlistener-ctb-git-pr-review.yaml      |
+  * Verify that "triggertemplate" "pipeline-template-git-pr-review" exists
+  * Verify that "eventlistener" "listener-ctb-github-pr-review" exists
+  * Verify that "clustertriggerbinding" "github-pullreq" exists
   * Create & Link secret "github-secret" to service account "pipeline"
   * Expose Event listener "listener-ctb-github-pr-review"
   * Mock post event to "github" interceptor with event-type "issue_comment", payload "testdata/triggers/github-ctb/issue-comment.json", with TLS "false"
   * Assert eventlistener response
   * Verify pipelinerun
-    |S.NO|pipeline_run_name                |status    |check_label_propagation|
-    |----|---------------------------------|----------|-----------------------|
-    |1   |pipelinerun-git-pr-review-ctb    |successful|no                     |
+    |S.NO|pipeline_run_name                |status    |
+    |----|---------------------------------|----------|
+    |1   |pipelinerun-git-pr-review-ctb    |successful|
   * Cleanup Triggers
 
 ## Create TriggersCRD resource with CEL interceptors (overlays): PIPELINES-05-TC15
@@ -360,7 +378,6 @@ This scenario tests the creation of Trigger resource which is combination of Tri
 openshift-pipeline Resources defined under triggers-template
 
 Steps:
-  * Verify ServiceAccount "pipeline" exist
   * Create
     |S.NO|resource_dir                                               |
     |----|-----------------------------------------------------------|
@@ -369,14 +386,17 @@ Steps:
     |3   |testdata/triggers/triggersCRD/triggerbindings.yaml         |
     |4   |testdata/triggers/triggersCRD/triggertemplate.yaml         |
     |5   |testdata/triggers/triggersCRD/pipeline.yaml                |
+  * Verify that "triggerbinding" "github-pr-binding" exists
+  * Verify that "triggertemplate" "github-template" exists
+  * Verify that "eventlistener" "listener-triggerref" exists
   * Create & Link secret "github-secret" to service account "pipeline"
   * Expose Event listener "listener-triggerref"
   * Mock post event to "github" interceptor with event-type "pull_request", payload "testdata/triggers/triggersCRD/pull-request.json", with TLS "false"
   * Assert eventlistener response
   * Verify pipelinerun
-    |S.NO|pipeline_run_name       |status    |check_label_propagation|
-    |----|------------------------|----------|-----------------------|
-    |1   |parallel-pipelinerun    |successful|no                     |
+    |S.NO|pipeline_run_name       |status    |
+    |----|------------------------|----------|
+    |1   |parallel-pipelinerun    |successful|
   * Cleanup Triggers
 
 ## Create multiple Eventlistener with TLS enabled: PIPELINES-05-TC16
@@ -399,13 +419,16 @@ Steps:
     |2   |testdata/triggers/triggerbindings/triggerbinding.yaml               |
     |3   |testdata/triggers/triggertemplate/triggertemplate.yaml              |
     |4   |testdata/triggers/eventlisteners/eventlistener-embeded-binding.yaml |
+  * Verify that "triggerbinding" "pipeline-binding" exists
+  * Verify that "triggertemplate" "pipeline-template" exists
+  * Verify that "eventlistener" "listener-embed-binding" exists
   * Expose Event listener for TLS "listener-embed-binding"
   * Mock post event to "github" interceptor with event-type "push", payload "testdata/push.json", with TLS "true"
   * Assert eventlistener response
   * Verify pipelinerun
-    |S.NO|pipeline_run_name  |status    |check_label_propagation|
-    |----|-------------------|----------|-----------------------|
-    |1   |simple-pipeline-run|successful|no                     |
+    |S.NO|pipeline_run_name  |status    |
+    |----|-------------------|----------|
+    |1   |simple-pipeline-run|successful|
   * Create
     |S.NO|resource_dir                                                          |
     |----|----------------------------------------------------------------------|
@@ -415,9 +438,9 @@ Steps:
   * Mock post event to "github" interceptor with event-type "push", payload "testdata/push.json", with TLS "true"
   * Assert eventlistener response
   * Verify pipelinerun
-    |S.NO|pipeline_run_name    |status    |check_label_propagation|
-    |----|---------------------|----------|-----------------------|
-    |1   |simple-pipeline-run-2|successful|no                     |
+    |S.NO|pipeline_run_name    |status    |
+    |----|---------------------|----------|
+    |1   |simple-pipeline-run-2|successful|
   * Cleanup Triggers
 
 ## Create Eventlistener with github interceptor And verify Kuberenetes Events: PIPELINES-05-TC17
@@ -438,12 +461,15 @@ Steps:
     |2   |testdata/triggers/triggerbindings/triggerbinding.yaml               |
     |3   |testdata/triggers/triggertemplate/triggertemplate.yaml              |
     |4   |testdata/triggers/eventlisteners/eventlistener-embeded-binding.yaml |
+  * Verify that "triggerbinding" "pipeline-binding" exists
+  * Verify that "triggertemplate" "pipeline-template" exists
+  * Verify that "eventlistener" "listener-embed-binding" exists
   * Expose Event listener "listener-embed-binding"
   * Mock post event to "github" interceptor with event-type "push", payload "testdata/push.json", with TLS "false"
   * Assert eventlistener response
   * Verify kubernetes events for eventlistener
   * Verify pipelinerun
-    |S.NO|pipeline_run_name  |status    |check_label_propagation|
-    |----|-------------------|----------|-----------------------|
-    |1   |simple-pipeline-run|successful|no                     |
+    |S.NO|pipeline_run_name  |status    |
+    |----|-------------------|----------|
+    |1   |simple-pipeline-run|successful|
   * Cleanup Triggers

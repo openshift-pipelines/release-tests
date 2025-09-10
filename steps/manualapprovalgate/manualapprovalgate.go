@@ -7,15 +7,15 @@ import (
 	"github.com/getgauge-contrib/gauge-go/gauge"
 	"github.com/getgauge-contrib/gauge-go/testsuit"
 	approvalgate "github.com/openshift-pipelines/release-tests/pkg/manualapprovalgate"
+	"github.com/openshift-pipelines/release-tests/pkg/opc"
 	"github.com/openshift-pipelines/release-tests/pkg/store"
-	"github.com/openshift-pipelines/release-tests/pkg/tkn"
 )
 
 var _ = gauge.Step("Start the <pipelineName> pipeline with workspace <workspaceValue>", func(pipelineName, workspaceValue string) {
 	params := make(map[string]string)
 	workspaces := make(map[string]string)
 	workspaces[strings.Split(workspaceValue, ",")[0]] = strings.Split(workspaceValue, ",")[1]
-	tkn.StartPipeline(pipelineName, params, workspaces, store.Namespace(), "--use-param-defaults")
+	opc.StartPipeline(pipelineName, params, workspaces, store.Namespace(), "--use-param-defaults")
 })
 
 var _ = gauge.Step("Approve the manual-approval-pipeline", func() {

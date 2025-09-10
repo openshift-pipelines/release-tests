@@ -12,6 +12,7 @@ import (
 	"github.com/openshift-pipelines/release-tests/pkg/k8s"
 	approvalgate "github.com/openshift-pipelines/release-tests/pkg/manualapprovalgate"
 	"github.com/openshift-pipelines/release-tests/pkg/olm"
+	"github.com/openshift-pipelines/release-tests/pkg/opc"
 	"github.com/openshift-pipelines/release-tests/pkg/store"
 	"github.com/tektoncd/operator/test/utils"
 )
@@ -84,17 +85,16 @@ func ValidateHubDeployments(cs *clients.Clients, rnames utils.ResourceNames) {
 
 func ValidateManualApprovalGateDeployments(cs *clients.Clients, rnames utils.ResourceNames) {
 	if _, err := approvalgate.EnsureManualApprovalGateExists(cs.ManualApprovalGate(), rnames); err != nil {
-		testsuit.T.Fail(fmt.Errorf("Manual approval gate doesn't exists\n %v", err))
+		testsuit.T.Fail(fmt.Errorf("manual approval gate doesn't exists\n %v", err))
 	}
 	k8s.ValidateDeployments(cs, rnames.TargetNamespace,
 		config.MAGController, config.MAGWebHook)
 }
 
 func ValidateOperatorInstallStatus(cs *clients.Clients, rnames utils.ResourceNames) {
-	operatorVersion := cmd.MustSucceed("tkn", "version", "--component", "operator").Stdout()
+	operatorVersion := opc.GetOPCServerVersion("operator")
 	if strings.Contains(operatorVersion, "unknown") {
 		testsuit.T.Errorf("Operator is not installed")
-		return
 	}
 	log.Printf("Waiting for operator to be up and running....\n")
 	EnsureTektonConfigStatusInstalled(cs.TektonConfig(), rnames)

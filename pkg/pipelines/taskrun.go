@@ -130,16 +130,16 @@ func ValidateTaskRunLabelPropogation(c *clients.Clients, trname, namespace strin
 		testsuit.T.Errorf("failed to get task run %s in namespace %s \n %v", matched_tr, namespace, err)
 	}
 
-	for key, val := range tr.ObjectMeta.Labels {
+	for key, val := range tr.Labels {
 		labels[key] = val
 	}
 
-	AssertLabelsMatch(labels, tr.ObjectMeta.Labels)
+	AssertLabelsMatch(labels, tr.Labels)
 	if tr.Status.PodName != "" {
 		pod := GetPodForTaskRun(c, namespace, tr)
 		// This label is added to every Pod by the TaskRun controller
 		labels[pipeline.TaskRunLabelKey] = tr.Name
-		AssertLabelsMatch(labels, pod.ObjectMeta.Labels)
+		AssertLabelsMatch(labels, pod.Labels)
 		gauge.WriteMessage("Labels: \n\n %+v", createKeyValuePairs(labels))
 	}
 }
