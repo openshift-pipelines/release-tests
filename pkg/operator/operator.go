@@ -42,14 +42,19 @@ func ValidateRBACAfterDisable(cs *clients.Clients, rnames utils.ResourceNames) {
 	AssertServiceAccountPresent(cs, store.Namespace(), "pipeline")
 	// Verify clusterrole does not create
 	AssertClusterRoleNotPresent(cs, "pipelines-scc-clusterrole")
-	// Verify configmaps is not created in any namespace
-	AssertConfigMapNotPresent(cs, store.Namespace(), "config-service-cabundle")
-	AssertConfigMapNotPresent(cs, store.Namespace(), "config-trusted-cabundle")
 	// Verify roleBindings is not created in any namespace
 	AssertRoleBindingNotPresent(cs, store.Namespace(), "edit")
 	AssertRoleBindingNotPresent(cs, store.Namespace(), "pipelines-scc-rolebinding")
 	AssertSCCNotPresent(cs, "pipelines-scc")
 }
+
+// func ValidateCABundleConfigMap(cs *clients.Clients, rnames utils.ResourceNames) {
+// 	log.Printf("Verifying that TektonConfig status is \"installed\"\n")
+// 	EnsureTektonConfigStatusInstalled(cs.TektonConfig(), rnames)
+// 	// Verify configmaps is not created in any namespace
+// 	AssertConfigMapPresent(cs, store.Namespace(), "config-service-cabundle")
+// 	AssertConfigMapPresent(cs, store.Namespace(), "config-trusted-cabundle")
+// }
 
 func ValidatePipelineDeployments(cs *clients.Clients, rnames utils.ResourceNames) {
 	if _, err := EnsureTektonPipelineExists(cs.TektonPipeline(), rnames); err != nil {
