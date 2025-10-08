@@ -53,3 +53,9 @@ var _ = gauge.Step("Verify the total number of roles in <namespace> namespace ma
 		testsuit.T.Errorf("Mismatch in number of roles in namespace %s. Expected: %d (from table), Actual: %d (from oc get role)\nFull output of 'oc get role -n %s':\n%s", namespace, expectedCount, actualCount, namespace, fullOutput)
 	}
 })
+
+// var _ = gauge.Step("Update TektonConfig CR to use param with name createCABundleConfigMaps and value <value> to <action> auto creation of CABundles", func(value, action string) {
+// 	patchData := fmt.Sprintf("{\"spec\":{\"params\":[{\"name\":\"createCABundleConfigMaps\",\"value\":\"%s\"}]}}", value)
+// 	log.Println(action, "auto creation of CABundle resources")
+// 	log.Printf("output: %s\n", cmd.MustSucceed("oc", "patch", "TektonConfig", "config", "--type=merge", "-p", patchData).Stdout())
+// })
