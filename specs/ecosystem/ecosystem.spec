@@ -42,6 +42,25 @@ Steps:
       |----|------------------------|----------|
       |1   |buildah-disconnected-run|successful|
 
+## buildah-ns pipelinerun: PIPELINES-29-TC20
+Tags: e2e, ecosystem, tasks, non-admin, buildah-ns, sanity
+Component: Pipelines
+Level: Integration
+Type: Functional
+Importance: Critical
+
+Steps:
+  * Create
+      |S.NO|resource_dir                                     |
+      |----|-------------------------------------------------|
+      |1   |testdata/ecosystem/pipelines/buildah-ns.yaml        |
+      |2   |testdata/pvc/pvc.yaml                            |
+      |3   |testdata/ecosystem/pipelineruns/buildah-ns.yaml     |
+  * Verify pipelinerun
+      |S.NO|pipeline_run_name|status    |
+      |----|-----------------|----------|
+      |1   |buildah-ns-run      |successful|
+
 ## git-cli pipelinerun: PIPELINES-29-TC03
 Tags: e2e, ecosystem, tasks, non-admin, git-cli
 Component: Pipelines
