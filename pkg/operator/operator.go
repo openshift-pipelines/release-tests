@@ -48,13 +48,13 @@ func ValidateRBACAfterDisable(cs *clients.Clients, rnames utils.ResourceNames) {
 	AssertSCCNotPresent(cs, "pipelines-scc")
 }
 
-// func ValidateCABundleConfigMap(cs *clients.Clients, rnames utils.ResourceNames) {
-// 	log.Printf("Verifying that TektonConfig status is \"installed\"\n")
-// 	EnsureTektonConfigStatusInstalled(cs.TektonConfig(), rnames)
-// 	// Verify configmaps is not created in any namespace
-// 	AssertConfigMapPresent(cs, store.Namespace(), "config-service-cabundle")
-// 	AssertConfigMapPresent(cs, store.Namespace(), "config-trusted-cabundle")
-// }
+func ValidateCABundleConfigMaps(cs *clients.Clients, rnames utils.ResourceNames) {
+	log.Printf("Verifying that TektonConfig status is \"installed\"\n")
+	EnsureTektonConfigStatusInstalled(cs.TektonConfig(), rnames)
+	// Verify CA Bundle ConfigMaps are created
+	AssertConfigMapPresent(cs, store.Namespace(), "config-service-cabundle")
+	AssertConfigMapPresent(cs, store.Namespace(), "config-trusted-cabundle")
+}
 
 func ValidatePipelineDeployments(cs *clients.Clients, rnames utils.ResourceNames) {
 	if _, err := EnsureTektonPipelineExists(cs.TektonPipeline(), rnames); err != nil {
