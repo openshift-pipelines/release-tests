@@ -88,11 +88,6 @@ func getNewSmeeURL() (string, error) {
 }
 
 func createSmeeDeployment(c *clients.Clients, namespace, smeeURL string) error {
-	/*
-		Reference for gosmee.yaml
-			https://github.com/openshift-pipelines/pipelines-as-code
-			/blob/main/pkg/cmd/tknpac/bootstrap/templates/gosmee.yaml
-	*/
 	replicas := int32(1)
 	deployment := &v1.Deployment{
 		ObjectMeta: metav1.ObjectMeta{
@@ -383,6 +378,11 @@ func createPacGenerateOpts(eventType, branch, fileName string) *pacgenerate.Opts
 
 // Generate sample PipelineRun, pull-request.yaml
 func generatePipelineRun(eventType, branch, fileName string) error {
+
+	if _, err := os.Stat(fileName); err == nil {
+		os.Remove(fileName)
+	}
+
 	opts := createPacGenerateOpts(eventType, branch, fileName)
 
 	err := pacgenerate.Generate(opts, true)
@@ -555,8 +555,8 @@ func checkPipelineStatus(projectID, mergeRequestID int) error {
 }
 
 func ConfigurePreviewChanges() {
-	randomSuffix := strconv.FormatInt(time.Now().UnixNano(), 10)[:8]
-	branchName := "preview-branch-" + randomSuffix
+	randomSuffix := strconv.FormatInt(time.Now().UnixNano(), 10)
+	branchName := fmt.Sprintf("preview-branch-%s", randomSuffix)
 	commitMessage := "Add preview changes for feature"
 	fileDesPath := ".tekton/pull-request.yaml"
 
