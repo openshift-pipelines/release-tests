@@ -3,8 +3,10 @@ package pac
 import (
 	"bytes"
 	"context"
+	"crypto/rand"
 	"fmt"
 	"log"
+	"math/big"
 	"net/url"
 	"os"
 	"os/exec"
@@ -376,7 +378,7 @@ func generatePipelineRun(eventType, branch, fileName string) error {
 
 // Validate generated yaml file from pac generate cmd
 func validateYAML(yamlContent []byte) error {
-	var content map[string]interface{}
+	var content map[string]any
 	if err := yaml.Unmarshal(yamlContent, &content); err != nil {
 		return fmt.Errorf("invalid YAML format: %v", err)
 	}
@@ -400,33 +402,36 @@ func GeneratePipelineRunYaml(eventType, branch string) {
 		testsuit.T.Fail(fmt.Errorf("invalid YAML content: %v", err))
 	}
 
+	// Persist generated file to static /tmp path and avoid storing content in memory
+	var destPath string
 	switch eventType {
 	case "pull_request":
-		store.PutScenarioData("pullRequestFileContent", string(fileContent))
-		store.PutScenarioData("pullRequestBranch", string(branch))
-		store.PutScenarioData("pullRequestFileName", string(fileName))
+		destPath = "/tmp/pull_request.yaml"
 	case "push":
-		store.PutScenarioData("pushFileContent", string(fileContent))
-		store.PutScenarioData("pushBranch", string(branch))
-		store.PutScenarioData("pushFileName", string(fileName))
+		destPath = "/tmp/push.yaml"
+	default:
+		testsuit.T.Fail(fmt.Errorf("unknown eventType: %s", eventType))
+	}
+	if err := os.WriteFile(destPath, fileContent, 0600); err != nil {
+		testsuit.T.Fail(fmt.Errorf("failed to write %s: %v", destPath, err))
 	}
 }
 
 // updateAnnotation updates the specified annotation in the pull-request.yaml file
 func UpdateAnnotation(annotationKey, annotationValue string) {
-	fileName := store.GetScenarioData("pullRequestFileName")
+	fileName := "/tmp/pull_request.yaml"
 	data, err := os.ReadFile(filepath.Clean(fileName))
 	if err != nil {
 		testsuit.T.Fail(fmt.Errorf("failed to read YAML file: %v", err))
 	}
 
-	var content map[string]interface{}
+	var content map[string]any
 	if err := yaml.Unmarshal(data, &content); err != nil {
 		testsuit.T.Fail(fmt.Errorf("failed to unmarshal YAML: %v", err))
 	}
 
-	meta := content["metadata"].(map[interface{}]interface{})
-	anns := meta["annotations"].(map[interface{}]interface{})
+	meta := content["metadata"].(map[any]any)
+	anns := meta["annotations"].(map[any]any)
 
 	// If the annotation exists, append the new value; otherwise, set it.
 	if currValue, exists := anns[annotationKey].(string); exists {
@@ -453,27 +458,42 @@ func UpdateAnnotation(annotationKey, annotationValue string) {
 }
 
 // Commit both PR and push files on a feature branch
-func createCommit(projectID int, branch, commitMessage string) error {
-	pullRequestFileContent := store.GetScenarioData("pullRequestFileContent")
-	pushFileContent := store.GetScenarioData("pushFileContent")
+func createCommit(projectID int, branch, commitMessage, eventType string) error {
+	action := gitlab.FileCreate
+	var actions []*gitlab.CommitActionOptions
 
-	if pullRequestFileContent == "" || pushFileContent == "" {
-		return fmt.Errorf("both pull_request and push file contents must be available")
+	switch eventType {
+	case "pull_request":
+		data, err := os.ReadFile("/tmp/pull_request.yaml")
+		if err != nil {
+			return fmt.Errorf("read PR file: %v", err)
+		}
+		actions = append(actions, &gitlab.CommitActionOptions{
+			Action:   &action,
+			FilePath: gitlab.Ptr(".tekton/pull-request.yaml"),
+			Content:  gitlab.Ptr(string(data)),
+		})
+	case "push":
+		data, err := os.ReadFile("/tmp/push.yaml")
+		if err != nil {
+			return fmt.Errorf("read push file: %v", err)
+		}
+		actions = append(actions, &gitlab.CommitActionOptions{
+			Action:   &action,
+			FilePath: gitlab.Ptr(".tekton/push.yaml"),
+			Content:  gitlab.Ptr(string(data)),
+		})
+	default:
+		return fmt.Errorf("unknown eventType %q", eventType)
 	}
 
-	action := gitlab.FileCreate
 	commitOpts := &gitlab.CreateCommitOptions{
 		Branch:        &branch,
 		CommitMessage: &commitMessage,
-		Actions: []*gitlab.CommitActionOptions{
-			{Action: &action, FilePath: gitlab.Ptr(".tekton/pull-request.yaml"), Content: gitlab.Ptr(pullRequestFileContent)},
-			{Action: &action, FilePath: gitlab.Ptr(".tekton/push.yaml"), Content: gitlab.Ptr(pushFileContent)},
-		},
+		Actions:       actions,
 	}
-
-	_, _, err := client.Commits.CreateCommit(projectID, commitOpts)
-	if err != nil {
-		return fmt.Errorf("failed to create commit with both files: %v", err)
+	if _, _, err := client.Commits.CreateCommit(projectID, commitOpts); err != nil {
+		return fmt.Errorf("failed to create commit: %v", err)
 	}
 	return nil
 }
@@ -548,34 +568,106 @@ func checkPipelineStatus(projectID, mergeRequestID int) error {
 }
 
 func ConfigurePreviewChanges() {
-	randomSuffix := strconv.FormatInt(time.Now().UnixNano(), 10)[:8]
-	branchName := fmt.Sprintf("preview-branch-%s", randomSuffix)
-	commitMessage := "Add preview changes for feature with both push and pull_request files"
-
 	projectID, err := strconv.Atoi(store.GetScenarioData("projectID"))
 	if err != nil {
-		testsuit.T.Fail(fmt.Errorf("failed to convert project ID to integer: %v", err))
+		testsuit.T.Fail(fmt.Errorf("bad projectID: %v", err))
+	}
+
+	gen := func(n int) (string, error) {
+		const abc = "abcdefghijklmnopqrstuvwxyz0123456789"
+		out := make([]byte, n)
+		for i := range out {
+			k, err := rand.Int(rand.Reader, big.NewInt(int64(len(abc))))
+			if err != nil {
+				return "", err
+			}
+			out[i] = abc[int(k.Int64())]
+		}
+		return string(out), nil
+	}
+	branchExists := func(name string) bool {
+		_, resp, err := client.Branches.GetBranch(projectID, name)
+		if err != nil {
+			if resp != nil && resp.StatusCode == 404 {
+				return false
+			}
+			testsuit.T.Fail(fmt.Errorf("GetBranch(%q): %v", name, err))
+		}
+		return true
+	}
+
+	var branchName string
+	for i := 0; i < 10; i++ {
+		suf, err := gen(8)
+		if err != nil {
+			testsuit.T.Fail(err)
+		}
+		n := "preview-" + suf
+		if !branchExists(n) {
+			branchName = n
+			break
+		}
+	}
+	if branchName == "" {
+		branchName = "preview-branch-" + strings.ToLower(strconv.FormatInt(time.Now().UnixNano(), 36))[:8]
 	}
 
 	if err := createBranch(projectID, branchName); err != nil {
-		testsuit.T.Fail(fmt.Errorf("failed to create branch: %v", err))
+		testsuit.T.Fail(fmt.Errorf("createBranch %q: %v", branchName, err))
 	}
 
-	// Commit both push and pull_request files on the feature branch (covers PR path)
-	if err := createCommit(projectID, branchName, commitMessage); err != nil {
-		testsuit.T.Fail(fmt.Errorf("failed to create commit with both files: %v", err))
+	prExists := false
+	pushExists := false
+	if _, err := os.Stat("/tmp/pull_request.yaml"); err == nil {
+		prExists = true
+	}
+	if _, err := os.Stat("/tmp/push.yaml"); err == nil {
+		pushExists = true
+	}
+
+	if prExists && pushExists {
+		action := gitlab.FileCreate
+		prData, err := os.ReadFile("/tmp/pull_request.yaml")
+		if err != nil {
+			testsuit.T.Fail(fmt.Errorf("read PR file: %v", err))
+		}
+		pushData, err := os.ReadFile("/tmp/push.yaml")
+		if err != nil {
+			testsuit.T.Fail(fmt.Errorf("read push file: %v", err))
+		}
+		msg := "ci(pac): add push & pull_request files"
+		commitOpts := &gitlab.CreateCommitOptions{
+			Branch:        &branchName,
+			CommitMessage: &msg,
+			Actions: []*gitlab.CommitActionOptions{
+				{Action: &action, FilePath: gitlab.Ptr(".tekton/pull-request.yaml"), Content: gitlab.Ptr(string(prData))},
+				{Action: &action, FilePath: gitlab.Ptr(".tekton/push.yaml"), Content: gitlab.Ptr(string(pushData))},
+			},
+		}
+		if _, _, err := client.Commits.CreateCommit(projectID, commitOpts); err != nil {
+			testsuit.T.Fail(fmt.Errorf("commit both: %v", err))
+		}
+	} else if prExists {
+		if err := createCommit(projectID, branchName, "ci(pac): add pull_request file", "pull_request"); err != nil {
+			testsuit.T.Fail(fmt.Errorf("commit pull_request: %v", err))
+		}
+	} else if pushExists {
+		if err := createCommit(projectID, branchName, "ci(pac): add push file", "push"); err != nil {
+			testsuit.T.Fail(fmt.Errorf("commit push: %v", err))
+		}
+	} else {
+		testsuit.T.Fail(fmt.Errorf("no pipeline files found to commit in /tmp"))
 	}
 
 	mrURL, err := createMergeRequest(projectID, branchName, "main", "Add preview changes for feature")
 	if err != nil {
-		testsuit.T.Fail(fmt.Errorf("failed to create merge request: %v", err))
+		testsuit.T.Fail(fmt.Errorf("createMergeRequest: %v", err))
 	}
-
 	log.Printf("Merge Request Created: %s\n", mrURL)
 
 	mrID, err := extractMergeRequestID(mrURL)
 	if err != nil {
-		testsuit.T.Fail(fmt.Errorf("failed to extract merge request ID: %v", err))
+		testsuit.T.Fail(fmt.Errorf("extract MR ID: %v", err))
 	}
 	store.PutScenarioData("mrID", strconv.Itoa(mrID))
 }
@@ -599,10 +691,12 @@ func TriggerPushOnForkMain() {
 		testsuit.T.Fail(fmt.Errorf("failed to convert project ID to integer: %v", err))
 	}
 
-	pushFileContent := store.GetScenarioData("pushFileContent")
-	if pushFileContent == "" {
-		testsuit.T.Fail(fmt.Errorf("pushFileContent is empty; ensure GeneratePipelineRunYaml(\"push\", ...) was called"))
+	// Read static generated push file from /tmp
+	data, err := os.ReadFile("/tmp/push.yaml")
+	if err != nil {
+		testsuit.T.Fail(fmt.Errorf("failed to read /tmp/push.yaml: %v", err))
 	}
+	pushFileContent := string(data)
 
 	branch := "main"
 	pushYamlPath := ".tekton/push.yaml"
@@ -712,19 +806,11 @@ func deleteGitlabProject(projectID int) error {
 
 func CleanupPAC(c *clients.Clients, smeeDeploymentName, namespace string) {
 	// Remove the generated PipelineRun YAML files
-	pullRequestFileName := store.GetScenarioData("pullRequestFileName")
-	if pullRequestFileName != "" {
-		if err := os.Remove(pullRequestFileName); err != nil {
-			testsuit.T.Fail(fmt.Errorf("failed to remove pull request file %s: %v", pullRequestFileName, err))
-		}
-	}
+	pullRequestFileName := "/tmp/pull_request.yaml"
+	os.Remove(pullRequestFileName)
 
-	pushFileName := store.GetScenarioData("pushFileName")
-	if pushFileName != "" {
-		if err := os.Remove(pushFileName); err != nil {
-			testsuit.T.Fail(fmt.Errorf("failed to remove push file %s: %v", pushFileName, err))
-		}
-	}
+	pushFileName := "/tmp/push.yaml"
+	os.Remove(pushFileName)
 
 	projectID, err := strconv.Atoi(store.GetScenarioData("projectID"))
 	if err != nil {
