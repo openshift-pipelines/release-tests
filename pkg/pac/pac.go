@@ -87,7 +87,6 @@ func getNewSmeeURL() (string, error) {
 }
 
 func createSmeeDeployment(c *clients.Clients, namespace, smeeURL string) error {
-	// Idempotent: if exists, return OK (avoid "already exists" test failure)
 	kc := c.KubeClient.Kube
 	deploymentsClient := kc.AppsV1().Deployments(namespace)
 	existing, err := deploymentsClient.Get(context.TODO(), "gosmee-client", metav1.GetOptions{})
@@ -348,7 +347,6 @@ func createPacGenerateOpts(eventType, branch, fileName string) *pacgenerate.Opts
 		BaseBranch: branch,
 	}
 	// Set Project URL and Branch name to GitInfo
-	// ProjectURL is used as PipelineRun name with suffix
 	opts.GitInfo = &git.Info{
 		URL:    store.GetScenarioData("PROJECT_URL"),
 		Branch: branch,
@@ -598,7 +596,7 @@ func ConfigurePreviewChanges() {
 	}
 
 	var branchName string
-	for i := 0; i < 10; i++ {
+	for range 10 {
 		suf, err := gen(8)
 		if err != nil {
 			testsuit.T.Fail(err)
