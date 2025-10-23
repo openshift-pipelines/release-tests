@@ -41,6 +41,8 @@ const (
 	maxRetriesPipelineStatus = 10
 	targetURL                = "http://pipelines-as-code-controller.openshift-pipelines:8080"
 	webhookConfigName        = "gitlab-webhook-config"
+	pullRequestFileName      = "/tmp/pull_request.yaml"
+	pushFileName             = "/tmp/push.yaml"
 )
 
 var client *gitlab.Client
@@ -402,13 +404,12 @@ func GeneratePipelineRunYaml(eventType, branch string) {
 		testsuit.T.Fail(fmt.Errorf("invalid YAML content: %v", err))
 	}
 
-	// Persist generated file to static /tmp path and avoid storing content in memory
 	var destPath string
 	switch eventType {
 	case "pull_request":
-		destPath = "/tmp/pull_request.yaml"
+		destPath = pullRequestFileName
 	case "push":
-		destPath = "/tmp/push.yaml"
+		destPath = pushFileName
 	default:
 		testsuit.T.Fail(fmt.Errorf("unknown eventType: %s", eventType))
 	}
@@ -419,7 +420,7 @@ func GeneratePipelineRunYaml(eventType, branch string) {
 
 // updateAnnotation updates the specified annotation in the pull-request.yaml file
 func UpdateAnnotation(annotationKey, annotationValue string) {
-	fileName := "/tmp/pull_request.yaml"
+	fileName := pullRequestFileName
 	data, err := os.ReadFile(filepath.Clean(fileName))
 	if err != nil {
 		testsuit.T.Fail(fmt.Errorf("failed to read YAML file: %v", err))
@@ -457,14 +458,14 @@ func UpdateAnnotation(annotationKey, annotationValue string) {
 	log.Println("Annotation updated successfully")
 }
 
-// Commit both PR and push files on a feature branch
+// Commit both PR and push files preview branch
 func createCommit(projectID int, branch, commitMessage, eventType string) error {
 	action := gitlab.FileCreate
 	var actions []*gitlab.CommitActionOptions
 
 	switch eventType {
 	case "pull_request":
-		data, err := os.ReadFile("/tmp/pull_request.yaml")
+		data, err := os.ReadFile(pullRequestFileName)
 		if err != nil {
 			return fmt.Errorf("read PR file: %v", err)
 		}
@@ -474,7 +475,7 @@ func createCommit(projectID int, branch, commitMessage, eventType string) error 
 			Content:  gitlab.Ptr(string(data)),
 		})
 	case "push":
-		data, err := os.ReadFile("/tmp/push.yaml")
+		data, err := os.ReadFile(pushFileName)
 		if err != nil {
 			return fmt.Errorf("read push file: %v", err)
 		}
@@ -618,20 +619,20 @@ func ConfigurePreviewChanges() {
 
 	prExists := false
 	pushExists := false
-	if _, err := os.Stat("/tmp/pull_request.yaml"); err == nil {
+	if _, err := os.Stat(pullRequestFileName); err == nil {
 		prExists = true
 	}
-	if _, err := os.Stat("/tmp/push.yaml"); err == nil {
+	if _, err := os.Stat(pushFileName); err == nil {
 		pushExists = true
 	}
 
 	if prExists && pushExists {
 		action := gitlab.FileCreate
-		prData, err := os.ReadFile("/tmp/pull_request.yaml")
+		prData, err := os.ReadFile(pullRequestFileName)
 		if err != nil {
 			testsuit.T.Fail(fmt.Errorf("read PR file: %v", err))
 		}
-		pushData, err := os.ReadFile("/tmp/push.yaml")
+		pushData, err := os.ReadFile(pushFileName)
 		if err != nil {
 			testsuit.T.Fail(fmt.Errorf("read push file: %v", err))
 		}
@@ -691,7 +692,6 @@ func TriggerPushOnForkMain() {
 		testsuit.T.Fail(fmt.Errorf("failed to convert project ID to integer: %v", err))
 	}
 
-	// Read static generated push file from /tmp
 	data, err := os.ReadFile("/tmp/push.yaml")
 	if err != nil {
 		testsuit.T.Fail(fmt.Errorf("failed to read /tmp/push.yaml: %v", err))
@@ -702,7 +702,6 @@ func TriggerPushOnForkMain() {
 	pushYamlPath := ".tekton/push.yaml"
 	triggerPath := fmt.Sprintf("ci/push-trigger-%d.txt", time.Now().Unix())
 
-	// Decide upsert action for push.yaml on main
 	exists, err := repoFileExists(projectID, branch, pushYamlPath)
 	if err != nil {
 		testsuit.T.Fail(err)
@@ -717,8 +716,7 @@ func TriggerPushOnForkMain() {
 
 	createAction := gitlab.FileCreate
 
-	commitMsg := "ci(pac): upsert push.yaml on main and trigger push pipeline"
-
+	commitMsg := "ci(pac): add push.yaml on main and trigger push pipeline"
 	actions := []*gitlab.CommitActionOptions{
 		{
 			Action:   &actionPushYaml,
@@ -806,10 +804,7 @@ func deleteGitlabProject(projectID int) error {
 
 func CleanupPAC(c *clients.Clients, smeeDeploymentName, namespace string) {
 	// Remove the generated PipelineRun YAML files
-	pullRequestFileName := "/tmp/pull_request.yaml"
 	os.Remove(pullRequestFileName)
-
-	pushFileName := "/tmp/push.yaml"
 	os.Remove(pushFileName)
 
 	projectID, err := strconv.Atoi(store.GetScenarioData("projectID"))
