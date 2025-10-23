@@ -57,7 +57,7 @@ Steps:
   * Configure GitLab repo for "pull_request" in "main"
   * Update Annotation "pipelinesascode.tekton.dev/on-comment" with "^/hello-world"
   * Configure PipelineRun
-  * Validate Pull Request PipelineRun for "success"
+  * Validate "pull_request" PipelineRun for "success"
   * Add Comment "/hello-world" in MR 
   * "2" pipelinerun(s) should be present within "10" seconds
   * Validate "pull_request" PipelineRun for "success"
