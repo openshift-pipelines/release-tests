@@ -42,9 +42,7 @@ spec:
           value: ""
         - name: DELETE_EXISTING
           value: "true"
-
     - name: helm-upgrade-from-source
-      runAfter: [clone-git-repo]
       taskRef:
         resolver: cluster
         params:
@@ -68,3 +66,5 @@ spec:
           value: $(context.pipelineRun.namespace)
         - name: overwrite_values
           value: $(params.overwrite_values)
+      runAfter: 
+        - clone-git-repo
