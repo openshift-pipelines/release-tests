@@ -2,15 +2,19 @@ apiVersion: tekton.dev/v1
 kind: PipelineRun
 metadata:
   name: helm-upgrade-from-repo-run
-spec:  
+spec:
   pipelineRef:
     name: helm-upgrade-from-repo
   params:
-  - name: helm_repo
-    value: https://helm.github.io/examples
-  - name: overwrite_values
-    value: image.repository=quay.io/lib/nginx,image.tag=stable,serviceAccount.create=false,serviceAccount.name=pipeline
-  timeouts: 
+    - name: helm_repo
+      value: https://helm.github.io/examples
+    - name: chart_name
+      value: examples/hello-world
+    - name: release_name
+      value: test
+    - name: overwrite_values
+      value: image.repository=nginx,image.tag=latest,serviceAccount.create=false,serviceAccount.name=pipeline
+  timeouts:
     pipeline: 10m
   workspaces:
     - name: source
