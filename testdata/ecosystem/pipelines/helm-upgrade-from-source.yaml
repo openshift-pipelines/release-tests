@@ -4,59 +4,67 @@ metadata:
   name: helm-upgrade-from-source
 spec:
   params:
-  - name: git_repo
-    default: https://github.com/helm/examples
-  - name: charts_dir
-    default: charts/hello-world
-  - name: release_version
-    default: 0.1.0
-  - name: release_name
-    default: test
-  - name: overwrite_values
-  workspaces:
-  - name: source
-  tasks:
-  - name: clone-git-repo
-    taskRef:
-      resolver: cluster
-      params:
-        - name: kind
-          value: task
-        - name: name
-          value: git-clone
-        - name: namespace
-          value: openshift-pipelines
-    workspaces:
-      - name: output
-        workspace: source
-    params:
-      - name: URL
-        value: $(params.git_repo)
-      - name: SUBDIRECTORY
-        value: ""
-      - name: DELETE_EXISTING
-        value: "true"
-  - name: helm-upgrade-from-source
-    taskRef:
-      resolver: cluster
-      params:
-      - name: kind
-        value: task
-      - name: name
-        value: helm-upgrade-from-source
-      - name: namespace
-        value: openshift-pipelines
-    workspaces:
-      - name: source
-        workspace: source
-    params:
+    - name: git_repo
+      type: string
+      default: https://github.com/helm/examples
     - name: charts_dir
-      value: $(params.charts_dir)
+      type: string
+      default: charts/hello-world
     - name: release_version
-      value: $(params.release_version)
+      type: string
+      default: "0.1.0"
     - name: release_name
-      value: $(params.release_name)
+      type: string
+      default: test
     - name: overwrite_values
-      value: $(params.overwrite_values)
-    runAfter: 
-      - clone-git-repo
+      type: string
+      default: ""
+  workspaces:
+    - name: source
+  tasks:
+    - name: clone-git-repo
+      taskRef:
+        resolver: cluster
+        params:
+          - name: kind
+            value: task
+          - name: name
+            value: git-clone
+          - name: namespace
+            value: openshift-pipelines
+      workspaces:
+        - name: output
+          workspace: source
+      params:
+        - name: URL
+          value: $(params.git_repo)
+        - name: SUBDIRECTORY
+          value: ""
+        - name: DELETE_EXISTING
+          value: "true"
+
+    - name: helm-upgrade-from-source
+      runAfter: [clone-git-repo]
+      taskRef:
+        resolver: cluster
+        params:
+          - name: kind
+            value: task
+          - name: name
+            value: helm-upgrade-from-source
+          - name: namespace
+            value: openshift-pipelines
+      workspaces:
+        - name: source
+          workspace: source
+      params:
+        - name: charts_dir
+          value: $(params.charts_dir)
+        - name: release_version
+          value: $(params.release_version)
+        - name: release_name
+          value: $(params.release_name)
+        - name: release_namespace
+          value: $(context.pipelineRun.namespace)
+        - name: overwrite_values
+          value: $(params.overwrite_values)
