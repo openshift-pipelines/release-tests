@@ -2,11 +2,13 @@ module github.com/openshift-pipelines/release-tests
 
 go 1.24.0
 
+toolchain go1.24.1
+
 require (
 	github.com/getgauge-contrib/gauge-go v0.5.0
 	github.com/google/go-cmp v0.7.0
 	github.com/openshift-pipelines/manual-approval-gate v0.6.0
-	github.com/openshift-pipelines/pipelines-as-code v0.36.0
+	github.com/openshift-pipelines/pipelines-as-code v0.37.0
 	github.com/openshift/api v0.0.0-20240521185306-0314f31e7774
 	github.com/openshift/client-go v0.0.0-20240523113335-452272e0496d
 	github.com/operator-framework/api v0.16.0
@@ -23,7 +25,7 @@ require (
 	gopkg.in/yaml.v2 v2.4.0
 	gotest.tools/v3 v3.5.2
 	k8s.io/api v0.33.1
-	k8s.io/apimachinery v0.33.1
+	k8s.io/apimachinery v0.33.3
 	k8s.io/client-go v1.5.2
 	knative.dev/pkg v0.0.0-20250424013628-d5e74d29daa3
 )

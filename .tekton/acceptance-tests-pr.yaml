@@ -38,6 +38,8 @@ spec:
   pipelineRef:
     name: acceptance-tests
   params:
+    - name: PIPELINE_NAME
+      value: $(context.pipelineRun.name)
     - name: CATALOG_SOURCE
       value: custom-operators
     - name: CLI_TESTS_TYPE
