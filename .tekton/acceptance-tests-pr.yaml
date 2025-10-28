@@ -62,6 +62,8 @@ spec:
       value: pre-stage
     - name: OPERATOR_VERSION
       value: "5.0.5"
+    - name: RP_RERUN
+      value: "true"
     - name: TAGS
       value: "sanity"
     - name: TEST_SUITES
