@@ -39,7 +39,7 @@ spec:
     name: acceptance-tests
   params:
     - name: PIPELINE_NAME
-      value: $(context.pipelineRun.name)
+      value: acceptance-tests
     - name: CATALOG_SOURCE
       value: custom-operators
     - name: CLI_TESTS_TYPE
@@ -61,9 +61,7 @@ spec:
     - name: OPERATOR_ENVIRONMENT
       value: pre-stage
     - name: OPERATOR_VERSION
-      value: "5.0.5"
-    - name: RP_RERUN
-      value: "true"
+      value: "5.0"
     - name: TAGS
       value: "sanity"
     - name: TEST_SUITES
