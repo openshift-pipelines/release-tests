@@ -1,0 +1,10 @@
+apiVersion: tekton.dev/v1
+kind: PipelineRun
+metadata:
+  name: opc-task-run
+spec:
+  pipelineRef:
+    name: opc-task-pipeline
+  timeouts: 
+    pipeline: 10m
+
