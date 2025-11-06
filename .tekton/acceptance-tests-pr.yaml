@@ -11,7 +11,7 @@ metadata:
     pipelinesascode.tekton.dev/pipeline: "https://gitlab.cee.redhat.com/tekton/plumbing/-/raw/master/ci/pipelines/acceptance-tests.yaml"
     pipelinesascode.tekton.dev/task-1: "https://gitlab.cee.redhat.com/tekton/plumbing/-/raw/master/ci/tasks/cli-tests-in-container.yaml"
     pipelinesascode.tekton.dev/task-2: "https://gitlab.cee.redhat.com/tekton/plumbing/-/raw/master/ci/tasks/configure-operator.yaml"
-    pipelinesascode.tekton.dev/task-3: "https://gitlab.cee.redhat.com/tekton/plumbing/-/blob/4d1498e77be16f847e91872a96e7f5762661ea39/ci/tasks/create-rp-launch.yaml"
+    pipelinesascode.tekton.dev/task-3: "https://gist.github.com/e50584db5fb16d32c1691baac5cf1824.git"
     pipelinesascode.tekton.dev/task-4: "https://gitlab.cee.redhat.com/tekton/plumbing/-/raw/master/ci/tasks/evaluate-test-suites.yaml"
     pipelinesascode.tekton.dev/task-5: "https://gitlab.cee.redhat.com/tekton/plumbing/-/raw/master/ci/tasks/generate-build-artifacts.yaml"
     pipelinesascode.tekton.dev/task-6: "https://gitlab.cee.redhat.com/tekton/plumbing/-/raw/master/ci/tasks/generate-ids.yaml"
