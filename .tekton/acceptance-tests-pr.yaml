@@ -5,13 +5,13 @@ metadata:
   name: acceptance-tests-pr-{{pull_request_number}}
   annotations:
     pipelinesascode.tekton.dev/cancel-in-progress: "true"
-    pipelinesascode.tekton.dev/max-keep-runs: "2" 
+    pipelinesascode.tekton.dev/max-keep-runs: "2"
     pipelinesascode.tekton.dev/on-event: "[pull_request]"
     pipelinesascode.tekton.dev/on-target-branch: "[master]"
     pipelinesascode.tekton.dev/pipeline: "https://gitlab.cee.redhat.com/tekton/plumbing/-/raw/master/ci/pipelines/acceptance-tests.yaml"
     pipelinesascode.tekton.dev/task-1: "https://gitlab.cee.redhat.com/tekton/plumbing/-/raw/master/ci/tasks/cli-tests-in-container.yaml"
     pipelinesascode.tekton.dev/task-2: "https://gitlab.cee.redhat.com/tekton/plumbing/-/raw/master/ci/tasks/configure-operator.yaml"
-    pipelinesascode.tekton.dev/task-3: "https://gist.github.com/e50584db5fb16d32c1691baac5cf1824.git"
+    pipelinesascode.tekton.dev/task-3: "https://gitlab.cee.redhat.com/tekton/plumbing/-/raw/master/ci/tasks/create-rp-launch.yaml"
     pipelinesascode.tekton.dev/task-4: "https://gitlab.cee.redhat.com/tekton/plumbing/-/raw/master/ci/tasks/evaluate-test-suites.yaml"
     pipelinesascode.tekton.dev/task-5: "https://gitlab.cee.redhat.com/tekton/plumbing/-/raw/master/ci/tasks/generate-build-artifacts.yaml"
     pipelinesascode.tekton.dev/task-6: "https://gitlab.cee.redhat.com/tekton/plumbing/-/raw/master/ci/tasks/generate-ids.yaml"
@@ -33,7 +33,7 @@ metadata:
     pipelinesascode.tekton.dev/task-22: "https://gitlab.cee.redhat.com/tekton/plumbing/-/raw/master/ci/tasks/upstream-pac-tests.yaml"
     pipelinesascode.tekton.dev/task-23: "https://gitlab.cee.redhat.com/tekton/plumbing/-/raw/master/ci/tasks/upstream-pipelines-tests.yaml"
     pipelinesascode.tekton.dev/task-24: "https://gitlab.cee.redhat.com/tekton/plumbing/-/raw/master/ci/tasks/upstream-triggers-tests.yaml"
-    pipelinesascode.tekton.dev/task-25: "https://gitlab.cee.redhat.com/tekton/plumbing/-/raw/master/ci/tasks/whitelist-domains.yaml"     
+    pipelinesascode.tekton.dev/task-25: "https://gitlab.cee.redhat.com/tekton/plumbing/-/raw/master/ci/tasks/whitelist-domains.yaml"
 spec:
   pipelineRef:
     name: acceptance-tests
