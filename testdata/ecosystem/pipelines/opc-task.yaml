@@ -1,0 +1,65 @@
+apiVersion: tekton.dev/v1
+kind: Pipeline
+metadata:
+  name: opc-task-pipeline
+spec:
+  tasks:
+    - name: opc-version
+      taskRef:
+        resolver: cluster
+        params:
+          - name: kind
+            value: task
+          - name: name
+            value: opc
+          - name: namespace
+            value: openshift-pipelines
+      params:
+        - name: SCRIPT
+          value: "opc $@"
+        - name: ARGS
+          value:
+            - version
+    - name: opc-pipeline-list
+      taskRef:
+        resolver: cluster
+        params:
+          - name: kind
+            value: task
+          - name: name
+            value: opc
+          - name: namespace
+            value: openshift-pipelines
+      runAfter:
+        - opc-version
+      params:
+        - name: SCRIPT
+          value: "opc $@"
+        - name: ARGS
+          value:
+            - pipeline
+            - list
+            - -n
+            - $(context.pipelineRun.namespace)
+    - name: opc-task-list
+      taskRef:
+        resolver: cluster
+        params:
+          - name: kind
+            value: task
+          - name: name
+            value: opc
+          - name: namespace
+            value: openshift-pipelines
+      runAfter:
+        - opc-pipeline-list
+      params:
+        - name: SCRIPT
+          value: "opc $@"
+        - name: ARGS
+          value:
+            - task
+            - list
+            - -n
+            - $(context.pipelineRun.namespace)
+
