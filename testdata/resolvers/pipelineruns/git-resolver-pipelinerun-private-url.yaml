@@ -1,17 +1,15 @@
 apiVersion: tekton.dev/v1
 kind: PipelineRun
 metadata:
-  name: git-resolver-pipelinerun-private-token-auth
+  name: git-resolver-pipelinerun-private-url
 spec:
   pipelineRef:
     resolver: git
     params:
     - name: name
       value: resolver-pipeline
-    - name: repo
-      value: test-private
-    - name: org
-      value: openshift-pipelines
+    - name: url
+      value: https://github.com/openshift-pipelines/test-private
     - name: revision
       value: main
     - name: pathInRepo
