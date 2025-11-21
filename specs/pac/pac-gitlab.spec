@@ -8,15 +8,18 @@ Level: Integration
 Type: Functional
 Importance: Critical
 
-This scenario tests configuring PAC in Public GitLab project
+This scenario tests configuring PAC with push and pull_request events
 
 Steps:
-  * Setup Gitlab Client
   * Validate PAC Info Install
+  * Setup Gitlab Client
   * Create Smee deployment
   * Configure GitLab repo for "pull_request" in "main"
+  * Configure GitLab repo for "push" in "main"
   * Configure PipelineRun
-  * Validate PipelineRun for "success"
+  * Validate "pull_request" PipelineRun for "success"
+  * Trigger push event on main branch
+  * Validate "push" PipelineRun for "success"
   * Cleanup PAC
 
 ## Configure PAC in GitLab Project: PIPELINES-30-TC02
@@ -36,7 +39,7 @@ Steps:
   * Configure PipelineRun
   * "0" pipelinerun(s) should be present within "10" seconds
   * Add Label Name "bug" with "red" color with description "Identify a Issue"
-  * Validate PipelineRun for "success"
+  * Validate "pull_request" PipelineRun for "success"
   * Cleanup PAC
 
 ## Configure PAC in GitLab Project: PIPELINES-30-TC03
@@ -54,8 +57,8 @@ Steps:
   * Configure GitLab repo for "pull_request" in "main"
   * Update Annotation "pipelinesascode.tekton.dev/on-comment" with "^/hello-world"
   * Configure PipelineRun
-  * Validate PipelineRun for "success"
+  * Validate "pull_request" PipelineRun for "success"
   * Add Comment "/hello-world" in MR 
   * "2" pipelinerun(s) should be present within "10" seconds
-  * Validate PipelineRun for "success"
+  * Validate "pull_request" PipelineRun for "success"
   * Cleanup PAC
