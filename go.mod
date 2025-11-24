@@ -3,7 +3,7 @@ module github.com/openshift-pipelines/release-tests
 go 1.24.0
 
 require (
-	github.com/getgauge-contrib/gauge-go v0.5.0
+	github.com/getgauge-contrib/gauge-go v0.5.1
 	github.com/google/go-cmp v0.7.0
 	github.com/openshift-pipelines/manual-approval-gate v0.6.0
 	github.com/openshift-pipelines/pipelines-as-code v0.36.0
