@@ -127,6 +127,10 @@ func CreateSecretForGitResolver(secretData string) {
 	cmd.MustSucceed("oc", "create", "secret", "generic", "github-auth-secret", "--from-literal", "github-auth-key="+secretData, "-n", "openshift-pipelines")
 }
 
+func CreateSecretInNamespace(secretData, secretName, namespace string) {
+	cmd.MustSucceed("oc", "create", "secret", "generic", secretName, "--from-literal", "private-repo-token="+secretData, "-n", namespace)
+}
+
 func CreateSecretForWebhook(tokenSecretData, webhookSecretData, namespace string) {
 	cmd.MustSucceed("oc", "create", "secret", "generic", "gitlab-webhook-config", "--from-literal", "provider.token="+tokenSecretData, "--from-literal", "webhook.secret="+webhookSecretData, "-n", namespace)
 }
@@ -168,18 +172,4 @@ func CopySecret(secretName string, sourceNamespace string, destNamespace string)
 	cmdOutput := cmd.MustSucceed("bash", "-c", fmt.Sprintf(`echo '%s' | jq 'del(.metadata["namespace", "creationTimestamp", "resourceVersion", "selfLink", "uid", "annotations"]) | .data |= with_entries(if .key == "github-auth-key" then .key = "token" else . end)'`, secretJson)).Stdout()
 	cmd.MustSucceed("bash", "-c", fmt.Sprintf(`echo '%s' | kubectl apply -n %s -f -`, cmdOutput, destNamespace))
 	log.Printf("Successfully copied secret %s from %s to %s", secretName, sourceNamespace, destNamespace)
-}
-
-func CopySecretWithNewName(secretName string, sourceNamespace string, destNamespace string, newSecretName string) {
-	secretJson := cmd.MustSucceed("oc", "get", "secret", secretName, "-n", sourceNamespace, "-o", "json").Stdout()
-	cmdOutput := cmd.MustSucceed("bash", "-c", fmt.Sprintf(`echo '%s' | jq 'del(.metadata["namespace", "creationTimestamp", "resourceVersion", "selfLink", "uid", "annotations"]) | .metadata.name = "%s"'`, secretJson, newSecretName)).Stdout()
-	cmd.MustSucceed("bash", "-c", fmt.Sprintf(`echo '%s' | kubectl apply -n %s -f -`, cmdOutput, destNamespace))
-	log.Printf("Successfully copied secret %s from %s to %s as %s", secretName, sourceNamespace, destNamespace, newSecretName)
-}
-
-func PatchSecretTokenKey(secretName string, namespace string, tokenKey string) {
-	secretJson := cmd.MustSucceed("oc", "get", "secret", secretName, "-n", namespace, "-o", "json").Stdout()
-	cmdOutput := cmd.MustSucceed("bash", "-c", fmt.Sprintf(`echo '%s' | jq '.data |= with_entries(if .key == "github-auth-key" or .key == "token" then .key = "%s" else . end)'`, secretJson, tokenKey)).Stdout()
-	cmd.MustSucceed("bash", "-c", fmt.Sprintf(`echo '%s' | kubectl apply -n %s -f -`, cmdOutput, namespace))
-	log.Printf("Successfully patched secret %s in namespace %s to set token key to %s", secretName, namespace, tokenKey)
 }
