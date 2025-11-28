@@ -402,3 +402,21 @@ Steps:
       |S.NO|pipeline_run_name                  |status      |
       |----|-----------------------------------|------------|
       |1   |pull-request-pipeline-run          |successful  |
+
+## opc task pipelinerun: PIPELINES-29-TC21
+Tags: e2e, ecosystem, tasks, non-admin, opc, sanity
+Component: Pipelines
+Level: Integration
+Type: Functional
+Importance: Critical
+
+Steps:
+  * Create
+      |S.NO|resource_dir                                     |
+      |----|-------------------------------------------------|
+      |1   |testdata/ecosystem/pipelines/opc-task.yaml       |
+      |2   |testdata/ecosystem/pipelineruns/opc-task.yaml    |
+  * Verify pipelinerun
+      |S.NO|pipeline_run_name|status    |
+      |----|-----------------|----------|
+      |1   |opc-task-run     |successful|
