@@ -64,6 +64,14 @@ var _ = gauge.Step("Add Comment <comment> in MR", func(comment string) {
 	pac.AddComment(comment)
 })
 
+var _ = gauge.Step("Create tag <tagName> on <branch> branch", func(tagName, branch string) {
+	pac.CreateTagOnBranch(tagName, branch)
+})
+
+var _ = gauge.Step("Add GitOps comment <comment> on tag <tagName>", func(comment, tagName string) {
+	pac.AddCommitCommentOnTag(comment, tagName)
+})
+
 var _ = gauge.Step("Add Label Name <labelName> with <color> color with description <description>", func(labelName, color, description string) {
 	pac.AddLabel(labelName, color, description)
 })

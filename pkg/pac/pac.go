@@ -306,6 +306,62 @@ func AddComment(comment string) {
 	log.Printf("Successfully added comment %s to merge request %d\n", comment, mrID)
 }
 
+// getCommitSHAForTag resolves a Git tag to its commit SHA in the current GitLab project.
+func getCommitSHAForTag(projectID int, tag string) (string, error) {
+	t, _, err := client.Tags.GetTag(projectID, tag)
+	if err != nil {
+		return "", fmt.Errorf("failed to get tag %q: %w", tag, err)
+	}
+	if t.Commit == nil || t.Commit.ID == "" {
+		return "", fmt.Errorf("tag %q has no associated commit", tag)
+	}
+	return t.Commit.ID, nil
+}
+
+// CreateTagOnBranch creates a Git tag on the specified branch in the current GitLab project.
+func CreateTagOnBranch(tagName, branch string) {
+	projectID, err := strconv.Atoi(store.GetScenarioData("projectID"))
+	if err != nil {
+		testsuit.T.Fail(fmt.Errorf("failed to convert project ID to integer: %v", err))
+		return
+	}
+
+	opts := &gitlab.CreateTagOptions{
+		TagName: gitlab.Ptr(tagName),
+		Ref:     gitlab.Ptr(branch),
+	}
+
+	if _, _, err := client.Tags.CreateTag(projectID, opts); err != nil {
+		testsuit.T.Fail(fmt.Errorf("failed to create tag %q on branch %q: %v", tagName, branch, err))
+		return
+	}
+	log.Printf("Successfully created tag %q on branch %q\n", tagName, branch)
+}
+
+func AddCommitCommentOnTag(comment, tag string) {
+	projectID, err := strconv.Atoi(store.GetScenarioData("projectID"))
+	if err != nil {
+		testsuit.T.Fail(fmt.Errorf("failed to convert project ID to integer: %v", err))
+		return
+	}
+
+	sha, err := getCommitSHAForTag(projectID, tag)
+	if err != nil {
+		testsuit.T.Fail(fmt.Errorf("failed to resolve tag %q to commit: %v", tag, err))
+		return
+	}
+
+	opts := &gitlab.PostCommitCommentOptions{
+		Note: gitlab.Ptr(comment),
+	}
+
+	if _, _, err := client.Commits.PostCommitComment(projectID, sha, opts); err != nil {
+		testsuit.T.Fail(fmt.Errorf("failed to add comment %q on tag %q (commit %s): %v", comment, tag, sha, err))
+		return
+	}
+	log.Printf("Successfully added comment %q on tag %q (commit %s)\n", comment, tag, sha)
+}
+
 func AddLabel(label, color, description string) {
 	projectID, _ := strconv.Atoi(store.GetScenarioData("projectID"))
 	mrID, _ := strconv.Atoi(store.GetScenarioData("mrID"))
