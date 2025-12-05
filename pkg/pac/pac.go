@@ -830,6 +830,83 @@ func GetPushPipelineNameFromMain() (pipelineName string) {
 	return GetPipelineName(false)
 }
 
+// getPipelineRunNameFromPushYAML reads the generated push.yaml and returns the
+// PipelineRun metadata.name defined there.
+func getPipelineRunNameFromPushYAML() string {
+	data, err := os.ReadFile(pushFileName)
+	if err != nil {
+		testsuit.T.Fail(fmt.Errorf("failed to read push YAML file %s: %v", pushFileName, err))
+	}
+
+	var content map[string]any
+	if err := yaml.Unmarshal(data, &content); err != nil {
+		testsuit.T.Fail(fmt.Errorf("failed to unmarshal push YAML: %v", err))
+	}
+
+	meta, ok := content["metadata"].(map[any]any)
+	if !ok {
+		testsuit.T.Fail(fmt.Errorf("push YAML missing metadata section"))
+	}
+	nameVal, ok := meta["name"].(string)
+	if !ok || nameVal == "" {
+		testsuit.T.Fail(fmt.Errorf("push YAML missing or invalid metadata.name"))
+	}
+	log.Printf("PipelineRun name from push.yaml: %s\n", nameVal)
+	return nameVal
+}
+
+// UpdatePushOnTargetBranch updates the pipelinesascode.tekton.dev/on-target-branch
+func UpdatePushOnTargetBranch(target string) {
+	data, err := os.ReadFile(pushFileName)
+	if err != nil {
+		testsuit.T.Fail(fmt.Errorf("failed to read push YAML file %s: %v", pushFileName, err))
+	}
+
+	var content map[string]any
+	if err := yaml.Unmarshal(data, &content); err != nil {
+		testsuit.T.Fail(fmt.Errorf("failed to unmarshal push YAML: %v", err))
+	}
+
+	meta, ok := content["metadata"].(map[any]any)
+	if !ok {
+		testsuit.T.Fail(fmt.Errorf("push YAML missing metadata section"))
+	}
+	anns, ok := meta["annotations"].(map[any]any)
+	if !ok {
+		anns = map[any]any{}
+		meta["annotations"] = anns
+	}
+
+	anns["pipelinesascode.tekton.dev/on-target-branch"] = target
+
+	out, err := yaml.Marshal(content)
+	if err != nil {
+		testsuit.T.Fail(fmt.Errorf("failed to marshal updated push YAML: %v", err))
+	}
+
+	if err := os.WriteFile(pushFileName, out, 0600); err != nil {
+		testsuit.T.Fail(fmt.Errorf("failed to write updated push YAML file: %v", err))
+	}
+
+	if err := validateYAML(out); err != nil {
+		testsuit.T.Fail(fmt.Errorf("invalid YAML content after updating on-target-branch: %v", err))
+	}
+
+	log.Printf("Updated pipelinesascode.tekton.dev/on-target-branch to %q in %s\n", target, pushFileName)
+}
+
+func AddTestCommentForLatestPipelineRunOnTag(tag string) {
+	prName := getPipelineRunNameFromPushYAML()
+	comment := fmt.Sprintf("/test %s tag:%s", prName, tag)
+	AddCommitCommentOnTag(comment, tag)
+}
+
+func AddCancelCommentForLatestPipelineRunOnTag(tag string) {
+	prName := getPipelineRunNameFromPushYAML()
+	comment := fmt.Sprintf("/cancel %s tag:%s", prName, tag)
+	AddCommitCommentOnTag(comment, tag)
+}
+
 func AssertPACInfoInstall() {
 	pacInfo, err := opc.GetOpcPacInfoInstall()
 	if err != nil {

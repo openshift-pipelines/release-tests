@@ -76,12 +76,19 @@ Steps:
   * Setup Gitlab Client
   * Create Smee deployment
   * Configure GitLab repo for "push" in "main"
+  * Update push on-target-branch annotation to "[refs/tags/*]"
   * Trigger push event on main branch
   * Create tag "v1.0.0" on "main" branch
-  * Add GitOps comment "/test pipelinerun-on-tag tag:v1.0.0" on tag "v1.0.0"
   * "1" pipelinerun(s) should be present within "60" seconds
-  * Add GitOps comment "/cancel pipelinerun-on-tag tag:v1.0.0" on tag "v1.0.0"
+  * Add GitOps comment "/cancel tag:v1.0.0" on tag "v1.0.0"
+  * Wait for latest PipelineRun to be cancelled
+  * Add GitOps /test comment for latest PipelineRun on tag "v1.0.0"
+  * "2" pipelinerun(s) should be present within "60" seconds
+  * Add GitOps /cancel comment for latest PipelineRun on tag "v1.0.0"
+  * Wait for latest PipelineRun to be cancelled
+  * Add GitOps comment "/test tag:v1.0.0" on tag "v1.0.0"
+  * "3" pipelinerun(s) should be present within "60" seconds
+  * Add GitOps comment "/cancel tag:v1.0.0" on tag "v1.0.0"
   * Add GitOps comment "/retest tag:v1.0.0" on tag "v1.0.0"
-  * "1" pipelinerun(s) should be present within "60" seconds
   * Validate "push" PipelineRun for "success"
   * Cleanup PAC
