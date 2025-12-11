@@ -81,7 +81,7 @@ func buildHeaders(req *http.Request, interceptor, eventType string) *http.Reques
 		log.Printf("Building headers for github interceptor..")
 		req.Header.Add("Accept", "application/json")
 		req.Header.Add("Content-Type", "application/json")
-		req.Header.Add("X-Hub-Signature", "sha256="+GetSignature(store.GetPayload(), config.TriggersSecretToken))
+		req.Header.Add("X-Hub-Signature-256", "sha256="+GetSignature(store.GetPayload(), config.TriggersSecretToken))
 		req.Header.Add("X-GitHub-Event", eventType)
 	case "gitlab":
 		log.Printf("Building headers for gitlab interceptor..")
