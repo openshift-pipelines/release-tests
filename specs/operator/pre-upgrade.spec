@@ -127,3 +127,27 @@ Steps:
       |----|------------------------------------------------------|
       |1   |testdata/ecosystem/pipelines/s2i-go.yaml|
       |2   |testdata/pvc/pvc.yaml                                 |
+
+## Start multiple PipelineRuns before upgrade and complete them after upgrade: PIPELINES-18-TC06
+Tags: pre-upgrade, admin, e2e, sanity
+Component: Pipelines
+Level: Integration
+Type: Functional
+Importance: Critical
+
+Steps:
+  * Create project "releasetest-upgrade-inflight"
+  * Verify ServiceAccount "pipeline" exist
+  * Create
+      |S.NO|resource_dir                                                      |
+      |----|------------------------------------------------------------------|
+      |1   |testdata/operator/upgrade-inflight/release-signal.yaml             |
+      |2   |testdata/operator/upgrade-inflight/pipelinerun-inflight-serial-1.yaml|
+      |3   |testdata/operator/upgrade-inflight/pipelinerun-inflight-serial-2.yaml|
+      |4   |testdata/operator/upgrade-inflight/pipelinerun-inflight-parallel-3.yaml|
+  * Verify pipelinerun
+      |S.NO|pipeline_run_name              |status |
+      |----|-------------------------------|-------|
+      |1   |upgrade-inflight-pr-serial-1    |running|
+      |2   |upgrade-inflight-pr-serial-2    |running|
+      |3   |upgrade-inflight-pr-parallel-3  |running|

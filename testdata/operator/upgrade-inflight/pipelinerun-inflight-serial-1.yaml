@@ -1,0 +1,42 @@
+apiVersion: tekton.dev/v1
+kind: PipelineRun
+metadata:
+  name: upgrade-inflight-pr-serial-1
+spec:
+  serviceAccountName: pipeline
+  pipelineSpec:
+    tasks:
+      - name: wait-for-upgrade-release
+        taskRef:
+          resolver: cluster
+          params:
+            - name: kind
+              value: task
+            - name: name
+              value: openshift-client
+            - name: namespace
+              value: openshift-pipelines
+        params:
+          - name: SCRIPT
+            value: |
+              #!/usr/bin/env sh
+              set -eu
+
+              NS="$(context.pipelineRun.namespace)"
+              CM="upgrade-inflight-signal"
+
+              echo "[$(date -u)] Waiting for ConfigMap/${CM} in namespace ${NS} (data.release=true) ..."
+              while :; do
+                val="$(oc get cm "${CM}" -n "${NS}" -o jsonpath='{.data.release}' 2>/dev/null || true)"
+                if [ "${val}" = "true" ]; then
+                  echo "[$(date -u)] Release signal detected."
+                  break
+                fi
+                echo "[$(date -u)] Not released yet (release=${val:-<empty>}). Sleeping..."
+                sleep 10
+              done
+              echo "[$(date -u)] Done."
+  timeouts:
+    pipeline: 2h
+
+
