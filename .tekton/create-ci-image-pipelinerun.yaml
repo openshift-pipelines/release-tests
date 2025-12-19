@@ -102,6 +102,8 @@ spec:
             value: $(tasks.generate-image-name.results.image-name)
           - name: DOCKERFILE
             value: ./Dockerfile.CI
+          - name: TLSVERIFY
+            value: "false"
         runAfter: 
           - generate-image-name
         workspaces:
@@ -157,6 +159,8 @@ spec:
             value: docker://$(tasks.generate-image-name.results.image-name)
           - name: DESTINATION_IMAGE_URL
             value: docker://$(tasks.generate-image-name.results.image-name-timestamp)
+          - name: DEST_TLS_VERIFY
+            value: "false"
         runAfter:
           - buildah-push
           - buildah-pull-request

@@ -46,7 +46,7 @@ RUN wget https://mirror.openshift.com/pub/openshift-v4/clients/pipelines/${TKN_V
 RUN wget https://dl.min.io/client/mc/release/linux-amd64/mc -O /usr/bin/mc &&\
     chmod u+x /usr/bin/mc
 
-ENV GAUGE_VERSION=1.6.21
+ENV GAUGE_VERSION=1.6.22
 RUN wget https://github.com/getgauge/gauge/releases/download/v${GAUGE_VERSION}/gauge-${GAUGE_VERSION}-linux.x86_64.zip \
     -O /tmp/gauge.zip &&\
     unzip /tmp/gauge.zip gauge -d /usr/bin &&\
@@ -55,20 +55,20 @@ RUN wget https://github.com/getgauge/gauge/releases/download/v${GAUGE_VERSION}/g
     gauge install go &&\
     gauge install html-report &&\
     gauge install xml-report &&\
-    gauge install reportportal -v 1.16.2 &&\
+    gauge install reportportal &&\
     gauge config check_updates false &&\
     gauge config runner_connection_timeout 600000 && \
     gauge config runner_request_timeout 300000 &&\
     go env -w GOPROXY="https://proxy.golang.org,direct" &&\
     gauge version
 
-RUN wget https://github.com/sigstore/cosign/releases/download/v3.0.2/cosign-linux-amd64 -O /usr/bin/cosign && \
+RUN wget https://github.com/sigstore/cosign/releases/download/v3.0.3/cosign-linux-amd64 -O /usr/bin/cosign && \
     chmod a+x /usr/bin/cosign
 
-RUN wget https://github.com/sigstore/rekor/releases/download/v1.4.2/rekor-cli-linux-amd64 -O /usr/bin/rekor-cli && \
+RUN wget https://github.com/sigstore/rekor/releases/download/v1.4.3/rekor-cli-linux-amd64 -O /usr/bin/rekor-cli && \
     chmod u+x /usr/bin/rekor-cli
 
-ENV GOLANGCI_LINT_VERSION=2.5.0
+ENV GOLANGCI_LINT_VERSION=2.7.2
 RUN wget -O /tmp/golangci-lint.tar.gz https://github.com/golangci/golangci-lint/releases/download/v${GOLANGCI_LINT_VERSION}/golangci-lint-${GOLANGCI_LINT_VERSION}-linux-amd64.tar.gz \
     && tar --strip-components=1 -C /usr/bin -xzf /tmp/golangci-lint.tar.gz golangci-lint-${GOLANGCI_LINT_VERSION}-linux-amd64/golangci-lint \
     && rm -f /tmp/golangci-lint.tar.gz
