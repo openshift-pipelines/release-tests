@@ -131,6 +131,8 @@ spec:
             value: $(tasks.generate-image-name.results.image-name)
           - name: DOCKERFILE
             value: ./Dockerfile.CI
+          - name: TLSVERIFY
+            value: "false"
         runAfter: 
           - generate-image-name
         workspaces:
