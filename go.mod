@@ -18,8 +18,8 @@ require (
 	github.com/prometheus/common v0.63.0
 	github.com/tektoncd/cli v0.41.0
 	github.com/tektoncd/operator v0.77.0
-	github.com/tektoncd/pipeline v1.3.2
-	github.com/tektoncd/triggers v0.33.0
+	github.com/tektoncd/pipeline v1.3.1
+	github.com/tektoncd/triggers v0.32.0
 	github.com/xanzy/go-gitlab v0.109.0
 	go.opencensus.io v0.24.0
 	gopkg.in/yaml.v2 v2.4.0
