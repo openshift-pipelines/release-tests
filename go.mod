@@ -2,13 +2,13 @@ module github.com/openshift-pipelines/release-tests
 
 go 1.24.0
 
-toolchain go1.24.2
+toolchain go1.24.1
 
 require (
 	github.com/getgauge-contrib/gauge-go v0.5.0
 	github.com/google/go-cmp v0.7.0
 	github.com/openshift-pipelines/manual-approval-gate v0.6.0
-	github.com/openshift-pipelines/pipelines-as-code v0.37.3
+	github.com/openshift-pipelines/pipelines-as-code v0.37.4
 	github.com/openshift/api v0.0.0-20240521185306-0314f31e7774
 	github.com/openshift/client-go v0.0.0-20240523113335-452272e0496d
 	github.com/operator-framework/api v0.16.0
@@ -141,7 +141,11 @@ require (
 	google.golang.org/genproto/googleapis/api v0.0.0-20250603155806-513f23925822 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20250603155806-513f23925822 // indirect
 	google.golang.org/grpc v1.74.2 // indirect
+<<<<<<< HEAD
 	google.golang.org/protobuf v1.36.7 // indirect
+=======
+	google.golang.org/protobuf v1.36.6 // indirect
+>>>>>>> ad1a12a (fix version)
 	gopkg.in/evanphx/json-patch.v4 v4.12.0 // indirect
 	gopkg.in/inf.v0 v0.9.1 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
