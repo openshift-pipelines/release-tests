@@ -8,7 +8,7 @@ require (
 	github.com/getgauge-contrib/gauge-go v0.5.0
 	github.com/google/go-cmp v0.7.0
 	github.com/openshift-pipelines/manual-approval-gate v0.6.0
-	github.com/openshift-pipelines/pipelines-as-code v0.37.4
+	github.com/openshift-pipelines/pipelines-as-code v0.37.3
 	github.com/openshift/api v0.0.0-20240521185306-0314f31e7774
 	github.com/openshift/client-go v0.0.0-20240523113335-452272e0496d
 	github.com/operator-framework/api v0.16.0
