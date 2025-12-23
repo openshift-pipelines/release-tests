@@ -460,13 +460,8 @@ github.com/opencontainers/image-spec v1.1.1 h1:y0fUlFfIZhPF1W537XOLg0/fcx6zcHCJw
 github.com/opencontainers/image-spec v1.1.1/go.mod h1:qpqAh3Dmcf36wStyyWU+kCeDgrGnAve2nCC8+7h8Q0M=
 github.com/openshift-pipelines/manual-approval-gate v0.6.0 h1:ohvFnwfgqTEpWOjzJb9gcYo0mND+V28F7ce/VdNug70=
 github.com/openshift-pipelines/manual-approval-gate v0.6.0/go.mod h1:2Qp7sSrb3d9SDC8n9b43KrHw2T7RD/BGpm3TQlfIwOI=
-<<<<<<< HEAD
-github.com/openshift-pipelines/pipelines-as-code v0.37.3 h1:bKBZvDNZ1/LdTp/tzYCzxDSrU6G40MVK4954u6S2J3Y=
-github.com/openshift-pipelines/pipelines-as-code v0.37.3/go.mod h1:o0xBfgt16RSYxsH+s9/Lu4hOrtYIa/VL/L5NXDJULl8=
-=======
 github.com/openshift-pipelines/pipelines-as-code v0.37.4 h1:bf+mz6qKQ7PozB+VZmpfxpSPXlfMKkg0cYr1o3bS6p4=
 github.com/openshift-pipelines/pipelines-as-code v0.37.4/go.mod h1:o0xBfgt16RSYxsH+s9/Lu4hOrtYIa/VL/L5NXDJULl8=
->>>>>>> ad1a12a (fix version)
 github.com/openshift-pipelines/tektoncd-pruner v0.0.0-20250711075231-9c8624123820 h1:+/fO+q9MDSvTWGHrX4pm2ZZsnmyRKLhgTEMLXNwZ51c=
 github.com/openshift-pipelines/tektoncd-pruner v0.0.0-20250711075231-9c8624123820/go.mod h1:Za44xopzfXjqqOzpn1t46BWr5aLL3KjJLt9pMsCzvL0=
 github.com/openshift/api v0.0.0-20240521185306-0314f31e7774 h1:SsoLnIil/D0FcjUbQ9Z8h95B7rxFvrso2X6OQjR8jPw=
@@ -1109,8 +1104,8 @@ google.golang.org/protobuf v1.28.1/go.mod h1:HV8QOd/L58Z+nl8r43ehVNZIU/HEI6OcFqw
 google.golang.org/protobuf v1.33.0/go.mod h1:c6P6GXX6sHbq/GpV6MGZEdwhWPcYBgnhAHhKbcUYpos=
 google.golang.org/protobuf v1.34.1/go.mod h1:c6P6GXX6sHbq/GpV6MGZEdwhWPcYBgnhAHhKbcUYpos=
 google.golang.org/protobuf v1.35.1/go.mod h1:9fA7Ob0pmnwhb644+1+CVWFRbNajQ6iRojtC/QF5bRE=
-google.golang.org/protobuf v1.36.7 h1:IgrO7UwFQGJdRNXH/sQux4R1Dj1WAKcLElzeeRaXV2A=
-google.golang.org/protobuf v1.36.7/go.mod h1:jduwjTPXsFjZGTmRluh+L6NjiWu7pchiJ2/5YcXBHnY=
+google.golang.org/protobuf v1.36.6 h1:z1NpPI8ku2WgiWnf+t9wTPsn6eP1L7ksHUlkfLvd9xY=
+google.golang.org/protobuf v1.36.6/go.mod h1:jduwjTPXsFjZGTmRluh+L6NjiWu7pchiJ2/5YcXBHnY=
 gopkg.in/alecthomas/kingpin.v2 v2.2.6/go.mod h1:FMv+mEhP44yOT+4EoQTLFTRgOQ1FBLkstjWtayDeSgw=
 gopkg.in/check.v1 v0.0.0-20161208181325-20d25e280405/go.mod h1:Co6ibVJAznAaIkqp8huTwlJQCZ016jof/cbN4VW5Yz0=
 gopkg.in/check.v1 v1.0.0-20180628173108-788fd7840127/go.mod h1:Co6ibVJAznAaIkqp8huTwlJQCZ016jof/cbN4VW5Yz0=
