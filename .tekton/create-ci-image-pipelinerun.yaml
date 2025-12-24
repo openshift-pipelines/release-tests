@@ -102,6 +102,8 @@ spec:
             value: $(tasks.generate-image-name.results.image-name)
           - name: DOCKERFILE
             value: ./Dockerfile.CI
+          - name: TLSVERIFY
+            value: 'true'
         runAfter: 
           - generate-image-name
         workspaces:
@@ -129,11 +131,15 @@ spec:
             value: $(tasks.generate-image-name.results.image-name)
           - name: DOCKERFILE
             value: ./Dockerfile.CI
+          - name: TLSVERIFY
+            value: 'true'
         runAfter: 
           - generate-image-name
         workspaces:
           - name: source
             workspace: source
+          - name: dockerconfig
+            workspace: dockerconfig
         when: 
           - input: "{{ event_type }}"
             operator: in 
@@ -157,6 +163,10 @@ spec:
             value: docker://$(tasks.generate-image-name.results.image-name)
           - name: DESTINATION_IMAGE_URL
             value: docker://$(tasks.generate-image-name.results.image-name-timestamp)
+          - name: SRC_TLS_VERIFY
+            value: 'false'
+          - name: DEST_TLS_VERIFY
+            value: 'true'
         runAfter:
           - buildah-push
           - buildah-pull-request
