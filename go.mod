@@ -1,8 +1,6 @@
 module github.com/openshift-pipelines/release-tests
 
-go 1.24.6
-
-toolchain go1.24.11
+go 1.24.4
 
 require (
 	github.com/getgauge-contrib/gauge-go v0.5.1
@@ -16,7 +14,7 @@ require (
 	github.com/pkg/errors v0.9.1
 	github.com/prometheus/client_golang v1.23.2
 	github.com/prometheus/common v0.66.1
-	github.com/tektoncd/cli v0.43.0
+	github.com/tektoncd/cli v0.42.0
 	github.com/tektoncd/operator v0.78.1
 	github.com/tektoncd/pipeline v1.6.0
 	github.com/tektoncd/triggers v0.34.0
