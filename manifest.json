@@ -3,5 +3,6 @@
   "Plugins": [
     "html-report",
     "xml-report"
-  ]
+  ],
+  "EnvironmentDir": ""
 }
