@@ -88,7 +88,7 @@ gauge run --log-level=debug --verbose --tags 'e2e & !skip_linux/amd64' specs/clu
 gauge run --log-level=debug --verbose --tags e2e specs/pac/pac-gitlab.spec
 ```
 
-## Running PAC GitLab Tests
+## Running PAC GitLab/GitHub Tests
 Pipelines as code is a project allowing you to define your CI/CD using Tekton PipelineRuns and Tasks in a file located in your source control management (SCM) system, such as GitHub or GitLab. This file is then used to automatically create a pipeline for a Pull Request or a Push to a branch.
 
 ### Setting up PAC in GitLab
@@ -103,6 +103,7 @@ Pipelines as code is a project allowing you to define your CI/CD using Tekton Pi
 - Enter any WebhookSecret to be used for GitLab webhook `export GITLAB_WEBHOOK_TOKEN=<WebhookSecret>`
 
 ### Running PAC E2E tests
+#### GitLab
 Export the following Env Variables
 ```
 export GITLAB_TOKEN=<Token>
@@ -111,11 +112,32 @@ export GITLAB_GROUP_NAMESPACE=<GroupName>
 export GITLAB_WEBHOOK_TOKEN=<GitLabWebHookSecret>
 ```
 
-To run pac e2e tests...
+To run pac GitLab e2e tests...
 
 ```
 gauge run --log-level=debug --verbose --tags e2e specs/pac/pac-gitlab.spec
 ```
+
+#### GitHub
+
+Export the following Env Variables
+```
+export GITHUB_TOKEN=<Token>
+[Optional]
+export GITHUB_WEBHOOK_TOKEN=<GithubWebhookToken>
+export GITHUB_ORG=<GithubOrg>
+```
+
+### Setting up PAC in GitHub
+- Click on your profile under `Settings --> Developer Settings --> Personal Access tokens`
+- Create a New Personal Access Token and `export GITHUB_TOKEN=<Token>`
+
+To run pac GitHub e2e tests...
+
+```
+gauge run --log-level=debug --verbose --tags e2e specs/pac/pac-github.spec
+```
+
 ## Authoring a new test specification
 
 1. Create or update a spec file in `specs` directory using `Markdown` syntax.

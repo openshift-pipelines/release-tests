@@ -11,42 +11,112 @@ import (
 	"github.com/openshift-pipelines/release-tests/pkg/store"
 )
 
+const (
+	pacProviderKey        = "pac.provider"
+	pacLastPipelineRunKey = "pac.lastPipelinerun"
+)
+
 var _ = gauge.Step("Setup Gitlab Client", func() {
 	c := pac.InitGitLabClient()
 	pac.SetGitLabClient(c)
+	store.PutScenarioData(pacProviderKey, "gitlab")
+})
+
+var _ = gauge.Step("Setup Github Client", func() {
+	c := pac.InitGitHubClient()
+	pac.SetGitHubClient(c)
+	store.PutScenarioData(pacProviderKey, "github")
 })
 
 var _ = gauge.Step("Create Smee deployment", func() {
 	pac.SetupSmeeDeployment()
 	k8s.ValidateDeployments(store.Clients(), store.Namespace(), store.GetScenarioData("smeeDeploymentName"))
-	pac.SetupGitLabProject()
+	switch store.GetScenarioData(pacProviderKey) {
+	case "gitlab":
+		pac.SetupGitLabProject()
+	case "github":
+		pac.SetupGitHubProject()
+	default:
+		testsuit.T.Fail(fmt.Errorf("unknown pac provider %q", store.GetScenarioData(pacProviderKey)))
+	}
 })
 
 var _ = gauge.Step("Configure GitLab repo for <eventType> in <branch>", func(eventType, branch string) {
 	pac.GeneratePipelineRunYaml(eventType, branch)
 })
 
+var _ = gauge.Step("Configure GitHub repo for <eventType> in <branch>", func(eventType, branch string) {
+	pac.GeneratePipelineRunYaml(eventType, branch)
+})
+
 var _ = gauge.Step("Configure PipelineRun", func() {
-	pac.ConfigurePreviewChanges()
+	switch store.GetScenarioData(pacProviderKey) {
+	case "gitlab":
+		pac.ConfigurePreviewChanges()
+	case "github":
+		pac.ConfigurePreviewChangesGitHub()
+	default:
+		testsuit.T.Fail(fmt.Errorf("unknown pac provider %q", store.GetScenarioData(pacProviderKey)))
+	}
 })
 
 var _ = gauge.Step("Trigger push event on main branch", func() {
-	pac.TriggerPushOnForkMain()
+	switch store.GetScenarioData(pacProviderKey) {
+	case "gitlab":
+		pac.TriggerPushOnForkMain()
+	case "github":
+		pac.TriggerPushOnGitHubMain()
+	default:
+		testsuit.T.Fail(fmt.Errorf("unknown pac provider %q", store.GetScenarioData(pacProviderKey)))
+	}
 })
 
 var _ = gauge.Step("Validate PipelineRun for <state>", func(state string) {
-	pipelineName := pac.GetPipelineNameFromMR()
-	pipelines.ValidatePipelineRun(store.Clients(), pipelineName, state, store.Namespace())
+	switch store.GetScenarioData(pacProviderKey) {
+	case "gitlab":
+		pipelineName := pac.GetPipelineNameFromMR()
+		pipelines.ValidatePipelineRun(store.Clients(), pipelineName, state, store.Namespace())
+	case "github":
+		pipelineName := pac.WaitForNewPipelineRunName("")
+		pipelines.ValidatePipelineRun(store.Clients(), pipelineName, state, store.Namespace())
+		gauge.GetScenarioStore()[pacLastPipelineRunKey] = pipelineName
+	default:
+		testsuit.T.Fail(fmt.Errorf("unknown pac provider %q", store.GetScenarioData(pacProviderKey)))
+	}
 })
 
 var _ = gauge.Step("Validate <event_type> PipelineRun for <state>", func(event_type, state string) {
+	last := ""
+	if v, ok := gauge.GetScenarioStore()[pacLastPipelineRunKey].(string); ok {
+		last = v
+	}
+
 	switch event_type {
 	case "pull_request":
-		pipelineName := pac.GetPipelineNameFromMR()
-		pipelines.ValidatePipelineRun(store.Clients(), pipelineName, state, store.Namespace())
+		switch store.GetScenarioData(pacProviderKey) {
+		case "gitlab":
+			pipelineName := pac.GetPipelineNameFromMR()
+			pipelines.ValidatePipelineRun(store.Clients(), pipelineName, state, store.Namespace())
+			gauge.GetScenarioStore()[pacLastPipelineRunKey] = pipelineName
+		case "github":
+			pipelineName := pac.WaitForNewPipelineRunName(last)
+			pipelines.ValidatePipelineRun(store.Clients(), pipelineName, state, store.Namespace())
+			gauge.GetScenarioStore()[pacLastPipelineRunKey] = pipelineName
+		default:
+			testsuit.T.Fail(fmt.Errorf("unknown pac provider %q", store.GetScenarioData(pacProviderKey)))
+		}
 	case "push":
-		pipelineName := pac.GetPushPipelineNameFromMain()
+		var pipelineName string
+		switch store.GetScenarioData(pacProviderKey) {
+		case "gitlab":
+			pipelineName = pac.GetPushPipelineNameFromMain()
+		case "github":
+			pipelineName = pac.WaitForNewPipelineRunName(last)
+		default:
+			testsuit.T.Fail(fmt.Errorf("unknown pac provider %q", store.GetScenarioData(pacProviderKey)))
+		}
 		pipelines.ValidatePipelineRun(store.Clients(), pipelineName, state, store.Namespace())
+		gauge.GetScenarioStore()[pacLastPipelineRunKey] = pipelineName
 	default:
 		testsuit.T.Fail(fmt.Errorf("invalid event type: %s", event_type))
 	}
@@ -69,5 +139,12 @@ var _ = gauge.Step("Add Label Name <labelName> with <color> color with descripti
 })
 
 var _ = gauge.Step("Cleanup PAC", func() {
-	pac.CleanupPAC(store.Clients(), store.GetScenarioData("smeeDeploymentName"), store.Namespace())
+	switch store.GetScenarioData(pacProviderKey) {
+	case "gitlab":
+		pac.CleanupPAC(store.Clients(), store.GetScenarioData("smeeDeploymentName"), store.Namespace())
+	case "github":
+		pac.CleanupPACGitHub(store.Clients(), store.GetScenarioData("smeeDeploymentName"), store.Namespace())
+	default:
+		testsuit.T.Fail(fmt.Errorf("unknown pac provider %q", store.GetScenarioData(pacProviderKey)))
+	}
 })
