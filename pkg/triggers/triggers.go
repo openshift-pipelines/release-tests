@@ -65,7 +65,7 @@ func ExposeEventListner(c *clients.Clients, elname, namespace string) string {
 
 func ExposeDeploymentConfig(c *clients.Clients, elname, port, namespace string) string {
 	cmd.MustSucceed("oc", "expose", "dc/"+elname, "-n", namespace, "--target-port="+port)
-	cmd.MustSucceed("oc", "expose", "svc", elname, "-n", namespace, "--target-port="+port)
+	cmd.MustSucceed("oc", "expose", "svc", elname, "-n", namespace, "--port="+port)
 
 	return elname
 }
