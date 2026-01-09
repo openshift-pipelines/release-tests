@@ -80,6 +80,31 @@ func validatePipelineRunForFailedStatus(c *clients.Clients, prname, namespace st
 	}
 }
 
+func validatePipelineRunForRunningStatus(c *clients.Clients, prname, namespace string) {
+	var err error
+	log.Printf("Waiting for PipelineRun %s in namespace %s to be running", prname, namespace)
+	err = wait.WaitForPipelineRunState(c, prname, wait.Running(prname), "PipelineRunRunning")
+	if err != nil {
+		buf, logsErr := getPipelinerunLogs(c, prname, namespace)
+		events, eventError := k8s.GetWarningEvents(c, namespace)
+		if logsErr != nil {
+			if eventError != nil {
+				testsuit.T.Errorf("error waiting for pipeline run %s to be running \n%v \npipelinerun logs error: \n%v \npipelinerun events error: \n%v", prname, err, logsErr, eventError)
+			} else {
+				testsuit.T.Errorf("error waiting for pipeline run %s to be running \n%v \npipelinerun logs error: \n%v \npipelinerun events: \n%v", prname, err, logsErr, events)
+			}
+		} else {
+			if eventError != nil {
+				testsuit.T.Errorf("error waiting for pipeline run %s to be running \n%v \npipelinerun logs: \n%v \npipelinerun events error: \n%v", prname, err, buf.String(), eventError)
+			} else {
+				testsuit.T.Errorf("error waiting for pipeline run %s to be running \n%v \npipelinerun logs: \n%v \npipelinerun events: \n%v", prname, err, buf.String(), events)
+			}
+		}
+	}
+
+	log.Printf("pipelineRun: %s is running under namespace : %s", prname, namespace)
+}
+
 func validatePipelineRunTimeoutFailure(c *clients.Clients, prname, namespace string) {
 	var err error
 	pipelineRun, err := c.PipelineRunClient.Get(c.Ctx, prname, metav1.GetOptions{})
@@ -191,6 +216,9 @@ func ValidatePipelineRun(c *clients.Clients, prname, status, namespace string) {
 	case strings.Contains(strings.ToLower(status), "fail"):
 		log.Printf("validating pipeline run %s for failure state...", prname)
 		validatePipelineRunForFailedStatus(c, pr.GetName(), namespace)
+	case strings.Contains(strings.ToLower(status), "running"):
+		log.Printf("validating pipeline run %s for running state...", prname)
+		validatePipelineRunForRunningStatus(c, pr.GetName(), namespace)
 	case strings.Contains(strings.ToLower(status), "timeout"):
 		log.Printf("validating pipeline run %s to time out...", prname)
 		validatePipelineRunTimeoutFailure(c, pr.GetName(), namespace)

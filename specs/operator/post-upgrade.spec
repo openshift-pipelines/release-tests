@@ -84,3 +84,23 @@ Steps:
   * Switch to project "releasetest-upgrade-s2i"
   * Get tags of the imagestream "golang" from namespace "openshift" and store to variable "golang-tags"
   * Start and verify pipeline "s2i-go-pipeline" with param "VERSION" with values stored in variable "golang-tags" with workspace "name=source,claimName=shared-pvc"
+
+## Verify PipelineRuns started before upgrade complete successfully after upgrade: PIPELINES-19-TC06
+Tags: post-upgrade, admin, e2e, sanity
+Component: Pipelines
+Level: Integration
+Type: Functional
+Importance: Critical
+
+Steps:
+  * Switch to project "releasetest-upgrade-inflight"
+  * Apply
+      |S.NO|resource_dir                                                       |
+      |----|-------------------------------------------------------------------|
+      |1   |testdata/operator/upgrade-inflight/release-signal-released.yaml     |
+  * Verify pipelinerun
+      |S.NO|pipeline_run_name              |status    |
+      |----|-------------------------------|----------|
+      |1   |upgrade-inflight-pr-serial-1    |successful|
+      |2   |upgrade-inflight-pr-serial-2    |successful|
+      |3   |upgrade-inflight-pr-parallel-3  |successful|
