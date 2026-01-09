@@ -176,6 +176,14 @@ func validatePipelineRunCancel(c *clients.Clients, prname, namespace string) {
 	wg.Wait()
 }
 
+// WaitForPipelineRunCancelled waits until the given PipelineRun reaches the Cancelled state
+func WaitForPipelineRunCancelled(c *clients.Clients, prname, namespace string) {
+	log.Printf("Waiting for PipelineRun %s in namespace %s to be cancelled", prname, namespace)
+	if err := wait.WaitForPipelineRunState(c, prname, wait.FailedWithReason("Cancelled", prname), "Cancelled"); err != nil {
+		testsuit.T.Errorf("Error waiting for PipelineRun `%s` to be cancelled: %s", prname, err)
+	}
+}
+
 func ValidatePipelineRun(c *clients.Clients, prname, status, namespace string) {
 	var err error
 	pr, err := c.PipelineRunClient.Get(c.Ctx, prname, metav1.GetOptions{})
