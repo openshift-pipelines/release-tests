@@ -11,14 +11,14 @@ spec:
       taskRef:
         resolver: hub
         params:
-          - name: type
-            value: tekton
+          - name: catalog
+            value: tekton-catalog-tasks
           - name: kind
             value: task
           - name: name
             value: git-clone
           - name: version
-            value: "0.9"
+            value: "0.10.0"
       workspaces:
         - name: output
           workspace: shared-workspace
@@ -32,15 +32,15 @@ spec:
     - name: git-cli
       taskRef:
         resolver: hub
-        params: 
-          - name: type
-            value: tekton
+        params:
+          - name: catalog
+            value: tekton-catalog-tasks
           - name: kind
             value: task
-          - name: name  
+          - name: name
             value: git-cli
           - name: version
-            value: "0.4"
+            value: "0.4.0"
       runAfter:
         - clone-git-repo
       workspaces:

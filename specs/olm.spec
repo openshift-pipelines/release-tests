@@ -13,7 +13,7 @@ Installs `openshift-pipelines` operator using olm
 Steps:
   * Subscribe to operator
   * Wait for TektonConfig CR availability  
-  * Define the tekton-hub-api variable
+  * Define the artifact-hub-api variable
   * Verify namespace "openshift-pipelines" exists
   * Apply
     | S.NO | resource_dir                   |
