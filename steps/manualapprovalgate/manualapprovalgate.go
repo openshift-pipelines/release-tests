@@ -270,3 +270,8 @@ var _ = gauge.AfterScenario(func(exInfo *gauge_messages.ExecutionInfo) {
 		}
 	}
 }, []string{"approvalgate-users"}, testsuit.AND)
+
+// Cleanup any temp kubeconfigs created for per-user logins after the full Gauge suite execution.
+var _ = gauge.AfterSuite(func(exInfo *gauge_messages.ExecutionInfo) {
+	approvalgate.CleanupUserKubeconfigs()
+}, []string{}, testsuit.AND)

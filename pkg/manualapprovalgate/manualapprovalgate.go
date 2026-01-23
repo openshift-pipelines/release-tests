@@ -187,9 +187,10 @@ func EnsureGroupMembers(group string, users []string) {
 
 	// Capture old membership so we can mark removed users dirty too.
 	oldUsers := []string{}
-	groupExists := cmd.Run("oc", "get", "group", group).ExitCode == 0
+	getUsersCmd := cmd.Run("oc", "get", "group", group, "-o", "jsonpath={.users[*]}")
+	groupExists := getUsersCmd.ExitCode == 0
 	if groupExists {
-		out := strings.TrimSpace(cmd.MustSucceed("oc", "get", "group", group, "-o", "jsonpath={.users[*]}").Stdout())
+		out := strings.TrimSpace(getUsersCmd.Stdout())
 		if out != "" {
 			oldUsers = strings.Fields(out)
 		}
@@ -201,17 +202,18 @@ func EnsureGroupMembers(group string, users []string) {
 	}
 	patch := fmt.Sprintf("{\"users\":%s}", string(usersJSON))
 
-	if groupExists {
-		cmd.MustSucceed("oc", "patch", "group", group, "--type=merge", "-p", patch)
-	} else {
-		args := []string{"oc", "adm", "groups", "new", group}
-		args = append(args, users...)
-		cmd.MustSucceed(args...)
-		// Ensure exact membership even if the group pre-existed in a bad state between get/create.
-		cmd.MustSucceed("oc", "patch", "group", group, "--type=merge", "-p", patch)
+	// Ensure the group exists in an idempotent way (avoid races with other processes).
+	// Try creating the group; ignore if it already exists.
+	createRes := cmd.Run("oc", "adm", "groups", "new", group)
+	if createRes.ExitCode != 0 {
+		stderr := strings.ToLower(createRes.Stderr())
+		if !strings.Contains(stderr, "already exists") && !strings.Contains(stderr, "alreadyexists") {
+			testsuit.T.Fail(fmt.Errorf("failed to create group %s: %s", group, createRes.Stderr()))
+		}
 	}
 
-	out := strings.TrimSpace(cmd.MustSucceed("oc", "get", "group", group, "-o", "jsonpath={.users[*]}").Stdout())
+	// Patch the group and capture the resulting user list in a single call.
+	out := strings.TrimSpace(cmd.MustSucceed("oc", "patch", "group", group, "--type=merge", "-p", patch, "-o", "jsonpath={.users[*]}").Stdout())
 	actual := []string{}
 	if out != "" {
 		actual = strings.Fields(out)
@@ -226,9 +228,13 @@ func EnsureGroupMembers(group string, users []string) {
 
 	// OpenShift group membership is reflected in user tokens; refresh user auth after membership changes.
 	// Mark both old and current members dirty so removed users also get a fresh token on next action.
-	union := append([]string{}, oldUsers...)
-	union = append(union, actual...)
-	markUsersAuthDirty(union)
+	oldSorted := append([]string{}, oldUsers...)
+	sort.Strings(oldSorted)
+	if !groupExists || strings.Join(oldSorted, ",") != strings.Join(actual, ",") {
+		union := append([]string{}, oldUsers...)
+		union = append(union, actual...)
+		markUsersAuthDirty(union)
+	}
 }
 
 func CreateApprovalPipelineRun(id, description string, approvers []string, required int, timeout, namespace string) (string, string) {
@@ -594,6 +600,24 @@ func ensureUserKubeconfig(user string) string {
 	// Fresh login done; clear dirty flag if it was set.
 	_ = popUserAuthDirty(user)
 	return kcPath
+}
+
+// CleanupUserKubeconfigs removes any temp kubeconfig files created for per-user logins.
+// It is safe to ignore errors during cleanup.
+func CleanupUserKubeconfigs() {
+	magUserKubeconfigsMu.Lock()
+	defer magUserKubeconfigsMu.Unlock()
+
+	for user, path := range magUserKubeconfigs {
+		if strings.TrimSpace(path) != "" {
+			_ = os.Remove(path)
+		}
+		delete(magUserKubeconfigs, user)
+	}
+
+	magUserAuthDirtyMu.Lock()
+	magUserAuthDirty = map[string]bool{}
+	magUserAuthDirtyMu.Unlock()
 }
 
 func ApproveApprovalTaskAsUser(user, task, namespace, message string) {
