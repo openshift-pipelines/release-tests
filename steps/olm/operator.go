@@ -208,3 +208,7 @@ var _ = gauge.Step("Validate skipRange diff between fields <preUpgradeSkipRange>
 var _ = gauge.Step("Validate OSP Version in OlmSkipRange", func() {
 	oc.ValidateOlmSkipRange()
 })
+
+var _ = gauge.Step("Validate all channels have valid skipRange bounds", func() {
+	oc.ValidateChannelSkipRangeBounds()
+})

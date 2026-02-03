@@ -39,3 +39,4 @@ Type: Functional
 Importance: High
 Steps: 
   * Validate OSP Version in OlmSkipRange
+  * Validate all channels have valid skipRange bounds
