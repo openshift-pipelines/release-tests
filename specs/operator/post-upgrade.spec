@@ -94,4 +94,4 @@ Importance: Critical
 
 Steps:
  * Get olm-skip-range "post-upgrade" and save to field "post-upgrade-olm-skip-range" in file "testdata/olm/skiprange.json"
- * Validate the fields "pre-upgrade-olm-skip-range" and "post-upgrade-olm-skip-range" are same in file "testdata/olm/skiprange.json"
+ * Validate skipRange diff between fields "pre-upgrade-olm-skip-range" and "post-upgrade-olm-skip-range" in file "testdata/olm/skiprange.json"
