@@ -201,10 +201,10 @@ var _ = gauge.Step("Get olm-skip-range <upgradeType> and save to field <fieldNam
 	oc.GetOlmSkipRange(upgradeType, fieldName, filename)
 })
 
-var _ = gauge.Step("Validate the fields <preUpgradeSkipRange> and <postUpgradeSkipRange> are same in file <fileName>", func(preUpgradeSkipRange string, postUpgradeSkipRange string, fileName string) {
+var _ = gauge.Step("Validate skipRange diff between fields <preUpgradeSkipRange> and <postUpgradeSkipRange> in file <fileName>", func(preUpgradeSkipRange string, postUpgradeSkipRange string, fileName string) {
 	oc.ValidateOlmSkipRangeDiff(fileName, preUpgradeSkipRange, postUpgradeSkipRange)
 })
 
-var _ = gauge.Step("Validate OperatorVersion in OlmSkipRange", func() {
+var _ = gauge.Step("Validate OSP Version in OlmSkipRange", func() {
 	oc.ValidateOlmSkipRange()
 })
