@@ -37,7 +37,11 @@ RUN wget https://mirror.openshift.com/pub/openshift-v4/clients/rosa/latest/rosa-
     tar xzf /tmp/rosa.tar.gz -C /usr/bin --no-same-owner rosa &&\
     rm /tmp/rosa.tar.gz
 
-ENV TKN_VERSION=1.20.0
+# TKN_VERSION can be overridden at build time for release-specific testing:
+#   docker build --build-arg TKN_VERSION=1.15.0 -t ci:1.15 .
+# This ensures opc CLI version matches the Tekton Results API version in the release.
+ARG TKN_VERSION=1.20.0
+ENV TKN_VERSION=${TKN_VERSION}
 RUN wget https://mirror.openshift.com/pub/openshift-v4/clients/pipelines/${TKN_VERSION}/tkn-linux-amd64.tar.gz \
    -O /tmp/tkn.tar.gz &&\
    tar xzf /tmp/tkn.tar.gz -C /usr/bin --no-same-owner tkn tkn-pac opc &&\
