@@ -178,10 +178,38 @@ func CopySecret(secretName string, sourceNamespace string, destNamespace string)
 }
 
 func FetchOlmSkipRange() (map[string]string, error) {
-	// Fetch package manifest JSON in a single call
-	packageManifestJSON := cmd.MustSucceed("oc", "get", "packagemanifests", "openshift-pipelines-operator-rh", "-n", "openshift-marketplace", "-o", "json").Stdout()
+	// Determine catalog based on OPERATOR_ENVIRONMENT or CATALOG_SOURCE
+	operatorEnv := os.Getenv("OPERATOR_ENVIRONMENT")
+	catalogSource := os.Getenv("CATALOG_SOURCE")
+	var catalog string
 
-	// Parse the JSON structure
+	// Priority 1: OPERATOR_ENVIRONMENT, Priority 2: CATALOG_SOURCE, Priority 3: default
+	switch {
+	case operatorEnv != "":
+		switch operatorEnv {
+		case "pre-stage", "stage":
+			catalog = "custom-operators"
+			log.Printf("Using catalog: custom-operators (OPERATOR_ENVIRONMENT=%s)", operatorEnv) // #nosec G706
+		case "prod":
+			catalog = "redhat-operators"
+			log.Printf("Using catalog: redhat-operators (OPERATOR_ENVIRONMENT=%s)", operatorEnv) // #nosec G706
+		default:
+			catalog = "redhat-operators"
+			log.Printf("OPERATOR_ENVIRONMENT unrecognized (%s), defaulting to catalog: redhat-operators", operatorEnv) // #nosec G706
+		}
+	case catalogSource != "":
+		catalog = catalogSource
+		log.Printf("Using catalog: %s (from CATALOG_SOURCE, OPERATOR_ENVIRONMENT not set)", catalog) // #nosec G706
+	default:
+		catalog = "redhat-operators"
+		log.Printf("Neither OPERATOR_ENVIRONMENT nor CATALOG_SOURCE set, defaulting to catalog: redhat-operators")
+	}
+
+	// Fetch all package manifests from the selected catalog
+	packageManifestsJSON := cmd.MustSucceed("oc", "get", "packagemanifest", "-n", "openshift-marketplace",
+		"--selector=catalog="+catalog, "-o", "json").Stdout()
+
+	// Parse the JSON structure for multiple package manifests
 	type Channel struct {
 		Name           string `json:"name"`
 		CurrentCSVDesc struct {
@@ -190,19 +218,39 @@ func FetchOlmSkipRange() (map[string]string, error) {
 	}
 
 	type PackageManifest struct {
+		Metadata struct {
+			Name string `json:"name"`
+		} `json:"metadata"`
 		Status struct {
 			Channels []Channel `json:"channels"`
 		} `json:"status"`
 	}
 
-	var packageManifest PackageManifest
-	if err := json.Unmarshal([]byte(packageManifestJSON), &packageManifest); err != nil {
-		return nil, fmt.Errorf("failed to parse package manifest JSON: %w", err)
+	type PackageManifestList struct {
+		Items []PackageManifest `json:"items"`
+	}
+
+	var packageManifestList PackageManifestList
+	if err := json.Unmarshal([]byte(packageManifestsJSON), &packageManifestList); err != nil {
+		return nil, fmt.Errorf("failed to parse package manifest list JSON: %w", err)
+	}
+
+	// Find the openshift-pipelines-operator-rh package
+	var targetPackage *PackageManifest
+	for i := range packageManifestList.Items {
+		if packageManifestList.Items[i].Metadata.Name == "openshift-pipelines-operator-rh" {
+			targetPackage = &packageManifestList.Items[i]
+			break
+		}
+	}
+
+	if targetPackage == nil {
+		return nil, fmt.Errorf("package 'openshift-pipelines-operator-rh' not found in catalog '%s'", catalog)
 	}
 
 	// Build channel to skipRange mapping
 	channelSkipRangeMap := make(map[string]string)
-	for _, channel := range packageManifest.Status.Channels {
+	for _, channel := range targetPackage.Status.Channels {
 		skipRange, exists := channel.CurrentCSVDesc.Annotations["olm.skipRange"]
 		if exists && skipRange != "" {
 			channelSkipRangeMap[channel.Name] = skipRange
@@ -210,8 +258,10 @@ func FetchOlmSkipRange() (map[string]string, error) {
 	}
 
 	if len(channelSkipRangeMap) == 0 {
-		return nil, fmt.Errorf("no valid OLM Skip Ranges found")
+		return nil, fmt.Errorf("no valid OLM Skip Ranges found in catalog '%s'", catalog)
 	}
+
+	log.Printf("Successfully fetched %d channels with skipRange from catalog '%s'", len(channelSkipRangeMap), catalog) // #nosec G706
 	return channelSkipRangeMap, nil
 }
 
@@ -241,12 +291,12 @@ func GetOlmSkipRange(upgradeType, fieldName, fileName string) {
 	filePath := config.Path(fileName)
 
 	// Read existing data from file
-	file, err := os.OpenFile(filePath, os.O_RDWR, 0644)
+	file, err := os.OpenFile(filePath, os.O_RDWR, 0644) // nolint:gosec // G304: filePath is sanitized by config.Path()
 	if err != nil {
 		log.Printf("Error opening file %s: %v", fileName, err)
 		testsuit.T.Fail(fmt.Errorf("failed to open file %s: %w", fileName, err))
 	}
-	defer file.Close()
+	defer file.Close() //nolint:errcheck
 
 	var existingData map[string]interface{}
 	if err := json.NewDecoder(file).Decode(&existingData); err != nil {
@@ -258,7 +308,7 @@ func GetOlmSkipRange(upgradeType, fieldName, fileName string) {
 	fieldKey := fmt.Sprintf("%s-olm-skip-range", upgradeType)
 	existingData[fieldKey] = skipRangeMap
 	upgradeTypeTitle := strings.ToUpper(upgradeType[:1]) + upgradeType[1:]
-	log.Printf("%s OLM Skip Range stored: %+v", upgradeTypeTitle, skipRangeMap)
+	log.Printf("%s OLM Skip Range stored: %+v", upgradeTypeTitle, skipRangeMap) // #nosec G706
 
 	// Write updated data back to file
 	if _, err := file.Seek(0, 0); err != nil {
@@ -290,7 +340,7 @@ func ValidateOlmSkipRange() {
 	}
 
 	ospVersion := os.Getenv("OSP_VERSION")
-	log.Printf("Validating OSP_VERSION: %s", ospVersion)
+	log.Printf("Validating OSP_VERSION: %q", ospVersion) // #nosec G706
 	found := false
 
 	if ospVersion == "5.0.5" {
@@ -301,11 +351,11 @@ func ValidateOlmSkipRange() {
 				continue
 			}
 			skipRangeContainsVersion := strings.Contains(skipRange, ospVersion)
-			log.Printf("Channel: %s, SkipRange: %s", channel, skipRange)
-			log.Printf("  - SkipRange contains OSP_VERSION '%s': %v", ospVersion, skipRangeContainsVersion)
+			log.Printf("Channel: %q, SkipRange: %q", channel, skipRange)                                  // #nosec G706
+			log.Printf("  - SkipRange contains OSP_VERSION %q: %v", ospVersion, skipRangeContainsVersion) // #nosec G706
 
 			if skipRangeContainsVersion {
-				log.Printf("Success: OSP_VERSION '%s' found in skipRange for channel '%s': '%s'", ospVersion, channel, skipRange)
+				log.Printf("Success: OSP_VERSION %q found in skipRange for channel %q: %q", ospVersion, channel, skipRange) // #nosec G706
 				found = true
 				break
 			}
@@ -315,7 +365,7 @@ func ValidateOlmSkipRange() {
 		// Extract major.minor from OSP_VERSION for channel matching
 		// e.g., "1.19.2" -> "1.19" to match with "pipelines-1.19"
 		ospMajorMinor := extractMajorMinor(ospVersion)
-		log.Printf("Extracted major.minor '%s' from OSP_VERSION '%s' for channel matching", ospMajorMinor, ospVersion)
+		log.Printf("Extracted major.minor %q from OSP_VERSION %q for channel matching", ospMajorMinor, ospVersion) // #nosec G706
 		for channel, skipRange := range skipRangeMap {
 			if channel == "latest" {
 				log.Printf("Skipping 'latest' channel as requested")
@@ -324,11 +374,11 @@ func ValidateOlmSkipRange() {
 			// Check if channel contains the major.minor version
 			channelContainsVersion := strings.Contains(channel, ospMajorMinor)
 			skipRangeContainsVersion := strings.Contains(skipRange, ospVersion)
-			log.Printf("Channel: %s, SkipRange: %s", channel, skipRange)
-			log.Printf("  - Channel contains major.minor '%s': %v", ospMajorMinor, channelContainsVersion)
-			log.Printf("  - SkipRange contains OSP_VERSION '%s': %v", ospVersion, skipRangeContainsVersion)
+			log.Printf("Channel: %q, SkipRange: %q", channel, skipRange)                                  // #nosec G706
+			log.Printf("  - Channel contains major.minor %q: %v", ospMajorMinor, channelContainsVersion)  // #nosec G706
+			log.Printf("  - SkipRange contains OSP_VERSION %q: %v", ospVersion, skipRangeContainsVersion) // #nosec G706
 			if channelContainsVersion && skipRangeContainsVersion {
-				log.Printf("Success: OSP_VERSION '%s' found in channel '%s' (major.minor match) and its skipRange '%s'", ospVersion, channel, skipRange)
+				log.Printf("Success: OSP_VERSION %q found in channel %q (major.minor match) and its skipRange %q", ospVersion, channel, skipRange) // #nosec G706
 				found = true
 				break
 			}
@@ -339,15 +389,15 @@ func ValidateOlmSkipRange() {
 		log.Printf("Available channels and their skipRanges:")
 		for channel, skipRange := range skipRangeMap {
 			if channel != "latest" {
-				log.Printf("  - Channel: %s, SkipRange: %s", channel, skipRange)
+				log.Printf("  - Channel: %q, SkipRange: %q", channel, skipRange) // #nosec G706
 			}
 		}
 
 		if ospVersion == "5.0.5" {
-			testsuit.T.Fail(fmt.Errorf("Error: OSP_VERSION '%s' not found in skipRange for any non-latest channel", ospVersion))
+			testsuit.T.Fail(fmt.Errorf("OSP_VERSION '%s' not found in skipRange for any non-latest channel", ospVersion))
 		} else {
 			ospMajorMinor := extractMajorMinor(ospVersion)
-			testsuit.T.Fail(fmt.Errorf("Error: OSP_VERSION '%s' (major.minor: %s) not found in both channel name and skipRange for any non-latest channel", ospVersion, ospMajorMinor))
+			testsuit.T.Fail(fmt.Errorf("OSP_VERSION '%s' (major.minor: %s) not found in both channel name and skipRange for any non-latest channel", ospVersion, ospMajorMinor))
 		}
 	}
 }
@@ -364,7 +414,7 @@ func isValidOspVersionPatchUpdate(preSkipRange, postSkipRange string) bool {
 
 	// Verify post-upgrade skipRange contains the OSP_VERSION
 	if !skipRangeContainsVersion(postSkipRange, ospVersion) {
-		log.Printf("Post-upgrade skip range '%s' does not contain OSP_VERSION '%s'", postSkipRange, ospVersion)
+		log.Printf("Post-upgrade skip range %q does not contain OSP_VERSION %q", postSkipRange, ospVersion) // #nosec G706
 		return false
 	}
 
@@ -374,7 +424,7 @@ func isValidOspVersionPatchUpdate(preSkipRange, postSkipRange string) bool {
 	postMatches := rangeRegex.FindStringSubmatch(postSkipRange)
 
 	if len(preMatches) != 3 || len(postMatches) != 3 {
-		log.Printf("Invalid skipRange format: pre='%s', post='%s'", preSkipRange, postSkipRange)
+		log.Printf("Invalid skipRange format: pre=%q, post=%q", preSkipRange, postSkipRange) // #nosec G706
 		return false
 	}
 
@@ -383,7 +433,7 @@ func isValidOspVersionPatchUpdate(preSkipRange, postSkipRange string) bool {
 
 	// Lower bound must remain unchanged
 	if preLower != postLower {
-		log.Printf("Lower bound changed from '%s' to '%s' (should remain unchanged)", preLower, postLower)
+		log.Printf("Lower bound changed from '%s' to '%s' (should remain unchanged)", preLower, postLower) // #nosec G706
 		return false
 	}
 
@@ -393,7 +443,7 @@ func isValidOspVersionPatchUpdate(preSkipRange, postSkipRange string) bool {
 	postUpperMatches := versionRegex.FindStringSubmatch(postUpper)
 
 	if len(preUpperMatches) != 4 || len(postUpperMatches) != 4 {
-		log.Printf("Invalid version format: preUpper='%s', postUpper='%s'", preUpper, postUpper)
+		log.Printf("Invalid version format: preUpper=%q, postUpper=%q", preUpper, postUpper) // #nosec G706
 		return false
 	}
 
@@ -410,11 +460,11 @@ func isValidOspVersionPatchUpdate(preSkipRange, postSkipRange string) bool {
 
 	// Patch version must increase
 	if postUpperPatchInt <= preUpperPatchInt {
-		log.Printf("Patch version did not increase: %s -> %s", preUpper, postUpper)
+		log.Printf("Patch version did not increase: %q -> %q", preUpper, postUpper) // #nosec G706
 		return false
 	}
 
-	log.Printf("Valid patch update detected: %s -> %s (OSP_VERSION: %s)", preUpper, postUpper, ospVersion)
+	log.Printf("Valid patch update detected: %q -> %q (OSP_VERSION: %q)", preUpper, postUpper, ospVersion) // #nosec G706
 	return true
 }
 
@@ -422,16 +472,117 @@ func skipRangeContainsVersion(skipRange, version string) bool {
 	return strings.Contains(skipRange, version)
 }
 
+// ValidateChannelSkipRangeBounds validates that each channel's skipRange has correct bounds:
+// - Lower bound should start from previous version (e.g., pipelines-1.14 should have >=1.13.0)
+// - Upper bound should match current channel version (e.g., pipelines-1.14 should have <1.14.X)
+func ValidateChannelSkipRangeBounds() {
+	skipRangeMap, err := FetchOlmSkipRange()
+	if err != nil {
+		log.Printf("Error fetching OLM Skip Range: %v", err)
+		testsuit.T.Fail(fmt.Errorf("error fetching OLM Skip Range: %v", err))
+		return
+	}
+
+	log.Printf("Validating channel skipRange bounds to ensure correct lower and upper bounds")
+	log.Printf("Available channels and skipRanges:")
+	for channel, skipRange := range skipRangeMap {
+		log.Printf("  - Channel: %q, SkipRange: %q", channel, skipRange) // #nosec G706
+	}
+
+	validationErrors := []string{}
+	skipRangePattern := regexp.MustCompile(`>=(\d+\.\d+\.\d+)\s*<(\d+\.\d+\.\d+)`)
+	channelVersionPattern := regexp.MustCompile(`pipelines-(\d+)\.(\d+)`)
+
+	for channel, skipRange := range skipRangeMap {
+		if channel == "latest" {
+			log.Printf("Skipping 'latest' channel")
+			continue
+		}
+
+		// Extract version from channel name (e.g., "pipelines-1.14" -> major=1, minor=14)
+		channelMatches := channelVersionPattern.FindStringSubmatch(channel)
+		if len(channelMatches) != 3 {
+			log.Printf("Warning: Channel %q does not match expected pattern 'pipelines-X.Y', skipping", channel) // #nosec G706
+			continue
+		}
+
+		var major, minor int
+		if _, err := fmt.Sscanf(channelMatches[1], "%d", &major); err != nil {
+			validationErrors = append(validationErrors, fmt.Sprintf("Channel '%s' has invalid major version", channel))
+			continue
+		}
+		if _, err := fmt.Sscanf(channelMatches[2], "%d", &minor); err != nil {
+			validationErrors = append(validationErrors, fmt.Sprintf("Channel '%s' has invalid minor version", channel))
+			continue
+		}
+
+		channelVersion := fmt.Sprintf("%d.%d", major, minor)
+
+		// Parse skipRange format: >=X.Y.Z <X.Y.Z
+		skipRangeMatches := skipRangePattern.FindStringSubmatch(skipRange)
+		if len(skipRangeMatches) != 3 {
+			validationErrors = append(validationErrors, fmt.Sprintf("Channel '%s' has invalid skipRange format: '%s' (expected format: '>=X.Y.Z <X.Y.Z')", channel, skipRange))
+			continue
+		}
+
+		lowerBound := skipRangeMatches[1] // e.g., "1.13.0"
+		upperBound := skipRangeMatches[2] // e.g., "1.14.5"
+
+		lowerMajorMinor := extractMajorMinor(lowerBound)
+		upperMajorMinor := extractMajorMinor(upperBound)
+
+		log.Printf("\nValidating channel: %q (version: %s)", channel, channelVersion)  // #nosec G706
+		log.Printf("  SkipRange: %q", skipRange)                                       // #nosec G706
+		log.Printf("  Lower bound: %q (major.minor: %s)", lowerBound, lowerMajorMinor) // #nosec G706
+		log.Printf("  Upper bound: %q (major.minor: %s)", upperBound, upperMajorMinor) // #nosec G706
+
+		// Calculate previous version (e.g., 1.14 -> 1.13, 1.16 -> 1.15)
+		prevMinor := minor - 1
+		var prevVersion string
+		if prevMinor < 0 {
+			// If minor is 0, previous would be (major-1).X, but this case is unlikely for pipelines
+			// For now, we'll skip validation for this edge case
+			log.Printf("  ⚠️ Channel %q has minor version 0, skipping previous version validation", channel) // #nosec G706
+			continue
+		}
+		prevVersion = fmt.Sprintf("%d.%d", major, prevMinor)
+
+		// Validate lower bound starts from previous version
+		if lowerMajorMinor != prevVersion {
+			validationErrors = append(validationErrors, fmt.Sprintf("Channel '%s' (version %s) has lower bound '%s' (major.minor: %s) that doesn't match previous version '%s'. Expected: >=%s.0", channel, channelVersion, lowerBound, lowerMajorMinor, prevVersion, prevVersion))
+		} else {
+			log.Printf("  ✅ Lower bound correctly starts from previous version: %s", prevVersion) // #nosec G706
+		}
+
+		// Validate upper bound matches current channel version
+		if upperMajorMinor != channelVersion {
+			validationErrors = append(validationErrors, fmt.Sprintf("Channel '%s' (version %s) has upper bound '%s' (major.minor: %s) that doesn't match channel version. Expected: <%s.X", channel, channelVersion, upperBound, upperMajorMinor, channelVersion))
+		} else {
+			log.Printf("  ✅ Upper bound correctly matches channel version: %s", channelVersion) // #nosec G706
+		}
+	}
+
+	if len(validationErrors) > 0 {
+		log.Printf("\n❌ Channel skipRange bounds validation failed with %d error(s):", len(validationErrors)) // #nosec G706
+		for _, errMsg := range validationErrors {
+			log.Printf("  - %q", errMsg) // #nosec G706
+		}
+		testsuit.T.Fail(fmt.Errorf("channel skipRange bounds validation failed: %v", strings.Join(validationErrors, "; ")))
+	} else {
+		log.Printf("\n✅ Success: All channel skipRanges have correct bounds - lower bound starts from previous version and upper bound matches channel version")
+	}
+}
+
 // ValidateOlmSkipRangeDiff validates that skipRange changes between pre-upgrade and post-upgrade
 // are valid. Only the channel matching the current OSP_VERSION should have its upper bound updated.
 func ValidateOlmSkipRangeDiff(fileName string, preUpgradeSkipRange string, postUpgradeSkipRange string) {
 	filePath := config.Path(fileName)
-	file, err := os.Open(filePath)
+	file, err := os.Open(filePath) // nolint:gosec // G304: filePath is sanitized by config.Path()
 	if err != nil {
 		testsuit.T.Fail(fmt.Errorf("failed to open file %s: %w", fileName, err))
 		return
 	}
-	defer file.Close()
+	defer file.Close() //nolint:errcheck
 
 	var skipRangeData map[string]interface{}
 	if err := json.NewDecoder(file).Decode(&skipRangeData); err != nil {
@@ -454,14 +605,14 @@ func ValidateOlmSkipRangeDiff(fileName string, preUpgradeSkipRange string, postU
 		return
 	}
 
-	log.Printf("Pre-Upgrade Skip Range: %+v", preUpgradeMap)
-	log.Printf("Post-Upgrade Skip Range: %+v", postUpgradeMap)
+	log.Printf("Pre-Upgrade Skip Range: %+v", preUpgradeMap)   // #nosec G706
+	log.Printf("Post-Upgrade Skip Range: %+v", postUpgradeMap) // #nosec G706
 
 	ospVersion := os.Getenv("OSP_VERSION")
 	ospMajorMinor := ""
 	if ospVersion != "" {
 		ospMajorMinor = extractMajorMinor(ospVersion)
-		log.Printf("Validating with OSP_VERSION: %s (major.minor: %s)", ospVersion, ospMajorMinor)
+		log.Printf("Validating with OSP_VERSION: %q (major.minor: %q)", ospVersion, ospMajorMinor) // #nosec G706
 	} else {
 		log.Printf("OSP_VERSION not set, validating that all channels remain unchanged")
 	}
@@ -496,13 +647,22 @@ func ValidateOlmSkipRangeDiff(fileName string, preUpgradeSkipRange string, postU
 			continue
 		}
 
+		// Check if this channel matches the current OSP_VERSION (e.g., "pipelines-1.15" matches OSP_VERSION "1.15.4")
+		channelMatchesOspVersion := ospVersion != "" && strings.Contains(channel, ospMajorMinor)
+
 		// Check if skipRange changed
 		if preSkipRange == postSkipRange {
-			log.Printf("✅ Channel '%s': unchanged (%s)", channel, preSkipRange)
+			if channelMatchesOspVersion {
+				// For channel matching OSP_VERSION, skipRange MUST change (upper bound should increase)
+				// If unchanged, it's an error - the channel should have been updated for the new patch version
+				validationErrors = append(validationErrors, fmt.Sprintf("Channel '%s' (matching OSP_VERSION %s) skipRange unchanged. Expected update from '%s' to include OSP_VERSION %s in upper bound, but got: %s", channel, ospVersion, preSkipRange, ospVersion, postSkipRange))
+				continue
+			}
+			log.Printf("✅ Channel %q: unchanged (%q)", channel, preSkipRange) // #nosec G706
 			continue
 		}
 
-		log.Printf("Channel '%s': changed from '%s' to '%s'", channel, preSkipRange, postSkipRange)
+		log.Printf("Channel %q: changed from %q to %q", channel, preSkipRange, postSkipRange) // #nosec G706
 
 		// Parse skipRange format: >=X.Y.Z <X.Y.Z
 		preMatches := skipRangePattern.FindStringSubmatch(preSkipRange)
@@ -515,9 +675,6 @@ func ValidateOlmSkipRangeDiff(fileName string, preUpgradeSkipRange string, postU
 		preLower, preUpper := preMatches[1], preMatches[2]
 		postLower, postUpper := postMatches[1], postMatches[2]
 
-		// Check if this channel matches the current OSP_VERSION (e.g., "pipelines-1.15" matches OSP_VERSION "1.15.4")
-		channelMatchesOspVersion := ospVersion != "" && strings.Contains(channel, ospMajorMinor)
-
 		if channelMatchesOspVersion {
 			// For the channel matching OSP_VERSION, validate patch update
 			if preLower != postLower {
@@ -526,7 +683,7 @@ func ValidateOlmSkipRangeDiff(fileName string, preUpgradeSkipRange string, postU
 			}
 
 			if isValidOspVersionPatchUpdate(preSkipRange, postSkipRange) {
-				log.Printf("✅ Channel '%s': valid patch update for OSP_VERSION %s (%s -> %s)", channel, ospVersion, preUpper, postUpper)
+				log.Printf("✅ Channel %q: valid patch update for OSP_VERSION %q (%q -> %q)", channel, ospVersion, preUpper, postUpper) // #nosec G706
 			} else {
 				validationErrors = append(validationErrors, fmt.Sprintf("Channel '%s' (matching OSP_VERSION %s) has invalid patch update: %s -> %s", channel, ospVersion, preSkipRange, postSkipRange))
 			}
@@ -543,7 +700,7 @@ func ValidateOlmSkipRangeDiff(fileName string, preUpgradeSkipRange string, postU
 		}
 		if _, existedInPre := preUpgradeMap[postChannel]; !existedInPre {
 			// This is a new channel - validate if it matches the current OSP_VERSION
-			log.Printf("New channel '%s' found in post-upgrade data", postChannel)
+			log.Printf("New channel %q found in post-upgrade data", postChannel) // #nosec G706
 
 			postSkipRange, ok := postSkipRangeInterface.(string)
 			if !ok {
@@ -577,19 +734,19 @@ func ValidateOlmSkipRangeDiff(fileName string, preUpgradeSkipRange string, postU
 					continue
 				}
 
-				log.Printf("✅ New channel '%s': valid for new major.minor release OSP_VERSION %s (skipRange: %s)", postChannel, ospVersion, postSkipRange)
+				log.Printf("✅ New channel %q: valid for new major.minor release OSP_VERSION %q (skipRange: %q)", postChannel, ospVersion, postSkipRange) // #nosec G706
 			} else {
 				// New channel that doesn't match OSP_VERSION - this shouldn't happen in normal upgrade scenarios
-				log.Printf("⚠️ New channel '%s' found but doesn't match OSP_VERSION %s - this may indicate an unexpected new release", postChannel, ospVersion)
+				log.Printf("⚠️ New channel %q found but doesn't match OSP_VERSION %q - this may indicate an unexpected new release", postChannel, ospVersion) // #nosec G706
 			}
 		}
 	}
 
 	// Report results
 	if len(validationErrors) > 0 {
-		log.Printf("❌ OLM Skip Range validation failed with %d error(s):", len(validationErrors))
-		for _, err := range validationErrors {
-			log.Printf("  - %s", err)
+		log.Printf("❌ OLM Skip Range validation failed with %d error(s):", len(validationErrors)) // #nosec G706
+		for _, errMsg := range validationErrors {
+			log.Printf("  - %q", errMsg) // #nosec G706
 		}
 		testsuit.T.Fail(fmt.Errorf("OLM Skip Range validation failed: %v", strings.Join(validationErrors, "; ")))
 	} else {
