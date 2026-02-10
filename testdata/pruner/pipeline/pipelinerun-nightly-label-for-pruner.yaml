@@ -1,0 +1,12 @@
+apiVersion: tekton.dev/v1
+kind: PipelineRun
+metadata:
+  generateName: echo-pipeline-run-label-nightly-
+  labels:
+    type: nightly
+spec:
+  params:
+    - name: message
+      value: "label-nightly-run"
+  pipelineRef:
+    name: echo-pipeline

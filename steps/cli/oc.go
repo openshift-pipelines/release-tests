@@ -294,3 +294,46 @@ var _ = gauge.Step("Copy secret <secretName> from <sourceNamespace> namespace to
 		testsuit.T.Fail(fmt.Errorf("secret %s doesn't exist in namespace %s", secretName, sourceNamespace))
 	}
 })
+
+var _ = gauge.Step("<action> legacy pruner", func(action string) {
+	action = strings.TrimSpace(strings.ToLower(action))
+	disabled := action == "disable"
+	log.Printf("%s legacy pruner (spec.pruner.disabled=%v)", action, disabled)
+	patch_data := fmt.Sprintf("{\"spec\":{\"pruner\":{\"disabled\":%v}}}", disabled)
+	oc.UpdateTektonConfig(patch_data)
+})
+
+var _ = gauge.Step("<action> tekton-pruner", func(action string) {
+	action = strings.TrimSpace(strings.ToLower(action))
+	disabled := action == "disable"
+	log.Printf("%s tekton-pruner (spec.tektonpruner.disabled=%v)", action, disabled)
+	patch_data := fmt.Sprintf("{\"spec\":{\"tektonpruner\":{\"disabled\":%v}}}", disabled)
+	oc.UpdateTektonConfig(patch_data)
+})
+
+var _ = gauge.Step("Update tekton-pruner config with <tektonPrunerConfigParam> as <tektonPrunerConfigValue> and expect message <expectedMessage>", func(tektonPrunerConfigParam, tektonPrunerConfigValue, expectedMessage string) {
+	var valuePart string
+	if _, err := strconv.Atoi(tektonPrunerConfigValue); err == nil {
+		valuePart = tektonPrunerConfigValue
+	} else {
+		valuePart = fmt.Sprintf("\"%s\"", strings.ReplaceAll(tektonPrunerConfigValue, "\"", "\\\""))
+	}
+	// Support dot-separated path for nested keys (e.g. namespaces.dev.ttlSecondsAfterFinished)
+	var globalConfigJSON string
+	if strings.Contains(tektonPrunerConfigParam, ".") {
+		parts := strings.Split(tektonPrunerConfigParam, ".")
+		inner := fmt.Sprintf("\"%s\":%s", parts[len(parts)-1], valuePart)
+		for i := len(parts) - 2; i >= 0; i-- {
+			inner = fmt.Sprintf("\"%s\":{%s}", parts[i], inner)
+		}
+		globalConfigJSON = inner
+	} else {
+		globalConfigJSON = fmt.Sprintf("\"%s\":%s", tektonPrunerConfigParam, valuePart)
+	}
+	patchData := fmt.Sprintf("{\"spec\":{\"tektonpruner\":{\"global-config\":{%s}}}}", globalConfigJSON)
+	if expectedMessage == "" {
+		oc.UpdateTektonConfig(patchData)
+	} else {
+		oc.UpdateTektonConfigwithInvalidData(patchData, expectedMessage)
+	}
+})

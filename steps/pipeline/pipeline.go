@@ -45,6 +45,10 @@ var _ = gauge.Step("<numberOfPr> pipelinerun(s) should be present within <timeou
 	pipelines.AssertNumberOfPipelineruns(store.Clients(), store.Namespace(), numberOfPr, timeoutSeconds)
 })
 
+var _ = gauge.Step("<numberOfPr> pipelinerun(s) with status <status> should be present within <timeoutSeconds> seconds", func(numberOfPr, status, timeoutSeconds string) {
+	pipelines.AssertNumberOfPipelinerunsWithStatus(store.Clients(), store.Namespace(), numberOfPr, status, timeoutSeconds)
+})
+
 var _ = gauge.Step("<numberOfTr> taskrun(s) should be present within <timeoutSeconds> seconds", func(numberOfTr, timeoutSeconds string) {
 	pipelines.AssertNumberOfTaskruns(store.Clients(), store.Namespace(), numberOfTr, timeoutSeconds)
 })
