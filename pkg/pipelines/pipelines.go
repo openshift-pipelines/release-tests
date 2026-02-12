@@ -24,13 +24,13 @@ import (
 	"github.com/tektoncd/cli/pkg/options"
 	prsort "github.com/tektoncd/cli/pkg/pipelinerun/sort"
 	v1 "github.com/tektoncd/pipeline/pkg/apis/pipeline/v1"
-	"knative.dev/pkg/apis"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	w "k8s.io/apimachinery/pkg/util/wait"
 	"k8s.io/apimachinery/pkg/watch"
+	"knative.dev/pkg/apis"
 )
 
 var prGroupResource = schema.GroupVersionResource{Group: "tekton.dev", Resource: "pipelineruns"}
@@ -326,7 +326,11 @@ func AssertNumberOfPipelinerunsWithStatus(c *clients.Clients, namespace, numberO
 		return false, nil
 	})
 	if err != nil {
-		prlist, _ := c.PipelineRunClient.List(c.Ctx, metav1.ListOptions{})
+		prlist, listErr := c.PipelineRunClient.List(c.Ctx, metav1.ListOptions{})
+		if listErr != nil {
+			testsuit.T.Fail(fmt.Errorf("error waiting for pipelineruns: %v. Additionally, failed to list pipelineruns to provide details: %v", err, listErr))
+			return
+		}
 		count := countPipelinerunsByStatus(prlist, status)
 		testsuit.T.Fail(fmt.Errorf("error: Expected %v pipelineruns with status %s but found %v (total pipelineruns: %v): %s", numberOfPr, status, count, len(prlist.Items), err))
 	}

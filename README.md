@@ -75,7 +75,6 @@ gauge run --log-level=debug --verbose --tags 'e2e & linux/amd64' specs/clusterta
 gauge run --log-level=debug --verbose --tags e2e specs/operator/rbac.spec
 gauge run --log-level=debug --verbose --tags e2e specs/operator/auto-prune.spec
 gauge run --log-level=debug --verbose --tags e2e specs/operator/addon.spec
-gauge run --log-level=debug --verbose --tags e2e specs/operator/tekton-pruner.spec
 gauge run --log-level=debug --verbose --tags e2e <specification_path>:<scenario_line_number>
 ```
 
@@ -89,7 +88,7 @@ gauge run --log-level=debug --verbose --tags 'e2e & !skip_linux/amd64' specs/clu
 gauge run --log-level=debug --verbose --tags e2e specs/pac/pac-gitlab.spec
 ```
 
-## Running PAC GitLab Tests
+## Running PAC GitLab/GitHub Tests
 Pipelines as code is a project allowing you to define your CI/CD using Tekton PipelineRuns and Tasks in a file located in your source control management (SCM) system, such as GitHub or GitLab. This file is then used to automatically create a pipeline for a Pull Request or a Push to a branch.
 
 ### Setting up PAC in GitLab
@@ -104,6 +103,7 @@ Pipelines as code is a project allowing you to define your CI/CD using Tekton Pi
 - Enter any WebhookSecret to be used for GitLab webhook `export GITLAB_WEBHOOK_TOKEN=<WebhookSecret>`
 
 ### Running PAC E2E tests
+#### GitLab
 Export the following Env Variables
 ```
 export GITLAB_TOKEN=<Token>
@@ -112,44 +112,31 @@ export GITLAB_GROUP_NAMESPACE=<GroupName>
 export GITLAB_WEBHOOK_TOKEN=<GitLabWebHookSecret>
 ```
 
-To run pac e2e tests...
+To run pac GitLab e2e tests...
 
 ```
 gauge run --log-level=debug --verbose --tags e2e specs/pac/pac-gitlab.spec
 ```
 
-### Tekton Pruner tests
+#### GitHub
 
-The Tekton Pruner spec (`specs/operator/tekton-pruner.spec`) validates the tekton-pruner component: deployment and migration from legacy pruner, webhook validation (negative values, invalid types), global TTL expiry for PipelineRuns and TaskRuns, history limits (successful/failed/mixed), namespace hierarchy (override error, default fallback), and selectors (label match/mismatch, annotation, AND logic).
-
-**Prerequisites:** OpenShift Pipelines operator must be installed. Run as `admin` user.
-
-**Run the full Tekton Pruner spec:**
-
+Export the following Env Variables
 ```
-gauge run --log-level=debug --verbose --tags e2e specs/operator/tekton-pruner.spec
+export PAC_GITHUB_TOKEN=<Token>
+[Optional]
+export PAC_GITHUBWEBHOOK_TOKEN=<GithubWebhookToken>
+export PAC_GITHUB_ORG=<GithubOrg>
 ```
 
-**Run by tag:**
+### Setting up PAC in GitHub
+- Click on your profile under `Settings --> Developer Settings --> Personal Access tokens`
+- Create a New Personal Access Token and `export PAC_GITHUB_TOKEN=<Token>`
 
-| Tag          | Description |
-|-------------|-------------|
-| `pruner`    | All tekton-pruner scenarios |
-| `deployment`| TC-01: Enable/disable legacy and tekton-pruner, validate deployment |
-| `validation`| TC-02: Webhook negative values and invalid type |
-| `functional`| TC-03–TC-07: TTL expiry, history limits |
-| `hierarchy` | TC-08: Namespace config override error |
-| `selectors` | TC-09–TC-11: Label/annotation selectors, AND logic |
-
-Examples:
+To run pac GitHub e2e tests...
 
 ```
-gauge run --log-level=debug --verbose --tags 'e2e & pruner' specs/operator/tekton-pruner.spec
-gauge run --log-level=debug --verbose --tags 'e2e & deployment' specs/operator/tekton-pruner.spec
-gauge run --log-level=debug --verbose --tags 'e2e & selectors' specs/operator/tekton-pruner.spec
+gauge run --log-level=debug --verbose --tags e2e specs/pac/pac-github.spec
 ```
-
-**Note:** The spec Teardown re-enables the legacy pruner and disables the tekton-pruner. To leave the cluster with tekton-pruner enabled, comment out or skip the Teardown step.
 
 ## Authoring a new test specification
 

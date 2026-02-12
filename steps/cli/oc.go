@@ -312,8 +312,11 @@ var _ = gauge.Step("<action> tekton-pruner", func(action string) {
 })
 
 var _ = gauge.Step("Update tekton-pruner config with <tektonPrunerConfigParam> as <tektonPrunerConfigValue> and expect message <expectedMessage>", func(tektonPrunerConfigParam, tektonPrunerConfigValue, expectedMessage string) {
+	tektonPrunerConfigValue = strings.TrimSpace(tektonPrunerConfigValue)
 	var valuePart string
-	if _, err := strconv.Atoi(tektonPrunerConfigValue); err == nil {
+	if tektonPrunerConfigValue == "" || strings.EqualFold(tektonPrunerConfigValue, "null") {
+		valuePart = "null"
+	} else if _, err := strconv.Atoi(tektonPrunerConfigValue); err == nil {
 		valuePart = tektonPrunerConfigValue
 	} else {
 		valuePart = fmt.Sprintf("\"%s\"", strings.ReplaceAll(tektonPrunerConfigValue, "\"", "\\\""))
