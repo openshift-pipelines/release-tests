@@ -163,10 +163,10 @@ var _ = gauge.Step("Delete <resourceType> named <name>", func(resourceType, name
 	oc.DeleteResource(resourceType, name)
 })
 
-// Tekton Hub is deprecated; this now configures Artifact Hub.
-var _ = gauge.Step("Define the artifact-hub-api variable", func() {
-	patchData := `{"spec":{"pipeline":{"hub-resolver-config":{"artifact-hub-api":"https://artifacthub.io/"}}}}`
-	oc.UpdateTektonConfig(patchData)
+var _ = gauge.Step("Define the tekton-hub-api variable", func() {
+	patch_data := "{\"spec\":{\"pipeline\":{\"hub-resolver-config\":{\"tekton-hub-api\":\"https://api.hub.tekton.dev/\"}}}}"
+	oc.UpdateTektonConfig(patch_data)
+
 })
 
 var _ = gauge.Step("Configure GitHub token for git resolver in TektonConfig", func() {
