@@ -1,0 +1,55 @@
+# go-module-cache PVC
+# ─────────────────────────────────────────────────────────────────────────────
+# Shared, persistent PVC for the Go module download cache.
+#
+# Why ReadWriteMany?
+#   Multiple release-tests TaskRun pods run in parallel (one per test suite).
+#   All of them need to mount the same volume concurrently - that requires an
+#   RWX access mode.  On ROSA/OSD/OCP the default StorageClass is usually
+#   backed by Ceph RBD (RWO only).  Ensure you use a StorageClass that supports
+#   ReadWriteMany (e.g. ocs-storagecluster-cephfs, nfs, or azurefile).
+#
+# Lifecycle:
+#   - This PVC is long-lived (not recreated per PipelineRun).
+#   - It is populated once by the warm-go-cache Task before parallel test tasks
+#     start.  Subsequent runs reuse the existing cache; only changed modules are
+#     fetched.
+#   - If go.mod / go.sum change significantly, delete and recreate the PVC to
+#     avoid stale entries (or let warm-go-cache handle it with go mod download,
+#     which is additive-only).
+#
+# Apply once per cluster with:
+#   oc apply -f tekton/pvc/go-module-cache.yaml -n openshift-pipelines
+# ─────────────────────────────────────────────────────────────────────────────
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: go-module-cache
+  namespace: openshift-pipelines
+  labels:
+    app.kubernetes.io/part-of: release-tests
+    app.kubernetes.io/component: go-cache
+  annotations:
+    # Human-readable explanation of why this PVC exists
+    release-tests.tekton.dev/purpose: >
+      Shared Go module cache populated once per pipeline run by the
+      warm-go-cache task, then mounted read-only by all parallel
+      release-tests tasks to eliminate concurrent module downloads that
+      cause gauge runner timeout (>101 min).
+spec:
+  accessModes:
+    # ReadWriteMany is required so all parallel test pods can mount
+    # simultaneously.  Use ocs-storagecluster-cephfs or equivalent.
+    - ReadWriteMany
+  resources:
+    requests:
+      # The full Go module graph for this project is ~1.5 GB.
+      # 5 Gi gives comfortable headroom for future growth.
+      storage: 5Gi
+  # Replace with the RWX-capable StorageClass available on your cluster.
+  # Examples:
+  #   OCP/OSD/ROSA (OCS)   : ocs-storagecluster-cephfs
+  #   ARO                  : azurefile-csi
+  #   GKE                  : standard-rwx
+  #   Generic NFS          : nfs-client
+  storageClassName: ocs-storagecluster-cephfs

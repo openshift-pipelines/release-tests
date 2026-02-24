@@ -1,0 +1,145 @@
+# tekton-caches integration for cross-run Go module caching
+# ─────────────────────────────────────────────────────────────────────────────
+# This file enhances the warm-go-cache Task (tekton/tasks/warm-go-cache.yaml)
+# with tekton-caches StepActions so that the Go module cache is also persisted
+# across pipeline runs in an OCI registry.
+#
+# How it works (two-tier strategy):
+#
+#   Tier 1 – within a single pipeline run (PVC):
+#     warm-go-cache Task runs once → fills PVC → all parallel test tasks
+#     mount the PVC and find modules locally.
+#
+#   Tier 2 – across pipeline runs (OCI registry via tekton-caches):
+#     cache-fetch StepAction pulls the tarball from Quay.io at the start of
+#     warm-go-cache; if the hash matches, the PVC is pre-filled in seconds
+#     (no module-proxy download at all).
+#     cache-upload StepAction pushes a fresh tarball when the hash changes.
+#
+# Cache key: SHA-256 hash of go.sum (content-addressed → auto-invalidates on
+# any dependency change, no manual purge needed).
+#
+# Pre-requisites:
+#   1. StepActions feature gate must be enabled in TektonCD Pipelines:
+#        kubectl patch configmap -n tekton-pipelines --type merge \
+#          -p '{"data":{"enable-step-actions":"true"}}' feature-flags
+#   2. A robot account on Quay.io with write access to
+#      quay.io/openshift-pipeline/release-tests-go-cache.
+#      Create a Tekton secret and link it to the SA used by the pipeline.
+#
+# Apply with:
+#   kubectl apply -f tekton/stepactions/cache-fetch.yaml
+#   kubectl apply -f tekton/stepactions/cache-upload.yaml
+#   (or use the upstream versions directly from tekton-caches)
+# ─────────────────────────────────────────────────────────────────────────────
+
+# ── Updated warm-go-cache Task with tekton-caches integration ─────────────────
+apiVersion: tekton.dev/v1
+kind: Task
+metadata:
+  name: warm-go-cache-with-oci
+  annotations:
+    tekton.dev/tags: "go,cache,oci"
+    tekton.dev/displayName: "Warm Go Module Cache (OCI-backed)"
+    tekton.dev/description: >
+      Populates the shared go-module-cache PVC using a two-tier strategy:
+      first tries to restore from OCI registry via tekton-caches (fast, cross-run),
+      then falls back to go mod download if the cache is stale or absent.
+      After a fresh download the new cache is uploaded back to the registry.
+spec:
+  params:
+    - name: IMAGE
+      description: CI image (Go + gauge)
+      default: quay.io/openshift-pipeline/ci
+    - name: REGISTRY
+      description: >
+        OCI registry path for the cache image, with {{hash}} placeholder.
+        Example: oci://quay.io/openshift-pipeline/release-tests-go-cache:{{hash}}
+      default: "oci://quay.io/openshift-pipeline/release-tests-go-cache:{{hash}}"
+    - name: GOPROXY
+      description: Go module proxy URL
+      default: "https://proxy.golang.org,direct"
+  workspaces:
+    - name: release-tests-git
+      description: Checked-out release-tests repository (go.mod / go.sum)
+    - name: go-cache
+      description: Shared RWX PVC for Go module cache (GOMODCACHE)
+    - name: dockerconfig
+      description: >
+        Workspace containing Docker config for OCI registry auth.
+        Bind to a secret holding .dockerconfigjson for Quay.io.
+      optional: true
+  steps:
+    # ── Step 1: restore cache from OCI registry ────────────────────────────
+    - name: cache-fetch
+      ref:
+        # Upstream StepAction from tekton-caches project.
+        # Pin to a specific digest in production.
+        resolver: http
+        params:
+          - name: url
+            value: https://raw.githubusercontent.com/openshift-pipelines/tekton-caches/main/tekton/cache-fetch.yaml
+      params:
+        - name: PATTERNS
+          value: ["go.sum"]
+        - name: SOURCE
+          value: $(params.REGISTRY)
+        - name: CACHE_PATH
+          value: $(workspaces.go-cache.path)/gopath/pkg/mod
+        - name: WORKING_DIR
+          value: $(workspaces.release-tests-git.path)
+        - name: DOCKER_CONFIG
+          value: $(workspaces.dockerconfig.path)
+
+    # ── Step 2: download any missing modules from module proxy ─────────────
+    - name: download-modules
+      image: $(params.IMAGE)
+      imagePullPolicy: Always
+      workingDir: $(workspaces.release-tests-git.path)
+      env:
+        - name: GOPATH
+          value: $(workspaces.go-cache.path)/gopath
+        - name: GOMODCACHE
+          value: $(workspaces.go-cache.path)/gopath/pkg/mod
+        - name: GOPROXY
+          value: $(params.GOPROXY)
+        - name: CACHE_FETCHED
+          value: $(steps.cache-fetch.results.fetched)
+      script: |
+        #!/usr/bin/env bash
+        set -eu -o pipefail
+
+        mkdir -p "${GOMODCACHE}"
+
+        if [[ "${CACHE_FETCHED}" == "true" ]]; then
+          echo "==> OCI cache hit – verifying completeness ..."
+          # Quick sanity check: if go mod download exits 0 with no output it
+          # means all deps are present; any missing module is downloaded.
+          go mod download 2>&1 | head -50
+        else
+          echo "==> OCI cache miss – downloading full module graph ..."
+          go mod download -x
+        fi
+
+        echo "==> Module cache size: $(du -sh ${GOMODCACHE} | cut -f1)"
+
+    # ── Step 3: upload refreshed cache to OCI registry ────────────────────
+    - name: cache-upload
+      ref:
+        resolver: http
+        params:
+          - name: url
+            value: https://raw.githubusercontent.com/openshift-pipelines/tekton-caches/main/tekton/cache-upload.yaml
+      params:
+        - name: PATTERNS
+          value: ["go.sum"]
+        - name: TARGET
+          value: $(params.REGISTRY)
+        - name: CACHE_PATH
+          value: $(workspaces.go-cache.path)/gopath/pkg/mod
+        - name: WORKING_DIR
+          value: $(workspaces.release-tests-git.path)
+        - name: FETCHED
+          value: $(steps.cache-fetch.results.fetched)
+        - name: DOCKER_CONFIG
+          value: $(workspaces.dockerconfig.path)

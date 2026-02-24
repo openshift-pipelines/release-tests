@@ -5,7 +5,7 @@ metadata:
   name: create-push-ci-image
   annotations:
     pipelinesascode.tekton.dev/on-cel-expression: |
-      "Dockerfile.CI".pathChanged() && ( event == "push" || event == "pull_request" )
+      ( "Dockerfile.CI".pathChanged() || "go.mod".pathChanged() || "go.sum".pathChanged() ) && ( event == "push" || event == "pull_request" )
     pipelinesascode.tekton.dev/max-keep-runs: "5"
 spec:
   taskRunSpecs:
