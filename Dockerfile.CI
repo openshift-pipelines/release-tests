@@ -72,3 +72,9 @@ ENV GOLANGCI_LINT_VERSION=2.7.2
 RUN wget -O /tmp/golangci-lint.tar.gz https://github.com/golangci/golangci-lint/releases/download/v${GOLANGCI_LINT_VERSION}/golangci-lint-${GOLANGCI_LINT_VERSION}-linux-amd64.tar.gz \
     && tar --strip-components=1 -C /usr/bin -xzf /tmp/golangci-lint.tar.gz golangci-lint-${GOLANGCI_LINT_VERSION}-linux-amd64/golangci-lint \
     && rm -f /tmp/golangci-lint.tar.gz
+
+# Pre-download Go module dependencies into the image so that gauge run does
+# not attempt to fetch them at test-time (which causes timeouts / deadlocks).
+WORKDIR /tmp/release-tests
+COPY go.mod go.sum ./
+RUN go mod download
