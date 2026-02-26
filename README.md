@@ -1,4 +1,4 @@
-# OpenShift Pipelines E2E tests
+# OpenShift Pipelines E2E tests 
 
 Validation of OpenShift Pipeline releases using [Gauge](https://docs.gauge.org/getting_started/installing-gauge.html)
 
@@ -29,7 +29,9 @@ For other installation methods, refer to the [Gauge documentation.](https://docs
 ### Install plugins
 
 ```
-GO111MODULE=off gauge install go
+wget https://github.com/getgauge-contrib/gauge-go/releases/download/v0.5.0/gauge-go-0.5.0-linux.x86_64.zip -O /tmp/gauge-go.zip
+GO111MODULE=on gauge install go -v 0.4.0
+rm /tmp/gauge-go.zip
 GO111MODULE=off gauge install html-report
 GO111MODULE=off gauge install screenshot
 GO111MODULE=off gauge install xml-report
@@ -41,7 +43,7 @@ GO111MODULE=off gauge install xml-report
 GO111MODULE=off gauge install reportportal
 ```
 
-## Run a specification
+## Run specification
 
 Refer to the [Gauge documentation](https://docs.gauge.org/execution.html) for general information about how to run specifications (aka `specs`).
 
