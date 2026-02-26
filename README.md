@@ -1,4 +1,4 @@
-# OpenShift Pipelines E2E tests
+# OpenShift Pipelines E2E tests 
 
 Validation of OpenShift Pipeline releases using [Gauge](https://docs.gauge.org/getting_started/installing-gauge.html)
 
