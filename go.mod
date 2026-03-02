@@ -1,9 +1,9 @@
 module github.com/openshift-pipelines/release-tests
 
-go 1.24.4
+go 1.25
 
 require (
-	github.com/getgauge-contrib/gauge-go v0.5.1
+	github.com/getgauge-contrib/gauge-go v0.5.2
 	github.com/google/go-cmp v0.7.0
 	github.com/openshift-pipelines/manual-approval-gate v0.7.0
 	github.com/openshift-pipelines/pipelines-as-code v0.39.3
@@ -158,7 +158,7 @@ require (
 	google.golang.org/genproto/googleapis/api v0.0.0-20250908214217-97024824d090 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20250908214217-97024824d090 // indirect
 	google.golang.org/grpc v1.76.0 // indirect
-	google.golang.org/protobuf v1.36.10 // indirect
+	google.golang.org/protobuf v1.36.11 // indirect
 	gopkg.in/evanphx/json-patch.v4 v4.13.0 // indirect
 	gopkg.in/inf.v0 v0.9.1 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
