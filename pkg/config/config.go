@@ -72,6 +72,10 @@ const (
 	// Name of console deployment
 	ConsolePluginDeployment = "pipelines-console-plugin"
 
+	// Name of tekton-pruner deployment
+	TektonPrunerControllerName = "tekton-pruner-controller"
+	TektonPrunerWebhookName    = "tekton-pruner-webhook"
+
 	// A token used in triggers tests
 	TriggersSecretToken = "1234567"
 )

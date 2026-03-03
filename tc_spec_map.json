@@ -32,5 +32,6 @@
     "PIPELINES-31": "specs/pipelines/http-resolvers.spec",
     "PIPELINES-32": "specs/ecosystem/ecosystem-multiarch.spec",
     "PIPELINES-33": "specs/ecosystem/ecosystem-s2i.spec",
-    "PIPELINES-34": "specs/operator/roles.spec"
+    "PIPELINES-34": "specs/operator/roles.spec",
+    "PIPELINES-35": "specs/operator/tekton-pruner.spec"
 }

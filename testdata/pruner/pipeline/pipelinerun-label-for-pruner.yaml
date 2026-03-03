@@ -1,0 +1,12 @@
+apiVersion: tekton.dev/v1
+kind: PipelineRun
+metadata:
+  generateName: echo-pipeline-run-label-
+  labels:
+    type: ci
+spec:
+  params:
+    - name: message
+      value: "ci-labeled-run"
+  pipelineRef:
+    name: echo-pipeline
