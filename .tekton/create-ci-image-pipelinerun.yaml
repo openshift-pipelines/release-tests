@@ -138,8 +138,6 @@ spec:
         workspaces:
           - name: source
             workspace: source
-          - name: dockerconfig
-            workspace: dockerconfig
         when: 
           - input: "{{ event_type }}"
             operator: in 
