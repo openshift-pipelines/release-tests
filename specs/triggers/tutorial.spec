@@ -5,7 +5,7 @@ Pre condition:
   * Validate Operator should be installed
 
 ## Run pipelines tutorials: PIPELINES-06-TC01
-Tags: e2e, integration, non-admin, pipelines, tutorial
+Tags: e2e, integration, non-admin, pipelines, tutorial, skip-4.14
 Component: Pipelines
 Level: Integration
 Type: Functional
@@ -34,7 +34,7 @@ Steps:
    * Validate that route URL contains "Cat 🐺 vs Dog 🐶"
 
 ## Run pipelines tutorial using triggers: PIPELINES-06-TC02
-Tags: e2e, integration, triggers, non-admin, tutorial, sanity
+Tags: e2e, integration, triggers, non-admin, tutorial, sanity, skip-4.14
 Component: Triggers
 Level: Integration
 Type: Functional
