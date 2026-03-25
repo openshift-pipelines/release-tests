@@ -62,19 +62,27 @@ func VerifySignature(resourceType string) {
 	// Get a signature of taskrun payload
 	resourceUID := cmd.MustSucceed("opc", resourceType, "describe", "--last", "-o", "jsonpath='{.metadata.uid}'").Stdout()
 	resourceUID = strings.Trim(resourceUID, "'")
+
+	// Poll until chains has signed the resource (poll every 10s, timeout 5 minutes)
+	log.Printf("Waiting for chains to sign the %s...\n", resourceType)
+	signedJSONPath := "jsonpath=\"{.metadata.annotations.chains\\.tekton\\.dev/signed}\""
+	pollErr := wait.PollUntilContextTimeout(context.TODO(), time.Second*10, time.Minute*5, false, func(context.Context) (bool, error) {
+		isSigned := cmd.Run("opc", resourceType, "describe", "--last", "-o", signedJSONPath).Stdout()
+		isSigned = strings.Trim(isSigned, "\"")
+		if isSigned == "true" {
+			return true, nil
+		}
+		log.Printf("Resource not yet signed (chains.tekton.dev/signed=%s), retrying...\n", isSigned)
+		return false, nil
+	})
+	if pollErr != nil {
+		testsuit.T.Errorf("Timed out waiting for chains to sign %s: %v", resourceType, pollErr)
+	}
+
 	jsonpath := fmt.Sprintf("jsonpath=\"{.metadata.annotations.chains\\.tekton\\.dev/signature-%s-%s}\"", resourceType, resourceUID)
-	log.Println("Waiting 30 seconds")
-	cmd.MustSuccedIncreasedTimeout(time.Second*45, "sleep", "30")
 	signature := cmd.MustSucceed("opc", resourceType, "describe", "--last", "-o", jsonpath).Stdout()
 	signature = strings.Trim(signature, "\"")
 
-	jsonpath = "jsonpath=\"{.metadata.annotations.chains\\.tekton\\.dev/signed}\""
-	isSigned := cmd.MustSucceed("opc", resourceType, "describe", "--last", "-o", jsonpath).Stdout()
-	isSigned = strings.Trim(isSigned, "\"")
-
-	if isSigned != "true" {
-		testsuit.T.Errorf("Annotation chains.tekton.dev/signed is set to %s", isSigned)
-	}
 	if len(signature) == 0 {
 		testsuit.T.Fail(fmt.Errorf("annotation chains.tekton.dev/signature-%s-%s is not set", resourceType, resourceUID))
 	}
@@ -104,8 +112,37 @@ func StartKanikoTask() {
 	cmd.MustSucceed("oc", "secrets", "link", "pipeline", "chains-image-registry-credentials", "--for=pull,mount")
 	image := fmt.Sprintf("IMAGE=%s:%s", repo, tag)
 	cmd.MustSucceed("opc", "task", "start", "--param", image, "--use-param-defaults", "--workspace", "name=source,claimName=chains-pvc", "--workspace", "name=dockerconfig,secret=chains-image-registry-credentials", "kaniko-chains")
-	log.Println("Waiting 2 minutes for images to appear in image registry")
-	cmd.MustSuccedIncreasedTimeout(time.Second*130, "sleep", "120")
+	log.Println("Waiting for kaniko-chains task run to complete")
+
+	// Poll every 10 seconds with a 10-minute overall timeout for task completion
+	pollInterval := time.Second * 10
+	timeout := time.Minute * 10
+
+	err := wait.PollUntilContextTimeout(context.TODO(), pollInterval, timeout, false, func(context.Context) (bool, error) {
+		// Get the status reason of the last task run
+		reasonOutput := cmd.Run("opc", "tr", "describe", "--last", "-o", "jsonpath={.status.conditions[0].reason}").Stdout()
+		reason := strings.TrimSpace(reasonOutput)
+
+		switch reason {
+		case "Succeeded":
+			log.Printf("Task run succeeded with reason: %s\n", reason)
+			return true, nil
+		case "Failed":
+			return false, fmt.Errorf("task run failed with reason: %s", reason)
+		case "TaskRunTimeout":
+			return false, fmt.Errorf("task run timed out")
+		case "TaskRunCancelled":
+			return false, fmt.Errorf("task run was cancelled")
+		default:
+			// Still running, continue polling
+			log.Printf("Task run status: %s, waiting...\n", reason)
+			return false, nil
+		}
+	})
+
+	if err != nil {
+		testsuit.T.Errorf("Error waiting for kaniko-chains task run to complete: %v", err)
+	}
 }
 
 func GetImageUrlAndDigest() (string, string) {
