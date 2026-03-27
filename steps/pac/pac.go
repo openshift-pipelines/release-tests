@@ -60,8 +60,33 @@ var _ = gauge.Step("Update Annotation <annotationKey> with <annotationValue>", f
 	pac.UpdateAnnotation(annotationKey, annotationValue)
 })
 
+var _ = gauge.Step("Update push on-target-branch annotation to <annotationValue>", func(annotationValue string) {
+	pac.UpdatePushOnTargetBranch(annotationValue)
+})
+
 var _ = gauge.Step("Add Comment <comment> in MR", func(comment string) {
 	pac.AddComment(comment)
+})
+
+var _ = gauge.Step("Create tag <tagName> on <branch> branch", func(tagName, branch string) {
+	pac.CreateTagOnBranch(tagName, branch)
+})
+
+var _ = gauge.Step("Add GitOps comment <comment> on tag <tagName>", func(comment, tagName string) {
+	pac.AddCommitCommentOnTag(comment, tagName)
+})
+
+var _ = gauge.Step("Add GitOps /test comment for latest PipelineRun on tag <tagName>", func(tagName string) {
+	pac.AddTestCommentForLatestPipelineRunOnTag(tagName)
+})
+
+var _ = gauge.Step("Add GitOps /cancel comment for latest PipelineRun on tag <tagName>", func(tagName string) {
+	pac.AddCancelCommentForLatestPipelineRunOnTag(tagName)
+})
+
+var _ = gauge.Step("Wait for latest PipelineRun to be cancelled", func() {
+	pipelineName := pac.GetPushPipelineNameFromMain()
+	pipelines.WaitForPipelineRunCancelled(store.Clients(), pipelineName, store.Namespace())
 })
 
 var _ = gauge.Step("Add Label Name <labelName> with <color> color with description <description>", func(labelName, color, description string) {
