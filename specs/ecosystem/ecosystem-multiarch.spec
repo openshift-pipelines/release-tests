@@ -12,6 +12,8 @@ Type: Functional
 Importance: Critical
 
 Steps:
+  * Verify that jib-maven image registry variable is exported
+  * Create secret with image registry credentials for jib-maven
   * Create
       |S.NO|resource_dir                                          |
       |----|------------------------------------------------------|
@@ -31,6 +33,8 @@ Type: Functional
 Importance: Critical
 
 Steps:
+  * Verify that jib-maven image registry variable is exported
+  * Create secret with image registry credentials for jib-maven
   * Create
       |S.NO|resource_dir                                          |
       |----|------------------------------------------------------|
