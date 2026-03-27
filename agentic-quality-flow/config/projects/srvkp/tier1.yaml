@@ -1,0 +1,36 @@
+enabled: true
+language: "go"
+framework: "ginkgo-v2"
+default_package: "pipeline"
+
+import_base: "github.com/tektoncd/pipeline"
+
+imports:
+  dot_imports:
+    - "github.com/onsi/ginkgo/v2"
+    - "github.com/onsi/gomega"
+  standard:
+    - "context"
+    - "testing"
+    - "time"
+  project_api:
+    - { path: "github.com/tektoncd/pipeline/pkg/apis/pipeline/v1", alias: "pipelinev1" }
+    - { path: "github.com/tektoncd/triggers/pkg/apis/triggers/v1beta1", alias: "triggersv1beta1" }
+    - { path: "github.com/tektoncd/operator/pkg/apis/operator/v1alpha1", alias: "operatorv1alpha1" }
+  k8s_core:
+    - { path: "k8s.io/api/core/v1", alias: "corev1" }
+    - { path: "k8s.io/apimachinery/pkg/apis/meta/v1", alias: "metav1" }
+  test_framework:
+    - "github.com/tektoncd/pipeline/test"
+    - "github.com/tektoncd/pipeline/test/parse"
+
+helper_libraries:
+  parse: "github.com/tektoncd/pipeline/test/parse"
+  clients: "github.com/tektoncd/pipeline/test/clients"
+  wait: "github.com/tektoncd/pipeline/test/wait"
+  names: "github.com/tektoncd/pipeline/test/names"
+
+context_init:
+  - statement: "ctx := context.Background()"
+    variable: "ctx"
+    type: "context.Context"

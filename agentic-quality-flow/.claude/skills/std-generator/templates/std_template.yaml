@@ -1,0 +1,266 @@
+# Software Test Description (STD) Template
+# This template defines the schema for all generated STD files
+# Version: 1.0
+
+---
+metadata:
+  test_id: "TS-{JIRA_ID}-{NUM:03d}"
+  std_version: "1.0"
+  generated_date: "{YYYY-MM-DD}"
+  stp_reference: "{JIRA_ID} v{VERSION}, Section III, Row {NUM}"
+  jira_issue: "{JIRA_ID}"
+  github_pr: "kubevirt/kubevirt#{PR_NUMBER}"
+  test_tier: "{Tier 1|Tier 2} (Functional)"
+  priority: "{P0|P1|P2}"
+  mvp: {true|false}
+
+
+---
+test_objective:
+  title: "{scenario_description}"
+
+  what: |
+    {2-3 sentences explaining what functionality is being tested}
+
+  why: |
+    {Explain business/technical rationale for this test}
+
+  acceptance_criteria:
+    - {Criterion 1}
+    - {Criterion 2}
+    - {Criterion 3}
+
+---
+classification:
+  test_type: "{Functional API Test|Integration Test|E2E Test}"
+  layer: "Layer 3 - Specification by Example"
+  methodology: "Example-Based Testing"
+  scope: "{Single-component|Multi-component}"
+  automation_approach: "pytest with openshift-python-wrapper"
+
+---
+preconditions:
+  infrastructure:
+    - name: "OpenShift cluster with CNV installed"
+      requirement: "OCP 4.19+ with CNV 4.19+"
+      validation: "oc get csv -n openshift-cnv | grep kubevirt-hyperconverged"
+
+    - name: "Multi-node cluster"
+      requirement: "{Infer from scenario}"
+      validation: "{oc command}"
+
+    - name: "User RBAC permissions"
+      requirement: "User has {API} permissions"
+      validation: "oc auth can-i {verb} {resource}"
+
+  test_namespace:
+    name: "test-{feature-slug}"
+    labels:
+      test-suite: "{jira-id}"
+      test-tier: "{tier1|tier2}"
+    cleanup_policy: "delete-after-test"
+
+  test_data_requirements:
+    - name: "{Resource name}"
+      purpose: "{Why needed}"
+      specification: "See test_data.{resource}_definition"
+
+---
+test_data:
+  vmi_definition:
+    apiVersion: "kubevirt.io/v1"
+    kind: "VirtualMachineInstance"
+    metadata:
+      name: "test-vmi-{feature-slug}"
+      namespace: "{test_namespace}"
+      labels:
+        test-case: "{test_id}"
+    spec:
+      domain:
+        cpu:
+          cores: 1
+        resources:
+          requests:
+            memory: "128Mi"
+        devices:
+          disks:
+            - name: "containerdisk"
+              disk:
+                bus: "virtio"
+          interfaces:
+            - name: "default"
+              masquerade: {}
+      networks:
+        - name: "default"
+          pod: {}
+      volumes:
+        - name: "containerdisk"
+          containerDisk:
+            image: "registry:5000/kubevirt/cirros-container-disk-demo:latest"
+      runStrategy: "Always"
+
+  api_endpoints:
+    {operation}_endpoint:
+      method: "{GET|PUT|POST|DELETE}"
+      path: "/apis/subresources.kubevirt.io/v1/namespaces/{namespace}/virtualmachineinstances/{name}/{subresource}"
+      headers:
+        Authorization: "Bearer {token}"
+        Content-Type: "application/json"
+      body: "{}"
+
+  expected_responses:
+    {operation}_success:
+      status_code: 200
+      schema:
+        kind: "VirtualMachineInstance"
+        apiVersion: "subresources.kubevirt.io/v1"
+
+---
+test_steps:
+  setup:
+    - step_id: "SETUP-01"
+      action: "Create test namespace"
+      command: "oc create namespace {namespace}"
+      validation: "oc get namespace {namespace}"
+
+    - step_id: "SETUP-02"
+      action: "Create VMI"
+      command: "oc apply -f vmi-definition.yaml"
+      validation: "oc get vmi {vmi-name}"
+
+    - step_id: "SETUP-03"
+      action: "Wait for VMI to reach Running state"
+      command: "oc wait --for=condition=Ready vmi/{vmi-name} --timeout=300s"
+      validation: "VMI phase is Running"
+
+  test_execution:
+    - step_id: "TEST-01"
+      action: "{Action description}"
+      command: "{Command or API call}"
+      store_as: "{variable_name}"
+      validation: "{Expected result}"
+
+    - step_id: "TEST-02"
+      action: "{Next action}"
+      method: "{PUT|GET|POST}"
+      endpoint: "{API endpoint}"
+      expected_response:
+        status_code: 200
+
+  cleanup:
+    - step_id: "CLEANUP-01"
+      action: "Delete VMI"
+      command: "oc delete vmi {vmi-name} -n {namespace}"
+
+    - step_id: "CLEANUP-02"
+      action: "Delete test namespace"
+      command: "oc delete namespace {namespace}"
+
+---
+assertions:
+  - assertion_id: "ASSERT-01"
+    priority: "P0"
+    category: "{Feature Behavior|API Response|State Validation}"
+    description: "{Clear assertion description}"
+    condition: "{variable1} == {variable2}"
+    failure_message: "{Error message with context}"
+    failure_impact: "{What this failure means}"
+
+  - assertion_id: "ASSERT-02"
+    priority: "P1"
+    category: "{...}"
+    description: "{...}"
+    condition: "{...}"
+
+---
+edge_cases:
+  - case_id: "EDGE-01"
+    scenario: "{Edge case description}"
+    expected_behavior: "{What should happen}"
+    test_coverage: "{Covered|Not covered|Separate test case}"
+
+---
+dependencies:
+  kubernetes_resources:
+    - resource: "Namespace"
+      name: "{namespace}"
+      required_for: "Test isolation"
+
+    - resource: "VirtualMachineInstance"
+      name: "{vmi-name}"
+      required_for: "Subject under test"
+
+  external_tools:
+    - tool: "oc (OpenShift CLI)"
+      version: "4.19+"
+      required_for: "API calls, resource inspection"
+
+    - tool: "virtctl"
+      version: "CNV 4.19+"
+      required_for: "VMI operations"
+
+    - tool: "pytest"
+      version: "7.x+"
+      required_for: "Test execution framework"
+
+    - tool: "openshift-python-wrapper"
+      version: "latest"
+      required_for: "Pythonic K8s/OCP API interaction"
+
+  rbac_requirements:
+    - permission: "update on virtualmachineinstances/{subresource}"
+      scope: "Namespace: {namespace}"
+      validation: "oc auth can-i update virtualmachineinstances/{subresource}"
+
+---
+traceability:
+  stp_reference:
+    document: "{JIRA_ID} Software Test Plan v{VERSION}"
+    section: "III. Requirements-to-Tests Mapping"
+    row: {scenario_id}
+    scenario: "{scenario.description}"
+
+  requirements:
+    - requirement_id: "{JIRA_ID}"
+      requirement_type: "Epic"
+      url: "https://issues.redhat.com/browse/{JIRA_ID}"
+      title: "{Feature title}"
+
+  implementation:
+    - repo: "kubevirt/kubevirt"
+      pr: "#{PR_NUMBER}"
+      url: "{PR_URL}"
+      title: "{PR title}"
+      merged: true
+
+  unit_tests:
+    - repo: "kubevirt/kubevirt"
+      file: "{test_file_path}"
+      test_function: "{test_function_name}"
+      coverage: "{What unit tests cover}"
+
+  automation:
+    - repo: "RedHatQE/openshift-virtualization-tests"
+      pr: "#{PR_NUMBER}"
+      url: "{PR_URL}"
+      file: "tests/{test_file}.py"
+      test_function: "test_{function_name}"
+      status: "To be implemented"
+
+---
+execution_metadata:
+  estimated_duration: "{X} minutes"
+  resource_requirements:
+    cpu: "{X} vCPU"
+    memory: "{X} MiB"
+    storage: "{minimal|moderate|high}"
+
+  retry_policy:
+    max_retries: 3
+    retry_on: ["VMI boot timeout", "API timeout"]
+    no_retry_on: ["API returns 400/403", "RBAC permission denied"]
+
+  success_criteria:
+    all_assertions_pass: true
+    required_assertions: ["ASSERT-01", "ASSERT-02"]
+    optional_assertions: []
