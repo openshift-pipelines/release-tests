@@ -1,0 +1,31 @@
+platform:
+  name: "OpenShift Container Platform"
+  short_name: "OCP"
+  cli_tools:
+    - "tkn"
+    - "oc"
+    - "kubectl"
+
+cluster_requirements:
+  topology: "Single or Multi-node"
+  cpu_virtualization: "Standard"
+  min_worker_nodes: 1
+
+version_constraints:
+  ocp: "4.14+"
+  pipelines: "1.21+"
+  kubernetes: "1.27+"
+
+operators:
+  - name: "Red Hat OpenShift Pipelines"
+    namespace: "openshift-pipelines"
+    csv_pattern: "redhat-openshift-pipelines"
+
+network:
+  cni: "OVN-Kubernetes"
+  multus: false
+
+storage:
+  default_class: "standard"
+  block_storage: false
+  shared_storage: false

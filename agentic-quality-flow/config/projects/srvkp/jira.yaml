@@ -1,0 +1,12 @@
+instance:
+  url: "https://redhat.atlassian.net"
+  browse_pattern: "https://redhat.atlassian.net/browse/{key}"
+
+prefixes:
+  - "SRVKP"
+
+custom_fields:
+  feature_link: "Feature Link"
+  git_pull_request: "Git Pull Request"
+
+pr_url_scan_pattern: "https://github.com/.*/pull/\\d+"

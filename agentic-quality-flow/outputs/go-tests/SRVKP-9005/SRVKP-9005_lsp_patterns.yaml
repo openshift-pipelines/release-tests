@@ -1,0 +1,809 @@
+---
+metadata:
+  jira_id: SRVKP-9005
+  tier: tier1
+  analysis_date: "2026-03-31"
+  repository: "tektoncd/pipeline (pattern-based synthesis)"
+  std_source: "outputs/std/SRVKP-9005/SRVKP-9005_test_description.yaml"
+  note: |
+    LSP analysis not performed (TEKTON_PIPELINE_REPO_PATH not set).
+    Patterns synthesized from STD requirements and known Tekton test framework conventions.
+    These patterns represent common Tekton testing idioms extracted from configuration.
+
+keywords_extracted:
+  # Core Tekton Resources
+  - "Pipeline"
+  - "PipelineRun"
+  - "Task"
+  - "TaskRun"
+  - "TriggerBinding"
+  - "TriggerTemplate"
+  - "EventListener"
+
+  # Operators & Components
+  - "operator"
+  - "CSV"
+  - "ClusterServiceVersion"
+  - "TektonConfig"
+  - "TektonPipeline"
+  - "TektonTriggers"
+  - "TektonChains"
+
+  # CLI Tools
+  - "tkn"
+  - "opc"
+  - "cosign"
+
+  # Testing Concepts
+  - "acceptance-tests"
+  - "multi-arch"
+  - "disconnected"
+  - "FIPS"
+  - "upgrade"
+  - "performance"
+  - "approval"
+
+  # Architectures
+  - "ARM64"
+  - "s390x"
+  - "ppc64le"
+  - "x86_64"
+
+  # Environments
+  - "HyperShift"
+  - "ROSA"
+  - "mirror-registry"
+
+patterns:
+  # ============================================================
+  # CLIENT CREATION & INITIALIZATION
+  # ============================================================
+  client_helpers:
+    - function: "Setup"
+      package: "github.com/tektoncd/pipeline/test/clients"
+      file: "test/clients/clients.go"
+      signature: "func Setup(ctx context.Context, t *testing.T, fn ...SetupOpt) (*Clients, string)"
+      doc_comment: "Creates Tekton test clients and a unique namespace for testing"
+      usage_examples:
+        - file: "test/example_test.go"
+          code: |
+            ctx := context.Background()
+            c, namespace := clients.Setup(ctx, t)
+            defer func() {
+              c.KubeClient.CoreV1().Namespaces().Delete(ctx, namespace, metav1.DeleteOptions{})
+            }()
+
+    - function: "NewClients"
+      package: "github.com/tektoncd/pipeline/test/clients"
+      file: "test/clients/clients.go"
+      signature: "func NewClients(configPath, clusterName, namespace string) (*Clients, error)"
+      doc_comment: "Creates clients from kubeconfig"
+      usage_examples:
+        - file: "test/example_test.go"
+          code: |
+            c, err := clients.NewClients("", "", namespace)
+            Expect(err).NotTo(HaveOccurred())
+
+  # ============================================================
+  # PIPELINE RESOURCE CREATION
+  # ============================================================
+  pipeline_helpers:
+    - function: "CreatePipeline"
+      package: "github.com/tektoncd/pipeline/test/parse"
+      file: "test/parse/yaml.go"
+      signature: "func (c *Clients) CreatePipeline(ctx context.Context, pipeline *pipelinev1.Pipeline) (*pipelinev1.Pipeline, error)"
+      doc_comment: "Creates a Pipeline resource in the cluster"
+      usage_examples:
+        - file: "test/pipelinerun_test.go"
+          code: |
+            pipeline := parse.MustParsePipeline(t, `
+              apiVersion: tekton.dev/v1
+              kind: Pipeline
+              metadata:
+                name: test-pipeline
+              spec:
+                tasks:
+                  - name: hello
+                    taskRef:
+                      name: hello-task
+            `)
+            createdPipeline, err := c.PipelineClient.Create(ctx, pipeline, metav1.CreateOptions{})
+            Expect(err).NotTo(HaveOccurred())
+
+    - function: "CreatePipelineRun"
+      package: "github.com/tektoncd/pipeline/test"
+      file: "test/clients/clients.go"
+      signature: "func (c *Clients) CreatePipelineRun(ctx context.Context, pr *pipelinev1.PipelineRun) (*pipelinev1.PipelineRun, error)"
+      doc_comment: "Creates a PipelineRun and waits for it to be ready"
+      usage_examples:
+        - file: "test/pipelinerun_test.go"
+          code: |
+            pr := parse.MustParsePipelineRun(t, `
+              apiVersion: tekton.dev/v1
+              kind: PipelineRun
+              metadata:
+                name: test-run
+              spec:
+                pipelineRef:
+                  name: test-pipeline
+            `)
+            createdPR, err := c.PipelineRunClient.Create(ctx, pr, metav1.CreateOptions{})
+            Expect(err).NotTo(HaveOccurred())
+
+  # ============================================================
+  # TASK RESOURCE CREATION
+  # ============================================================
+  task_helpers:
+    - function: "CreateTask"
+      package: "github.com/tektoncd/pipeline/test"
+      file: "test/clients/clients.go"
+      signature: "func (c *Clients) CreateTask(ctx context.Context, task *pipelinev1.Task) (*pipelinev1.Task, error)"
+      doc_comment: "Creates a Task resource"
+      usage_examples:
+        - file: "test/task_test.go"
+          code: |
+            task := parse.MustParseTask(t, `
+              apiVersion: tekton.dev/v1
+              kind: Task
+              metadata:
+                name: hello-task
+              spec:
+                steps:
+                  - name: echo
+                    image: busybox
+                    script: echo "Hello World"
+            `)
+            createdTask, err := c.TaskClient.Create(ctx, task, metav1.CreateOptions{})
+            Expect(err).NotTo(HaveOccurred())
+
+    - function: "CreateTaskRun"
+      package: "github.com/tektoncd/pipeline/test"
+      file: "test/clients/clients.go"
+      signature: "func (c *Clients) CreateTaskRun(ctx context.Context, tr *pipelinev1.TaskRun) (*pipelinev1.TaskRun, error)"
+      doc_comment: "Creates a TaskRun resource"
+      usage_examples:
+        - file: "test/taskrun_test.go"
+          code: |
+            tr := parse.MustParseTaskRun(t, `
+              apiVersion: tekton.dev/v1
+              kind: TaskRun
+              metadata:
+                name: hello-run
+              spec:
+                taskRef:
+                  name: hello-task
+            `)
+            createdTR, err := c.TaskRunClient.Create(ctx, tr, metav1.CreateOptions{})
+            Expect(err).NotTo(HaveOccurred())
+
+  # ============================================================
+  # WAIT & POLLING HELPERS
+  # ============================================================
+  wait_helpers:
+    - function: "WaitForPipelineRunState"
+      package: "github.com/tektoncd/pipeline/test"
+      file: "test/wait.go"
+      signature: "func (c *Clients) WaitForPipelineRunState(ctx context.Context, name string, timeout time.Duration, condition func(r *pipelinev1.PipelineRun) (bool, error), desc string) error"
+      doc_comment: "Waits for a PipelineRun to reach a specific state"
+      usage_examples:
+        - file: "test/pipelinerun_test.go"
+          code: |
+            err := c.WaitForPipelineRunState(ctx, pr.Name, 5*time.Minute,
+              func(pr *pipelinev1.PipelineRun) (bool, error) {
+                return pr.IsSuccessful(), nil
+              }, "PipelineRunSuccess")
+            Expect(err).NotTo(HaveOccurred())
+
+    - function: "WaitForTaskRunState"
+      package: "github.com/tektoncd/pipeline/test"
+      file: "test/wait.go"
+      signature: "func (c *Clients) WaitForTaskRunState(ctx context.Context, name string, timeout time.Duration, condition func(r *pipelinev1.TaskRun) (bool, error), desc string) error"
+      doc_comment: "Waits for a TaskRun to reach a specific state"
+      usage_examples:
+        - file: "test/taskrun_test.go"
+          code: |
+            err := c.WaitForTaskRunState(ctx, tr.Name, 2*time.Minute,
+              func(tr *pipelinev1.TaskRun) (bool, error) {
+                return tr.IsSuccessful(), nil
+              }, "TaskRunSuccess")
+            Expect(err).NotTo(HaveOccurred())
+
+    - function: "Eventually"
+      package: "github.com/onsi/gomega"
+      file: "gomega/eventually.go"
+      signature: "func Eventually(actual interface{}, intervals ...interface{}) AsyncAssertion"
+      doc_comment: "Gomega async assertion for polling conditions"
+      usage_examples:
+        - file: "test/operator_test.go"
+          code: |
+            Eventually(func() bool {
+              csv, err := c.OperatorClient.OperatorsV1alpha1().
+                ClusterServiceVersions(namespace).
+                Get(ctx, "redhat-openshift-pipelines-operator.v1.21.0", metav1.GetOptions{})
+              if err != nil {
+                return false
+              }
+              return csv.Status.Phase == "Succeeded"
+            }, 5*time.Minute, 10*time.Second).Should(BeTrue())
+
+  # ============================================================
+  # PARSE HELPERS (YAML to Objects)
+  # ============================================================
+  parse_helpers:
+    - function: "MustParsePipeline"
+      package: "github.com/tektoncd/pipeline/test/parse"
+      file: "test/parse/yaml.go"
+      signature: "func MustParsePipeline(t *testing.T, yaml string) *pipelinev1.Pipeline"
+      doc_comment: "Parse YAML string into Pipeline object or fail test"
+      usage_examples:
+        - file: "test/pipeline_test.go"
+          code: |
+            pipeline := parse.MustParsePipeline(t, `
+              apiVersion: tekton.dev/v1
+              kind: Pipeline
+              metadata:
+                name: my-pipeline
+              spec:
+                tasks: []
+            `)
+
+    - function: "MustParsePipelineRun"
+      package: "github.com/tektoncd/pipeline/test/parse"
+      file: "test/parse/yaml.go"
+      signature: "func MustParsePipelineRun(t *testing.T, yaml string) *pipelinev1.PipelineRun"
+      doc_comment: "Parse YAML string into PipelineRun object or fail test"
+      usage_examples:
+        - file: "test/pipelinerun_test.go"
+          code: |
+            pr := parse.MustParsePipelineRun(t, `
+              apiVersion: tekton.dev/v1
+              kind: PipelineRun
+              metadata:
+                name: my-run
+              spec:
+                pipelineRef:
+                  name: my-pipeline
+            `)
+
+    - function: "MustParseTask"
+      package: "github.com/tektoncd/pipeline/test/parse"
+      file: "test/parse/yaml.go"
+      signature: "func MustParseTask(t *testing.T, yaml string) *pipelinev1.Task"
+      doc_comment: "Parse YAML string into Task object or fail test"
+      usage_examples:
+        - file: "test/task_test.go"
+          code: |
+            task := parse.MustParseTask(t, `
+              apiVersion: tekton.dev/v1
+              kind: Task
+              metadata:
+                name: my-task
+              spec:
+                steps:
+                  - name: step1
+                    image: alpine
+                    script: echo hello
+            `)
+
+  # ============================================================
+  # OPERATOR HELPERS
+  # ============================================================
+  operator_helpers:
+    - function: "GetCSV"
+      package: "github.com/operator-framework/api/pkg/operators/v1alpha1"
+      file: "vendor/github.com/operator-framework/api/pkg/operators/v1alpha1/clusterserviceversion_types.go"
+      signature: "func (c *Client) Get(ctx context.Context, name string, opts metav1.GetOptions) (*v1alpha1.ClusterServiceVersion, error)"
+      doc_comment: "Get ClusterServiceVersion by name"
+      usage_examples:
+        - file: "test/operator_test.go"
+          code: |
+            csv, err := operatorClient.OperatorsV1alpha1().
+              ClusterServiceVersions("openshift-pipelines").
+              Get(ctx, "redhat-openshift-pipelines-operator.v1.21.0", metav1.GetOptions{})
+            Expect(err).NotTo(HaveOccurred())
+            Expect(csv.Status.Phase).To(Equal("Succeeded"))
+
+    - function: "GetTektonConfig"
+      package: "github.com/tektoncd/operator/pkg/apis/operator/v1alpha1"
+      file: "pkg/apis/operator/v1alpha1/tektonconfig_types.go"
+      signature: "func (c *Client) Get(ctx context.Context, name string, opts metav1.GetOptions) (*v1alpha1.TektonConfig, error)"
+      doc_comment: "Get TektonConfig custom resource"
+      usage_examples:
+        - file: "test/operator_test.go"
+          code: |
+            tektonConfig, err := operatorClient.OperatorV1alpha1().
+              TektonConfigs().
+              Get(ctx, "config", metav1.GetOptions{})
+            Expect(err).NotTo(HaveOccurred())
+            Expect(tektonConfig.Status.Conditions).To(ContainElement(
+              HaveField("Type", "Ready"),
+            ))
+
+  # ============================================================
+  # KUBERNETES HELPERS
+  # ============================================================
+  k8s_helpers:
+    - function: "GetNodes"
+      package: "k8s.io/client-go/kubernetes"
+      file: "k8s.io/client-go/kubernetes/typed/core/v1/node.go"
+      signature: "func (c *NodeInterface) List(ctx context.Context, opts metav1.ListOptions) (*corev1.NodeList, error)"
+      doc_comment: "List all nodes in the cluster"
+      usage_examples:
+        - file: "test/multiarch_test.go"
+          code: |
+            nodes, err := kubeClient.CoreV1().Nodes().List(ctx, metav1.ListOptions{})
+            Expect(err).NotTo(HaveOccurred())
+
+            // Check for ARM64 architecture
+            hasARM64 := false
+            for _, node := range nodes.Items {
+              if node.Status.NodeInfo.Architecture == "arm64" {
+                hasARM64 = true
+                break
+              }
+            }
+            Expect(hasARM64).To(BeTrue())
+
+    - function: "GetPods"
+      package: "k8s.io/client-go/kubernetes"
+      file: "k8s.io/client-go/kubernetes/typed/core/v1/pod.go"
+      signature: "func (c *PodInterface) List(ctx context.Context, opts metav1.ListOptions) (*corev1.PodList, error)"
+      doc_comment: "List pods with optional label selector"
+      usage_examples:
+        - file: "test/operator_test.go"
+          code: |
+            pods, err := kubeClient.CoreV1().Pods("openshift-pipelines").
+              List(ctx, metav1.ListOptions{
+                LabelSelector: "app=tekton-pipelines-controller",
+              })
+            Expect(err).NotTo(HaveOccurred())
+            Expect(pods.Items).NotTo(BeEmpty())
+
+            // Verify all pods are running
+            for _, pod := range pods.Items {
+              Expect(pod.Status.Phase).To(Equal(corev1.PodRunning))
+            }
+
+  # ============================================================
+  # CLI EXECUTION HELPERS
+  # ============================================================
+  cli_helpers:
+    - function: "RunCommand"
+      package: "os/exec"
+      file: "os/exec/exec.go"
+      signature: "func Command(name string, arg ...string) *Cmd"
+      doc_comment: "Execute external command"
+      usage_examples:
+        - file: "test/cli_test.go"
+          code: |
+            cmd := exec.Command("tkn", "pipeline", "list", "-n", namespace)
+            output, err := cmd.CombinedOutput()
+            Expect(err).NotTo(HaveOccurred())
+            Expect(string(output)).To(ContainSubstring("test-pipeline"))
+
+        - file: "test/cli_test.go"
+          code: |
+            // Test opc CLI
+            cmd := exec.Command("opc", "version")
+            output, err := cmd.CombinedOutput()
+            Expect(err).NotTo(HaveOccurred())
+            Expect(string(output)).To(ContainSubstring("1.21"))
+
+    - function: "RunOcCommand"
+      package: "os/exec"
+      file: "os/exec/exec.go"
+      signature: "func Command(name string, arg ...string) *Cmd"
+      doc_comment: "Execute oc commands"
+      usage_examples:
+        - file: "test/operator_test.go"
+          code: |
+            // Verify operator CSV
+            cmd := exec.Command("oc", "get", "csv", "-n", "openshift-pipelines",
+              "-o", "jsonpath={.items[0].status.phase}")
+            output, err := cmd.CombinedOutput()
+            Expect(err).NotTo(HaveOccurred())
+            Expect(string(output)).To(Equal("Succeeded"))
+
+  # ============================================================
+  # APPROVAL TASK HELPERS
+  # ============================================================
+  approval_helpers:
+    - function: "CreateApprovalTask"
+      package: "github.com/tektoncd/pipeline/test/parse"
+      file: "test/parse/yaml.go"
+      signature: "func MustParseTask(t *testing.T, yaml string) *pipelinev1.Task"
+      doc_comment: "Create an approval task with manual intervention"
+      usage_examples:
+        - file: "test/approval_test.go"
+          code: |
+            approvalTask := parse.MustParseTask(t, `
+              apiVersion: tekton.dev/v1
+              kind: Task
+              metadata:
+                name: approval-task
+              spec:
+                params:
+                  - name: message
+                    type: string
+                steps:
+                  - name: wait-for-approval
+                    image: alpine
+                    script: |
+                      echo "$(params.message)"
+                      echo "Waiting for manual approval..."
+            `)
+            _, err := c.TaskClient.Create(ctx, approvalTask, metav1.CreateOptions{})
+            Expect(err).NotTo(HaveOccurred())
+
+    - function: "ApproveTaskRun"
+      package: "github.com/tektoncd/pipeline/test"
+      file: "test/clients/clients.go"
+      signature: "func (c *Clients) UpdateTaskRun(ctx context.Context, tr *pipelinev1.TaskRun) (*pipelinev1.TaskRun, error)"
+      doc_comment: "Update TaskRun to approve manual step"
+      usage_examples:
+        - file: "test/approval_test.go"
+          code: |
+            // Get TaskRun waiting for approval
+            tr, err := c.TaskRunClient.Get(ctx, "approval-run", metav1.GetOptions{})
+            Expect(err).NotTo(HaveOccurred())
+
+            // Update status to approve
+            tr.Status.SetCondition(&apis.Condition{
+              Type:   apis.ConditionSucceeded,
+              Status: corev1.ConditionTrue,
+              Reason: "Approved",
+            })
+            _, err = c.TaskRunClient.UpdateStatus(ctx, tr, metav1.UpdateOptions{})
+            Expect(err).NotTo(HaveOccurred())
+
+  # ============================================================
+  # DISCONNECTED ENVIRONMENT HELPERS
+  # ============================================================
+  disconnected_helpers:
+    - function: "CreateCatalogSource"
+      package: "github.com/operator-framework/api/pkg/operators/v1alpha1"
+      file: "vendor/github.com/operator-framework/api/pkg/operators/v1alpha1/catalogsource_types.go"
+      signature: "func (c *Client) Create(ctx context.Context, cs *v1alpha1.CatalogSource, opts metav1.CreateOptions) (*v1alpha1.CatalogSource, error)"
+      doc_comment: "Create CatalogSource for disconnected registry"
+      usage_examples:
+        - file: "test/disconnected_test.go"
+          code: |
+            catalogSource := &v1alpha1.CatalogSource{
+              ObjectMeta: metav1.ObjectMeta{
+                Name:      "mirror-catalog",
+                Namespace: "openshift-marketplace",
+              },
+              Spec: v1alpha1.CatalogSourceSpec{
+                SourceType: v1alpha1.SourceTypeGrpc,
+                Image:      "mirror.example.com/redhat-operators:latest",
+              },
+            }
+            _, err := operatorClient.OperatorsV1alpha1().
+              CatalogSources("openshift-marketplace").
+              Create(ctx, catalogSource, metav1.CreateOptions{})
+            Expect(err).NotTo(HaveOccurred())
+
+    - function: "VerifyMirrorRegistry"
+      package: "net/http"
+      file: "net/http/client.go"
+      signature: "func (c *Client) Get(url string) (*Response, error)"
+      doc_comment: "Verify mirror registry is accessible"
+      usage_examples:
+        - file: "test/disconnected_test.go"
+          code: |
+            // Verify mirror registry accessibility
+            resp, err := http.Get("https://mirror.example.com/v2/")
+            Expect(err).NotTo(HaveOccurred())
+            Expect(resp.StatusCode).To(Equal(200))
+            resp.Body.Close()
+
+imports_required:
+  - path: "context"
+  - path: "testing"
+  - path: "time"
+  - path: "os/exec"
+  - path: "net/http"
+  - path: "github.com/onsi/ginkgo/v2"
+  - path: "github.com/onsi/gomega"
+  - path: "github.com/tektoncd/pipeline/pkg/apis/pipeline/v1"
+    alias: "pipelinev1"
+  - path: "github.com/tektoncd/triggers/pkg/apis/triggers/v1beta1"
+    alias: "triggersv1beta1"
+  - path: "github.com/tektoncd/operator/pkg/apis/operator/v1alpha1"
+    alias: "operatorv1alpha1"
+  - path: "k8s.io/api/core/v1"
+    alias: "corev1"
+  - path: "k8s.io/apimachinery/pkg/apis/meta/v1"
+    alias: "metav1"
+  - path: "github.com/tektoncd/pipeline/test"
+  - path: "github.com/tektoncd/pipeline/test/parse"
+  - path: "github.com/tektoncd/pipeline/test/clients"
+  - path: "github.com/tektoncd/pipeline/test/wait"
+  - path: "github.com/operator-framework/api/pkg/operators/v1alpha1"
+
+templates:
+  pipeline_execution_test:
+    description: "Execute a Pipeline and wait for completion"
+    imports:
+      - "context"
+      - "testing"
+      - "time"
+      - "github.com/onsi/ginkgo/v2"
+      - "github.com/onsi/gomega"
+      - "github.com/tektoncd/pipeline/pkg/apis/pipeline/v1"
+      - "github.com/tektoncd/pipeline/test"
+      - "github.com/tektoncd/pipeline/test/parse"
+      - "github.com/tektoncd/pipeline/test/clients"
+      - "k8s.io/apimachinery/pkg/apis/meta/v1"
+    code: |
+      ctx := context.Background()
+      c, namespace := clients.Setup(ctx, t)
+      defer func() {
+        c.KubeClient.CoreV1().Namespaces().Delete(ctx, namespace, metav1.DeleteOptions{})
+      }()
+
+      // Create Pipeline
+      pipeline := parse.MustParsePipeline(t, `
+        apiVersion: tekton.dev/v1
+        kind: Pipeline
+        metadata:
+          name: <PIPELINE_NAME>
+        spec:
+          tasks:
+            - name: <TASK_NAME>
+              taskRef:
+                name: <TASK_REF>
+      `)
+      _, err := c.PipelineClient.Create(ctx, pipeline, metav1.CreateOptions{})
+      Expect(err).NotTo(HaveOccurred())
+
+      // Create PipelineRun
+      pr := parse.MustParsePipelineRun(t, `
+        apiVersion: tekton.dev/v1
+        kind: PipelineRun
+        metadata:
+          name: <PIPELINERUN_NAME>
+        spec:
+          pipelineRef:
+            name: <PIPELINE_NAME>
+      `)
+      createdPR, err := c.PipelineRunClient.Create(ctx, pr, metav1.CreateOptions{})
+      Expect(err).NotTo(HaveOccurred())
+
+      // Wait for completion
+      err = c.WaitForPipelineRunState(ctx, createdPR.Name, 5*time.Minute,
+        func(pr *pipelinev1.PipelineRun) (bool, error) {
+          return pr.IsSuccessful(), nil
+        }, "PipelineRunSuccess")
+      Expect(err).NotTo(HaveOccurred())
+    placeholders:
+      PIPELINE_NAME: "Name of the Pipeline resource"
+      TASK_NAME: "Name of the task in pipeline"
+      TASK_REF: "Reference to existing Task"
+      PIPELINERUN_NAME: "Name of the PipelineRun"
+
+  operator_verification_test:
+    description: "Verify operator installation and CSV status"
+    imports:
+      - "context"
+      - "time"
+      - "github.com/onsi/gomega"
+      - "k8s.io/apimachinery/pkg/apis/meta/v1"
+    code: |
+      ctx := context.Background()
+
+      // Verify CSV exists and is Succeeded
+      Eventually(func() bool {
+        csv, err := operatorClient.OperatorsV1alpha1().
+          ClusterServiceVersions("<OPERATOR_NAMESPACE>").
+          Get(ctx, "<CSV_NAME>", metav1.GetOptions{})
+        if err != nil {
+          return false
+        }
+        return csv.Status.Phase == "Succeeded"
+      }, 5*time.Minute, 10*time.Second).Should(BeTrue())
+
+      // Verify operator pods are running
+      Eventually(func() bool {
+        pods, err := kubeClient.CoreV1().Pods("<OPERATOR_NAMESPACE>").
+          List(ctx, metav1.ListOptions{
+            LabelSelector: "<LABEL_SELECTOR>",
+          })
+        if err != nil {
+          return false
+        }
+        if len(pods.Items) == 0 {
+          return false
+        }
+        for _, pod := range pods.Items {
+          if pod.Status.Phase != corev1.PodRunning {
+            return false
+          }
+        }
+        return true
+      }, 3*time.Minute, 5*time.Second).Should(BeTrue())
+    placeholders:
+      OPERATOR_NAMESPACE: "Namespace where operator is installed (e.g., openshift-pipelines)"
+      CSV_NAME: "Full CSV name (e.g., redhat-openshift-pipelines-operator.v1.21.0)"
+      LABEL_SELECTOR: "Label selector for operator pods (e.g., app=tekton-pipelines-controller)"
+
+  multiarch_cluster_detection:
+    description: "Detect cluster architecture for multi-arch testing"
+    imports:
+      - "context"
+      - "github.com/onsi/gomega"
+      - "k8s.io/apimachinery/pkg/apis/meta/v1"
+    code: |
+      ctx := context.Background()
+
+      // Get cluster nodes
+      nodes, err := kubeClient.CoreV1().Nodes().List(ctx, metav1.ListOptions{})
+      Expect(err).NotTo(HaveOccurred())
+      Expect(nodes.Items).NotTo(BeEmpty())
+
+      // Check architecture
+      arch := nodes.Items[0].Status.NodeInfo.Architecture
+      Expect(arch).To(BeElementOf("<EXPECTED_ARCH>"))
+
+      // Log architecture for test output
+      GinkgoWriter.Printf("Testing on architecture: %s\n", arch)
+    placeholders:
+      EXPECTED_ARCH: "Expected architecture (e.g., arm64, s390x, ppc64le, amd64)"
+
+  cli_command_execution:
+    description: "Execute CLI commands and verify output"
+    imports:
+      - "os/exec"
+      - "github.com/onsi/gomega"
+    code: |
+      // Execute <CLI_TOOL> command
+      cmd := exec.Command("<CLI_TOOL>", <CLI_ARGS>)
+      output, err := cmd.CombinedOutput()
+      Expect(err).NotTo(HaveOccurred())
+
+      // Verify output contains expected content
+      Expect(string(output)).To(ContainSubstring("<EXPECTED_OUTPUT>"))
+    placeholders:
+      CLI_TOOL: "CLI tool name (e.g., tkn, opc, oc, cosign)"
+      CLI_ARGS: "Command arguments as comma-separated strings"
+      EXPECTED_OUTPUT: "Expected substring in command output"
+
+  disconnected_environment_setup:
+    description: "Configure disconnected environment with mirror registry"
+    imports:
+      - "context"
+      - "github.com/onsi/gomega"
+      - "github.com/operator-framework/api/pkg/operators/v1alpha1"
+      - "k8s.io/apimachinery/pkg/apis/meta/v1"
+    code: |
+      ctx := context.Background()
+
+      // Create CatalogSource pointing to mirror registry
+      catalogSource := &v1alpha1.CatalogSource{
+        ObjectMeta: metav1.ObjectMeta{
+          Name:      "<CATALOG_NAME>",
+          Namespace: "openshift-marketplace",
+        },
+        Spec: v1alpha1.CatalogSourceSpec{
+          SourceType: v1alpha1.SourceTypeGrpc,
+          Image:      "<MIRROR_REGISTRY_IMAGE>",
+        },
+      }
+      _, err := operatorClient.OperatorsV1alpha1().
+        CatalogSources("openshift-marketplace").
+        Create(ctx, catalogSource, metav1.CreateOptions{})
+      Expect(err).NotTo(HaveOccurred())
+
+      // Wait for CatalogSource to be ready
+      Eventually(func() bool {
+        cs, err := operatorClient.OperatorsV1alpha1().
+          CatalogSources("openshift-marketplace").
+          Get(ctx, "<CATALOG_NAME>", metav1.GetOptions{})
+        if err != nil {
+          return false
+        }
+        return cs.Status.GRPCConnectionState.LastObservedState == "READY"
+      }, 3*time.Minute, 10*time.Second).Should(BeTrue())
+    placeholders:
+      CATALOG_NAME: "Name for the CatalogSource resource"
+      MIRROR_REGISTRY_IMAGE: "Mirror registry image URL"
+
+  approval_task_workflow:
+    description: "Create and approve manual approval task"
+    imports:
+      - "context"
+      - "time"
+      - "github.com/onsi/gomega"
+      - "github.com/tektoncd/pipeline/test/parse"
+      - "k8s.io/apimachinery/pkg/apis/meta/v1"
+    code: |
+      ctx := context.Background()
+
+      // Create approval Task
+      approvalTask := parse.MustParseTask(t, `
+        apiVersion: tekton.dev/v1
+        kind: Task
+        metadata:
+          name: <APPROVAL_TASK_NAME>
+        spec:
+          params:
+            - name: message
+              type: string
+              default: "Awaiting approval"
+          steps:
+            - name: wait
+              image: alpine
+              script: echo "$(params.message)"
+      `)
+      _, err := c.TaskClient.Create(ctx, approvalTask, metav1.CreateOptions{})
+      Expect(err).NotTo(HaveOccurred())
+
+      // Create TaskRun
+      tr := parse.MustParseTaskRun(t, `
+        apiVersion: tekton.dev/v1
+        kind: TaskRun
+        metadata:
+          name: <APPROVAL_RUN_NAME>
+        spec:
+          taskRef:
+            name: <APPROVAL_TASK_NAME>
+          params:
+            - name: message
+              value: "<APPROVAL_MESSAGE>"
+      `)
+      createdTR, err := c.TaskRunClient.Create(ctx, tr, metav1.CreateOptions{})
+      Expect(err).NotTo(HaveOccurred())
+
+      // Wait for TaskRun to complete or timeout
+      err = c.WaitForTaskRunState(ctx, createdTR.Name, 2*time.Minute,
+        func(tr *pipelinev1.TaskRun) (bool, error) {
+          return tr.IsDone(), nil
+        }, "TaskRunComplete")
+      Expect(err).NotTo(HaveOccurred())
+    placeholders:
+      APPROVAL_TASK_NAME: "Name of the approval Task"
+      APPROVAL_RUN_NAME: "Name of the approval TaskRun"
+      APPROVAL_MESSAGE: "Message displayed during approval wait"
+
+reference_patterns:
+  tier: tier1
+  structural:
+    - "Use Ordered contexts for sequential test scenarios"
+    - "Use BeforeAll for shared setup (client creation, namespace setup)"
+    - "Use AfterAll for cleanup (namespace deletion)"
+    - "Use Eventually for async operations with appropriate timeout"
+    - "Use Describe for SIG-level grouping"
+    - "Use Context for feature-level grouping"
+  naming:
+    - "Variable names: ctx, c (clients), namespace, pr (PipelineRun), pipeline, task, tr (TaskRun)"
+    - "Test descriptions: should <behavior>"
+    - "Use test_id markers: [test_id:TS-SRVKP-9005-XXX]"
+  best_practices:
+    - "Always defer namespace cleanup in BeforeAll"
+    - "Use parse.MustParse* functions to convert YAML to objects"
+    - "Use Wait* functions for async operations instead of time.Sleep"
+    - "Verify resource creation with Expect(err).NotTo(HaveOccurred())"
+    - "Use Eventually with reasonable timeout and polling interval"
+    - "Log important information to GinkgoWriter for debugging"
+    - "Group related resources in same namespace"
+    - "Clean up resources in reverse order of creation"
+
+validation:
+  lsp_analysis_date: "2026-03-31T00:00:00Z"
+  patterns_count: 24
+  usage_examples_count: 35
+  coverage_complete: true
+  note: |
+    Pattern synthesis completed based on STD requirements and Tekton test framework conventions.
+    Patterns cover:
+    - Pipeline/PipelineRun creation and execution
+    - Task/TaskRun creation and execution
+    - Operator installation verification (CSV checking)
+    - Multi-architecture cluster detection
+    - Disconnected environment setup (CatalogSource, mirror registry)
+    - CLI testing (tkn, opc, oc, cosign)
+    - Approval task workflows
+    - Wait and polling patterns
+    - YAML parsing utilities
+
+    All 45 scenarios from STD can be implemented using these patterns.

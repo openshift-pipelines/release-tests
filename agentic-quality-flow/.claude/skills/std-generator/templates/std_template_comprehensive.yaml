@@ -1,0 +1,200 @@
+# Software Test Description (STD) Template - Comprehensive Format
+# This template defines the schema for the comprehensive STD file (all scenarios in one file)
+# Version: 2.0
+
+---
+document_metadata:
+  std_version: "2.1-enhanced"
+  generated_date: "YYYY-MM-DD"
+  jira_issue: "{JIRA_ID}"
+  jira_summary: "{Jira issue summary}"
+  source_bugs: []  # If Closed Loop ticket: ["{OCPBUGS-XXXXX}", ...]
+
+  stp_reference:
+    file: "outputs/stp/{JIRA_ID}/{JIRA_ID}_test_plan.md"
+    version: "v1"
+    sections_covered: "Section III - Requirements-to-Tests Mapping"
+
+  related_prs:
+    - repo: "{org/repo}"
+      pr_number: {number}
+      url: "{PR_URL}"
+      title: "{PR title}"
+      merged: true
+
+  owning_sig: "{sig-name}"
+  participating_sigs: ["{sig-1}", "{sig-2}"]
+
+  total_scenarios: {count}
+  tier_1_count: {count}
+  tier_2_count: {count}
+  p0_count: {count}
+  p1_count: {count}
+
+---
+common_preconditions:
+  infrastructure:
+    - name: "OpenShift cluster"
+      requirement: "OCP {version}+ with CNI"
+      validation: "oc version"
+
+    - name: "OpenShift Virtualization"
+      requirement: "CNV {version}+"
+      validation: "oc get csv -n openshift-cnv | grep kubevirt-hyperconverged"
+
+    # Add feature-specific infrastructure
+    - name: "{Additional infrastructure}"
+      requirement: "{From STP Section II.5}"
+      validation: "{Validation command}"
+
+  operators:
+    - name: "OpenShift Virtualization Operator"
+      namespace: "openshift-cnv"
+      validation: "oc get csv -n openshift-cnv"
+
+    # Add feature-specific operators
+    - name: "{Operator name}"
+      namespace: "{namespace}"
+      validation: "{oc get csv command}"
+
+  cluster_configuration:
+    topology: "{Single-node|Multi-node}"
+    cpu_virtualization: "{Standard|Nested}"
+    storage: "{StorageClass requirement}"
+    network: "{CNI requirement}"
+    special_requirements: []  # e.g., VLAN support, external router
+
+  rbac_requirements:
+    - permission: "{verb} on {resource}"
+      scope: "{Cluster|Namespace: {namespace}}"
+      validation: "oc auth can-i {verb} {resource}"
+
+---
+scenarios:
+  # Array of all test scenarios from STP Section III
+  # Each scenario is a detailed specification
+
+  - scenario_id: "1"
+    test_id: "TS-{JIRA_ID}-001"
+    tier: "{Tier 1|Tier 2}"
+    priority: "{P0|P1|P2}"
+    mvp: {true|false}
+    requirement_id: "{REQUIREMENT_ID}"
+
+    test_objective:
+      title: "{scenario.description}"
+
+      what: |
+        {Expand scenario description into 2-3 sentences:
+         - What functionality is being tested
+         - What specific aspect/behavior is validated
+         - What operations are performed}
+
+      why: |
+        {Explain business/technical rationale:
+         - Why this test is important
+         - What user need it addresses
+         - What could break if this fails}
+
+      acceptance_criteria:
+        - "{Criterion 1: clear, measurable condition}"
+        - "{Criterion 2: ...}"
+        - "{Criterion 3: ...}"
+
+    classification:
+      test_type: "{Functional|Integration|E2E}"
+      scope: "{Single-component|Multi-component}"
+      automation_approach: "pytest with openshift-python-wrapper"
+
+    specific_preconditions:
+      # Scenario-specific requirements (beyond common_preconditions)
+      - name: "{Specific requirement}"
+        requirement: "{Details}"
+        validation: "{Command}"
+
+    test_data:
+      # YAML definitions for this specific scenario
+      resource_definitions:
+        - name: "{resource_name}"
+          type: "{VirtualMachine|Pod|NetworkAttachmentDefinition|etc}"
+          yaml: |
+            apiVersion: "{api_version}"
+            kind: "{Kind}"
+            metadata:
+              name: "{name}"
+              namespace: "{namespace}"
+            spec:
+              {resource_spec}
+
+      api_endpoints:
+        # If applicable
+        - operation: "{operation_name}"
+          method: "{GET|POST|PUT|DELETE}"
+          path: "{API path}"
+          expected_status: {200|201|etc}
+          body: |
+            {JSON payload if applicable}
+
+    test_steps:
+      setup:
+        - step_id: "SETUP-01"
+          action: "{Setup action}"
+          command: "{Command or API call}"
+          validation: "{Expected result}"
+
+        - step_id: "SETUP-02"
+          action: "{Next setup step}"
+          command: "{Command}"
+          validation: "{Expected result}"
+
+      test_execution:
+        - step_id: "TEST-01"
+          action: "{Test action}"
+          command: "{Command or API call}"
+          validation: "{Expected result}"
+
+        - step_id: "TEST-02"
+          action: "{Next test step}"
+          command: "{Command}"
+          validation: "{Expected result}"
+
+      cleanup:
+        - step_id: "CLEANUP-01"
+          action: "{Cleanup action}"
+          command: "{Command}"
+
+        - step_id: "CLEANUP-02"
+          action: "{Final cleanup}"
+          command: "{Command}"
+
+    assertions:
+      - assertion_id: "ASSERT-01"
+        priority: "P0"
+        description: "{What is being validated}"
+        condition: "{Expected condition}"
+        failure_impact: "{What failure means}"
+
+      - assertion_id: "ASSERT-02"
+        priority: "P1"
+        description: "{Secondary validation}"
+        condition: "{Expected condition}"
+        failure_impact: "{Impact}"
+
+    dependencies:
+      kubernetes_resources:
+        - "{Resource type}: {name}"
+        - "{Resource type}: {name}"
+
+      external_tools:
+        - "{Tool name} {version}+"
+        - "{Tool name} {version}+"
+
+      scenario_specific_rbac:
+        - "{permission description}"
+
+  # Repeat for each scenario...
+  - scenario_id: "2"
+    test_id: "TS-{JIRA_ID}-002"
+    # ... (same structure as scenario 1)
+
+---
