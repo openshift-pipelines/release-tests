@@ -1,0 +1,28 @@
+apiVersion: tekton.dev/v1
+kind: Task
+metadata:
+  name: fail-task-pipeline
+spec:
+  params:
+    - name: message
+      type: string
+  steps:
+    - image: registry.redhat.io/ubi8/ubi-minimal
+      script: |
+        echo $(params.message)
+        exit 1
+---
+apiVersion: tekton.dev/v1
+kind: Pipeline
+metadata:
+  name: fail-echo-pipeline
+spec:
+  params:
+    - name: message
+  tasks:
+    - name: fail-echo-task
+      taskRef:
+        name: fail-task-pipeline
+      params:
+        - name: message
+          value: $(params.message)

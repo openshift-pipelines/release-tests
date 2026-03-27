@@ -117,6 +117,13 @@ var _ = gauge.Step("Validate console plugin deployment", func() {
 	}
 })
 
+var _ = gauge.Step("Validate tekton-pruner deployment", func() {
+	rnames := store.GetCRNames()
+	cs := store.Clients()
+	k8s.ValidateDeployments(cs, rnames.TargetNamespace, config.TektonPrunerControllerName)
+	k8s.ValidateDeployments(cs, rnames.TargetNamespace, config.TektonPrunerWebhookName)
+})
+
 var _ = gauge.Step("Validate tektoninstallersets status", func() {
 	k8s.ValidateTektonInstallersetStatus(store.Clients())
 })
