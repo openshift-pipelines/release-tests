@@ -93,3 +93,18 @@ spec:
             requests:
               storage: 200Mi
           storageClassName: standard
+    # ── Go module cache ──────────────────────────────────────────────────────
+    # Shared persistent volume populated once by the warm-go-cache Task before
+    # parallel release-tests Tasks start.  All test pods mount this PVC and
+    # find all Go dependencies already present, eliminating the concurrent
+    # module downloads that caused gauge runner timeouts (>101 min).
+    #
+    # Pre-requisite (apply once per cluster):
+    #   oc apply -f tekton/pvc/go-module-cache.yaml -n openshift-pipelines
+    #
+    # The plumbing acceptance-tests Pipeline and release-tests Task also need
+    # to be updated to accept and use this workspace (see
+    # tekton/tasks/warm-go-cache.yaml and the companion plumbing PR).
+    - name: go-cache
+      persistentVolumeClaim:
+        claimName: go-module-cache

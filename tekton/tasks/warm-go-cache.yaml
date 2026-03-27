@@ -1,0 +1,90 @@
+# warm-go-cache Task
+# ─────────────────────────────────────────────────────────────────────────────
+# Runs ONCE before all parallel release-tests Tasks in the acceptance-tests
+# Pipeline.  It downloads the full Go module graph for this project into the
+# shared go-module-cache PVC so that every concurrent test pod finds its
+# dependencies locally and performs zero network downloads.
+#
+# Placement in the acceptance-tests Pipeline (plumbing repo):
+#   runAfter: [clone-release-tests-git]
+#   (all parallel release-tests tasks get runAfter: [warm-go-cache])
+#
+# This Task must be added to plumbing/ci/tasks/warm-go-cache.yaml and
+# referenced from plumbing/ci/pipelines/acceptance-tests.yaml.
+# ─────────────────────────────────────────────────────────────────────────────
+apiVersion: tekton.dev/v1
+kind: Task
+metadata:
+  name: warm-go-cache
+  annotations:
+    tekton.dev/tags: "go,cache"
+    tekton.dev/displayName: "Warm Go Module Cache"
+    tekton.dev/description: >
+      Populates the shared go-module-cache PVC by running go mod download
+      once before parallel test tasks start.  Each test task can then set
+      GOPATH to the PVC mount path and skip all module downloads, avoiding
+      the gauge runner timeout caused by concurrent network downloads.
+spec:
+  params:
+    - name: IMAGE
+      description: CI image that has Go, gauge and the same GOPROXY setting
+      default: quay.io/openshift-pipeline/ci
+    - name: GOPROXY
+      description: Go module proxy URL
+      default: "https://proxy.golang.org,direct"
+  workspaces:
+    - name: release-tests-git
+      description: Checked-out release-tests repository containing go.mod/go.sum
+    - name: go-cache
+      description: >
+        Shared PVC that will hold $GOPATH/pkg/mod after this task completes.
+        Must be bound to the go-module-cache ReadWriteMany PVC.
+  steps:
+    - name: download-modules
+      image: $(params.IMAGE)
+      imagePullPolicy: Always
+      workingDir: $(workspaces.release-tests-git.path)
+      env:
+        # Point GOPATH and GOMODCACHE at the shared PVC so that
+        # go mod download writes modules to persistent storage.
+        - name: GOPATH
+          value: $(workspaces.go-cache.path)/gopath
+        - name: GOMODCACHE
+          value: $(workspaces.go-cache.path)/gopath/pkg/mod
+        - name: GOPROXY
+          value: $(params.GOPROXY)
+        # Disable sum-db verification for internal/air-gapped environments
+        - name: GONOSUMCHECK
+          value: "*"
+      script: |
+        #!/usr/bin/env bash
+        set -eu -o pipefail
+
+        echo "==> Go module cache warm-up"
+        echo "    GOPATH      : ${GOPATH}"
+        echo "    GOMODCACHE  : ${GOMODCACHE}"
+        echo "    GOPROXY     : ${GOPROXY}"
+        echo "    go.mod hash : $(sha256sum go.mod | cut -d' ' -f1)"
+        echo "    go.sum hash : $(sha256sum go.sum | cut -d' ' -f1)"
+
+        # Create the module cache directory if it doesn't exist yet
+        mkdir -p "${GOMODCACHE}"
+
+        # Check whether the cache is already current by comparing the
+        # go.sum hash stored from the previous run.
+        HASH_FILE="${GOMODCACHE}/.go-sum-hash"
+        CURRENT_HASH=$(sha256sum go.sum | cut -d' ' -f1)
+
+        if [[ -f "${HASH_FILE}" ]] && [[ "$(cat ${HASH_FILE})" == "${CURRENT_HASH}" ]]; then
+          echo "==> Cache is up-to-date (go.sum unchanged). Skipping download."
+          exit 0
+        fi
+
+        echo "==> Downloading Go modules (this populates the shared PVC) ..."
+        go mod download -x
+
+        # Persist the go.sum hash so future runs can skip the download
+        echo -n "${CURRENT_HASH}" > "${HASH_FILE}"
+
+        echo "==> Done. Module cache size:"
+        du -sh "${GOMODCACHE}" || true
