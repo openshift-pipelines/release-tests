@@ -21,5 +21,3 @@ Steps:
   * Trigger push event on main branch
   * Validate "push" PipelineRun for "success"
   * Cleanup PAC
-
-

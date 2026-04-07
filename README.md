@@ -122,15 +122,15 @@ gauge run --log-level=debug --verbose --tags e2e specs/pac/pac-gitlab.spec
 
 Export the following Env Variables
 ```
-export GITHUB_TOKEN=<Token>
+export PAC_GITHUB_TOKEN=<Token>
 [Optional]
-export GITHUB_WEBHOOK_TOKEN=<GithubWebhookToken>
-export GITHUB_ORG=<GithubOrg>
+export PAC_GITHUBWEBHOOK_TOKEN=<GithubWebhookToken>
+export PAC_GITHUB_ORG=<GithubOrg>
 ```
 
 ### Setting up PAC in GitHub
 - Click on your profile under `Settings --> Developer Settings --> Personal Access tokens`
-- Create a New Personal Access Token and `export GITHUB_TOKEN=<Token>`
+- Create a New Personal Access Token and `export PAC_GITHUB_TOKEN=<Token>`
 
 To run pac GitHub e2e tests...
 

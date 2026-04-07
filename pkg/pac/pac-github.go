@@ -38,9 +38,9 @@ func SetGitHubClient(c *github.Client) {
 
 // InitGitHubClient initializes a GitHub client for GitHub
 func InitGitHubClient() *github.Client {
-	token := os.Getenv("GITHUB_TOKEN")
+	token := os.Getenv("PAC_GITHUB_TOKEN")
 	if token == "" {
-		testsuit.T.Fail(fmt.Errorf("GITHUB_TOKEN was not exported as a system variable"))
+		testsuit.T.Fail(fmt.Errorf("PAC_GITHUB_TOKEN was not exported as a system variable"))
 	}
 
 	ts := oauth2.StaticTokenSource(&oauth2.Token{AccessToken: token})
@@ -256,11 +256,11 @@ func SetupGitHubProject() *github.Repository {
 	}
 
 	ctx := context.Background()
-	org := os.Getenv("GITHUB_ORG")
+	org := os.Getenv("PAC_GITHUB_ORG")
 	smeeURL := store.GetScenarioData("SMEE_URL")
-	token := os.Getenv("GITHUB_TOKEN")
+	token := os.Getenv("PAC_GITHUB_TOKEN")
 
-	webhookSecret := os.Getenv("GITHUB_WEBHOOK_TOKEN")
+	webhookSecret := os.Getenv("PAC_GITHUB_WEBHOOK_TOKEN")
 	if webhookSecret == "" {
 		sec, err := randWebhookSecret()
 		if err != nil {
@@ -308,8 +308,8 @@ func SetupGitHubProject() *github.Repository {
 	}
 
 	store.PutScenarioData("PROJECT_URL", repoURL)
-	store.PutScenarioData("GITHUB_REPO_OWNER", owner)
-	store.PutScenarioData("GITHUB_REPO_NAME", repoName)
+	store.PutScenarioData("PAC_GITHUB_REPO_OWNER", owner)
+	store.PutScenarioData("PAC_GITHUB_REPO_NAME", repoName)
 
 	// Create the local webhook+token secret and Repository CR in the scenario namespace.
 	namespace := store.Namespace()
@@ -345,8 +345,8 @@ func waitForPRMergeable(ctx context.Context, owner, repo string, number int) err
 }
 
 func ConfigurePreviewChangesGitHub() {
-	owner := store.GetScenarioData("GITHUB_REPO_OWNER")
-	repo := store.GetScenarioData("GITHUB_REPO_NAME")
+	owner := store.GetScenarioData("PAC_GITHUB_REPO_OWNER")
+	repo := store.GetScenarioData("PAC_GITHUB_REPO_NAME")
 	ctx := context.Background()
 
 	prData, err := os.ReadFile(filepath.Clean(pullRequestFileName))
@@ -382,8 +382,8 @@ func ConfigurePreviewChangesGitHub() {
 }
 
 func TriggerPushOnGitHubMain() {
-	owner := store.GetScenarioData("GITHUB_REPO_OWNER")
-	repo := store.GetScenarioData("GITHUB_REPO_NAME")
+	owner := store.GetScenarioData("PAC_GITHUB_REPO_OWNER")
+	repo := store.GetScenarioData("PAC_GITHUB_REPO_NAME")
 	ctx := context.Background()
 
 	prNum, err := strconv.Atoi(store.GetScenarioData("prNumber"))
@@ -467,8 +467,8 @@ func CleanupPACGitHub(c *clients.Clients, smeeDeploymentName, namespace string) 
 	_ = os.Remove(pullRequestFileName)
 	_ = os.Remove(pushFileName)
 
-	owner := store.GetScenarioData("GITHUB_REPO_OWNER")
-	repo := store.GetScenarioData("GITHUB_REPO_NAME")
+	owner := store.GetScenarioData("PAC_GITHUB_REPO_OWNER")
+	repo := store.GetScenarioData("PAC_GITHUB_REPO_NAME")
 	if owner != "" && repo != "" && ghClient != nil {
 		if _, err := ghClient.Repositories.Delete(context.Background(), owner, repo); err != nil {
 			testsuit.T.Fail(fmt.Errorf("failed to delete github repository %s/%s: %v", owner, repo, err))
