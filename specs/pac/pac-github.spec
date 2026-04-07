@@ -11,7 +11,7 @@ Importance: Critical
 This scenario tests configuring PAC with push and pull_request events in GitHub.
 
 Steps:
-//   * Validate PAC Info Install
+  * Validate PAC Info Install
   * Setup Github Client
   * Create Smee deployment
   * Configure GitHub repo for "pull_request" in "main"
