@@ -1,0 +1,118 @@
+# Tier1 Go/Ginkgo Pattern Detection Rules
+# Used by go-test-generator skill to match STD scenarios to code templates
+
+version: "1.0.0"
+tier: "tier1"
+language: "go"
+framework: "ginkgo-v2"
+
+# Pattern detection rules for NAD types
+nad_patterns:
+  localnet:
+    keywords: ["localnet", "passt"]
+    helper_function: "libnet.NewPasstNetAttachDef"
+    description: "Localnet/passt network attachment"
+
+  bridge:
+    keywords: ["bridge network", "linux bridge"]
+    helper_function: "libnet.NewBridgeNetAttachDef"
+    description: "Linux bridge network attachment"
+
+  sriov:
+    keywords: ["SR-IOV", "sriov"]
+    helper_function: "libnet.NewSriovNetAttachDef"
+    description: "SR-IOV network attachment"
+
+  macvtap:
+    keywords: ["macvtap"]
+    helper_function: "libnet.NewMacvtapNetAttachDef"
+    description: "Macvtap network attachment"
+
+# Pattern detection rules for VM OS types
+os_patterns:
+  fedora:
+    keywords: ["Fedora", "fedora"]
+    vm_creator: "libvmifact.NewFedora"
+    login_function: "console.LoginToFedora"
+    description: "Fedora VMI"
+
+  alpine:
+    keywords: ["Alpine", "alpine"]
+    vm_creator: "libvmifact.NewAlpine"
+    login_function: "console.LoginToAlpine"
+    description: "Alpine VMI"
+
+  cirros:
+    keywords: ["CirrOS", "cirros"]
+    vm_creator: "libvmifact.NewCirros"
+    login_function: "console.LoginToCirros"
+    description: "CirrOS VMI"
+
+# Pattern detection rules for connectivity tests
+connectivity_patterns:
+  ping:
+    keywords: ["ping", "ICMP", "connectivity"]
+    test_type: "ping"
+    description: "ICMP ping connectivity test"
+
+  tcp:
+    keywords: ["TCP", "tcp", "port", "nc"]
+    test_type: "tcp"
+    description: "TCP connectivity test"
+
+  http:
+    keywords: ["HTTP", "http", "curl", "wget"]
+    test_type: "http"
+    description: "HTTP connectivity test"
+
+# Template selection rules
+template_selection:
+  - name: "parametric_ipv4_ipv6"
+    priority: 1
+    conditions:
+      - pattern: "keywords"
+        match_any: ["IPv4 and IPv6", "dual stack", "both IP families"]
+    template: "templates/parametric_ipv4_ipv6_test.go.template"
+    description: "Parametrized test for IPv4/IPv6 dual stack"
+
+  - name: "migration_connectivity"
+    priority: 2
+    conditions:
+      - pattern: "keywords"
+        match_all: ["migration", "connectivity"]
+    template: "templates/migration_test.go.template"
+    description: "Migration test with connectivity validation"
+
+  - name: "network_connectivity"
+    priority: 3
+    conditions:
+      - pattern: "keywords"
+        match_all: ["NAD", "connectivity"]
+      - pattern: "keywords"
+        match_any: ["ping", "TCP", "pod"]
+    template: "templates/network_connectivity_test.go.template"
+    description: "Standard network connectivity test"
+
+  - name: "basic_vmi"
+    priority: 4
+    conditions: []  # Default fallback
+    template: "templates/basic_vmi_test.go.template"
+    description: "Basic VMI lifecycle test"
+
+# Critical validation rules
+validation_rules:
+  - rule: "WaitUntilVMIReady must have login function parameter"
+    pattern: "libwait.WaitUntilVMIReady\\(vmi, console\\.Login"
+    error_message: "Missing login function in WaitUntilVMIReady call"
+
+  - rule: "All imports must be correct"
+    required_imports:
+      - ". \"github.com/onsi/ginkgo/v2\""
+      - ". \"github.com/onsi/gomega\""
+      - "\"context\""
+      - "k8sv1 \"k8s.io/api/core/v1\""
+      - "metav1 \"k8s.io/apimachinery/pkg/apis/meta/v1\""
+
+  - rule: "Package must be network"
+    pattern: "^package network$"
+    error_message: "Package declaration must be 'package network'"

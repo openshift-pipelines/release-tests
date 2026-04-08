@@ -1,0 +1,11 @@
+# QualityFlow Project Routing Map
+# Maps Jira issue prefixes to project configurations
+version: "1.0"
+
+routes:
+  - prefix: "SRVKP"
+    project: "srvkp"
+
+# null = error on unknown prefix (fail-fast)
+# Set to a project ID to use as fallback
+default_project: null
