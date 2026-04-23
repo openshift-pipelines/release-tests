@@ -12,6 +12,8 @@ Type: Functional
 Importance: Critical
 
 Steps:
+  * Verify that jib-maven image registry variable is exported
+  * Create secret with jib-maven image registry credentials
   * Create
       |S.NO|resource_dir                                          |
       |----|------------------------------------------------------|
@@ -31,12 +33,14 @@ Type: Functional
 Importance: Critical
 
 Steps:
+  * Verify that jib-maven image registry variable is exported
+  * Create secret with jib-maven image registry credentials
   * Create
       |S.NO|resource_dir                                          |
       |----|------------------------------------------------------|
       |1   |testdata/ecosystem/pipelines/jib-maven-pz.yaml        |
       |2   |testdata/pvc/pvc.yaml                                 |
-      |3   |testdata/ecosystem/pipelineruns/jib-maven-pz.yaml|
+      |3   |testdata/ecosystem/pipelineruns/jib-maven-pz.yaml     |
   * Verify pipelinerun
       |S.NO|pipeline_run_name|status    |
       |----|-----------------|----------|
