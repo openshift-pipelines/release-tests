@@ -27,43 +27,43 @@ const (
 	OLMNamespace       = "openshift-marketplace"
 )
 
-func SubscribeAndWaitForOperatorToBeReady(cs *clients.Clients, subscriptionName, channel, catalogsource string) (*v1alpha1.Subscription, error) {
+func SubscribeAndWaitForOperatorToBeReady(c *clients.Clients, subscriptionName, channel, catalogsource string) (*v1alpha1.Subscription, error) {
 	createSubscription(subscriptionName, channel, catalogsource)
 
-	subs, err := WaitForSubscriptionState(cs, subscriptionName, OperatorsNamespace, IsSubscriptionInstalledCSVPresent)
+	subs, err := WaitForSubscriptionState(c, subscriptionName, OperatorsNamespace, IsSubscriptionInstalledCSVPresent)
 	if err != nil {
 		return nil, err
 	}
 
 	csvName := subs.Status.InstalledCSV
-	_, err = WaitForClusterServiceVersionState(cs, csvName, OperatorsNamespace, IsCSVSucceeded)
+	_, err = WaitForClusterServiceVersionState(c, csvName, OperatorsNamespace, IsCSVSucceeded)
 	if err != nil {
 		return nil, err
 	}
 	return subs, nil
 }
 
-func UptadeSubscriptionAndWaitForOperatorToBeReady(cs *clients.Clients, subscriptionName, channel string) (*v1alpha1.Subscription, error) {
-	if _, err := UpdateSubscription(cs, subscriptionName, channel); err != nil {
+func UptadeSubscriptionAndWaitForOperatorToBeReady(c *clients.Clients, subscriptionName, channel string) (*v1alpha1.Subscription, error) {
+	if _, err := UpdateSubscription(c, subscriptionName, channel); err != nil {
 		return nil, err
 	}
 
-	subs, err := WaitForSubscriptionState(cs, subscriptionName, OperatorsNamespace, IsSubscriptionInstalledCSVPresent)
+	subs, err := WaitForSubscriptionState(c, subscriptionName, OperatorsNamespace, IsSubscriptionInstalledCSVPresent)
 	if err != nil {
 		return nil, err
 	}
 
 	csvName := subs.Status.InstalledCSV
 
-	_, err = WaitForClusterServiceVersionState(cs, csvName, OperatorsNamespace, IsCSVSucceeded)
+	_, err = WaitForClusterServiceVersionState(c, csvName, OperatorsNamespace, IsCSVSucceeded)
 	if err != nil {
 		return nil, err
 	}
 	return subs, nil
 }
 
-func getSubcription(cs *clients.Clients, name string) *v1alpha1.Subscription {
-	subscription, err := cs.OLM.OperatorsV1alpha1().Subscriptions(OperatorsNamespace).Get(context.Background(), name, metav1.GetOptions{})
+func getSubcription(c *clients.Clients, name string) *v1alpha1.Subscription {
+	subscription, err := c.OLM.OperatorsV1alpha1().Subscriptions(OperatorsNamespace).Get(context.Background(), name, metav1.GetOptions{})
 	if err != nil {
 		testsuit.T.Errorf("failed to get subscription %s in namespace %s \n %v", name, OperatorsNamespace, err)
 	}
@@ -116,11 +116,11 @@ func createSubscription(name, channel, catalogsource string) {
 }
 
 // OperatorCleanup deletes All related CSVs, subscription & installplan from cluster
-func OperatorCleanup(cs *clients.Clients, name string) {
-	sub := getSubcription(cs, name)
+func OperatorCleanup(c *clients.Clients, name string) {
+	sub := getSubcription(c, name)
 
 	// Delete CSV
-	err := cs.OLM.OperatorsV1alpha1().ClusterServiceVersions(OperatorsNamespace).DeleteCollection(context.Background(), metav1.DeleteOptions{}, metav1.ListOptions{})
+	err := c.OLM.OperatorsV1alpha1().ClusterServiceVersions(OperatorsNamespace).DeleteCollection(context.Background(), metav1.DeleteOptions{}, metav1.ListOptions{})
 	if err != nil {
 		testsuit.T.Errorf("failed to delete CSVs in namespace %s \n %v", OperatorsNamespace, err)
 	}
@@ -131,21 +131,21 @@ func OperatorCleanup(cs *clients.Clients, name string) {
 	).Stdout())
 }
 
-func UpdateSubscription(cs *clients.Clients, name, channel string) (*v1alpha1.Subscription, error) {
-	subscription := getSubcription(cs, name)
+func UpdateSubscription(c *clients.Clients, name, channel string) (*v1alpha1.Subscription, error) {
+	subscription := getSubcription(c, name)
 	subscription.Spec.Channel = channel
-	subs, err := cs.OLM.OperatorsV1alpha1().Subscriptions(OperatorsNamespace).Update(context.Background(), subscription, metav1.UpdateOptions{})
+	subs, err := c.OLM.OperatorsV1alpha1().Subscriptions(OperatorsNamespace).Update(context.Background(), subscription, metav1.UpdateOptions{})
 	if err != nil {
 		return nil, err
 	}
 	return subs, nil
 }
 
-func WaitForSubscriptionState(cs *clients.Clients, name, namespace string, inState func(s *v1alpha1.Subscription, err error) (bool, error)) (*v1alpha1.Subscription, error) {
+func WaitForSubscriptionState(c *clients.Clients, name, namespace string, inState func(s *v1alpha1.Subscription, err error) (bool, error)) (*v1alpha1.Subscription, error) {
 	var lastState *v1alpha1.Subscription
 	var err error
-	waitErr := wait.PollUntilContextTimeout(cs.Ctx, Interval, Timeout, true, func(context.Context) (bool, error) {
-		lastState, err = cs.OLM.OperatorsV1alpha1().Subscriptions(namespace).Get(context.Background(), name, metav1.GetOptions{})
+	waitErr := wait.PollUntilContextTimeout(c.Ctx, Interval, Timeout, true, func(context.Context) (bool, error) {
+		lastState, err = c.OLM.OperatorsV1alpha1().Subscriptions(namespace).Get(context.Background(), name, metav1.GetOptions{})
 		return inState(lastState, err)
 	})
 
@@ -155,11 +155,11 @@ func WaitForSubscriptionState(cs *clients.Clients, name, namespace string, inSta
 	return lastState, nil
 }
 
-func WaitForClusterServiceVersionState(cs *clients.Clients, name, namespace string, inState func(s *v1alpha1.ClusterServiceVersion, err error) (bool, error)) (*v1alpha1.ClusterServiceVersion, error) {
+func WaitForClusterServiceVersionState(c *clients.Clients, name, namespace string, inState func(s *v1alpha1.ClusterServiceVersion, err error) (bool, error)) (*v1alpha1.ClusterServiceVersion, error) {
 	var lastState *v1alpha1.ClusterServiceVersion
 	var err error
-	waitErr := wait.PollUntilContextTimeout(cs.Ctx, Interval, Timeout, true, func(context.Context) (bool, error) {
-		lastState, err = cs.OLM.OperatorsV1alpha1().ClusterServiceVersions(namespace).Get(context.Background(), name, metav1.GetOptions{})
+	waitErr := wait.PollUntilContextTimeout(c.Ctx, Interval, Timeout, true, func(context.Context) (bool, error) {
+		lastState, err = c.OLM.OperatorsV1alpha1().ClusterServiceVersions(namespace).Get(context.Background(), name, metav1.GetOptions{})
 		return inState(lastState, err)
 	})
 

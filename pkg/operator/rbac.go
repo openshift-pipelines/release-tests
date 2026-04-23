@@ -13,10 +13,10 @@ import (
 	"k8s.io/apimachinery/pkg/util/wait"
 )
 
-func AssertServiceAccountPresent(clients *clients.Clients, ns, targetSA string) {
-	err := wait.PollUntilContextTimeout(clients.Ctx, config.APIRetry, config.APITimeout, false, func(context.Context) (done bool, err error) {
+func AssertServiceAccountPresent(c *clients.Clients, ns, targetSA string) {
+	err := wait.PollUntilContextTimeout(c.Ctx, config.APIRetry, config.APITimeout, false, func(context.Context) (done bool, err error) {
 		log.Printf("Verifying that service account %s exists\n", targetSA)
-		saList, err := clients.KubeClient.Kube.CoreV1().ServiceAccounts(ns).List(context.TODO(), metav1.ListOptions{})
+		saList, err := c.KubeClient.Kube.CoreV1().ServiceAccounts(ns).List(context.TODO(), metav1.ListOptions{})
 		if err != nil {
 			return false, err
 		}
@@ -31,10 +31,10 @@ func AssertServiceAccountPresent(clients *clients.Clients, ns, targetSA string) 
 		testsuit.T.Fail(fmt.Errorf("expected: Service account %v present in the namespace %v, Actual: Service account %v not present in the namespace %v, Error: %v", targetSA, ns, targetSA, ns, err))
 	}
 }
-func AssertRoleBindingPresent(clients *clients.Clients, ns, roleBindingName string) {
-	err := wait.PollUntilContextTimeout(clients.Ctx, config.APIRetry, config.APITimeout, false, func(context.Context) (done bool, err error) {
+func AssertRoleBindingPresent(c *clients.Clients, ns, roleBindingName string) {
+	err := wait.PollUntilContextTimeout(c.Ctx, config.APIRetry, config.APITimeout, false, func(context.Context) (done bool, err error) {
 		log.Printf("Verifying that role binding %s exists\n", roleBindingName)
-		rbList, err := clients.KubeClient.Kube.RbacV1().RoleBindings(ns).List(context.TODO(), metav1.ListOptions{})
+		rbList, err := c.KubeClient.Kube.RbacV1().RoleBindings(ns).List(context.TODO(), metav1.ListOptions{})
 		if err != nil {
 			return false, err
 		}
@@ -50,10 +50,10 @@ func AssertRoleBindingPresent(clients *clients.Clients, ns, roleBindingName stri
 	}
 }
 
-func AssertConfigMapPresent(clients *clients.Clients, ns, configMapName string) {
-	err := wait.PollUntilContextTimeout(clients.Ctx, config.APIRetry, config.APITimeout, false, func(context.Context) (done bool, err error) {
+func AssertConfigMapPresent(c *clients.Clients, ns, configMapName string) {
+	err := wait.PollUntilContextTimeout(c.Ctx, config.APIRetry, config.APITimeout, false, func(context.Context) (done bool, err error) {
 		log.Printf("Verifying that config map %s exists\n", configMapName)
-		rbList, err := clients.KubeClient.Kube.CoreV1().ConfigMaps(ns).List(context.TODO(), metav1.ListOptions{})
+		rbList, err := c.KubeClient.Kube.CoreV1().ConfigMaps(ns).List(context.TODO(), metav1.ListOptions{})
 		if err != nil {
 			return false, err
 		}
@@ -69,10 +69,10 @@ func AssertConfigMapPresent(clients *clients.Clients, ns, configMapName string) 
 	}
 }
 
-func AssertClusterRolePresent(clients *clients.Clients, clusterRoleName string) {
-	err := wait.PollUntilContextTimeout(clients.Ctx, config.APIRetry, config.APITimeout, false, func(context.Context) (done bool, err error) {
+func AssertClusterRolePresent(c *clients.Clients, clusterRoleName string) {
+	err := wait.PollUntilContextTimeout(c.Ctx, config.APIRetry, config.APITimeout, false, func(context.Context) (done bool, err error) {
 		log.Printf("Verifying that cluster role %s exists\n", clusterRoleName)
-		rbList, err := clients.KubeClient.Kube.RbacV1().ClusterRoles().List(context.TODO(), metav1.ListOptions{})
+		rbList, err := c.KubeClient.Kube.RbacV1().ClusterRoles().List(context.TODO(), metav1.ListOptions{})
 		if err != nil {
 			return false, err
 		}
@@ -88,10 +88,10 @@ func AssertClusterRolePresent(clients *clients.Clients, clusterRoleName string) 
 	}
 }
 
-func AssertServiceAccountNotPresent(clients *clients.Clients, ns, targetSA string) {
-	err := wait.PollUntilContextTimeout(clients.Ctx, config.APIRetry, config.APITimeout, false, func(context.Context) (done bool, err error) {
+func AssertServiceAccountNotPresent(c *clients.Clients, ns, targetSA string) {
+	err := wait.PollUntilContextTimeout(c.Ctx, config.APIRetry, config.APITimeout, false, func(context.Context) (done bool, err error) {
 		log.Printf("Verifying that service account %s doesn't exist\n", targetSA)
-		saList, err := clients.KubeClient.Kube.CoreV1().ServiceAccounts(ns).List(context.TODO(), metav1.ListOptions{})
+		saList, err := c.KubeClient.Kube.CoreV1().ServiceAccounts(ns).List(context.TODO(), metav1.ListOptions{})
 		if err != nil {
 			return false, err
 		}
@@ -107,10 +107,10 @@ func AssertServiceAccountNotPresent(clients *clients.Clients, ns, targetSA strin
 	}
 }
 
-func AssertRoleBindingNotPresent(clients *clients.Clients, ns, roleBindingName string) {
-	err := wait.PollUntilContextTimeout(clients.Ctx, config.APIRetry, config.APITimeout, false, func(context.Context) (done bool, err error) {
+func AssertRoleBindingNotPresent(c *clients.Clients, ns, roleBindingName string) {
+	err := wait.PollUntilContextTimeout(c.Ctx, config.APIRetry, config.APITimeout, false, func(context.Context) (done bool, err error) {
 		log.Printf("Verifying that role binding %s doesn't exist\n", roleBindingName)
-		rbList, err := clients.KubeClient.Kube.RbacV1().RoleBindings(ns).List(context.TODO(), metav1.ListOptions{})
+		rbList, err := c.KubeClient.Kube.RbacV1().RoleBindings(ns).List(context.TODO(), metav1.ListOptions{})
 		if err != nil {
 			return false, err
 		}
@@ -126,10 +126,10 @@ func AssertRoleBindingNotPresent(clients *clients.Clients, ns, roleBindingName s
 	}
 }
 
-func AssertConfigMapNotPresent(clients *clients.Clients, ns, configMapName string) {
-	err := wait.PollUntilContextTimeout(clients.Ctx, config.APIRetry, config.APITimeout, false, func(context.Context) (done bool, err error) {
+func AssertConfigMapNotPresent(c *clients.Clients, ns, configMapName string) {
+	err := wait.PollUntilContextTimeout(c.Ctx, config.APIRetry, config.APITimeout, false, func(context.Context) (done bool, err error) {
 		log.Printf("Verifying that config map %s doesn't exist\n", configMapName)
-		cmList, err := clients.KubeClient.Kube.CoreV1().ConfigMaps(ns).List(context.TODO(), metav1.ListOptions{})
+		cmList, err := c.KubeClient.Kube.CoreV1().ConfigMaps(ns).List(context.TODO(), metav1.ListOptions{})
 		if err != nil {
 			return false, err
 		}
@@ -145,10 +145,10 @@ func AssertConfigMapNotPresent(clients *clients.Clients, ns, configMapName strin
 	}
 }
 
-func AssertClusterRoleNotPresent(clients *clients.Clients, clusterRoleName string) {
-	err := wait.PollUntilContextTimeout(clients.Ctx, config.APIRetry, config.APITimeout, false, func(context.Context) (done bool, err error) {
+func AssertClusterRoleNotPresent(c *clients.Clients, clusterRoleName string) {
+	err := wait.PollUntilContextTimeout(c.Ctx, config.APIRetry, config.APITimeout, false, func(context.Context) (done bool, err error) {
 		log.Printf("Verifying that cluster role %s doesn't exist\n", clusterRoleName)
-		rbList, err := clients.KubeClient.Kube.RbacV1().ClusterRoles().List(context.TODO(), metav1.ListOptions{})
+		rbList, err := c.KubeClient.Kube.RbacV1().ClusterRoles().List(context.TODO(), metav1.ListOptions{})
 		if err != nil {
 			return false, err
 		}
@@ -164,11 +164,11 @@ func AssertClusterRoleNotPresent(clients *clients.Clients, clusterRoleName strin
 	}
 }
 
-func AssertSCCPresent(clients *clients.Clients, sccName string) {
-	s := scc.NewForConfigOrDie(clients.KubeConfig)
-	err := wait.PollUntilContextTimeout(clients.Ctx, config.APIRetry, config.APITimeout, false, func(context.Context) (done bool, err error) {
+func AssertSCCPresent(c *clients.Clients, sccName string) {
+	s := scc.NewForConfigOrDie(c.KubeConfig)
+	err := wait.PollUntilContextTimeout(c.Ctx, config.APIRetry, config.APITimeout, false, func(context.Context) (done bool, err error) {
 		log.Printf("Verifying that security context constraint %s exists\n", sccName)
-		sccList, err := s.SecurityV1().SecurityContextConstraints().List(clients.Ctx, metav1.ListOptions{})
+		sccList, err := s.SecurityV1().SecurityContextConstraints().List(c.Ctx, metav1.ListOptions{})
 		if err != nil {
 			return false, err
 		}
@@ -184,11 +184,11 @@ func AssertSCCPresent(clients *clients.Clients, sccName string) {
 	}
 }
 
-func AssertSCCNotPresent(clients *clients.Clients, sccName string) {
-	s := scc.NewForConfigOrDie(clients.KubeConfig)
-	err := wait.PollUntilContextTimeout(clients.Ctx, config.APIRetry, config.APITimeout, false, func(context.Context) (done bool, err error) {
+func AssertSCCNotPresent(c *clients.Clients, sccName string) {
+	s := scc.NewForConfigOrDie(c.KubeConfig)
+	err := wait.PollUntilContextTimeout(c.Ctx, config.APIRetry, config.APITimeout, false, func(context.Context) (done bool, err error) {
 		log.Printf("Verifying that security context constraint %s doesn't exist\n", sccName)
-		sccList, err := s.SecurityV1().SecurityContextConstraints().List(clients.Ctx, metav1.ListOptions{})
+		sccList, err := s.SecurityV1().SecurityContextConstraints().List(c.Ctx, metav1.ListOptions{})
 		if err != nil {
 			return false, err
 		}
@@ -204,10 +204,10 @@ func AssertSCCNotPresent(clients *clients.Clients, sccName string) {
 	}
 }
 
-func VerifyRolesArePresent(clients *clients.Clients, role, namespace string) {
-	err := wait.PollUntilContextTimeout(clients.Ctx, config.APIRetry, config.APITimeout, false, func(context.Context) (done bool, err error) {
+func VerifyRolesArePresent(c *clients.Clients, role, namespace string) {
+	err := wait.PollUntilContextTimeout(c.Ctx, config.APIRetry, config.APITimeout, false, func(context.Context) (done bool, err error) {
 		log.Printf("Verifying that role %s exists in namespace %s\n", role, namespace)
-		_, err = clients.KubeClient.Kube.RbacV1().Roles(namespace).Get(context.TODO(), role, metav1.GetOptions{})
+		_, err = c.KubeClient.Kube.RbacV1().Roles(namespace).Get(context.TODO(), role, metav1.GetOptions{})
 		if err != nil {
 			return false, err
 		}

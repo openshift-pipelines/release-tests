@@ -81,20 +81,20 @@ func IsTektonTriggerReady(s *v1alpha1.TektonTrigger, err error) (bool, error) {
 }
 
 // AssertTektonTriggerCRReadyStatus verifies if the TektonTrigger reaches the READY status.
-func AssertTektonTriggerCRReadyStatus(clients *clients.Clients, names utils.ResourceNames) {
-	if _, err := WaitForTektonTriggerState(clients.TektonTrigger(), names.TektonTrigger,
+func AssertTektonTriggerCRReadyStatus(c *clients.Clients, names utils.ResourceNames) {
+	if _, err := WaitForTektonTriggerState(c.TektonTrigger(), names.TektonTrigger,
 		IsTektonTriggerReady); err != nil {
 		testsuit.T.Fail(fmt.Errorf("TektonTriggerCR %q failed to get to the READY status: %v", names.TektonTrigger, err))
 	}
 }
 
 // TektonTriggerCRDelete deletes tha TektonTrigger to see if all resources will be deleted
-func TektonTriggerCRDelete(clients *clients.Clients, crNames utils.ResourceNames) {
-	if err := clients.TektonTrigger().Delete(context.TODO(), crNames.TektonTrigger, metav1.DeleteOptions{}); err != nil {
+func TektonTriggerCRDelete(c *clients.Clients, crNames utils.ResourceNames) {
+	if err := c.TektonTrigger().Delete(context.TODO(), crNames.TektonTrigger, metav1.DeleteOptions{}); err != nil {
 		testsuit.T.Fail(fmt.Errorf("TektonTrigger %q failed to delete: %v", crNames.TektonTrigger, err))
 	}
-	err := wait.PollUntilContextTimeout(clients.Ctx, config.APIRetry, config.APITimeout, true, func(context.Context) (bool, error) {
-		_, err := clients.TektonTrigger().Get(context.TODO(), crNames.TektonTrigger, metav1.GetOptions{})
+	err := wait.PollUntilContextTimeout(c.Ctx, config.APIRetry, config.APITimeout, true, func(context.Context) (bool, error) {
+		_, err := c.TektonTrigger().Get(context.TODO(), crNames.TektonTrigger, metav1.GetOptions{})
 		if apierrs.IsNotFound(err) {
 			return true, nil
 		}
@@ -104,13 +104,13 @@ func TektonTriggerCRDelete(clients *clients.Clients, crNames utils.ResourceNames
 		testsuit.T.Fail(fmt.Errorf("timed out waiting on TektonTrigger to delete, Error: %v", err))
 	}
 
-	if err := verifyNoTektonTriggerCR(clients); err != nil {
+	if err := verifyNoTektonTriggerCR(c); err != nil {
 		testsuit.T.Fail(err)
 	}
 }
 
-func verifyNoTektonTriggerCR(clients *clients.Clients) error {
-	triggers, err := clients.TektonTrigger().List(context.TODO(), metav1.ListOptions{})
+func verifyNoTektonTriggerCR(c *clients.Clients) error {
+	triggers, err := c.TektonTrigger().List(context.TODO(), metav1.ListOptions{})
 	if err != nil {
 		return err
 	}

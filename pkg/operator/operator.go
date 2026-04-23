@@ -17,106 +17,106 @@ import (
 	"github.com/tektoncd/operator/test/utils"
 )
 
-func WaitForTektonConfigCR(cs *clients.Clients, rnames utils.ResourceNames) {
-	if _, err := EnsureTektonConfigExists(cs.TektonConfig(), rnames); err != nil {
+func WaitForTektonConfigCR(c *clients.Clients, rnames utils.ResourceNames) {
+	if _, err := EnsureTektonConfigExists(c.TektonConfig(), rnames); err != nil {
 		testsuit.T.Fail(fmt.Errorf("TektonConfig doesn't exists\n %v", err))
 	}
 }
 
-func ValidateRBAC(cs *clients.Clients, rnames utils.ResourceNames) {
+func ValidateRBAC(c *clients.Clients, rnames utils.ResourceNames) {
 	log.Printf("Verifying that TektonConfig status is \"installed\"\n")
-	EnsureTektonConfigStatusInstalled(cs.TektonConfig(), rnames)
+	EnsureTektonConfigStatusInstalled(c.TektonConfig(), rnames)
 
-	AssertServiceAccountPresent(cs, store.Namespace(), "pipeline")
-	AssertClusterRolePresent(cs, "pipelines-scc-clusterrole")
-	AssertConfigMapPresent(cs, store.Namespace(), "config-service-cabundle")
-	AssertConfigMapPresent(cs, store.Namespace(), "config-trusted-cabundle")
-	AssertRoleBindingPresent(cs, store.Namespace(), "openshift-pipelines-edit")
-	AssertRoleBindingPresent(cs, store.Namespace(), "pipelines-scc-rolebinding")
-	AssertSCCPresent(cs, "pipelines-scc")
+	AssertServiceAccountPresent(c, store.Namespace(), "pipeline")
+	AssertClusterRolePresent(c, "pipelines-scc-clusterrole")
+	AssertConfigMapPresent(c, store.Namespace(), "config-service-cabundle")
+	AssertConfigMapPresent(c, store.Namespace(), "config-trusted-cabundle")
+	AssertRoleBindingPresent(c, store.Namespace(), "openshift-pipelines-edit")
+	AssertRoleBindingPresent(c, store.Namespace(), "pipelines-scc-rolebinding")
+	AssertSCCPresent(c, "pipelines-scc")
 }
 
-func ValidateRBACAfterDisable(cs *clients.Clients, rnames utils.ResourceNames) {
-	EnsureTektonConfigStatusInstalled(cs.TektonConfig(), rnames)
+func ValidateRBACAfterDisable(c *clients.Clients, rnames utils.ResourceNames) {
+	EnsureTektonConfigStatusInstalled(c.TektonConfig(), rnames)
 	// Verify `pipelineSa` exists in the existing namespace
-	AssertServiceAccountPresent(cs, store.Namespace(), "pipeline")
+	AssertServiceAccountPresent(c, store.Namespace(), "pipeline")
 	// Verify clusterrole does not create
-	AssertClusterRoleNotPresent(cs, "pipelines-scc-clusterrole")
+	AssertClusterRoleNotPresent(c, "pipelines-scc-clusterrole")
 	// Verify roleBindings is not created in any namespace
-	AssertRoleBindingNotPresent(cs, store.Namespace(), "edit")
-	AssertRoleBindingNotPresent(cs, store.Namespace(), "pipelines-scc-rolebinding")
-	AssertSCCNotPresent(cs, "pipelines-scc")
+	AssertRoleBindingNotPresent(c, store.Namespace(), "edit")
+	AssertRoleBindingNotPresent(c, store.Namespace(), "pipelines-scc-rolebinding")
+	AssertSCCNotPresent(c, "pipelines-scc")
 }
 
-func ValidateCABundleConfigMaps(cs *clients.Clients, rnames utils.ResourceNames) {
+func ValidateCABundleConfigMaps(c *clients.Clients, rnames utils.ResourceNames) {
 	log.Printf("Verifying that TektonConfig status is \"installed\"\n")
-	EnsureTektonConfigStatusInstalled(cs.TektonConfig(), rnames)
+	EnsureTektonConfigStatusInstalled(c.TektonConfig(), rnames)
 	// Verify CA Bundle ConfigMaps are created
-	AssertConfigMapPresent(cs, store.Namespace(), "config-service-cabundle")
-	AssertConfigMapPresent(cs, store.Namespace(), "config-trusted-cabundle")
+	AssertConfigMapPresent(c, store.Namespace(), "config-service-cabundle")
+	AssertConfigMapPresent(c, store.Namespace(), "config-trusted-cabundle")
 }
 
-func ValidatePipelineDeployments(cs *clients.Clients, rnames utils.ResourceNames) {
-	if _, err := EnsureTektonPipelineExists(cs.TektonPipeline(), rnames); err != nil {
+func ValidatePipelineDeployments(c *clients.Clients, rnames utils.ResourceNames) {
+	if _, err := EnsureTektonPipelineExists(c.TektonPipeline(), rnames); err != nil {
 		testsuit.T.Fail(fmt.Errorf("TektonPipelines doesn't exists\n %v", err))
 	}
-	k8s.ValidateDeployments(cs, rnames.TargetNamespace,
+	k8s.ValidateDeployments(c, rnames.TargetNamespace,
 		config.PipelineControllerName, config.PipelineWebhookName)
 }
 
-func ValidateTriggerDeployments(cs *clients.Clients, rnames utils.ResourceNames) {
-	if _, err := EnsureTektonTriggerExists(cs.TektonTrigger(), rnames); err != nil {
+func ValidateTriggerDeployments(c *clients.Clients, rnames utils.ResourceNames) {
+	if _, err := EnsureTektonTriggerExists(c.TektonTrigger(), rnames); err != nil {
 		testsuit.T.Fail(fmt.Errorf("TektonTriggers doesn't exists\n %v", err))
 	}
-	k8s.ValidateDeployments(cs, rnames.TargetNamespace,
+	k8s.ValidateDeployments(c, rnames.TargetNamespace,
 		config.TriggerControllerName, config.TriggerWebhookName)
 }
 
-func ValidateChainsDeployments(cs *clients.Clients, rnames utils.ResourceNames) {
-	if _, err := EnsureTektonChainsExists(cs.TektonChains(), rnames); err != nil {
+func ValidateChainsDeployments(c *clients.Clients, rnames utils.ResourceNames) {
+	if _, err := EnsureTektonChainsExists(c.TektonChains(), rnames); err != nil {
 		testsuit.T.Fail(fmt.Errorf("TektonChains doesn't exists\n %v", err))
 	}
-	k8s.ValidateDeployments(cs, rnames.TargetNamespace,
+	k8s.ValidateDeployments(c, rnames.TargetNamespace,
 		config.ChainsControllerName)
 }
 
-func ValidateHubDeployments(cs *clients.Clients, rnames utils.ResourceNames) {
-	if _, err := EnsureTektonHubsExists(cs.TektonHub(), rnames); err != nil {
+func ValidateHubDeployments(c *clients.Clients, rnames utils.ResourceNames) {
+	if _, err := EnsureTektonHubsExists(c.TektonHub(), rnames); err != nil {
 		testsuit.T.Fail(fmt.Errorf("TektonHub doesn't exists\n %v", err))
 	}
-	k8s.ValidateDeployments(cs, rnames.TargetNamespace,
+	k8s.ValidateDeployments(c, rnames.TargetNamespace,
 		config.HubApiName, config.HubDbName, config.HubUiName)
 }
 
-func ValidateManualApprovalGateDeployments(cs *clients.Clients, rnames utils.ResourceNames) {
-	if _, err := approvalgate.EnsureManualApprovalGateExists(cs.ManualApprovalGate(), rnames); err != nil {
+func ValidateManualApprovalGateDeployments(c *clients.Clients, rnames utils.ResourceNames) {
+	if _, err := approvalgate.EnsureManualApprovalGateExists(c.ManualApprovalGate(), rnames); err != nil {
 		testsuit.T.Fail(fmt.Errorf("manual approval gate doesn't exists\n %v", err))
 	}
-	k8s.ValidateDeployments(cs, rnames.TargetNamespace,
+	k8s.ValidateDeployments(c, rnames.TargetNamespace,
 		config.MAGController, config.MAGWebHook)
 }
 
-func ValidateOperatorInstallStatus(cs *clients.Clients, rnames utils.ResourceNames) {
+func ValidateOperatorInstallStatus(c *clients.Clients, rnames utils.ResourceNames) {
 	operatorVersion := opc.GetOPCServerVersion("operator")
 	if strings.Contains(operatorVersion, "unknown") {
 		testsuit.T.Errorf("Operator is not installed")
 	}
 	log.Printf("Waiting for operator to be up and running....\n")
-	EnsureTektonConfigStatusInstalled(cs.TektonConfig(), rnames)
+	EnsureTektonConfigStatusInstalled(c.TektonConfig(), rnames)
 	log.Printf("Operator is up\n")
 }
 
-func DeleteTektonConfigCR(cs *clients.Clients, rnames utils.ResourceNames) {
-	TektonConfigCRDelete(cs, rnames)
+func DeleteTektonConfigCR(c *clients.Clients, rnames utils.ResourceNames) {
+	TektonConfigCRDelete(c, rnames)
 }
 
 // Uninstall helps you to delete operator and it's traces if any from cluster
-func Uninstall(cs *clients.Clients, rnames utils.ResourceNames) {
+func Uninstall(c *clients.Clients, rnames utils.ResourceNames) {
 	log.Printf("output: %s\n", cmd.MustSucceed("oc", "delete", "--ignore-not-found", "TektonHub", "hub").Stdout())
 	log.Printf("output: %s\n", cmd.MustSucceed("oc", "delete", "--ignore-not-found", "tektonresults", "result").Stdout())
 	log.Printf("output: %s\n", cmd.MustSucceed("oc", "delete", "--ignore-not-found", "manualapprovalgate", "manual-approval-gate").Stdout())
-	DeleteTektonConfigCR(cs, rnames)
-	k8s.ValidateDeploymentDeletion(cs,
+	DeleteTektonConfigCR(c, rnames)
+	k8s.ValidateDeploymentDeletion(c,
 		rnames.TargetNamespace,
 		config.PipelineControllerName,
 		config.PipelineWebhookName,
@@ -124,6 +124,6 @@ func Uninstall(cs *clients.Clients, rnames utils.ResourceNames) {
 		config.TriggerWebhookName,
 		config.ChainsControllerName,
 	)
-	k8s.ValidateSCCRemoved(cs, rnames.TargetNamespace, config.PipelineControllerName)
-	olm.OperatorCleanup(cs, config.Flags.SubscriptionName)
+	k8s.ValidateSCCRemoved(c, rnames.TargetNamespace, config.PipelineControllerName)
+	olm.OperatorCleanup(c, config.Flags.SubscriptionName)
 }
