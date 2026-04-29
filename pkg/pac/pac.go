@@ -467,6 +467,7 @@ func GeneratePipelineRunYaml(eventType, branch string) {
 	default:
 		testsuit.T.Fail(fmt.Errorf("unknown eventType: %s", eventType))
 	}
+	// #nosec G703 -- destPath is set from validated constants, not user input
 	if err := os.WriteFile(destPath, fileContent, 0600); err != nil {
 		testsuit.T.Fail(fmt.Errorf("failed to write %s: %v", destPath, err))
 	}
@@ -680,7 +681,8 @@ func ConfigurePreviewChanges() {
 		pushExists = true
 	}
 
-	if prExists && pushExists {
+	switch {
+	case prExists && pushExists:
 		action := gitlab.FileCreate
 		prData, err := os.ReadFile(pullRequestFileName)
 		if err != nil {
@@ -702,15 +704,15 @@ func ConfigurePreviewChanges() {
 		if _, _, err := client.Commits.CreateCommit(projectID, commitOpts); err != nil {
 			testsuit.T.Fail(fmt.Errorf("commit both: %v", err))
 		}
-	} else if prExists {
+	case prExists:
 		if err := createCommit(projectID, branchName, "ci(pac): add pull_request file", "pull_request"); err != nil {
 			testsuit.T.Fail(fmt.Errorf("commit pull_request: %v", err))
 		}
-	} else if pushExists {
+	case pushExists:
 		if err := createCommit(projectID, branchName, "ci(pac): add push file", "push"); err != nil {
 			testsuit.T.Fail(fmt.Errorf("commit push: %v", err))
 		}
-	} else {
+	default:
 		testsuit.T.Fail(fmt.Errorf("no pipeline files found to commit in /tmp"))
 	}
 
@@ -935,8 +937,8 @@ func deleteGitlabProject(projectID int) error {
 
 func CleanupPAC(c *clients.Clients, smeeDeploymentName, namespace string) {
 	// Remove the generated PipelineRun YAML files
-	os.Remove(pullRequestFileName)
-	os.Remove(pushFileName)
+	_ = os.Remove(pullRequestFileName)
+	_ = os.Remove(pushFileName)
 
 	projectID, err := strconv.Atoi(store.GetScenarioData("projectID"))
 	if err != nil {
