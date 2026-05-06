@@ -5,6 +5,7 @@ go 1.25.5
 require (
 	github.com/getgauge-contrib/gauge-go v0.5.2
 	github.com/google/go-cmp v0.7.0
+	github.com/google/go-github/v74 v74.0.0
 	github.com/openshift-pipelines/manual-approval-gate v0.7.0
 	github.com/openshift-pipelines/pipelines-as-code v0.41.1
 	github.com/openshift/api v0.0.0-20240521185306-0314f31e7774
@@ -20,6 +21,7 @@ require (
 	github.com/tektoncd/triggers v0.35.0
 	github.com/xanzy/go-gitlab v0.109.0
 	go.opencensus.io v0.24.0
+	golang.org/x/oauth2 v0.35.0
 	gopkg.in/yaml.v2 v2.4.0
 	gotest.tools/v3 v3.5.2
 	k8s.io/api v0.35.0
@@ -144,7 +146,6 @@ require (
 	go.yaml.in/yaml/v3 v3.0.4 // indirect
 	golang.org/x/exp v0.0.0-20260112195511-716be5621a96 // indirect
 	golang.org/x/net v0.49.0 // indirect
-	golang.org/x/oauth2 v0.35.0 // indirect
 	golang.org/x/sync v0.19.0 // indirect
 	golang.org/x/sys v0.40.0 // indirect
 	golang.org/x/term v0.39.0 // indirect
