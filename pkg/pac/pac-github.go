@@ -282,12 +282,13 @@ func SetupGitHubProject() *github.Repository {
 		testsuit.T.Fail(fmt.Errorf("failed to create github repository: %v", err))
 	}
 
-	owner := ""
-	if org != "" {
+	var owner string
+	switch {
+	case org != "":
 		owner = org
-	} else if created.Owner != nil && created.Owner.Login != nil {
+	case created.Owner != nil && created.Owner.Login != nil:
 		owner = created.GetOwner().GetLogin()
-	} else {
+	default:
 		u, _, uerr := ghClient.Users.Get(ctx, "")
 		if uerr != nil {
 			testsuit.T.Fail(fmt.Errorf("failed to determine github username: %v", uerr))
@@ -325,7 +326,7 @@ func SetupGitHubProject() *github.Repository {
 		testsuit.T.Fail(fmt.Errorf("failed to add github webhook: %v", err))
 	}
 
-	log.Printf("GitHub repo created: %s", repoURL)
+	log.Printf("GitHub repo created: %s", strings.ReplaceAll(strings.ReplaceAll(repoURL, "\n", ""), "\r", "")) //nolint:gosec // repoURL comes from GitHub API or is built from sanitised owner+name
 	return created
 }
 
