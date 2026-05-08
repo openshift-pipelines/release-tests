@@ -1,0 +1,12 @@
+apiVersion: tekton.dev/v1
+kind: PipelineRun
+metadata:
+  generateName: echo-pipeline-run-annotated-
+  annotations:
+    prune: "true"
+spec:
+  params:
+    - name: message
+      value: "annotation-prune-run"
+  pipelineRef:
+    name: echo-pipeline

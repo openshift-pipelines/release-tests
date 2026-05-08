@@ -24,11 +24,13 @@ import (
 	"github.com/tektoncd/cli/pkg/options"
 	prsort "github.com/tektoncd/cli/pkg/pipelinerun/sort"
 	v1 "github.com/tektoncd/pipeline/pkg/apis/pipeline/v1"
+	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	w "k8s.io/apimachinery/pkg/util/wait"
 	"k8s.io/apimachinery/pkg/watch"
+	"knative.dev/pkg/apis"
 )
 
 var prGroupResource = schema.GroupVersionResource{Group: "tekton.dev", Resource: "pipelineruns"}
@@ -283,6 +285,54 @@ func AssertNumberOfPipelineruns(c *clients.Clients, namespace, numberOfPr, timeo
 	if err != nil {
 		prlist, _ := c.PipelineRunClient.List(c.Ctx, metav1.ListOptions{})
 		testsuit.T.Fail(fmt.Errorf("error: Expected %v pipelineruns but found %v pipelineruns: %s", numberOfPr, len(prlist.Items), err))
+	}
+}
+
+// countPipelinerunsByStatus returns the number of PipelineRuns in the list that match the given status ("Succeeded" or "Failed").
+func countPipelinerunsByStatus(prlist *v1.PipelineRunList, status string) int {
+	var match corev1.ConditionStatus
+	switch strings.ToLower(status) {
+	case "succeeded":
+		match = corev1.ConditionTrue
+	case "failed":
+		match = corev1.ConditionFalse
+	default:
+		return 0
+	}
+	count := 0
+	for i := range prlist.Items {
+		pr := &prlist.Items[i]
+		c := pr.Status.GetCondition(apis.ConditionSucceeded)
+		if c != nil && c.Status == match {
+			count++
+		}
+	}
+	return count
+}
+
+func AssertNumberOfPipelinerunsWithStatus(c *clients.Clients, namespace, numberOfPr, status, timeoutSeconds string) {
+	log.Printf("Verifying if %s pipelineruns with status %s are present", numberOfPr, status)
+	timeoutSecondsInt, _ := strconv.Atoi(timeoutSeconds)
+	numberOfPrInt, _ := strconv.Atoi(numberOfPr)
+	err := w.PollUntilContextTimeout(c.Ctx, config.APIRetry, time.Second*time.Duration(timeoutSecondsInt), false, func(context.Context) (bool, error) {
+		prlist, err := c.PipelineRunClient.List(c.Ctx, metav1.ListOptions{})
+		if err != nil {
+			return false, err
+		}
+		count := countPipelinerunsByStatus(prlist, status)
+		if count == numberOfPrInt {
+			return true, nil
+		}
+		return false, nil
+	})
+	if err != nil {
+		prlist, listErr := c.PipelineRunClient.List(c.Ctx, metav1.ListOptions{})
+		if listErr != nil {
+			testsuit.T.Fail(fmt.Errorf("error waiting for pipelineruns: %v. Additionally, failed to list pipelineruns to provide details: %v", err, listErr))
+			return
+		}
+		count := countPipelinerunsByStatus(prlist, status)
+		testsuit.T.Fail(fmt.Errorf("error: Expected %v pipelineruns with status %s but found %v (total pipelineruns: %v): %s", numberOfPr, status, count, len(prlist.Items), err))
 	}
 }
 

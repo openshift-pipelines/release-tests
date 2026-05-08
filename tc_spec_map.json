@@ -33,5 +33,6 @@
     "PIPELINES-32": "specs/ecosystem/ecosystem-multiarch.spec",
     "PIPELINES-33": "specs/ecosystem/ecosystem-s2i.spec",
     "PIPELINES-34": "specs/operator/roles.spec",
-    "PIPELINES-35": "specs/pac/pac-github.spec"
+    "PIPELINES-35": "specs/pac/pac-github.spec",
+    "PIPELINES-36": "specs/operator/tekton-pruner.spec"
 }
