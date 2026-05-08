@@ -1,0 +1,16 @@
+# Single PipelineRun with label type=ci for label-selector TTL tests (e.g. TC-13).
+# Uses echo-pipeline; ensure pipeline-for-pruner.yaml is applied first.
+apiVersion: tekton.dev/v1
+kind: PipelineRun
+metadata:
+  generateName: echo-pipeline-run-label-annotation-
+  labels:
+    type: ci
+  annotations:
+    prune: "true"
+spec:
+  params:
+    - name: message
+      value: "label-annotation-run"
+  pipelineRef:
+    name: echo-pipeline
