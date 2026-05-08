@@ -23,6 +23,7 @@ import (
 )
 
 var once sync.Once
+var onceMAG sync.Once
 var _ = gauge.Step("Validate Operator should be installed", func() {
 	once.Do(func() {
 		operator.ValidateOperatorInstallStatus(store.Clients(), store.GetCRNames())
@@ -70,7 +71,9 @@ var _ = gauge.Step("Validate hub deployment", func() {
 })
 
 var _ = gauge.Step("Validate manual approval gate deployment", func() {
-	operator.ValidateManualApprovalGateDeployments(store.Clients(), store.GetCRNames())
+	onceMAG.Do(func() {
+		operator.ValidateManualApprovalGateDeployments(store.Clients(), store.GetCRNames())
+	})
 })
 
 var _ = gauge.Step("Validate <deploymentName> statefulset deployment", func(deploymentName string) {

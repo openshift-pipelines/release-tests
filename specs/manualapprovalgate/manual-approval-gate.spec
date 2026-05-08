@@ -1,6 +1,9 @@
 PIPELINES-28
 # ManualApprovalGate Pipelines operator specs
 
+Pre condition:
+  * Validate manual approval gate deployment
+
 ## Approve Manual Approval gate pipeline: PIPELINES-28-TC01
 Tags: approvalgate, e2e, taskrun, sanity
 Component: Operator
@@ -9,7 +12,6 @@ Type: Functional
 Importance: Critical
 
 Steps:
-  * Validate manual approval gate deployment
   * Create
      | S.NO | resource_dir                                             |
      |------|----------------------------------------------------------|
