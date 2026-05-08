@@ -7,6 +7,9 @@ spec:
   - name: SUBDIR
     description: where to clone the git repo
     default: jib-maven
+  - name: IMAGE
+    description: Name of the image to build
+    default: quay.io/openshift-pipeline/jib-maven:latest
   workspaces:
   - name: source
   tasks:
@@ -51,6 +54,6 @@ spec:
     - name: DIRECTORY
       value: $(params.SUBDIR)
     - name: IMAGE
-      value: image-registry.openshift-image-registry.svc:5000/$(context.pipelineRun.namespace)/jib-maven
+      value: $(params.IMAGE)
     - name: INSECUREREGISTRY
-      value: "false"
+      value: "true"
