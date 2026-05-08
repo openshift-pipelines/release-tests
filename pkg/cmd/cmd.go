@@ -2,6 +2,8 @@ package cmd
 
 import (
 	"fmt"
+	"io"
+	"os"
 	"time"
 
 	"github.com/getgauge-contrib/gauge-go/testsuit"
@@ -9,11 +11,6 @@ import (
 	"gotest.tools/v3/assert"
 	"gotest.tools/v3/icmd"
 )
-
-type FooCmd struct {
-	Command  []string
-	Expected icmd.Expected
-}
 
 // testsuitAdaptor bridges the gap between testsuit.T and assert.TestingT as
 // testsuit.T does not implement assert.TestingT interface
@@ -38,14 +35,47 @@ func Run(cmd ...string) *icmd.Result {
 	return icmd.RunCmd(icmd.Cmd{Command: cmd, Timeout: config.CLITimeout})
 }
 
+func RunWithStdin(stdin io.Reader, cmd ...string) *icmd.Result {
+	return icmd.RunCmd(icmd.Cmd{Command: cmd, Timeout: config.CLITimeout, Stdin: stdin})
+}
+
+// RunWithEnv runs a command inheriting the current process environment, with additional env entries appended.
+// Use this to safely override values like KUBECONFIG while preserving PATH and other required env vars.
+func RunWithEnv(env []string, cmd ...string) *icmd.Result {
+	fullEnv := append(os.Environ(), env...)
+	return icmd.RunCmd(icmd.Cmd{Command: cmd, Timeout: config.CLITimeout, Env: fullEnv})
+}
+
 // MustSucceed asserts that the command ran with 0 exit code
 func MustSucceed(args ...string) *icmd.Result {
 	return Assert(icmd.Success, args...)
 }
 
+func MustSucceedWithEnv(env []string, args ...string) *icmd.Result {
+	return AssertWithEnv(icmd.Success, env, args...)
+}
+
+func MustSucceedWithStdin(stdin io.Reader, args ...string) *icmd.Result {
+	return AssertWithStdin(icmd.Success, stdin, args...)
+}
+
 // Assert runs a command and verifies exit code (0)
 func Assert(exp icmd.Expected, args ...string) *icmd.Result {
 	res := Run(args...)
+	t := &testsuitAdaptor{}
+	res.Assert(t, exp)
+	return res
+}
+
+func AssertWithEnv(exp icmd.Expected, env []string, args ...string) *icmd.Result {
+	res := RunWithEnv(env, args...)
+	t := &testsuitAdaptor{}
+	res.Assert(t, exp)
+	return res
+}
+
+func AssertWithStdin(exp icmd.Expected, stdin io.Reader, args ...string) *icmd.Result {
+	res := RunWithStdin(stdin, args...)
 	t := &testsuitAdaptor{}
 	res.Assert(t, exp)
 	return res

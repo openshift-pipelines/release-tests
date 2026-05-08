@@ -26,7 +26,7 @@
     "PIPELINES-25": "specs/pipelines/bundles-resolvers.spec",
     "PIPELINES-26": "specs/results/results.spec",
     "PIPELINES-27": "specs/chains/chains.spec",
-    "PIPELINES-28": "specs/operator/manual-approval-gate.spec",
+    "PIPELINES-28": "specs/manualapprovalgate/manual-approval-gate.spec",
     "PIPELINES-29": "specs/ecosystem/ecosystem.spec",
     "PIPELINES-30": "specs/pac/pac-gitlab.spec",
     "PIPELINES-31": "specs/pipelines/http-resolvers.spec",
@@ -34,5 +34,6 @@
     "PIPELINES-33": "specs/ecosystem/ecosystem-s2i.spec",
     "PIPELINES-34": "specs/operator/roles.spec",
     "PIPELINES-35": "specs/pac/pac-github.spec",
-    "PIPELINES-36": "specs/operator/tekton-pruner.spec"
+    "PIPELINES-36": "specs/operator/tekton-pruner.spec",
+    "PIPELINES-37": "specs/manualapprovalgate/manual-approval-gate-group-users.spec"
 }
