@@ -30,3 +30,13 @@ Steps:
   * Check "tkn-pac" version
   * Check "opc" client version
   * Check "opc" server version
+
+## Check OSP Version in OlmSkipRange : PIPELINES-22-TC03
+Tags: e2e, sanity, olm
+Component: Operator
+Level: Integration
+Type: Functional
+Importance: High
+Steps: 
+  * Validate OSP Version in OlmSkipRange
+  * Validate all channels have valid skipRange bounds

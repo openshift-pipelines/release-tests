@@ -206,3 +206,19 @@ var _ = gauge.Step("Store Cosign public key in file", func() {
 var _ = gauge.Step("Verify <binary> version from the pipelinerun logs", func(binary string) {
 	pipelines.CheckLogVersion(store.Clients(), binary, store.Namespace())
 })
+
+var _ = gauge.Step("Get olm-skip-range <upgradeType> and save to field <fieldName> in file <fileName>", func(upgradeType string, fieldName string, filename string) {
+	oc.GetOlmSkipRange(upgradeType, fieldName, filename)
+})
+
+var _ = gauge.Step("Validate skipRange diff between fields <preUpgradeSkipRange> and <postUpgradeSkipRange> in file <fileName>", func(preUpgradeSkipRange string, postUpgradeSkipRange string, fileName string) {
+	oc.ValidateOlmSkipRangeDiff(fileName, preUpgradeSkipRange, postUpgradeSkipRange)
+})
+
+var _ = gauge.Step("Validate OSP Version in OlmSkipRange", func() {
+	oc.ValidateOlmSkipRange()
+})
+
+var _ = gauge.Step("Validate all channels have valid skipRange bounds", func() {
+	oc.ValidateChannelSkipRangeBounds()
+})
