@@ -32,11 +32,7 @@
     "PIPELINES-31": "specs/pipelines/http-resolvers.spec",
     "PIPELINES-32": "specs/ecosystem/ecosystem-multiarch.spec",
     "PIPELINES-33": "specs/ecosystem/ecosystem-s2i.spec",
-<<<<<<< HEAD
-    "PIPELINES-34": "specs/operator/roles.spec"
-=======
     "PIPELINES-34": "specs/operator/roles.spec",
     "PIPELINES-35": "specs/pac/pac-github.spec",
     "PIPELINES-36": "specs/operator/tekton-pruner.spec"
->>>>>>> e715871 ([SRVKP-10521] Add e2e tests for Event based pruner (#719))
 }
