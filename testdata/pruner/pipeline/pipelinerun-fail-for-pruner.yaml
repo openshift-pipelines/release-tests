@@ -1,0 +1,54 @@
+apiVersion: tekton.dev/v1
+kind: PipelineRun
+metadata:
+  generateName: fail-echo-pipeline-run-
+spec:
+  params:
+    - name: message
+      value: "run-failed"
+  pipelineRef:
+    name: fail-echo-pipeline
+---
+apiVersion: tekton.dev/v1
+kind: PipelineRun
+metadata:
+  generateName: fail-echo-pipeline-run-
+spec:
+  params:
+    - name: message
+      value: "run-failed"
+  pipelineRef:
+    name: fail-echo-pipeline
+---
+apiVersion: tekton.dev/v1
+kind: PipelineRun
+metadata:
+  generateName: fail-echo-pipeline-run-
+spec:
+  params:
+    - name: message
+      value: "run-failed"
+  pipelineRef:
+    name: fail-echo-pipeline
+---
+apiVersion: tekton.dev/v1
+kind: PipelineRun
+metadata:
+  generateName: fail-echo-pipeline-run-
+spec:
+  params:
+    - name: message
+      value: "run-failed"
+  pipelineRef:
+    name: fail-echo-pipeline
+---
+apiVersion: tekton.dev/v1
+kind: PipelineRun
+metadata:
+  generateName: fail-echo-pipeline-run-
+spec:
+  params:
+    - name: message
+      value: "run-failed"
+  pipelineRef:
+    name: fail-echo-pipeline
