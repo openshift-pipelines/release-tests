@@ -34,12 +34,12 @@ func (a *authRoundtripper) RoundTrip(r *http.Request) (*http.Response, error) {
 	return a.inner.RoundTrip(r)
 }
 
-func newPrometheusClient(cs *clients.Clients) (promv1.API, error) {
-	route, err := getPrometheusRoute(cs)
+func newPrometheusClient(c *clients.Clients) (promv1.API, error) {
+	route, err := getPrometheusRoute(c)
 	if err != nil {
 		return nil, err
 	}
-	bToken, err := getBearerTokenForPrometheusAccount(cs)
+	bToken, err := getBearerTokenForPrometheusAccount(c)
 	if err != nil {
 		return nil, err
 	}
@@ -61,8 +61,8 @@ func newPrometheusClient(cs *clients.Clients) (promv1.API, error) {
 	return promv1.NewAPI(client), nil
 }
 
-func getPrometheusRoute(cs *clients.Clients) (*v1.Route, error) {
-	r, err := cs.Route.Routes("openshift-monitoring").Get(context.Background(), "prometheus-k8s", meta.GetOptions{})
+func getPrometheusRoute(c *clients.Clients) (*v1.Route, error) {
+	r, err := c.Route.Routes("openshift-monitoring").Get(context.Background(), "prometheus-k8s", meta.GetOptions{})
 	if err != nil {
 		return nil, fmt.Errorf("error getting Prometheus route: %w", err)
 	}
@@ -74,12 +74,12 @@ type TargetService struct {
 	ExpectedValue string
 }
 
-func VerifyHealthStatusMetric(cs *clients.Clients, targetService TargetService) error {
-	pc, err := newPrometheusClient(cs)
+func VerifyHealthStatusMetric(c *clients.Clients, targetService TargetService) error {
+	pc, err := newPrometheusClient(c)
 	if err != nil {
 		return err
 	}
-	if err := wait.PollUntilContextTimeout(cs.Ctx, config.APIRetry, config.APITimeout, true, func(context.Context) (bool, error) {
+	if err := wait.PollUntilContextTimeout(c.Ctx, config.APIRetry, config.APITimeout, true, func(context.Context) (bool, error) {
 		value, _, err := pc.Query(context.Background(), fmt.Sprintf(`max(up{job="%s"})`, targetService.Job), time.Time{})
 		if err != nil {
 			return false, err
@@ -102,8 +102,8 @@ func VerifyHealthStatusMetric(cs *clients.Clients, targetService TargetService) 
 	return nil
 }
 
-func VerifyPipelinesControlPlaneMetrics(cs *clients.Clients) error {
-	pc, err := newPrometheusClient(cs)
+func VerifyPipelinesControlPlaneMetrics(c *clients.Clients) error {
+	pc, err := newPrometheusClient(c)
 	if err != nil {
 		return err
 	}
@@ -126,7 +126,7 @@ func VerifyPipelinesControlPlaneMetrics(cs *clients.Clients) error {
 		"tekton_taskruns_pod_latency",
 	}
 	for _, metric := range pipelineMetrics {
-		if err := wait.PollUntilContextTimeout(cs.Ctx, config.APIRetry, config.APITimeout, true, func(context.Context) (bool, error) {
+		if err := wait.PollUntilContextTimeout(c.Ctx, config.APIRetry, config.APITimeout, true, func(context.Context) (bool, error) {
 			value, _, err := pc.Query(context.Background(), metric, time.Time{})
 			if err != nil {
 				return false, err
@@ -140,8 +140,8 @@ func VerifyPipelinesControlPlaneMetrics(cs *clients.Clients) error {
 	return nil
 }
 
-func getBearerTokenForPrometheusAccount(cs *clients.Clients) (string, error) {
-	secrets, err := cs.KubeClient.Kube.CoreV1().Secrets("openshift-monitoring").List(context.Background(), meta.ListOptions{})
+func getBearerTokenForPrometheusAccount(c *clients.Clients) (string, error) {
+	secrets, err := c.KubeClient.Kube.CoreV1().Secrets("openshift-monitoring").List(context.Background(), meta.ListOptions{})
 	if err != nil {
 		return "", fmt.Errorf("error getting secrets from namespace %v: %v", "openshift-monitoring", err)
 	}
@@ -152,7 +152,7 @@ func getBearerTokenForPrometheusAccount(cs *clients.Clients) (string, error) {
 		if output.ExitCode != 0 {
 			return "", fmt.Errorf("error creating token for the service account prometheus-k8s: %v", output.Stderr())
 		}
-		secrets, err := cs.KubeClient.Kube.CoreV1().Secrets("openshift-monitoring").List(context.Background(), meta.ListOptions{})
+		secrets, err := c.KubeClient.Kube.CoreV1().Secrets("openshift-monitoring").List(context.Background(), meta.ListOptions{})
 		if err != nil {
 			return "", fmt.Errorf("error getting secrets from namespace %v: %v", "openshift-monitoring", err)
 		}
@@ -161,7 +161,7 @@ func getBearerTokenForPrometheusAccount(cs *clients.Clients) (string, error) {
 			return "", errors.New("could not find a service account token for service account \"prometheus-k8s\"")
 		}
 	}
-	sec, err := cs.KubeClient.Kube.CoreV1().Secrets("openshift-monitoring").Get(context.Background(), tokenSecret, meta.GetOptions{})
+	sec, err := c.KubeClient.Kube.CoreV1().Secrets("openshift-monitoring").Get(context.Background(), tokenSecret, meta.GetOptions{})
 	if err != nil {
 		return "", fmt.Errorf("error getting secret %s %v", tokenSecret, err)
 	}

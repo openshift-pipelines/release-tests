@@ -104,19 +104,19 @@ func EnsureTektonConfigStatusInstalled(clients configv1alpha1.TektonConfigInterf
 }
 
 // AssertTektonConfigCRReadyStatus verifies if the TektonConfig reaches the READY status.
-func AssertTektonConfigCRReadyStatus(clients *clients.Clients, names utils.ResourceNames) {
-	if _, err := WaitForTektonConfigState(clients.TektonConfig(), names.TektonConfig, IsTektonConfigReady); err != nil {
+func AssertTektonConfigCRReadyStatus(c *clients.Clients, names utils.ResourceNames) {
+	if _, err := WaitForTektonConfigState(c.TektonConfig(), names.TektonConfig, IsTektonConfigReady); err != nil {
 		testsuit.T.Fail(fmt.Errorf("TektonConfigCR %q failed to get to the READY status: %v", names.TektonConfig, err))
 	}
 }
 
 // TektonConfigCRDelete deletes tha TektonConfig to see if all resources will be deleted
-func TektonConfigCRDelete(clients *clients.Clients, crNames utils.ResourceNames) {
-	if err := clients.TektonConfig().Delete(context.TODO(), crNames.TektonConfig, metav1.DeleteOptions{}); err != nil {
+func TektonConfigCRDelete(c *clients.Clients, crNames utils.ResourceNames) {
+	if err := c.TektonConfig().Delete(context.TODO(), crNames.TektonConfig, metav1.DeleteOptions{}); err != nil {
 		testsuit.T.Fail(fmt.Errorf("TektonConfigCR %q failed to delete: %v", crNames.TektonConfig, err))
 	}
-	err := wait.PollUntilContextTimeout(clients.Ctx, config.APIRetry, config.APITimeout, true, func(context.Context) (bool, error) {
-		_, err := clients.TektonConfig().Get(context.TODO(), crNames.TektonConfig, metav1.GetOptions{})
+	err := wait.PollUntilContextTimeout(c.Ctx, config.APIRetry, config.APITimeout, true, func(context.Context) (bool, error) {
+		_, err := c.TektonConfig().Get(context.TODO(), crNames.TektonConfig, metav1.GetOptions{})
 		if apierrs.IsNotFound(err) {
 			return true, nil
 		}
@@ -125,14 +125,14 @@ func TektonConfigCRDelete(clients *clients.Clients, crNames utils.ResourceNames)
 	if err != nil {
 		testsuit.T.Fail(fmt.Errorf("timed out waiting on TektonConfigCR to delete, Error: %v", err))
 	}
-	err = verifyNoTektonConfigCR(clients)
+	err = verifyNoTektonConfigCR(c)
 	if err != nil {
 		testsuit.T.Fail(err)
 	}
 }
 
-func verifyNoTektonConfigCR(clients *clients.Clients) error {
-	configs, err := clients.TektonConfig().List(context.TODO(), metav1.ListOptions{})
+func verifyNoTektonConfigCR(c *clients.Clients) error {
+	configs, err := c.TektonConfig().List(context.TODO(), metav1.ListOptions{})
 	if err != nil {
 		return err
 	}

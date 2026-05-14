@@ -66,11 +66,11 @@ func EnsureManualApprovalGateExists(clients mag.ManualApprovalGateInterface, nam
 	return magCR, err
 }
 
-func ListApprovalTask(cs *clients.Clients) ([]ApprovalTaskInfo, error) {
+func ListApprovalTask(c *clients.Clients) ([]ApprovalTaskInfo, error) {
 	var tasks []ApprovalTaskInfo
 
-	err := wait.PollUntilContextTimeout(cs.Ctx, config.APIRetry, config.APITimeout, false, func(ctx context.Context) (bool, error) {
-		at, err := cs.ApprovalTask.List(ctx, metav1.ListOptions{})
+	err := wait.PollUntilContextTimeout(c.Ctx, config.APIRetry, config.APITimeout, false, func(ctx context.Context) (bool, error) {
+		at, err := c.ApprovalTask.List(ctx, metav1.ListOptions{})
 		if err != nil {
 			log.Printf("Failed to list approval tasks, retrying...: %v", err)
 			return false, err

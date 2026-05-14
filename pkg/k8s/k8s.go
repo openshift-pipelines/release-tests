@@ -51,10 +51,10 @@ func NewClientSet() (*clients.Clients, string, func()) {
 
 // WaitForDeploymentDeletion checks to see if a given deployment is deleted
 // the function returns an error if the given deployment is not deleted within the timeout
-func WaitForDeploymentDeletion(cs *clients.Clients, namespace, name string) error {
-	err := wait.PollUntilContextTimeout(cs.Ctx, config.APIRetry, config.APITimeout, false, func(context.Context) (bool, error) {
-		kc := cs.KubeClient.Kube
-		_, err := kc.AppsV1().Deployments(namespace).Get(cs.Ctx, name, metav1.GetOptions{})
+func WaitForDeploymentDeletion(c *clients.Clients, namespace, name string) error {
+	err := wait.PollUntilContextTimeout(c.Ctx, config.APIRetry, config.APITimeout, false, func(context.Context) (bool, error) {
+		kc := c.KubeClient.Kube
+		_, err := kc.AppsV1().Deployments(namespace).Get(c.Ctx, name, metav1.GetOptions{})
 		if err != nil {
 			if errors.IsGone(err) || errors.IsNotFound(err) {
 				return true, nil
@@ -71,10 +71,10 @@ func WaitForDeploymentDeletion(cs *clients.Clients, namespace, name string) erro
 }
 
 // WaitForServiceAccount checks if service account created
-func WaitForServiceAccount(cs *clients.Clients, ns, targetSA string) *corev1.ServiceAccount {
+func WaitForServiceAccount(c *clients.Clients, ns, targetSA string) *corev1.ServiceAccount {
 	ret := &corev1.ServiceAccount{}
-	err := wait.PollUntilContextTimeout(cs.Ctx, config.APIRetry, config.APITimeout, false, func(context.Context) (bool, error) {
-		saList, err := cs.KubeClient.Kube.CoreV1().ServiceAccounts(ns).List(cs.Ctx, metav1.ListOptions{})
+	err := wait.PollUntilContextTimeout(c.Ctx, config.APIRetry, config.APITimeout, false, func(context.Context) (bool, error) {
+		saList, err := c.KubeClient.Kube.CoreV1().ServiceAccounts(ns).List(c.Ctx, metav1.ListOptions{})
 		for _, sa := range saList.Items {
 			if sa.Name == targetSA {
 				saCopy := sa
@@ -90,9 +90,9 @@ func WaitForServiceAccount(cs *clients.Clients, ns, targetSA string) *corev1.Ser
 	return ret
 }
 
-func ValidateSCCAdded(cs *clients.Clients, ns, sa string) {
-	err := wait.PollUntilContextTimeout(cs.Ctx, config.APIRetry, config.APITimeout, false, func(context.Context) (bool, error) {
-		privileged, err := GetPrivilegedSCC(cs)
+func ValidateSCCAdded(c *clients.Clients, ns, sa string) {
+	err := wait.PollUntilContextTimeout(c.Ctx, config.APIRetry, config.APITimeout, false, func(context.Context) (bool, error) {
+		privileged, err := GetPrivilegedSCC(c)
 		if err != nil {
 			log.Printf("failed to get privileged scc: %s \n", err)
 			return false, err
@@ -107,9 +107,9 @@ func ValidateSCCAdded(cs *clients.Clients, ns, sa string) {
 	}
 }
 
-func ValidateSCCRemoved(cs *clients.Clients, ns, sa string) {
-	err := wait.PollUntilContextTimeout(cs.Ctx, config.APIRetry, config.APITimeout, false, func(context.Context) (bool, error) {
-		privileged, err := GetPrivilegedSCC(cs)
+func ValidateSCCRemoved(c *clients.Clients, ns, sa string) {
+	err := wait.PollUntilContextTimeout(c.Ctx, config.APIRetry, config.APITimeout, false, func(context.Context) (bool, error) {
+		privileged, err := GetPrivilegedSCC(c)
 		if err != nil {
 			log.Printf("failed to get privileged scc: %s \n", err)
 			return false, err
@@ -131,10 +131,10 @@ func inList(list []string, item string) bool {
 	return false
 }
 
-func ValidateDeployments(cs *clients.Clients, ns string, deployments ...string) {
-	kc := cs.KubeClient.Kube
+func ValidateDeployments(c *clients.Clients, ns string, deployments ...string) {
+	kc := c.KubeClient.Kube
 	for _, d := range deployments {
-		err := WaitForDeployment(cs.Ctx, kc, ns,
+		err := WaitForDeployment(c.Ctx, kc, ns,
 			d,
 			1,
 			config.APIRetry,
@@ -146,16 +146,16 @@ func ValidateDeployments(cs *clients.Clients, ns string, deployments ...string) 
 	}
 }
 
-func GetPrivilegedSCC(cs *clients.Clients) (*secv1.SecurityContextConstraints, error) {
-	sec, err := secclient.NewForConfig(cs.KubeConfig)
+func GetPrivilegedSCC(c *clients.Clients) (*secv1.SecurityContextConstraints, error) {
+	sec, err := secclient.NewForConfig(c.KubeConfig)
 	if err != nil {
 		return nil, err
 	}
-	return sec.SecurityContextConstraints().Get(cs.Ctx, "privileged", metav1.GetOptions{})
+	return sec.SecurityContextConstraints().Get(c.Ctx, "privileged", metav1.GetOptions{})
 }
 
-func DeleteDeployment(cs *clients.Clients, ns string, deploymentName string) error {
-	kc := cs.KubeClient.Kube
+func DeleteDeployment(c *clients.Clients, ns string, deploymentName string) error {
+	kc := c.KubeClient.Kube
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
 
@@ -164,13 +164,13 @@ func DeleteDeployment(cs *clients.Clients, ns string, deploymentName string) err
 		return fmt.Errorf("failed to delete deployment %s in namespace %s: %v", deploymentName, ns, err)
 	}
 
-	ValidateDeploymentDeletion(cs, ns, deploymentName)
+	ValidateDeploymentDeletion(c, ns, deploymentName)
 	return nil
 }
 
-func ValidateDeploymentDeletion(cs *clients.Clients, ns string, deployments ...string) {
+func ValidateDeploymentDeletion(c *clients.Clients, ns string, deployments ...string) {
 	for _, d := range deployments {
-		err := WaitForDeploymentDeletion(cs, ns, d)
+		err := WaitForDeploymentDeletion(c, ns, d)
 		if err != nil {
 			testsuit.T.Errorf("failed to delete deployment %+v \n %v", d, err)
 		}
@@ -279,13 +279,13 @@ func DeleteCronJob(c *clients.Clients, name, ns string) error {
 	return c.KubeClient.Kube.BatchV1().CronJobs(ns).Delete(c.Ctx, name, metav1.DeleteOptions{PropagationPolicy: &propagationPolicy})
 }
 
-func Get(ctx context.Context, gr schema.GroupVersionResource, clients *clients.Clients, objname, ns string, op metav1.GetOptions) (*unstructured.Unstructured, error) {
-	gvr, err := GetGroupVersionResource(gr, clients.Tekton.Discovery())
+func Get(ctx context.Context, gr schema.GroupVersionResource, c *clients.Clients, objname, ns string, op metav1.GetOptions) (*unstructured.Unstructured, error) {
+	gvr, err := GetGroupVersionResource(gr, c.Tekton.Discovery())
 	if err != nil {
 		return nil, err
 	}
 
-	obj, err := clients.Dynamic.Resource(*gvr).Namespace(ns).Get(ctx, objname, op)
+	obj, err := c.Dynamic.Resource(*gvr).Namespace(ns).Get(ctx, objname, op)
 	if err != nil {
 		return nil, err
 	}
@@ -294,12 +294,12 @@ func Get(ctx context.Context, gr schema.GroupVersionResource, clients *clients.C
 }
 
 // Watch func helps you to watch on dynamic resources
-func Watch(ctx context.Context, gr schema.GroupVersionResource, clients *clients.Clients, ns string, op metav1.ListOptions) (watch.Interface, error) {
-	gvr, err := GetGroupVersionResource(gr, clients.Tekton.Discovery())
+func Watch(ctx context.Context, gr schema.GroupVersionResource, c *clients.Clients, ns string, op metav1.ListOptions) (watch.Interface, error) {
+	gvr, err := GetGroupVersionResource(gr, c.Tekton.Discovery())
 	if err != nil {
 		return nil, err
 	}
-	watch, err := clients.Dynamic.Resource(*gvr).Namespace(ns).Watch(ctx, op)
+	watch, err := c.Dynamic.Resource(*gvr).Namespace(ns).Watch(ctx, op)
 	if err != nil {
 		return nil, err
 	}

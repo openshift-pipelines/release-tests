@@ -84,20 +84,20 @@ func IsTektonPipelineReady(s *v1alpha1.TektonPipeline, err error) (bool, error) 
 }
 
 // AssertTektonPipelineCRReadyStatus verifies if the TektonPipeline reaches the READY status.
-func AssertTektonPipelineCRReadyStatus(clients *clients.Clients, names utils.ResourceNames) {
-	if _, err := WaitForTektonPipelineState(clients.TektonPipeline(), names.TektonPipeline,
+func AssertTektonPipelineCRReadyStatus(c *clients.Clients, names utils.ResourceNames) {
+	if _, err := WaitForTektonPipelineState(c.TektonPipeline(), names.TektonPipeline,
 		IsTektonPipelineReady); err != nil {
 		testsuit.T.Fail(fmt.Errorf("TektonPipelineCR %q failed to get to the READY status: %v", names.TektonPipeline, err))
 	}
 }
 
 // TektonPipelineCRDelete deletes tha TektonPipeline to see if all resources will be deleted
-func TektonPipelineCRDelete(clients *clients.Clients, crNames utils.ResourceNames) {
-	if err := clients.TektonPipeline().Delete(context.TODO(), crNames.TektonPipeline, metav1.DeleteOptions{}); err != nil {
+func TektonPipelineCRDelete(c *clients.Clients, crNames utils.ResourceNames) {
+	if err := c.TektonPipeline().Delete(context.TODO(), crNames.TektonPipeline, metav1.DeleteOptions{}); err != nil {
 		testsuit.T.Fail(fmt.Errorf("TektonPipeline %q failed to delete: %v", crNames.TektonPipeline, err))
 	}
-	err := wait.PollUntilContextTimeout(clients.Ctx, config.APIRetry, config.APITimeout, true, func(context.Context) (bool, error) {
-		_, err := clients.TektonPipeline().Get(context.TODO(), crNames.TektonPipeline, metav1.GetOptions{})
+	err := wait.PollUntilContextTimeout(c.Ctx, config.APIRetry, config.APITimeout, true, func(context.Context) (bool, error) {
+		_, err := c.TektonPipeline().Get(context.TODO(), crNames.TektonPipeline, metav1.GetOptions{})
 		if apierrs.IsNotFound(err) {
 			return true, nil
 		}
@@ -106,13 +106,13 @@ func TektonPipelineCRDelete(clients *clients.Clients, crNames utils.ResourceName
 	if err != nil {
 		testsuit.T.Fail(fmt.Errorf("timed out waiting on TektonPipeline to delete, Error: %v", err))
 	}
-	if err := verifyNoTektonPipelineCR(clients); err != nil {
+	if err := verifyNoTektonPipelineCR(c); err != nil {
 		testsuit.T.Fail(err)
 	}
 }
 
-func verifyNoTektonPipelineCR(clients *clients.Clients) error {
-	pipelines, err := clients.TektonPipeline().List(context.TODO(), metav1.ListOptions{})
+func verifyNoTektonPipelineCR(c *clients.Clients) error {
+	pipelines, err := c.TektonPipeline().List(context.TODO(), metav1.ListOptions{})
 	if err != nil {
 		return err
 	}

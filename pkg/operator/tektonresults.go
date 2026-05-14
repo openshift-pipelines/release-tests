@@ -53,16 +53,16 @@ func GetResultsAnnotations(resourceType string) (string, string, string) {
 	return result_uuid, record_uuid, stored
 }
 
-func getRunsAnnotations(cs *clients.Clients, resourceType, name string) (map[string]string, error) {
+func getRunsAnnotations(c *clients.Clients, resourceType, name string) (map[string]string, error) {
 	switch resourceType {
 	case "taskrun":
-		taskRun, err := cs.TaskRunClient.Get(cs.Ctx, name, metav1.GetOptions{})
+		taskRun, err := c.TaskRunClient.Get(c.Ctx, name, metav1.GetOptions{})
 		if err != nil {
 			return nil, err
 		}
 		return taskRun.GetAnnotations(), nil
 	case "pipelinerun":
-		pipelineRuns, err := cs.PipelineRunClient.Get(cs.Ctx, name, metav1.GetOptions{})
+		pipelineRuns, err := c.PipelineRunClient.Get(c.Ctx, name, metav1.GetOptions{})
 		if err != nil {
 			return nil, err
 		}

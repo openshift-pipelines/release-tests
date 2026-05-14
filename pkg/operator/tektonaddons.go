@@ -107,20 +107,20 @@ func EnsureTektonAddonsStatusInstalled(clients operatorv1alpha1.TektonAddonInter
 }
 
 // AssertTektonAddonCRReadyStatus verifies if the TektonAddon reaches the READY status.
-func AssertTektonAddonCRReadyStatus(clients *clients.Clients, names utils.ResourceNames) {
-	if _, err := WaitForTektonAddonState(clients.TektonAddon(), names.TektonAddon,
+func AssertTektonAddonCRReadyStatus(c *clients.Clients, names utils.ResourceNames) {
+	if _, err := WaitForTektonAddonState(c.TektonAddon(), names.TektonAddon,
 		IsTektonAddonReady); err != nil {
 		testsuit.T.Fail(fmt.Errorf("TektonAddonCR %q failed to get to the READY status: %v", names.TektonAddon, err))
 	}
 }
 
 // TektonAddonCRDelete deletes tha TektonAddon to see if all resources will be deleted
-func TektonAddonCRDelete(clients *clients.Clients, crNames utils.ResourceNames) {
-	if err := clients.TektonAddon().Delete(context.TODO(), crNames.TektonAddon, metav1.DeleteOptions{}); err != nil {
+func TektonAddonCRDelete(c *clients.Clients, crNames utils.ResourceNames) {
+	if err := c.TektonAddon().Delete(context.TODO(), crNames.TektonAddon, metav1.DeleteOptions{}); err != nil {
 		testsuit.T.Fail(fmt.Errorf("TektonAddon %q failed to delete: %v", crNames.TektonAddon, err))
 	}
-	err := wait.PollUntilContextTimeout(clients.Ctx, config.APIRetry, config.APITimeout, true, func(context.Context) (bool, error) {
-		_, err := clients.TektonAddon().Get(context.TODO(), crNames.TektonAddon, metav1.GetOptions{})
+	err := wait.PollUntilContextTimeout(c.Ctx, config.APIRetry, config.APITimeout, true, func(context.Context) (bool, error) {
+		_, err := c.TektonAddon().Get(context.TODO(), crNames.TektonAddon, metav1.GetOptions{})
 		if apierrs.IsNotFound(err) {
 			return true, nil
 		}
@@ -130,14 +130,14 @@ func TektonAddonCRDelete(clients *clients.Clients, crNames utils.ResourceNames) 
 		testsuit.T.Fail(fmt.Errorf("timed out waiting on TektonAddon to delete, Error: %v", err))
 	}
 
-	err = verifyNoTektonAddonCR(clients)
+	err = verifyNoTektonAddonCR(c)
 	if err != nil {
 		testsuit.T.Fail(err)
 	}
 }
 
-func verifyNoTektonAddonCR(clients *clients.Clients) error {
-	addons, err := clients.TektonAddon().List(context.TODO(), metav1.ListOptions{})
+func verifyNoTektonAddonCR(c *clients.Clients) error {
+	addons, err := c.TektonAddon().List(context.TODO(), metav1.ListOptions{})
 	if err != nil {
 		return err
 	}

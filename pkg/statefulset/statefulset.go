@@ -13,7 +13,7 @@ import (
 	"k8s.io/apimachinery/pkg/util/wait"
 )
 
-func ValidateStatefulSetDeployment(cs *clients.Clients, deploymentName string) {
+func ValidateStatefulSetDeployment(c *clients.Clients, deploymentName string) {
 	var labelSelector string
 	switch deploymentName {
 	case "tekton-pipelines-controller":
@@ -31,7 +31,7 @@ func ValidateStatefulSetDeployment(cs *clients.Clients, deploymentName string) {
 	log.Printf("Starting validation for StatefulSet deployment: %s in namespace: %s", deploymentName, config.TargetNamespace)
 
 	waitErr := wait.PollUntilContextTimeout(context.TODO(), config.APIRetry, config.APITimeout, true, func(ctx context.Context) (bool, error) {
-		stsList, err := cs.KubeClient.Kube.AppsV1().StatefulSets(config.TargetNamespace).List(context.TODO(), listOptions)
+		stsList, err := c.KubeClient.Kube.AppsV1().StatefulSets(config.TargetNamespace).List(context.TODO(), listOptions)
 		if err != nil {
 			log.Printf("Error listing StatefulSets: %v", err)
 			return false, fmt.Errorf("failed to list StatefulSets: %v", err)
