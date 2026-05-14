@@ -19,6 +19,7 @@ Steps:
   * "Disable" legacy pruner
   * "Enable" tekton-pruner
   * Validate tekton-pruner deployment
+  * Check version of component "pruner"
 
 ## Webhook: Negative Values & Invalid Type: PIPELINES-36-TC-02
 Tags: e2e, integration, pruner, admin
