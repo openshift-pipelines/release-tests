@@ -43,7 +43,7 @@ Steps:
       |1   |buildah-disconnected-run|successful|
 
 ## buildah-ns pipelinerun: PIPELINES-29-TC20
-Tags: e2e, ecosystem, tasks, non-admin, buildah-ns, sanity
+Tags: ecosystem, tasks, non-admin, buildah-ns, sanity
 Component: Pipelines
 Level: Integration
 Type: Functional
