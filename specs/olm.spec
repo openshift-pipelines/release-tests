@@ -12,8 +12,7 @@ Installs `openshift-pipelines` operator using olm
 
 Steps:
   * Subscribe to operator
-  * Wait for TektonConfig CR availability  
-  * Define the artifact-hub-api variable
+  * Wait for TektonConfig CR availability
   * Verify namespace "openshift-pipelines" exists
   * Apply
     | S.NO | resource_dir                   |
@@ -25,8 +24,8 @@ Steps:
   * Enable statefulset in tektonconfig
   * Validate triggers deployment
   * Validate PAC deployment
+  * Define the artifact-hub-api variable
   * Enable generateSigningSecret for Tekton Chains in TektonConfig
-  * Validate hub deployment
   * Enable statefulset for "chains" in tektonconfig
   * Enable statefulset for "results" in tektonconfig
   * Validate "tekton-pipelines-controller" statefulset deployment
@@ -49,6 +48,7 @@ Steps:
   * Validate manual approval gate deployment
   * Validate tektoninstallersets status
   * Validate tektoninstallersets names
+  * Validate hub deployment
 
 ## Upgrade openshift-pipelines operator: PIPELINES-09-TC02
 Tags: upgrade, admin
