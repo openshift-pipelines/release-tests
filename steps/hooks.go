@@ -46,14 +46,10 @@ var _ = gauge.BeforeScenario(func(exInfo *gauge_messages.ExecutionInfo) {
 }, []string{}, testsuit.AND)
 
 // Runs After every Secenario
-var _ = gauge.AfterScenario(func(exInfo *gauge_messages.ExecutionInfo) {
-	switch c := gauge.GetScenarioStore()["scenario.cleanup"].(type) {
+var _ = gauge.AfterScenario(func(_ *gauge_messages.ExecutionInfo) {
+	switch gauge.GetScenarioStore()["scenario.cleanup"].(type) {
 	case func():
-		if exInfo.CurrentScenario.IsFailed {
-			log.Printf("Skipping deletion of the namespace '%s' as the test got failed", store.Namespace())
-		} else {
-			c()
-		}
+		log.Printf("Keeping namespace '%s' after scenario (not deleting project)", store.Namespace())
 	default:
 		testsuit.T.Errorf("Error: return type is not of type func()")
 	}
