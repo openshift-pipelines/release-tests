@@ -50,6 +50,7 @@ Type: Functional
 Importance: Critical
 
 Steps:
+  * Skip if OCP >= "4.20" (Bug: "SRVKP-11139")
   * Create
       |S.NO|resource_dir                                     |
       |----|-------------------------------------------------|
