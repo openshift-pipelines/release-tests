@@ -1,0 +1,123 @@
+"""
+{{FEATURE_NAME}} Network Connectivity Tests
+
+STP Reference: {{STP_REFERENCE}}
+Jira: {{JIRA_ID}}
+PR: {{PR_URL}}
+"""
+
+import logging
+
+import pytest
+
+from utilities.network import assert_ping_successful, get_vmi_ip_v4_by_name, network_nad
+from utilities.virt import VirtualMachineForTests, fedora_vm_body, running_vm
+from utilities.constants import TIMEOUT_5MIN
+
+LOGGER = logging.getLogger(__name__)
+
+pytestmark = pytest.mark.usefixtures("namespace")
+
+
+@pytest.fixture(scope="class")
+def {{feature}}_nad_scope_class(namespace):
+    """
+    Network Attachment Definition for {{FEATURE_NAME}}.
+
+    Yields:
+        NetworkAttachmentDefinition: NAD resource
+    """
+    with network_nad(
+        nad_type="{{NAD_TYPE}}",
+        network_name="{{NETWORK_NAME}}",
+        nad_name="{{NAD_NAME}}",
+        namespace=namespace,
+        topology="{{TOPOLOGY}}",
+    ) as nad:
+        yield nad
+
+
+@pytest.fixture(scope="class")
+def {{feature}}_vm_a_scope_class(unprivileged_client, namespace, {{feature}}_nad_scope_class):
+    """
+    First VM for {{FEATURE_NAME}} testing.
+
+    Yields:
+        VirtualMachineForTests: Running Fedora VM with network interface
+    """
+    name = "{{feature}}-vm-a"
+    with VirtualMachineForTests(
+        client=unprivileged_client,
+        name=name,
+        namespace=namespace.name,
+        body=fedora_vm_body(name=name),
+        networks={{{feature}}_nad_scope_class.name: {{feature}}_nad_scope_class.name},
+        interfaces=[{{feature}}_nad_scope_class.name],
+    ) as vm:
+        running_vm(vm=vm)
+        yield vm
+
+
+@pytest.fixture(scope="class")
+def {{feature}}_vm_b_scope_class(unprivileged_client, namespace, {{feature}}_nad_scope_class):
+    """
+    Second VM for {{FEATURE_NAME}} testing.
+
+    Yields:
+        VirtualMachineForTests: Running Fedora VM with network interface
+    """
+    name = "{{feature}}-vm-b"
+    with VirtualMachineForTests(
+        client=unprivileged_client,
+        name=name,
+        namespace=namespace.name,
+        body=fedora_vm_body(name=name),
+        networks={{{feature}}_nad_scope_class.name: {{feature}}_nad_scope_class.name},
+        interfaces=[{{feature}}_nad_scope_class.name],
+    ) as vm:
+        running_vm(vm=vm)
+        yield vm
+
+
+@pytest.mark.{{TIER}}
+@pytest.mark.{{PRIORITY}}
+@pytest.mark.polarion("{{POLARION_ID}}")
+class Test{{FeatureClassName}}Connectivity:
+    """
+    Tests for {{FEATURE_NAME}} network connectivity.
+
+    Markers:
+        - {{TIER}}
+        - {{PRIORITY}}
+        {{ADDITIONAL_MARKERS}}
+
+    Preconditions:
+        - {{NAD_TYPE}} NAD created
+        - VMs running on same network
+    """
+
+    def test_{{feature}}_basic_ping(
+        self,
+        {{feature}}_vm_a_scope_class,
+        {{feature}}_vm_b_scope_class,
+        {{feature}}_nad_scope_class,
+    ):
+        """
+        Test basic ping connectivity between two VMs.
+
+        Steps:
+            Execute ping from VM-A to VM-B
+
+        Expected:
+            - Ping succeeds with 0% packet loss
+        """
+        LOGGER.info("Testing ping connectivity")
+        assert_ping_successful(
+            src_vm={{feature}}_vm_a_scope_class,
+            dst_ip=get_vmi_ip_v4_by_name(
+                vm={{feature}}_vm_b_scope_class,
+                name={{feature}}_nad_scope_class.name
+            ),
+        )
+
+    {{ADDITIONAL_TESTS}}

@@ -1,0 +1,75 @@
+component_package_map:
+  pipeline:
+    package_path: "pkg/reconciler/pipelinerun/"
+    repo: "tektoncd/pipeline"
+    features:
+      - { name: "PipelineRun", path: "pkg/reconciler/pipelinerun/" }
+      - { name: "TaskRun", path: "pkg/reconciler/taskrun/" }
+      - { name: "Pipeline API v1", path: "pkg/apis/pipeline/v1/" }
+      - { name: "Param Handling", path: "pkg/apis/pipeline/v1alpha1/" }
+      - { name: "Step Actions", path: "pkg/reconciler/stepaction/" }
+
+  triggers:
+    package_path: "pkg/reconciler/"
+    repo: "tektoncd/triggers"
+    features:
+      - { name: "EventListener", path: "pkg/reconciler/eventlistener/" }
+      - { name: "TriggerBinding", path: "pkg/reconciler/triggerbinding/" }
+      - { name: "TriggerTemplate", path: "pkg/reconciler/triggertemplate/" }
+      - { name: "Triggers API", path: "pkg/apis/triggers/v1beta1/" }
+      - { name: "ClusterInterceptor", path: "pkg/reconciler/clusterinterceptor/" }
+
+  chains:
+    package_path: "pkg/chains/"
+    repo: "tektoncd/chains"
+    features:
+      - { name: "Signing", path: "pkg/chains/signing/" }
+      - { name: "Storage", path: "pkg/chains/storage/" }
+      - { name: "Attestation Formats", path: "pkg/chains/formats/" }
+      - { name: "OCI Artifacts", path: "pkg/chains/artifacts/" }
+
+  operator:
+    package_path: "pkg/reconciler/"
+    repo: "tektoncd/operator"
+    features:
+      - { name: "TektonConfig", path: "pkg/reconciler/openshift/tektonconfig/" }
+      - { name: "TektonPipeline", path: "pkg/reconciler/openshift/tektonpipeline/" }
+      - { name: "TektonTrigger", path: "pkg/reconciler/openshift/tektontrigger/" }
+      - { name: "TektonChain", path: "pkg/reconciler/openshift/tektonchain/" }
+      - { name: "TektonResult", path: "pkg/reconciler/openshift/tektonresult/" }
+
+  repositories:
+    package_path: "pkg/"
+    repo: "openshift-pipelines/pipelines-as-code"
+    features:
+      - { name: "Repository CRD", path: "pkg/reconciler/" }
+      - { name: "PAC Resolver", path: "pkg/resolver/" }
+      - { name: "PAC Params", path: "pkg/params/" }
+      - { name: "Git Provider Integration", path: "pkg/provider/" }
+      - { name: "PAC Webhook", path: "pkg/webhook/" }
+
+path_to_feature:
+  "pkg/reconciler/pipelinerun/": "PipelineRun"
+  "pkg/reconciler/taskrun/": "TaskRun"
+  "pkg/apis/pipeline/v1/": "Pipeline API v1"
+  "pkg/apis/pipeline/v1alpha1/": "Param Handling"
+  "pkg/reconciler/stepaction/": "Step Actions"
+  "pkg/reconciler/eventlistener/": "EventListener"
+  "pkg/reconciler/triggerbinding/": "TriggerBinding"
+  "pkg/reconciler/triggertemplate/": "TriggerTemplate"
+  "pkg/apis/triggers/v1beta1/": "Triggers API"
+  "pkg/reconciler/clusterinterceptor/": "ClusterInterceptor"
+  "pkg/chains/signing/": "Signing"
+  "pkg/chains/storage/": "Storage"
+  "pkg/chains/formats/": "Attestation Formats"
+  "pkg/chains/artifacts/": "OCI Artifacts"
+  "pkg/reconciler/openshift/tektonconfig/": "TektonConfig"
+  "pkg/reconciler/openshift/tektonpipeline/": "TektonPipeline"
+  "pkg/reconciler/openshift/tektontrigger/": "TektonTrigger"
+  "pkg/reconciler/openshift/tektonchain/": "TektonChain"
+  "pkg/reconciler/openshift/tektonresult/": "TektonResult"
+  "pkg/reconciler/": "Repository CRD"
+  "pkg/resolver/": "PAC Resolver"
+  "pkg/params/": "PAC Params"
+  "pkg/provider/": "Git Provider Integration"
+  "pkg/webhook/": "PAC Webhook"

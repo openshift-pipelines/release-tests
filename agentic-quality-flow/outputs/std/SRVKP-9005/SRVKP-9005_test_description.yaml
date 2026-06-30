@@ -1,0 +1,4158 @@
+---
+# Software Test Description (STD) - v2.1-enhanced
+# Generated from STP: outputs/stp/SRVKP-9005/SRVKP-9005_test_plan.md
+# Jira Epic: SRVKP-9005 - OpenShift Pipelines 1.21.0 Release Testing
+
+document_metadata:
+  std_version: "2.1-enhanced"
+  generated_date: "2026-04-01"
+  jira_issue: "SRVKP-9005"
+  jira_summary: "OpenShift Pipelines 1.21.0 Release Testing"
+  source_bugs:
+    - "SRVKP-9396"
+    - "SRVKP-9400"
+    - "SRVKP-9404"
+    - "SRVKP-9405"
+    - "SRVKP-9435"
+    - "SRVKP-9437"
+    - "SRVKP-9438"
+    - "SRVKP-9440"
+    - "SRVKP-9441"
+    - "SRVKP-9443"
+    - "SRVKP-9448"
+    - "SRVKP-9450"
+    - "SRVKP-9451"
+    - "SRVKP-9452"
+    - "SRVKP-9453"
+    - "SRVKP-9460"
+    - "SRVKP-9968"
+    - "SRVKP-10028"
+    - "SRVKP-10234"
+    - "SRVKP-10235"
+    - "SRVKP-10488"
+  stp_reference:
+    file: "outputs/stp/SRVKP-9005/SRVKP-9005_test_plan.md"
+    version: "v1"
+    sections_covered: "Section III - Requirements-to-Tests Mapping"
+  related_prs: []
+  owning_sig: "pipelines"
+  participating_sigs:
+    - "pipelines"
+    - "chains"
+    - "triggers"
+    - "repositories"
+  total_scenarios: 45
+  tier_1_count: 45
+  tier_2_count: 0
+  p0_count: 0
+  p1_count: 25
+  p2_count: 13
+  p3_count: 7
+
+code_generation_config:
+  std_version: "2.1-enhanced"
+  framework: "ginkgo-v2"
+  assertion_library: "gomega"
+  language: "go"
+  package_name: "pipeline"
+  context_init:
+    - statement: "ctx := context.Background()"
+      variable: "ctx"
+      type: "context.Context"
+  imports:
+    dot_imports:
+      - "github.com/onsi/ginkgo/v2"
+      - "github.com/onsi/gomega"
+    standard:
+      - "context"
+      - "testing"
+      - "time"
+    project_api:
+      - path: "github.com/tektoncd/pipeline/pkg/apis/pipeline/v1"
+        alias: "pipelinev1"
+      - path: "github.com/tektoncd/triggers/pkg/apis/triggers/v1beta1"
+        alias: "triggersv1beta1"
+      - path: "github.com/tektoncd/operator/pkg/apis/operator/v1alpha1"
+        alias: "operatorv1alpha1"
+    k8s_core:
+      - path: "k8s.io/api/core/v1"
+        alias: "corev1"
+      - path: "k8s.io/apimachinery/pkg/apis/meta/v1"
+        alias: "metav1"
+    test_framework:
+      - "github.com/tektoncd/pipeline/test"
+      - "github.com/tektoncd/pipeline/test/parse"
+  helper_libraries:
+    parse: "github.com/tektoncd/pipeline/test/parse"
+    clients: "github.com/tektoncd/pipeline/test/clients"
+    wait: "github.com/tektoncd/pipeline/test/wait"
+    names: "github.com/tektoncd/pipeline/test/names"
+
+common_preconditions:
+  infrastructure:
+    - name: "OpenShift cluster"
+      requirement: "OCP 4.14+ with OVN-Kubernetes"
+      validation: "oc version"
+    - name: "OpenShift Pipelines operator"
+      requirement: "OpenShift Pipelines 1.21.0"
+      validation: "oc get csv -n openshift-pipelines | grep redhat-openshift-pipelines"
+  operators:
+    - name: "Red Hat OpenShift Pipelines"
+      namespace: "openshift-pipelines"
+      validation: "oc get csv -n openshift-pipelines"
+  cluster_configuration:
+    topology: "Single or Multi-node"
+    cpu_virtualization: "Standard"
+    storage: "standard StorageClass"
+    network: "OVN-Kubernetes"
+  rbac_requirements:
+    - permission: "create/get/list/delete Pipeline, PipelineRun, Task, TaskRun"
+      scope: "Namespace"
+      validation: "oc auth can-i create pipelineruns"
+  special_environments:
+    - name: "Multi-arch clusters"
+      architectures: ["x86_64", "ARM64", "s390x", "ppc64le"]
+    - name: "Disconnected environments"
+      requirement: "Air-gapped OCP with mirror registry"
+    - name: "FIPS cluster"
+      requirement: "FIPS-enabled OCP cluster"
+    - name: "HyperShift/ROSA"
+      requirement: "ROSA environment with hosted control plane"
+  cli_tools:
+    - "tkn"
+    - "opc"
+    - "oc"
+    - "kubectl"
+    - "cosign"
+
+scenarios:
+  # ============================================================
+  # FEATURE TESTING & CI SETUP
+  # ============================================================
+
+  - scenario_id: "001"
+    test_id: "TS-SRVKP-9005-001"
+    tier: "Tier 1"
+    priority: "P1"
+    mvp: true
+    requirement_id: "SRVKP-9006"
+    patterns:
+      primary: "pipeline-execution-001"
+      secondary:
+        - "operator-install-001"
+        - "acceptance-suite-001"
+      helpers_required:
+        - name: "clients"
+          functions: ["Get", "Create"]
+          purpose: "Tekton API client operations"
+        - name: "wait"
+          functions: ["WaitForPipelineRunState"]
+          purpose: "Wait for pipeline run completion"
+      decorators:
+        - "Tier1"
+        - "Feature"
+    variables:
+      closure_scope:
+        - name: "ctx"
+          type: "context.Context"
+          initialized_in: "BeforeAll"
+          used_in: ["BeforeAll", "It"]
+          comment: "Test context"
+        - name: "err"
+          type: "error"
+          initialized_in: "It"
+          used_in: ["It"]
+          comment: "Error variable"
+    test_structure:
+      type: "single"
+      describe:
+        wrapper: "SIG"
+        description: "OpenShift Pipelines 1.21.0 Feature Testing"
+        decorators:
+          - "pipelines"
+      context:
+        description: "Feature testing for new capabilities"
+        decorators:
+          - "Ordered"
+      it:
+        description: "should validate all new features function correctly"
+        test_id_format: "[test_id:TS-SRVKP-9005-001]"
+    code_structure: |
+      Context("Feature testing for new capabilities in OpenShift Pipelines 1.21.0", Ordered) {
+        BeforeAll(func() {
+          // Verify operator is installed and ready
+          // Identify new features in 1.21.0
+        })
+        It("[test_id:TS-SRVKP-9005-001]should validate all new features function correctly", func() {
+          // Execute feature validation tests
+          // Verify new capabilities against specifications
+        })
+      }
+    test_objective:
+      title: "Validate all new features introduced in this release function correctly according to specifications"
+      what: |
+        Validates all new features introduced in OpenShift Pipelines 1.21.0.
+        Runs feature-specific tests to confirm new capabilities work as designed.
+        Covers all components: Pipelines, Triggers, Chains, PAC, CLI, Results.
+      why: |
+        New features must be validated before release to ensure they meet specifications.
+        Customer-facing features that fail would impact CI/CD workflows.
+      acceptance_criteria:
+        - "All new feature tests pass on connected x86_64 cluster"
+        - "No regressions in existing functionality"
+    classification:
+      test_type: "Functional"
+      scope: "Multi-component"
+      automation_approach: "Ginkgo v2 + Gomega"
+    specific_preconditions:
+      - name: "OpenShift Pipelines 1.21.0 installed"
+        requirement: "Latest 1.21.0 build deployed"
+        validation: "oc get csv -n openshift-pipelines"
+    test_data:
+      resource_definitions: []
+      api_endpoints: []
+    test_steps:
+      setup:
+        - step_id: "SETUP-01"
+          action: "Verify OpenShift Pipelines operator is installed and ready"
+          command: "oc get csv -n openshift-pipelines"
+          validation: "CSV shows Succeeded phase"
+      test_execution:
+        - step_id: "TEST-01"
+          action: "Execute feature validation test suite"
+          command: "Run acceptance-tests against 1.21.0 build"
+          validation: "All feature tests pass"
+      cleanup:
+        - step_id: "CLEANUP-01"
+          action: "Clean up test resources"
+          command: "Delete test namespaces and resources"
+    assertions:
+      - assertion_id: "ASSERT-01"
+        priority: "P1"
+        description: "All new features function correctly"
+        condition: "Feature test suite passes with 0 failures"
+        failure_impact: "New features may not work as specified"
+
+  - scenario_id: "002"
+    test_id: "TS-SRVKP-9005-002"
+    tier: "Tier 1"
+    priority: "P1"
+    mvp: true
+    requirement_id: "SRVKP-9008"
+    patterns:
+      primary: "ci-config-001"
+      secondary:
+        - "branch-setup-001"
+      helpers_required:
+        - name: "clients"
+          functions: ["Get"]
+          purpose: "Verify CI job configuration"
+      decorators:
+        - "Tier1"
+        - "CI"
+    variables:
+      closure_scope:
+        - name: "ctx"
+          type: "context.Context"
+          initialized_in: "BeforeAll"
+          used_in: ["BeforeAll", "It"]
+          comment: "Test context"
+        - name: "err"
+          type: "error"
+          initialized_in: "It"
+          used_in: ["It"]
+          comment: "Error variable"
+    test_structure:
+      type: "single"
+      describe:
+        wrapper: "SIG"
+        description: "CI Configuration"
+        decorators:
+          - "pipelines"
+      context:
+        description: "CI config update for 1.21"
+        decorators:
+          - "Ordered"
+      it:
+        description: "should have updated ci-config.yaml targeting 1.21 builds"
+        test_id_format: "[test_id:TS-SRVKP-9005-002]"
+    code_structure: |
+      Context("Update ci-config.yaml for release 1.21", Ordered) {
+        It("[test_id:TS-SRVKP-9005-002]should have updated ci-config.yaml targeting 1.21 builds", func() {
+          // Verify ci-config.yaml references 1.21
+          // Confirm CI jobs execute against correct builds
+        })
+      }
+    test_objective:
+      title: "Verify CI configuration is updated and automated test jobs execute successfully against 1.21 builds"
+      what: |
+        Validates that ci-config.yaml has been updated for the 1.21 release.
+        Confirms automated test jobs target the correct 1.21 builds.
+        Verifies CI pipeline executes successfully with the new configuration.
+      why: |
+        CI configuration must target the correct release to ensure test results are valid.
+        Misconfigured CI would run tests against wrong builds, producing unreliable results.
+      acceptance_criteria:
+        - "ci-config.yaml references OpenShift Pipelines 1.21"
+        - "CI jobs execute successfully against 1.21 builds"
+    classification:
+      test_type: "Integration"
+      scope: "Single-component"
+      automation_approach: "Ginkgo v2 + Gomega"
+    specific_preconditions: []
+    test_data:
+      resource_definitions: []
+      api_endpoints: []
+    test_steps:
+      setup:
+        - step_id: "SETUP-01"
+          action: "Verify ci-config.yaml exists with 1.21 configuration"
+          command: "Check ci-config.yaml content"
+          validation: "Configuration references 1.21"
+      test_execution:
+        - step_id: "TEST-01"
+          action: "Trigger CI job against 1.21 build"
+          command: "Execute automated test suite via CI"
+          validation: "CI job completes successfully"
+      cleanup: []
+    assertions:
+      - assertion_id: "ASSERT-01"
+        priority: "P1"
+        description: "CI configuration targets 1.21"
+        condition: "ci-config.yaml contains correct version references"
+        failure_impact: "Tests run against wrong builds"
+
+  - scenario_id: "003"
+    test_id: "TS-SRVKP-9005-003"
+    tier: "Tier 1"
+    priority: "P2"
+    mvp: false
+    requirement_id: "SRVKP-9009"
+    patterns:
+      primary: "binary-verification-001"
+      secondary:
+        - "checksum-validation-001"
+      helpers_required: []
+      decorators:
+        - "Tier1"
+        - "Release"
+    variables:
+      closure_scope:
+        - name: "ctx"
+          type: "context.Context"
+          initialized_in: "BeforeAll"
+          used_in: ["BeforeAll", "It"]
+          comment: "Test context"
+        - name: "err"
+          type: "error"
+          initialized_in: "It"
+          used_in: ["It"]
+          comment: "Error variable"
+    test_structure:
+      type: "single"
+      describe:
+        wrapper: "SIG"
+        description: "Binary Verification"
+        decorators:
+          - "pipelines"
+      context:
+        description: "Verify binaries on mirror.openshift.com"
+        decorators:
+          - "Ordered"
+      it:
+        description: "should have all binaries present with matching checksums"
+        test_id_format: "[test_id:TS-SRVKP-9005-003]"
+    code_structure: |
+      Context("Verify binaries on mirror.openshift.com", Ordered) {
+        It("[test_id:TS-SRVKP-9005-003]should have all binaries present with matching checksums", func() {
+          // Run pipeline verify-binaries-and-256sum
+          // Verify all binaries present and checksums match
+        })
+      }
+    test_objective:
+      title: "Run pipeline verify-binaries-and-256sum with the 1.21 release URL and confirm all binaries are present and checksums match"
+      what: |
+        Runs the verify-binaries-and-256sum pipeline against the 1.21 release URL.
+        Verifies all expected CLI binaries are present on mirror.openshift.com.
+        Validates SHA256 checksums match for all binary artifacts.
+      why: |
+        Customers download CLI binaries from the mirror; corrupted or missing binaries block adoption.
+        Checksum verification ensures supply chain integrity.
+      acceptance_criteria:
+        - "All expected binaries present on mirror.openshift.com"
+        - "SHA256 checksums match for all binaries"
+        - "Pipeline completes successfully"
+    classification:
+      test_type: "Functional"
+      scope: "Single-component"
+      automation_approach: "Ginkgo v2 + Gomega"
+    specific_preconditions:
+      - name: "Release URL available"
+        requirement: "1.21 binaries published to mirror.openshift.com"
+        validation: "curl -I release URL returns 200"
+    test_data:
+      resource_definitions: []
+      api_endpoints: []
+    test_steps:
+      setup:
+        - step_id: "SETUP-01"
+          action: "Identify 1.21 release URL on mirror.openshift.com"
+          command: "Construct release URL for 1.21"
+          validation: "URL is accessible"
+      test_execution:
+        - step_id: "TEST-01"
+          action: "Run verify-binaries-and-256sum pipeline"
+          command: "Execute pipeline with release URL parameter"
+          validation: "Pipeline run succeeds"
+        - step_id: "TEST-02"
+          action: "Verify all binaries are present"
+          command: "Check pipeline output for binary listing"
+          validation: "All expected binaries found"
+        - step_id: "TEST-03"
+          action: "Verify SHA256 checksums"
+          command: "Check pipeline output for checksum validation"
+          validation: "All checksums match"
+      cleanup: []
+    assertions:
+      - assertion_id: "ASSERT-01"
+        priority: "P2"
+        description: "All binaries present on mirror"
+        condition: "Binary count matches expected artifacts"
+        failure_impact: "Customers cannot download CLI tools"
+      - assertion_id: "ASSERT-02"
+        priority: "P2"
+        description: "Checksums valid"
+        condition: "SHA256 checksums match for all binaries"
+        failure_impact: "Supply chain integrity compromised"
+
+  - scenario_id: "004"
+    test_id: "TS-SRVKP-9005-004"
+    tier: "Tier 1"
+    priority: "P2"
+    mvp: false
+    requirement_id: "SRVKP-9010"
+    patterns:
+      primary: "hub-manual-001"
+      secondary:
+        - "catalog-browse-001"
+      helpers_required: []
+      decorators:
+        - "Tier1"
+        - "Hub"
+    variables:
+      closure_scope:
+        - name: "ctx"
+          type: "context.Context"
+          initialized_in: "BeforeAll"
+          used_in: ["BeforeAll", "It"]
+          comment: "Test context"
+        - name: "err"
+          type: "error"
+          initialized_in: "It"
+          used_in: ["It"]
+          comment: "Error variable"
+    test_structure:
+      type: "single"
+      describe:
+        wrapper: "SIG"
+        description: "Tekton Hub"
+        decorators:
+          - "pipelines"
+      context:
+        description: "Hub manual tests"
+        decorators:
+          - "Ordered"
+      it:
+        description: "should install and browse task catalog from Hub"
+        test_id_format: "[test_id:TS-SRVKP-9005-004]"
+    code_structure: |
+      Context("Hub manual tests", Ordered) {
+        It("[test_id:TS-SRVKP-9005-004]should install and browse task catalog from Hub", func() {
+          // Verify Hub installation
+          // Browse task/pipeline catalog
+          // Install task from Hub
+        })
+      }
+    test_objective:
+      title: "Verify Tekton Hub installation, task/pipeline catalog browsing, and task installation from Hub"
+      what: |
+        Validates Tekton Hub is properly installed and accessible.
+        Tests catalog browsing for tasks and pipelines.
+        Verifies task installation from Hub works correctly.
+      why: |
+        Tekton Hub provides reusable tasks/pipelines; users depend on it for productivity.
+        Installation failures would block task discovery and reuse.
+      acceptance_criteria:
+        - "Tekton Hub is accessible and operational"
+        - "Task catalog can be browsed"
+        - "Tasks can be installed from Hub"
+    classification:
+      test_type: "Functional"
+      scope: "Single-component"
+      automation_approach: "Ginkgo v2 + Gomega"
+    specific_preconditions:
+      - name: "Tekton Hub deployed"
+        requirement: "Hub component installed via operator"
+        validation: "oc get pods -n openshift-pipelines -l app=tekton-hub"
+    test_data:
+      resource_definitions: []
+      api_endpoints: []
+    test_steps:
+      setup:
+        - step_id: "SETUP-01"
+          action: "Verify Tekton Hub pods are running"
+          command: "oc get pods -n openshift-pipelines -l app=tekton-hub"
+          validation: "Hub pods in Running state"
+      test_execution:
+        - step_id: "TEST-01"
+          action: "Browse task catalog"
+          command: "Access Hub API/UI and list available tasks"
+          validation: "Catalog returns task list"
+        - step_id: "TEST-02"
+          action: "Install a task from Hub"
+          command: "tkn hub install task git-clone"
+          validation: "Task installed successfully"
+      cleanup:
+        - step_id: "CLEANUP-01"
+          action: "Remove installed test tasks"
+          command: "tkn task delete git-clone"
+
+    assertions:
+      - assertion_id: "ASSERT-01"
+        priority: "P2"
+        description: "Hub is operational"
+        condition: "Hub API responds and catalog is browsable"
+        failure_impact: "Users cannot discover or install reusable tasks"
+
+  # ============================================================
+  # MULTI-ARCHITECTURE TESTING
+  # ============================================================
+
+  - scenario_id: "005"
+    test_id: "TS-SRVKP-9005-005"
+    tier: "Tier 1"
+    priority: "P1"
+    mvp: true
+    requirement_id: "SRVKP-9011"
+    patterns:
+      primary: "multiarch-acceptance-001"
+      secondary:
+        - "acceptance-suite-001"
+      helpers_required:
+        - name: "clients"
+          functions: ["Get", "Create"]
+          purpose: "Tekton API client operations"
+        - name: "wait"
+          functions: ["WaitForPipelineRunState"]
+          purpose: "Wait for pipeline run completion"
+      decorators:
+        - "Tier1"
+        - "MultiArch"
+        - "ARM64"
+    variables:
+      closure_scope:
+        - name: "ctx"
+          type: "context.Context"
+          initialized_in: "BeforeAll"
+          used_in: ["BeforeAll", "It"]
+          comment: "Test context"
+        - name: "err"
+          type: "error"
+          initialized_in: "It"
+          used_in: ["It"]
+          comment: "Error variable"
+    test_structure:
+      type: "single"
+      describe:
+        wrapper: "SIG"
+        description: "Multi-Architecture Testing"
+        decorators:
+          - "pipelines"
+      context:
+        description: "Multiarch testing on ARM64"
+        decorators:
+          - "Ordered"
+      it:
+        description: "should pass acceptance-tests suite on ARM64 cluster"
+        test_id_format: "[test_id:TS-SRVKP-9005-005]"
+    code_structure: |
+      Context("Multiarch testing on ARM64", Ordered) {
+        BeforeAll(func() {
+          // Verify ARM64 cluster is available
+          // Verify operator is installed
+        })
+        It("[test_id:TS-SRVKP-9005-005]should pass acceptance-tests suite on ARM64 cluster", func() {
+          // Execute acceptance-tests on ARM64
+          // Verify all tests pass
+        })
+      }
+    test_objective:
+      title: "Execute acceptance-tests suite on ARM64 architecture cluster and verify all tests pass"
+      what: |
+        Runs the full acceptance-tests suite on an ARM64 architecture cluster.
+        Validates Pipeline, Trigger, Chain, and PAC components on ARM64.
+        Confirms no architecture-specific failures.
+      why: |
+        ARM64 is a supported architecture; customers deploy on ARM64 infrastructure.
+        Architecture-specific bugs would block ARM64 adoption.
+      acceptance_criteria:
+        - "Acceptance-tests suite passes on ARM64 cluster"
+        - "No architecture-specific test failures"
+    classification:
+      test_type: "Functional"
+      scope: "Multi-component"
+      automation_approach: "Ginkgo v2 + Gomega"
+    specific_preconditions:
+      - name: "ARM64 cluster"
+        requirement: "OCP cluster running on ARM64 (aarch64) architecture"
+        validation: "oc get nodes -o jsonpath='{.items[0].status.nodeInfo.architecture}' | grep arm64"
+    test_data:
+      resource_definitions: []
+      api_endpoints: []
+    test_steps:
+      setup:
+        - step_id: "SETUP-01"
+          action: "Verify ARM64 cluster is available and operator installed"
+          command: "oc get nodes && oc get csv -n openshift-pipelines"
+          validation: "Nodes show arm64 architecture, CSV shows Succeeded"
+      test_execution:
+        - step_id: "TEST-01"
+          action: "Execute acceptance-tests suite on ARM64 cluster"
+          command: "Run acceptance-tests against ARM64 cluster"
+          validation: "All tests pass"
+      cleanup: []
+    assertions:
+      - assertion_id: "ASSERT-01"
+        priority: "P1"
+        description: "Acceptance tests pass on ARM64"
+        condition: "Test suite completes with 0 failures on ARM64"
+        failure_impact: "ARM64 architecture not validated for release"
+
+  - scenario_id: "006"
+    test_id: "TS-SRVKP-9005-006"
+    tier: "Tier 1"
+    priority: "P1"
+    mvp: true
+    requirement_id: "SRVKP-9015"
+    patterns:
+      primary: "multiarch-acceptance-001"
+      secondary:
+        - "acceptance-suite-001"
+      helpers_required:
+        - name: "clients"
+          functions: ["Get", "Create"]
+          purpose: "Tekton API client operations"
+      decorators:
+        - "Tier1"
+        - "MultiArch"
+        - "IBMZ"
+    variables:
+      closure_scope:
+        - name: "ctx"
+          type: "context.Context"
+          initialized_in: "BeforeAll"
+          used_in: ["BeforeAll", "It"]
+          comment: "Test context"
+        - name: "err"
+          type: "error"
+          initialized_in: "It"
+          used_in: ["It"]
+          comment: "Error variable"
+    test_structure:
+      type: "single"
+      describe:
+        wrapper: "SIG"
+        description: "Multi-Architecture Testing"
+        decorators:
+          - "pipelines"
+      context:
+        description: "Multiarch testing on IBM Z"
+        decorators:
+          - "Ordered"
+      it:
+        description: "should pass acceptance-tests suite on IBM Z cluster"
+        test_id_format: "[test_id:TS-SRVKP-9005-006]"
+    code_structure: |
+      Context("Multiarch testing on IBM Z", Ordered) {
+        BeforeAll(func() {
+          // Verify s390x cluster is available
+        })
+        It("[test_id:TS-SRVKP-9005-006]should pass acceptance-tests suite on IBM Z cluster", func() {
+          // Execute acceptance-tests on s390x
+        })
+      }
+    test_objective:
+      title: "Execute acceptance-tests suite on IBM Z (s390x) architecture cluster and verify all tests pass"
+      what: |
+        Runs the full acceptance-tests suite on an IBM Z (s390x) architecture cluster.
+        Validates all components function correctly on s390x.
+      why: |
+        IBM Z is a supported enterprise architecture; critical for mainframe customers.
+      acceptance_criteria:
+        - "Acceptance-tests suite passes on IBM Z cluster"
+        - "No architecture-specific test failures"
+    classification:
+      test_type: "Functional"
+      scope: "Multi-component"
+      automation_approach: "Ginkgo v2 + Gomega"
+    specific_preconditions:
+      - name: "IBM Z cluster"
+        requirement: "OCP cluster running on s390x architecture"
+        validation: "oc get nodes -o jsonpath='{.items[0].status.nodeInfo.architecture}' | grep s390x"
+    test_data:
+      resource_definitions: []
+      api_endpoints: []
+    test_steps:
+      setup:
+        - step_id: "SETUP-01"
+          action: "Verify IBM Z cluster is available"
+          command: "oc get nodes"
+          validation: "Nodes show s390x architecture"
+      test_execution:
+        - step_id: "TEST-01"
+          action: "Execute acceptance-tests suite on IBM Z"
+          command: "Run acceptance-tests against s390x cluster"
+          validation: "All tests pass"
+      cleanup: []
+    assertions:
+      - assertion_id: "ASSERT-01"
+        priority: "P1"
+        description: "Acceptance tests pass on IBM Z"
+        condition: "Test suite completes with 0 failures on s390x"
+        failure_impact: "IBM Z architecture not validated for release"
+
+  - scenario_id: "007"
+    test_id: "TS-SRVKP-9005-007"
+    tier: "Tier 1"
+    priority: "P1"
+    mvp: true
+    requirement_id: "SRVKP-9026"
+    patterns:
+      primary: "multiarch-acceptance-001"
+      secondary:
+        - "acceptance-suite-001"
+      helpers_required:
+        - name: "clients"
+          functions: ["Get", "Create"]
+          purpose: "Tekton API client operations"
+      decorators:
+        - "Tier1"
+        - "MultiArch"
+        - "IBMPower"
+    variables:
+      closure_scope:
+        - name: "ctx"
+          type: "context.Context"
+          initialized_in: "BeforeAll"
+          used_in: ["BeforeAll", "It"]
+          comment: "Test context"
+        - name: "err"
+          type: "error"
+          initialized_in: "It"
+          used_in: ["It"]
+          comment: "Error variable"
+    test_structure:
+      type: "single"
+      describe:
+        wrapper: "SIG"
+        description: "Multi-Architecture Testing"
+        decorators:
+          - "pipelines"
+      context:
+        description: "Multiarch testing on IBM Power"
+        decorators:
+          - "Ordered"
+      it:
+        description: "should pass acceptance-tests suite on IBM Power cluster"
+        test_id_format: "[test_id:TS-SRVKP-9005-007]"
+    code_structure: |
+      Context("Multiarch testing on IBM Power", Ordered) {
+        BeforeAll(func() {
+          // Verify ppc64le cluster is available
+        })
+        It("[test_id:TS-SRVKP-9005-007]should pass acceptance-tests suite on IBM Power cluster", func() {
+          // Execute acceptance-tests on ppc64le
+        })
+      }
+    test_objective:
+      title: "Execute acceptance-tests suite on IBM Power (ppc64le) architecture cluster and verify all tests pass"
+      what: |
+        Runs the full acceptance-tests suite on an IBM Power (ppc64le) architecture cluster.
+        Validates all components function correctly on ppc64le.
+      why: |
+        IBM Power is a supported enterprise architecture for Power infrastructure customers.
+      acceptance_criteria:
+        - "Acceptance-tests suite passes on IBM Power cluster"
+        - "No architecture-specific test failures"
+    classification:
+      test_type: "Functional"
+      scope: "Multi-component"
+      automation_approach: "Ginkgo v2 + Gomega"
+    specific_preconditions:
+      - name: "IBM Power cluster"
+        requirement: "OCP cluster running on ppc64le architecture"
+        validation: "oc get nodes -o jsonpath='{.items[0].status.nodeInfo.architecture}' | grep ppc64le"
+    test_data:
+      resource_definitions: []
+      api_endpoints: []
+    test_steps:
+      setup:
+        - step_id: "SETUP-01"
+          action: "Verify IBM Power cluster is available"
+          command: "oc get nodes"
+          validation: "Nodes show ppc64le architecture"
+      test_execution:
+        - step_id: "TEST-01"
+          action: "Execute acceptance-tests suite on IBM Power"
+          command: "Run acceptance-tests against ppc64le cluster"
+          validation: "All tests pass"
+      cleanup: []
+    assertions:
+      - assertion_id: "ASSERT-01"
+        priority: "P1"
+        description: "Acceptance tests pass on IBM Power"
+        condition: "Test suite completes with 0 failures on ppc64le"
+        failure_impact: "IBM Power architecture not validated for release"
+
+  # ============================================================
+  # DISCONNECTED ENVIRONMENT TESTING
+  # ============================================================
+
+  - scenario_id: "008"
+    test_id: "TS-SRVKP-9005-008"
+    tier: "Tier 1"
+    priority: "P1"
+    mvp: true
+    requirement_id: "SRVKP-9016"
+    patterns:
+      primary: "disconnected-install-001"
+      secondary:
+        - "mirror-registry-001"
+        - "acceptance-suite-001"
+      helpers_required: []
+      decorators:
+        - "Tier1"
+        - "Disconnected"
+    variables:
+      closure_scope:
+        - name: "ctx"
+          type: "context.Context"
+          initialized_in: "BeforeAll"
+          used_in: ["BeforeAll", "It"]
+          comment: "Test context"
+        - name: "err"
+          type: "error"
+          initialized_in: "It"
+          used_in: ["It"]
+          comment: "Error variable"
+    test_structure:
+      type: "single"
+      describe:
+        wrapper: "SIG"
+        description: "Disconnected Environment Testing"
+        decorators:
+          - "pipelines"
+      context:
+        description: "Testing in disconnected environment (x86_64)"
+        decorators:
+          - "Ordered"
+      it:
+        description: "should install and validate in disconnected x86_64 environment"
+        test_id_format: "[test_id:TS-SRVKP-9005-008]"
+    code_structure: |
+      Context("Testing in disconnected environment (x86_64)", Ordered) {
+        BeforeAll(func() {
+          // Verify disconnected x86_64 environment
+          // Verify mirror registry configured
+        })
+        It("[test_id:TS-SRVKP-9005-008]should install and validate in disconnected x86_64 environment", func() {
+          // Install operator via mirror registry
+          // Run acceptance tests
+        })
+      }
+    test_objective:
+      title: "Install and validate OpenShift Pipelines 1.21.0 in a disconnected x86_64 environment with mirror registry"
+      what: |
+        Installs OpenShift Pipelines 1.21.0 in an air-gapped x86_64 environment.
+        Uses mirror registry for all container images.
+        Runs acceptance tests to validate functionality without internet access.
+      why: |
+        Many enterprise customers operate in disconnected/air-gapped environments.
+        Installation and operation must work without external network access.
+      acceptance_criteria:
+        - "Operator installs successfully from mirror registry"
+        - "Acceptance tests pass in disconnected environment"
+    classification:
+      test_type: "Integration"
+      scope: "Multi-component"
+      automation_approach: "Ginkgo v2 + Gomega"
+    specific_preconditions:
+      - name: "Disconnected x86_64 cluster"
+        requirement: "Air-gapped OCP cluster with mirror registry"
+        validation: "Verify no external network access; mirror registry accessible"
+    test_data:
+      resource_definitions: []
+      api_endpoints: []
+    test_steps:
+      setup:
+        - step_id: "SETUP-01"
+          action: "Verify disconnected environment and mirror registry"
+          command: "Verify mirror registry contains required images"
+          validation: "All required images mirrored"
+      test_execution:
+        - step_id: "TEST-01"
+          action: "Install OpenShift Pipelines from mirror registry"
+          command: "Install operator via CatalogSource pointing to mirror"
+          validation: "Operator installs and CSV reaches Succeeded"
+        - step_id: "TEST-02"
+          action: "Run acceptance tests"
+          command: "Execute acceptance-tests suite"
+          validation: "Tests pass in disconnected environment"
+      cleanup: []
+    assertions:
+      - assertion_id: "ASSERT-01"
+        priority: "P1"
+        description: "Operator installs in disconnected environment"
+        condition: "CSV reaches Succeeded phase without internet access"
+        failure_impact: "Air-gapped customers cannot install the product"
+
+  - scenario_id: "009"
+    test_id: "TS-SRVKP-9005-009"
+    tier: "Tier 1"
+    priority: "P1"
+    mvp: true
+    requirement_id: "SRVKP-9007"
+    patterns:
+      primary: "disconnected-install-001"
+      secondary:
+        - "mirror-registry-001"
+      helpers_required: []
+      decorators:
+        - "Tier1"
+        - "Disconnected"
+        - "IBMZ"
+    variables:
+      closure_scope:
+        - name: "ctx"
+          type: "context.Context"
+          initialized_in: "BeforeAll"
+          used_in: ["BeforeAll", "It"]
+          comment: "Test context"
+        - name: "err"
+          type: "error"
+          initialized_in: "It"
+          used_in: ["It"]
+          comment: "Error variable"
+    test_structure:
+      type: "single"
+      describe:
+        wrapper: "SIG"
+        description: "Disconnected Environment Testing"
+        decorators:
+          - "pipelines"
+      context:
+        description: "Testing in disconnected environment (Z)"
+        decorators:
+          - "Ordered"
+      it:
+        description: "should install and validate in disconnected IBM Z environment"
+        test_id_format: "[test_id:TS-SRVKP-9005-009]"
+    code_structure: |
+      Context("Testing in disconnected environment (Z)", Ordered) {
+        It("[test_id:TS-SRVKP-9005-009]should install and validate in disconnected IBM Z environment", func() {
+          // Install and validate in disconnected s390x environment
+        })
+      }
+    test_objective:
+      title: "Install and validate OpenShift Pipelines 1.21.0 in a disconnected IBM Z environment with mirror registry"
+      what: |
+        Installs OpenShift Pipelines 1.21.0 in an air-gapped IBM Z (s390x) environment.
+        Validates functionality using mirror registry for container images.
+      why: |
+        IBM Z enterprise customers frequently operate in disconnected environments.
+      acceptance_criteria:
+        - "Operator installs from mirror registry on IBM Z"
+        - "Core functionality works in disconnected IBM Z environment"
+    classification:
+      test_type: "Integration"
+      scope: "Multi-component"
+      automation_approach: "Ginkgo v2 + Gomega"
+    specific_preconditions:
+      - name: "Disconnected IBM Z cluster"
+        requirement: "Air-gapped OCP cluster on s390x with mirror registry"
+        validation: "Verify s390x nodes and no external network access"
+    test_data:
+      resource_definitions: []
+      api_endpoints: []
+    test_steps:
+      setup:
+        - step_id: "SETUP-01"
+          action: "Verify disconnected IBM Z environment"
+          command: "Verify s390x nodes and mirror registry"
+          validation: "Environment ready"
+      test_execution:
+        - step_id: "TEST-01"
+          action: "Install and validate in disconnected IBM Z"
+          command: "Install operator and run tests"
+          validation: "Installation and tests succeed"
+      cleanup: []
+    assertions:
+      - assertion_id: "ASSERT-01"
+        priority: "P1"
+        description: "Disconnected IBM Z installation works"
+        condition: "Operator installs and functions in air-gapped s390x"
+        failure_impact: "IBM Z disconnected customers blocked"
+
+  - scenario_id: "010"
+    test_id: "TS-SRVKP-9005-010"
+    tier: "Tier 1"
+    priority: "P1"
+    mvp: true
+    requirement_id: "SRVKP-9012"
+    patterns:
+      primary: "disconnected-install-001"
+      secondary:
+        - "mirror-registry-001"
+      helpers_required: []
+      decorators:
+        - "Tier1"
+        - "Disconnected"
+        - "IBMPower"
+    variables:
+      closure_scope:
+        - name: "ctx"
+          type: "context.Context"
+          initialized_in: "BeforeAll"
+          used_in: ["BeforeAll", "It"]
+          comment: "Test context"
+        - name: "err"
+          type: "error"
+          initialized_in: "It"
+          used_in: ["It"]
+          comment: "Error variable"
+    test_structure:
+      type: "single"
+      describe:
+        wrapper: "SIG"
+        description: "Disconnected Environment Testing"
+        decorators:
+          - "pipelines"
+      context:
+        description: "Testing in disconnected environment (P)"
+        decorators:
+          - "Ordered"
+      it:
+        description: "should install and validate in disconnected IBM Power environment"
+        test_id_format: "[test_id:TS-SRVKP-9005-010]"
+    code_structure: |
+      Context("Testing in disconnected environment (P)", Ordered) {
+        It("[test_id:TS-SRVKP-9005-010]should install and validate in disconnected IBM Power environment", func() {
+          // Install and validate in disconnected ppc64le environment
+        })
+      }
+    test_objective:
+      title: "Install and validate OpenShift Pipelines 1.21.0 in a disconnected IBM Power environment with mirror registry"
+      what: |
+        Installs OpenShift Pipelines 1.21.0 in an air-gapped IBM Power (ppc64le) environment.
+        Validates functionality using mirror registry for container images.
+      why: |
+        IBM Power enterprise customers operate in disconnected environments.
+      acceptance_criteria:
+        - "Operator installs from mirror registry on IBM Power"
+        - "Core functionality works in disconnected IBM Power environment"
+    classification:
+      test_type: "Integration"
+      scope: "Multi-component"
+      automation_approach: "Ginkgo v2 + Gomega"
+    specific_preconditions:
+      - name: "Disconnected IBM Power cluster"
+        requirement: "Air-gapped OCP cluster on ppc64le with mirror registry"
+        validation: "Verify ppc64le nodes and no external network access"
+    test_data:
+      resource_definitions: []
+      api_endpoints: []
+    test_steps:
+      setup:
+        - step_id: "SETUP-01"
+          action: "Verify disconnected IBM Power environment"
+          command: "Verify ppc64le nodes and mirror registry"
+          validation: "Environment ready"
+      test_execution:
+        - step_id: "TEST-01"
+          action: "Install and validate in disconnected IBM Power"
+          command: "Install operator and run tests"
+          validation: "Installation and tests succeed"
+      cleanup: []
+    assertions:
+      - assertion_id: "ASSERT-01"
+        priority: "P1"
+        description: "Disconnected IBM Power installation works"
+        condition: "Operator installs and functions in air-gapped ppc64le"
+        failure_impact: "IBM Power disconnected customers blocked"
+
+  # ============================================================
+  # UPGRADE TESTING
+  # ============================================================
+
+  - scenario_id: "011"
+    test_id: "TS-SRVKP-9005-011"
+    tier: "Tier 1"
+    priority: "P1"
+    mvp: true
+    requirement_id: "SRVKP-9018"
+    patterns:
+      primary: "cluster-upgrade-001"
+      secondary:
+        - "operator-verify-001"
+      helpers_required: []
+      decorators:
+        - "Tier1"
+        - "Upgrade"
+    variables:
+      closure_scope:
+        - name: "ctx"
+          type: "context.Context"
+          initialized_in: "BeforeAll"
+          used_in: ["BeforeAll", "It"]
+          comment: "Test context"
+        - name: "err"
+          type: "error"
+          initialized_in: "It"
+          used_in: ["It"]
+          comment: "Error variable"
+    test_structure:
+      type: "single"
+      describe:
+        wrapper: "SIG"
+        description: "Upgrade Testing"
+        decorators:
+          - "pipelines"
+      context:
+        description: "Cluster upgrade tests"
+        decorators:
+          - "Ordered"
+      it:
+        description: "should function correctly after OCP cluster upgrade"
+        test_id_format: "[test_id:TS-SRVKP-9005-011]"
+    code_structure: |
+      Context("Cluster upgrade tests", Ordered) {
+        It("[test_id:TS-SRVKP-9005-011]should function correctly after OCP cluster upgrade", func() {
+          // Verify pipelines function after cluster upgrade
+        })
+      }
+    test_objective:
+      title: "Verify OpenShift Pipelines functions correctly after OCP cluster upgrade with the operator installed"
+      what: |
+        Upgrades an OCP cluster that has OpenShift Pipelines installed.
+        Verifies all pipelines components remain functional after cluster upgrade.
+      why: |
+        Cluster upgrades must not break installed operators. Customers upgrade clusters regularly.
+      acceptance_criteria:
+        - "OpenShift Pipelines remains functional after OCP cluster upgrade"
+        - "All existing PipelineRuns and resources are preserved"
+    classification:
+      test_type: "Integration"
+      scope: "Multi-component"
+      automation_approach: "Ginkgo v2 + Gomega"
+    specific_preconditions:
+      - name: "Pre-upgrade cluster"
+        requirement: "OCP cluster with OpenShift Pipelines installed on previous OCP version"
+        validation: "oc version && oc get csv -n openshift-pipelines"
+    test_data:
+      resource_definitions: []
+      api_endpoints: []
+    test_steps:
+      setup:
+        - step_id: "SETUP-01"
+          action: "Verify operator is installed on pre-upgrade cluster"
+          command: "oc get csv -n openshift-pipelines"
+          validation: "CSV shows Succeeded"
+      test_execution:
+        - step_id: "TEST-01"
+          action: "Perform OCP cluster upgrade"
+          command: "Trigger cluster upgrade"
+          validation: "Cluster upgrade completes"
+        - step_id: "TEST-02"
+          action: "Verify operator is functional post-upgrade"
+          command: "oc get csv -n openshift-pipelines && run acceptance tests"
+          validation: "CSV shows Succeeded and tests pass"
+      cleanup: []
+    assertions:
+      - assertion_id: "ASSERT-01"
+        priority: "P1"
+        description: "Pipelines functional after cluster upgrade"
+        condition: "Acceptance tests pass on upgraded cluster"
+        failure_impact: "Cluster upgrades break CI/CD workflows"
+
+  - scenario_id: "012"
+    test_id: "TS-SRVKP-9005-012"
+    tier: "Tier 1"
+    priority: "P1"
+    mvp: true
+    requirement_id: "SRVKP-9020"
+    patterns:
+      primary: "operator-upgrade-001"
+      secondary:
+        - "operator-verify-001"
+      helpers_required: []
+      decorators:
+        - "Tier1"
+        - "Upgrade"
+    variables:
+      closure_scope:
+        - name: "ctx"
+          type: "context.Context"
+          initialized_in: "BeforeAll"
+          used_in: ["BeforeAll", "It"]
+          comment: "Test context"
+        - name: "err"
+          type: "error"
+          initialized_in: "It"
+          used_in: ["It"]
+          comment: "Error variable"
+    test_structure:
+      type: "single"
+      describe:
+        wrapper: "SIG"
+        description: "Upgrade Testing"
+        decorators:
+          - "pipelines"
+      context:
+        description: "Operator upgrade tests"
+        decorators:
+          - "Ordered"
+      it:
+        description: "should upgrade from latest released version to 1.21.0"
+        test_id_format: "[test_id:TS-SRVKP-9005-012]"
+    code_structure: |
+      Context("Operator upgrade tests", Ordered) {
+        It("[test_id:TS-SRVKP-9005-012]should upgrade from latest released version to 1.21.0", func() {
+          // Upgrade operator and verify on three OCP versions
+        })
+      }
+    test_objective:
+      title: "Verify operator upgrade from the latest released version to 1.21.0 on three OCP versions; confirm automatic CI execution and results"
+      what: |
+        Upgrades the OpenShift Pipelines operator from the latest released version to 1.21.0.
+        Tests upgrade on three different OCP versions to ensure compatibility.
+        Verifies automatic CI execution triggers and produces correct results.
+      why: |
+        Operator upgrades are the primary delivery mechanism; failures block customer updates.
+      acceptance_criteria:
+        - "Operator upgrades successfully on all three OCP versions"
+        - "CI upgrade jobs execute and pass automatically"
+        - "All components functional after upgrade"
+    classification:
+      test_type: "Integration"
+      scope: "Multi-component"
+      automation_approach: "Ginkgo v2 + Gomega"
+    specific_preconditions:
+      - name: "Previous version installed"
+        requirement: "Latest released OpenShift Pipelines version installed"
+        validation: "oc get csv -n openshift-pipelines"
+    test_data:
+      resource_definitions: []
+      api_endpoints: []
+    test_steps:
+      setup:
+        - step_id: "SETUP-01"
+          action: "Install latest released version of OpenShift Pipelines"
+          command: "Install previous version via OLM"
+          validation: "Previous version CSV shows Succeeded"
+      test_execution:
+        - step_id: "TEST-01"
+          action: "Upgrade operator to 1.21.0"
+          command: "Trigger operator upgrade via OLM"
+          validation: "1.21.0 CSV shows Succeeded"
+        - step_id: "TEST-02"
+          action: "Verify all components functional after upgrade"
+          command: "Run acceptance tests"
+          validation: "Tests pass"
+      cleanup: []
+    assertions:
+      - assertion_id: "ASSERT-01"
+        priority: "P1"
+        description: "Operator upgrade succeeds"
+        condition: "CSV transitions to 1.21.0 Succeeded on all OCP versions"
+        failure_impact: "Customers cannot upgrade to new release"
+
+  # ============================================================
+  # CLI & ENTITLEMENT TESTING
+  # ============================================================
+
+  - scenario_id: "013"
+    test_id: "TS-SRVKP-9005-013"
+    tier: "Tier 1"
+    priority: "P2"
+    mvp: false
+    requirement_id: "SRVKP-9017"
+    patterns:
+      primary: "cli-entitlement-001"
+      secondary: []
+      helpers_required: []
+      decorators:
+        - "Tier1"
+        - "CLI"
+    variables:
+      closure_scope:
+        - name: "ctx"
+          type: "context.Context"
+          initialized_in: "BeforeAll"
+          used_in: ["BeforeAll", "It"]
+          comment: "Test context"
+        - name: "err"
+          type: "error"
+          initialized_in: "It"
+          used_in: ["It"]
+          comment: "Error variable"
+    test_structure:
+      type: "single"
+      describe:
+        wrapper: "SIG"
+        description: "CLI Testing"
+        decorators:
+          - "pipelines"
+      context:
+        description: "TKN entitlement tests"
+        decorators:
+          - "Ordered"
+      it:
+        description: "should pass entitlement validation after CLI build moves to stage"
+        test_id_format: "[test_id:TS-SRVKP-9005-013]"
+    code_structure: |
+      Context("TKN entitlement tests", Ordered) {
+        It("[test_id:TS-SRVKP-9005-013]should pass entitlement validation after CLI build moves to stage", func() {
+          // Run entitlement-tests pipeline
+        })
+      }
+    test_objective:
+      title: "Run entitlement-tests pipeline after CLI build moves to stage and verify entitlement validation passes"
+      what: |
+        Executes the entitlement-tests pipeline once CLI build transitions to stage.
+        Validates that CLI binaries have correct entitlement metadata.
+      why: |
+        Entitlement validation ensures CLI binaries are properly signed and authorized.
+      acceptance_criteria:
+        - "Entitlement-tests pipeline passes"
+        - "CLI binaries have valid entitlement metadata"
+    classification:
+      test_type: "Functional"
+      scope: "Single-component"
+      automation_approach: "Ginkgo v2 + Gomega"
+    specific_preconditions:
+      - name: "CLI build in stage"
+        requirement: "CLI build has moved to stage environment"
+        validation: "Verify advisory state"
+    test_data:
+      resource_definitions: []
+      api_endpoints: []
+    test_steps:
+      setup:
+        - step_id: "SETUP-01"
+          action: "Verify CLI build is in stage"
+          command: "Check advisory state"
+          validation: "Build is in stage"
+      test_execution:
+        - step_id: "TEST-01"
+          action: "Run entitlement-tests pipeline"
+          command: "Execute entitlement-tests"
+          validation: "Pipeline succeeds"
+      cleanup: []
+    assertions:
+      - assertion_id: "ASSERT-01"
+        priority: "P2"
+        description: "Entitlement validation passes"
+        condition: "Entitlement-tests pipeline completes successfully"
+        failure_impact: "CLI binaries may lack proper entitlements"
+
+  - scenario_id: "014"
+    test_id: "TS-SRVKP-9005-014"
+    tier: "Tier 1"
+    priority: "P2"
+    mvp: false
+    requirement_id: "SRVKP-9025"
+    patterns:
+      primary: "cli-test-001"
+      secondary: []
+      helpers_required: []
+      decorators:
+        - "Tier1"
+        - "CLI"
+    variables:
+      closure_scope:
+        - name: "ctx"
+          type: "context.Context"
+          initialized_in: "BeforeAll"
+          used_in: ["BeforeAll", "It"]
+          comment: "Test context"
+        - name: "err"
+          type: "error"
+          initialized_in: "It"
+          used_in: ["It"]
+          comment: "Error variable"
+    test_structure:
+      type: "single"
+      describe:
+        wrapper: "SIG"
+        description: "CLI Testing"
+        decorators:
+          - "pipelines"
+      context:
+        description: "TKN/OPC CLI tests"
+        decorators:
+          - "Ordered"
+      it:
+        description: "should execute CLI test suite with correct output and error handling"
+        test_id_format: "[test_id:TS-SRVKP-9005-014]"
+    code_structure: |
+      Context("TKN/OPC CLI tests", Ordered) {
+        It("[test_id:TS-SRVKP-9005-014]should execute CLI test suite with correct output and error handling", func() {
+          // Execute tkn and opc CLI tests
+        })
+      }
+    test_objective:
+      title: "Execute CLI test suite for tkn and opc commands; verify command output, error handling, and plugin functionality"
+      what: |
+        Runs the full CLI test suite for tkn and opc commands.
+        Validates command output formatting, error handling, and plugin functionality.
+      why: |
+        CLI is the primary interface for developers; broken commands block daily workflows.
+      acceptance_criteria:
+        - "CLI test suite passes for tkn commands"
+        - "CLI test suite passes for opc commands"
+        - "Error handling produces meaningful messages"
+    classification:
+      test_type: "Functional"
+      scope: "Single-component"
+      automation_approach: "Ginkgo v2 + Gomega"
+    specific_preconditions: []
+    test_data:
+      resource_definitions: []
+      api_endpoints: []
+    test_steps:
+      setup:
+        - step_id: "SETUP-01"
+          action: "Verify tkn and opc CLI tools are installed"
+          command: "tkn version && opc version"
+          validation: "Both CLIs report 1.21 version"
+      test_execution:
+        - step_id: "TEST-01"
+          action: "Execute tkn CLI test suite"
+          command: "Run tkn CLI tests"
+          validation: "All tkn tests pass"
+        - step_id: "TEST-02"
+          action: "Execute opc CLI test suite"
+          command: "Run opc CLI tests"
+          validation: "All opc tests pass"
+      cleanup: []
+    assertions:
+      - assertion_id: "ASSERT-01"
+        priority: "P2"
+        description: "CLI commands work correctly"
+        condition: "CLI test suite completes with 0 failures"
+        failure_impact: "Developer CLI workflows broken"
+
+  # ============================================================
+  # RELEASE INFRASTRUCTURE & BRANCH SETUP
+  # ============================================================
+
+  - scenario_id: "015"
+    test_id: "TS-SRVKP-9005-015"
+    tier: "Tier 1"
+    priority: "P1"
+    mvp: true
+    requirement_id: "SRVKP-9014"
+    patterns:
+      primary: "branch-setup-001"
+      secondary: []
+      helpers_required: []
+      decorators:
+        - "Tier1"
+        - "Release"
+    variables:
+      closure_scope:
+        - name: "ctx"
+          type: "context.Context"
+          initialized_in: "BeforeAll"
+          used_in: ["BeforeAll", "It"]
+          comment: "Test context"
+        - name: "err"
+          type: "error"
+          initialized_in: "It"
+          used_in: ["It"]
+          comment: "Error variable"
+    test_structure:
+      type: "single"
+      describe:
+        wrapper: "SIG"
+        description: "Release Infrastructure"
+        decorators:
+          - "pipelines"
+      context:
+        description: "Release branch setup"
+        decorators:
+          - "Ordered"
+      it:
+        description: "should have release-v1.21 branch with correct versions"
+        test_id_format: "[test_id:TS-SRVKP-9005-015]"
+    code_structure: |
+      Context("Create release branch in release-tests for 1.21", Ordered) {
+        It("[test_id:TS-SRVKP-9005-015]should have release-v1.21 branch with correct versions", func() {
+          // Verify branch exists, versions updated, CI targets branch
+        })
+      }
+    test_objective:
+      title: "Verify release-v1.21 branch is created, component versions updated in default.properties, and CI jobs target the correct branch"
+      what: |
+        Validates the release-v1.21 branch exists in release-tests repository.
+        Confirms component versions in default.properties are updated to 1.21.
+        Verifies CI jobs target the release-v1.21 branch.
+      why: |
+        Release branch is the foundation for all release testing; incorrect setup invalidates all results.
+      acceptance_criteria:
+        - "release-v1.21 branch exists in openshift-pipelines/release-tests"
+        - "Component versions in default.properties match 1.21"
+        - "CI jobs reference the correct branch"
+    classification:
+      test_type: "Integration"
+      scope: "Single-component"
+      automation_approach: "Ginkgo v2 + Gomega"
+    specific_preconditions: []
+    test_data:
+      resource_definitions: []
+      api_endpoints: []
+    test_steps:
+      setup: []
+      test_execution:
+        - step_id: "TEST-01"
+          action: "Verify release-v1.21 branch exists"
+          command: "git ls-remote --heads origin release-v1.21"
+          validation: "Branch exists"
+        - step_id: "TEST-02"
+          action: "Verify component versions in default.properties"
+          command: "Check env/default/default.properties for 1.21 versions"
+          validation: "Versions match 1.21"
+      cleanup: []
+    assertions:
+      - assertion_id: "ASSERT-01"
+        priority: "P1"
+        description: "Release branch properly configured"
+        condition: "Branch exists with correct versions and CI targeting"
+        failure_impact: "All release testing runs against wrong code"
+
+  # ============================================================
+  # UI TESTING
+  # ============================================================
+
+  - scenario_id: "016"
+    test_id: "TS-SRVKP-9005-016"
+    tier: "Tier 1"
+    priority: "P2"
+    mvp: false
+    requirement_id: "SRVKP-9019"
+    patterns:
+      primary: "ui-manual-001"
+      secondary: []
+      helpers_required: []
+      decorators:
+        - "Tier1"
+        - "UI"
+    variables:
+      closure_scope:
+        - name: "ctx"
+          type: "context.Context"
+          initialized_in: "BeforeAll"
+          used_in: ["BeforeAll", "It"]
+          comment: "Test context"
+        - name: "err"
+          type: "error"
+          initialized_in: "It"
+          used_in: ["It"]
+          comment: "Error variable"
+    test_structure:
+      type: "single"
+      describe:
+        wrapper: "SIG"
+        description: "UI Testing"
+        decorators:
+          - "pipelines"
+      context:
+        description: "DevConsole UI manual tests"
+        decorators:
+          - "Ordered"
+      it:
+        description: "should create, execute, and monitor pipelines through DevConsole"
+        test_id_format: "[test_id:TS-SRVKP-9005-016]"
+    code_structure: |
+      Context("DevConsole UI manual tests", Ordered) {
+        It("[test_id:TS-SRVKP-9005-016]should create, execute, and monitor pipelines through DevConsole", func() {
+          // Manual UI test scenarios for pipeline management
+        })
+      }
+    test_objective:
+      title: "Execute manual UI test scenarios for pipeline creation, execution, and monitoring through the OpenShift DevConsole"
+      what: |
+        Executes manual UI tests for the OpenShift DevConsole pipeline integration.
+        Tests pipeline creation, execution monitoring, and log viewing through the UI.
+      why: |
+        DevConsole is the primary UI for developers; UI issues degrade user experience.
+      acceptance_criteria:
+        - "Pipeline creation works through DevConsole"
+        - "Pipeline execution is visible and monitorable"
+        - "Logs are accessible through the UI"
+    classification:
+      test_type: "Functional"
+      scope: "Single-component"
+      automation_approach: "Ginkgo v2 + Gomega"
+    specific_preconditions: []
+    test_data:
+      resource_definitions: []
+      api_endpoints: []
+    test_steps:
+      setup:
+        - step_id: "SETUP-01"
+          action: "Access OpenShift DevConsole"
+          command: "Navigate to DevConsole pipeline view"
+          validation: "DevConsole loads with pipeline view"
+      test_execution:
+        - step_id: "TEST-01"
+          action: "Create pipeline through DevConsole"
+          command: "Use UI to create a simple pipeline"
+          validation: "Pipeline created successfully"
+        - step_id: "TEST-02"
+          action: "Execute and monitor pipeline through UI"
+          command: "Trigger pipeline run and observe progress"
+          validation: "PipelineRun visible with status updates"
+      cleanup:
+        - step_id: "CLEANUP-01"
+          action: "Delete test pipeline"
+          command: "Remove test pipeline via UI or CLI"
+    assertions:
+      - assertion_id: "ASSERT-01"
+        priority: "P2"
+        description: "DevConsole pipeline integration works"
+        condition: "Pipeline CRUD and monitoring work through DevConsole"
+        failure_impact: "Developers cannot use UI for pipeline management"
+
+  # ============================================================
+  # PERFORMANCE & SPECIAL ENVIRONMENTS
+  # ============================================================
+
+  - scenario_id: "017"
+    test_id: "TS-SRVKP-9005-017"
+    tier: "Tier 1"
+    priority: "P2"
+    mvp: false
+    requirement_id: "SRVKP-9021"
+    patterns:
+      primary: "performance-tps-001"
+      secondary: []
+      helpers_required: []
+      decorators:
+        - "Tier1"
+        - "Performance"
+    variables:
+      closure_scope:
+        - name: "ctx"
+          type: "context.Context"
+          initialized_in: "BeforeAll"
+          used_in: ["BeforeAll", "It"]
+          comment: "Test context"
+        - name: "err"
+          type: "error"
+          initialized_in: "It"
+          used_in: ["It"]
+          comment: "Error variable"
+    test_structure:
+      type: "single"
+      describe:
+        wrapper: "SIG"
+        description: "Performance Testing"
+        decorators:
+          - "pipelines"
+      context:
+        description: "TPS tests in pre-stage and stage"
+        decorators:
+          - "Ordered"
+      it:
+        description: "should meet baseline TPS thresholds"
+        test_id_format: "[test_id:TS-SRVKP-9005-017]"
+    code_structure: |
+      Context("TPS tests in pre-stage and stage", Ordered) {
+        It("[test_id:TS-SRVKP-9005-017]should meet baseline TPS thresholds", func() {
+          // Execute TPS tests
+          // Compare against baselines
+        })
+      }
+    test_objective:
+      title: "Execute TPS (transactions per second) tests in pre-stage and stage environments and verify performance meets baseline thresholds"
+      what: |
+        Runs TPS performance tests in pre-stage and stage environments.
+        Measures transactions per second for pipeline execution.
+        Compares results against established baseline thresholds.
+      why: |
+        Performance regressions would slow CI/CD pipelines for all customers.
+      acceptance_criteria:
+        - "TPS results meet baseline thresholds in pre-stage"
+        - "TPS results meet baseline thresholds in stage"
+    classification:
+      test_type: "Performance"
+      scope: "Multi-component"
+      automation_approach: "Ginkgo v2 + Gomega"
+    specific_preconditions:
+      - name: "Pre-stage/stage environments"
+        requirement: "Access to pre-stage and stage environments"
+        validation: "Environment endpoints accessible"
+    test_data:
+      resource_definitions: []
+      api_endpoints: []
+    test_steps:
+      setup:
+        - step_id: "SETUP-01"
+          action: "Configure TPS test parameters"
+          command: "Set baseline thresholds and test parameters"
+          validation: "Configuration ready"
+      test_execution:
+        - step_id: "TEST-01"
+          action: "Execute TPS tests in pre-stage"
+          command: "Run TPS benchmark"
+          validation: "TPS meets pre-stage baseline"
+        - step_id: "TEST-02"
+          action: "Execute TPS tests in stage"
+          command: "Run TPS benchmark"
+          validation: "TPS meets stage baseline"
+      cleanup: []
+    assertions:
+      - assertion_id: "ASSERT-01"
+        priority: "P2"
+        description: "Performance meets baseline"
+        condition: "TPS values meet or exceed baseline thresholds"
+        failure_impact: "Performance regression in production"
+
+  - scenario_id: "018"
+    test_id: "TS-SRVKP-9005-018"
+    tier: "Tier 1"
+    priority: "P1"
+    mvp: true
+    requirement_id: "SRVKP-9027"
+    patterns:
+      primary: "fips-compliance-001"
+      secondary:
+        - "acceptance-suite-001"
+      helpers_required: []
+      decorators:
+        - "Tier1"
+        - "FIPS"
+    variables:
+      closure_scope:
+        - name: "ctx"
+          type: "context.Context"
+          initialized_in: "BeforeAll"
+          used_in: ["BeforeAll", "It"]
+          comment: "Test context"
+        - name: "err"
+          type: "error"
+          initialized_in: "It"
+          used_in: ["It"]
+          comment: "Error variable"
+    test_structure:
+      type: "single"
+      describe:
+        wrapper: "SIG"
+        description: "FIPS Testing"
+        decorators:
+          - "pipelines"
+      context:
+        description: "Test on FIPS cluster"
+        decorators:
+          - "Ordered"
+      it:
+        description: "should pass acceptance-tests with FIPS-approved cryptographic algorithms"
+        test_id_format: "[test_id:TS-SRVKP-9005-018]"
+    code_structure: |
+      Context("Test on FIPS cluster", Ordered) {
+        It("[test_id:TS-SRVKP-9005-018]should pass acceptance-tests with FIPS-approved cryptographic algorithms", func() {
+          // Run acceptance tests on FIPS cluster
+          // Verify cryptographic operations
+        })
+      }
+    test_objective:
+      title: "Run acceptance-tests on a FIPS-enabled OCP cluster and verify all cryptographic operations use FIPS-approved algorithms"
+      what: |
+        Executes acceptance-tests on a FIPS-enabled OCP cluster.
+        Verifies all cryptographic operations use FIPS-approved algorithms.
+      why: |
+        Government and regulated customers require FIPS compliance.
+      acceptance_criteria:
+        - "Acceptance tests pass on FIPS-enabled cluster"
+        - "No non-FIPS cryptographic operations detected"
+    classification:
+      test_type: "Functional"
+      scope: "Multi-component"
+      automation_approach: "Ginkgo v2 + Gomega"
+    specific_preconditions:
+      - name: "FIPS-enabled cluster"
+        requirement: "OCP cluster with FIPS mode enabled"
+        validation: "oc get nodes -o jsonpath='{.items[0].status.nodeInfo.containerRuntimeVersion}'"
+    test_data:
+      resource_definitions: []
+      api_endpoints: []
+    test_steps:
+      setup:
+        - step_id: "SETUP-01"
+          action: "Verify FIPS mode is enabled on cluster"
+          command: "Check FIPS enablement status"
+          validation: "FIPS mode active"
+      test_execution:
+        - step_id: "TEST-01"
+          action: "Run acceptance tests on FIPS cluster"
+          command: "Execute acceptance-tests suite"
+          validation: "All tests pass"
+      cleanup: []
+    assertions:
+      - assertion_id: "ASSERT-01"
+        priority: "P1"
+        description: "FIPS compliance verified"
+        condition: "All tests pass using FIPS-approved algorithms"
+        failure_impact: "FIPS compliance certification blocked"
+
+  - scenario_id: "019"
+    test_id: "TS-SRVKP-9005-019"
+    tier: "Tier 1"
+    priority: "P2"
+    mvp: false
+    requirement_id: "SRVKP-9013"
+    patterns:
+      primary: "hypershift-rosa-001"
+      secondary: []
+      helpers_required: []
+      decorators:
+        - "Tier1"
+        - "Interop"
+    variables:
+      closure_scope:
+        - name: "ctx"
+          type: "context.Context"
+          initialized_in: "BeforeAll"
+          used_in: ["BeforeAll", "It"]
+          comment: "Test context"
+        - name: "err"
+          type: "error"
+          initialized_in: "It"
+          used_in: ["It"]
+          comment: "Error variable"
+    test_structure:
+      type: "single"
+      describe:
+        wrapper: "SIG"
+        description: "Interop Testing"
+        decorators:
+          - "pipelines"
+      context:
+        description: "HyperShift/ROSA testing"
+        decorators:
+          - "Ordered"
+      it:
+        description: "should function correctly on HyperShift/ROSA"
+        test_id_format: "[test_id:TS-SRVKP-9005-019]"
+    code_structure: |
+      Context("HyperShift/ROSA testing", Ordered) {
+        It("[test_id:TS-SRVKP-9005-019]should function correctly on HyperShift/ROSA", func() {
+          // Verify pipelines on HyperShift/ROSA
+        })
+      }
+    test_objective:
+      title: "Notify ROSA interop team and verify OpenShift Pipelines 1.21.0 functions correctly on HyperShift/ROSA"
+      what: |
+        Coordinates with ROSA interop team for HyperShift testing.
+        Validates OpenShift Pipelines 1.21.0 works on HyperShift/ROSA hosted control plane.
+      why: |
+        HyperShift/ROSA is a growing deployment model; compatibility is critical.
+      acceptance_criteria:
+        - "Pipelines components deploy on HyperShift/ROSA"
+        - "Core pipeline execution works on hosted control plane"
+    classification:
+      test_type: "Integration"
+      scope: "Multi-component"
+      automation_approach: "Ginkgo v2 + Gomega"
+    specific_preconditions:
+      - name: "ROSA environment"
+        requirement: "ROSA environment with hosted control plane available"
+        validation: "ROSA cluster is accessible"
+    test_data:
+      resource_definitions: []
+      api_endpoints: []
+    test_steps:
+      setup:
+        - step_id: "SETUP-01"
+          action: "Coordinate with ROSA interop team"
+          command: "Notify team and confirm environment availability"
+          validation: "ROSA environment accessible"
+      test_execution:
+        - step_id: "TEST-01"
+          action: "Verify pipelines on HyperShift/ROSA"
+          command: "Run core pipeline tests"
+          validation: "Tests pass on HyperShift/ROSA"
+      cleanup: []
+    assertions:
+      - assertion_id: "ASSERT-01"
+        priority: "P2"
+        description: "Pipelines work on HyperShift/ROSA"
+        condition: "Core pipeline tests pass on hosted control plane"
+        failure_impact: "ROSA customers cannot use Pipelines"
+
+  # ============================================================
+  # POST-RELEASE & SECURITY VERIFICATION
+  # ============================================================
+
+  - scenario_id: "020"
+    test_id: "TS-SRVKP-9005-020"
+    tier: "Tier 1"
+    priority: "P1"
+    mvp: true
+    requirement_id: "SRVKP-9022"
+    patterns:
+      primary: "operator-install-001"
+      secondary: []
+      helpers_required: []
+      decorators:
+        - "Tier1"
+        - "Release"
+    variables:
+      closure_scope:
+        - name: "ctx"
+          type: "context.Context"
+          initialized_in: "BeforeAll"
+          used_in: ["BeforeAll", "It"]
+          comment: "Test context"
+        - name: "err"
+          type: "error"
+          initialized_in: "It"
+          used_in: ["It"]
+          comment: "Error variable"
+    test_structure:
+      type: "single"
+      describe:
+        wrapper: "SIG"
+        description: "Post-Release Verification"
+        decorators:
+          - "pipelines"
+      context:
+        description: "Post-release operator installation"
+        decorators:
+          - "Ordered"
+      it:
+        description: "should install from OperatorHub on all supported OCP versions"
+        test_id_format: "[test_id:TS-SRVKP-9005-020]"
+    code_structure: |
+      Context("Post-release verify operator installation", Ordered) {
+        It("[test_id:TS-SRVKP-9005-020]should install from OperatorHub on all supported OCP versions", func() {
+          // Verify operator installation from OperatorHub
+        })
+      }
+    test_objective:
+      title: "After release, verify that the OpenShift Pipelines operator can be installed on all supported OCP versions from OperatorHub"
+      what: |
+        Verifies post-release operator installation from OperatorHub.
+        Tests installation on all supported OCP versions.
+      why: |
+        Post-release installation verification ensures customers can adopt the new version.
+      acceptance_criteria:
+        - "Operator installs from OperatorHub on all supported OCP versions"
+        - "CSV reaches Succeeded phase"
+    classification:
+      test_type: "Integration"
+      scope: "Single-component"
+      automation_approach: "Ginkgo v2 + Gomega"
+    specific_preconditions:
+      - name: "Release published"
+        requirement: "OpenShift Pipelines 1.21.0 published to OperatorHub"
+        validation: "Operator visible in OperatorHub catalog"
+    test_data:
+      resource_definitions: []
+      api_endpoints: []
+    test_steps:
+      setup:
+        - step_id: "SETUP-01"
+          action: "Verify operator is available in OperatorHub"
+          command: "Check OperatorHub catalog"
+          validation: "1.21.0 visible in catalog"
+      test_execution:
+        - step_id: "TEST-01"
+          action: "Install operator from OperatorHub"
+          command: "Install via OLM on each supported OCP version"
+          validation: "CSV reaches Succeeded on all versions"
+      cleanup: []
+    assertions:
+      - assertion_id: "ASSERT-01"
+        priority: "P1"
+        description: "Post-release installation works"
+        condition: "Operator installs successfully from OperatorHub"
+        failure_impact: "Customers cannot install the released version"
+
+  - scenario_id: "021"
+    test_id: "TS-SRVKP-9005-021"
+    tier: "Tier 1"
+    priority: "P2"
+    mvp: false
+    requirement_id: "SRVKP-9023"
+    patterns:
+      primary: "binary-signature-001"
+      secondary: []
+      helpers_required: []
+      decorators:
+        - "Tier1"
+        - "Security"
+    variables:
+      closure_scope:
+        - name: "ctx"
+          type: "context.Context"
+          initialized_in: "BeforeAll"
+          used_in: ["BeforeAll", "It"]
+          comment: "Test context"
+        - name: "err"
+          type: "error"
+          initialized_in: "It"
+          used_in: ["It"]
+          comment: "Error variable"
+    test_structure:
+      type: "single"
+      describe:
+        wrapper: "SIG"
+        description: "Security Verification"
+        decorators:
+          - "pipelines"
+      context:
+        description: "CLI binary SHA/signature verification"
+        decorators:
+          - "Ordered"
+      it:
+        description: "should have valid SHA256 checksums and Cosign signatures on macOS and Windows"
+        test_id_format: "[test_id:TS-SRVKP-9005-021]"
+    code_structure: |
+      Context("Verification of CLI binary SHA/signature on Mac and Windows", Ordered) {
+        It("[test_id:TS-SRVKP-9005-021]should have valid SHA256 checksums and Cosign signatures on macOS and Windows", func() {
+          // Download binaries
+          // Verify SHA256 and Cosign signatures
+        })
+      }
+    test_objective:
+      title: "Download CLI binaries from the release server; verify SHA256 checksums and Cosign signatures on macOS and Windows platforms"
+      what: |
+        Downloads CLI binaries for macOS and Windows from the release server.
+        Verifies SHA256 checksums match published values.
+        Validates Cosign signatures for supply chain integrity.
+      why: |
+        Supply chain security is critical; customers must trust downloaded binaries.
+      acceptance_criteria:
+        - "SHA256 checksums match for macOS and Windows binaries"
+        - "Cosign signatures validate successfully"
+    classification:
+      test_type: "Security"
+      scope: "Single-component"
+      automation_approach: "Ginkgo v2 + Gomega"
+    specific_preconditions:
+      - name: "Cosign installed"
+        requirement: "Cosign tool available for signature verification"
+        validation: "cosign version"
+    test_data:
+      resource_definitions: []
+      api_endpoints: []
+    test_steps:
+      setup:
+        - step_id: "SETUP-01"
+          action: "Identify release binary URLs for macOS and Windows"
+          command: "Construct download URLs"
+          validation: "URLs accessible"
+      test_execution:
+        - step_id: "TEST-01"
+          action: "Download and verify SHA256 checksums"
+          command: "Download binaries and check SHA256"
+          validation: "Checksums match"
+        - step_id: "TEST-02"
+          action: "Verify Cosign signatures"
+          command: "cosign verify-blob"
+          validation: "Signatures valid"
+      cleanup: []
+    assertions:
+      - assertion_id: "ASSERT-01"
+        priority: "P2"
+        description: "Binary integrity verified"
+        condition: "SHA256 and Cosign signatures valid for all binaries"
+        failure_impact: "Supply chain integrity compromised"
+
+  - scenario_id: "022"
+    test_id: "TS-SRVKP-9005-022"
+    tier: "Tier 1"
+    priority: "P1"
+    mvp: true
+    requirement_id: "SRVKP-9024"
+    patterns:
+      primary: "bug-verification-001"
+      secondary: []
+      helpers_required: []
+      decorators:
+        - "Tier1"
+        - "BugVerification"
+    variables:
+      closure_scope:
+        - name: "ctx"
+          type: "context.Context"
+          initialized_in: "BeforeAll"
+          used_in: ["BeforeAll", "It"]
+          comment: "Test context"
+        - name: "err"
+          type: "error"
+          initialized_in: "It"
+          used_in: ["It"]
+          comment: "Error variable"
+    test_structure:
+      type: "single"
+      describe:
+        wrapper: "SIG"
+        description: "Bug Verification"
+        decorators:
+          - "pipelines"
+      context:
+        description: "Bug verification for 1.21 release"
+        decorators:
+          - "Ordered"
+      it:
+        description: "should verify all ON_QA bugs with fixVersion 1.21"
+        test_id_format: "[test_id:TS-SRVKP-9005-022]"
+    code_structure: |
+      Context("Bug verification", Ordered) {
+        It("[test_id:TS-SRVKP-9005-022]should verify all ON_QA bugs with fixVersion 1.21", func() {
+          // Query bugs with fixVersion 1.21 in ON_QA
+          // Verify each bug fix
+        })
+      }
+    test_objective:
+      title: "Verify all bugs with fixVersion of 1.21 in ON_QA state are correctly fixed and pass acceptance criteria"
+      what: |
+        Queries all bugs with fixVersion 1.21 in ON_QA status.
+        Verifies each bug fix against its acceptance criteria.
+        Transitions verified bugs to VERIFIED status.
+      why: |
+        Bug verification ensures fixed issues do not regress and customer-reported issues are resolved.
+      acceptance_criteria:
+        - "All ON_QA bugs with fixVersion 1.21 are verified"
+        - "Bug fixes pass their individual acceptance criteria"
+    classification:
+      test_type: "Functional"
+      scope: "Multi-component"
+      automation_approach: "Ginkgo v2 + Gomega"
+    specific_preconditions: []
+    test_data:
+      resource_definitions: []
+      api_endpoints: []
+    test_steps:
+      setup:
+        - step_id: "SETUP-01"
+          action: "Query ON_QA bugs with fixVersion 1.21"
+          command: "Jira JQL query for ON_QA bugs"
+          validation: "Bug list retrieved"
+      test_execution:
+        - step_id: "TEST-01"
+          action: "Verify each bug fix"
+          command: "Execute verification steps per bug"
+          validation: "All bugs verified"
+      cleanup: []
+    assertions:
+      - assertion_id: "ASSERT-01"
+        priority: "P1"
+        description: "All bugs verified"
+        condition: "All ON_QA bugs pass verification"
+        failure_impact: "Known bugs ship unverified"
+
+  - scenario_id: "023"
+    test_id: "TS-SRVKP-9005-023"
+    tier: "Tier 1"
+    priority: "P3"
+    mvp: false
+    requirement_id: "SRVKP-9028"
+    patterns:
+      primary: "documentation-review-001"
+      secondary: []
+      helpers_required: []
+      decorators:
+        - "Tier1"
+        - "Documentation"
+    variables:
+      closure_scope:
+        - name: "ctx"
+          type: "context.Context"
+          initialized_in: "BeforeAll"
+          used_in: ["BeforeAll", "It"]
+          comment: "Test context"
+        - name: "err"
+          type: "error"
+          initialized_in: "It"
+          used_in: ["It"]
+          comment: "Error variable"
+    test_structure:
+      type: "single"
+      describe:
+        wrapper: "SIG"
+        description: "Documentation"
+        decorators:
+          - "pipelines"
+      context:
+        description: "Documentation review"
+        decorators:
+          - "Ordered"
+      it:
+        description: "should have accurate and complete release documentation"
+        test_id_format: "[test_id:TS-SRVKP-9005-023]"
+    code_structure: |
+      Context("Documentation review", Ordered) {
+        It("[test_id:TS-SRVKP-9005-023]should have accurate and complete release documentation", func() {
+          // Review documentation accuracy
+        })
+      }
+    test_objective:
+      title: "Review release documentation for accuracy and completeness; verify documented features match implemented behavior"
+      what: |
+        Reviews release documentation for accuracy and completeness.
+        Verifies documented features match implemented behavior.
+      why: |
+        Accurate documentation is critical for customer adoption and support.
+      acceptance_criteria:
+        - "Documentation reflects implemented features"
+        - "No inaccuracies in feature descriptions"
+    classification:
+      test_type: "Functional"
+      scope: "Single-component"
+      automation_approach: "Ginkgo v2 + Gomega"
+    specific_preconditions: []
+    test_data:
+      resource_definitions: []
+      api_endpoints: []
+    test_steps:
+      setup: []
+      test_execution:
+        - step_id: "TEST-01"
+          action: "Review release documentation"
+          command: "Compare docs against implemented features"
+          validation: "Documentation accurate"
+      cleanup: []
+    assertions:
+      - assertion_id: "ASSERT-01"
+        priority: "P3"
+        description: "Documentation is accurate"
+        condition: "Documented features match implementation"
+        failure_impact: "Customers get incorrect information"
+
+  # ============================================================
+  # COMPONENT-SPECIFIC BUG SCENARIOS
+  # ============================================================
+
+  - scenario_id: "024"
+    test_id: "TS-SRVKP-9005-024"
+    tier: "Tier 1"
+    priority: "P1"
+    mvp: true
+    requirement_id: "SRVKP-9292"
+    patterns:
+      primary: "tekton-results-001"
+      secondary:
+        - "tektonconfig-001"
+      helpers_required:
+        - name: "clients"
+          functions: ["Get", "Update"]
+          purpose: "TektonConfig API operations"
+      decorators:
+        - "Tier1"
+        - "Results"
+    variables:
+      closure_scope:
+        - name: "ctx"
+          type: "context.Context"
+          initialized_in: "BeforeAll"
+          used_in: ["BeforeAll", "It"]
+          comment: "Test context"
+        - name: "err"
+          type: "error"
+          initialized_in: "It"
+          used_in: ["It"]
+          comment: "Error variable"
+        - name: "tektonConfig"
+          type: "*operatorv1alpha1.TektonConfig"
+          initialized_in: "BeforeAll"
+          used_in: ["BeforeAll", "It"]
+          comment: "TektonConfig resource"
+    test_structure:
+      type: "single"
+      describe:
+        wrapper: "SIG"
+        description: "Tekton Results"
+        decorators:
+          - "pipelines"
+      context:
+        description: "Results retention with multiple policies"
+        decorators:
+          - "Ordered"
+      it:
+        description: "should retain results according to correct policy precedence"
+        test_id_format: "[test_id:TS-SRVKP-9005-024]"
+    code_structure: |
+      Context("Results retention with multiple policies and same namespaces", Ordered) {
+        BeforeAll(func() {
+          // Get TektonConfig
+          // Configure two retention policies
+        })
+        It("[test_id:TS-SRVKP-9005-024]should retain results according to correct policy precedence", func() {
+          // Verify policy precedence
+        })
+      }
+    test_objective:
+      title: "Configure TektonConfig with two retention policies targeting the same namespace; verify results are retained according to the correct policy precedence"
+      what: |
+        Configures TektonConfig with two conflicting retention policies for the same namespace.
+        Verifies the system correctly applies policy precedence when policies overlap.
+      why: |
+        Retention policies must have deterministic behavior when overlapping. Incorrect precedence could cause data loss or excessive retention.
+      acceptance_criteria:
+        - "Two retention policies configured for same namespace"
+        - "Results retained per correct policy precedence"
+    classification:
+      test_type: "Functional"
+      scope: "Single-component"
+      automation_approach: "Ginkgo v2 + Gomega"
+    specific_preconditions:
+      - name: "Tekton Results enabled"
+        requirement: "TektonResult component enabled in TektonConfig"
+        validation: "oc get tektonconfig config -o jsonpath='{.spec.result}'"
+    test_data:
+      resource_definitions: []
+      api_endpoints: []
+    test_steps:
+      setup:
+        - step_id: "SETUP-01"
+          action: "Configure two retention policies targeting same namespace"
+          command: "Update TektonConfig with conflicting policies"
+          validation: "TektonConfig updated"
+      test_execution:
+        - step_id: "TEST-01"
+          action: "Create PipelineRuns to generate results"
+          command: "Create and complete PipelineRuns"
+          validation: "Results generated"
+        - step_id: "TEST-02"
+          action: "Verify retention behavior matches correct policy"
+          command: "Check results after retention period"
+          validation: "Correct policy applied"
+      cleanup:
+        - step_id: "CLEANUP-01"
+          action: "Restore default retention policy"
+          command: "Reset TektonConfig retention settings"
+    assertions:
+      - assertion_id: "ASSERT-01"
+        priority: "P1"
+        description: "Policy precedence correct"
+        condition: "Results retained per the higher-precedence policy"
+        failure_impact: "Data loss or incorrect retention in production"
+
+  # ============================================================
+  # PAC CLI BUG VERIFICATIONS (SRVKP-9396, 9400, 9404, 9405)
+  # ============================================================
+
+  - scenario_id: "025"
+    test_id: "TS-SRVKP-9005-025"
+    tier: "Tier 1"
+    priority: "P1"
+    mvp: true
+    requirement_id: "SRVKP-9396"
+    patterns:
+      primary: "cli-error-handling-001"
+      secondary: []
+      helpers_required: []
+      decorators:
+        - "Tier1"
+        - "PAC"
+        - "BugVerification"
+    variables:
+      closure_scope:
+        - name: "ctx"
+          type: "context.Context"
+          initialized_in: "BeforeAll"
+          used_in: ["BeforeAll", "It"]
+          comment: "Test context"
+        - name: "err"
+          type: "error"
+          initialized_in: "It"
+          used_in: ["It"]
+          comment: "Error variable"
+    test_structure:
+      type: "single"
+      describe:
+        wrapper: "SIG"
+        description: "PAC CLI"
+        decorators:
+          - "repositories"
+      context:
+        description: "tkn-pac cel nil pointer dereference fix"
+        decorators:
+          - "Ordered"
+      it:
+        description: "should not panic with invalid GitLab headers/body"
+        test_id_format: "[test_id:TS-SRVKP-9005-025]"
+    code_structure: |
+      Context("tkn-pac cel nil pointer dereference with invalid GitLab headers/body", Ordered) {
+        It("[test_id:TS-SRVKP-9005-025]should not panic with invalid GitLab headers/body", func() {
+          // Run tkn pac cel -p gitlab with invalid payload
+          // Verify no panic, meaningful error returned
+        })
+      }
+    test_objective:
+      title: "Run `tkn pac cel -p gitlab` with invalid/malformed GitLab payload and headers; verify the command does not panic and returns a meaningful error"
+      what: |
+        Executes tkn pac cel command with invalid GitLab payload and headers.
+        Verifies the command handles malformed input gracefully without panicking.
+        Confirms a meaningful error message is returned.
+      why: |
+        Nil pointer dereference crashes are critical bugs that disrupt user workflows.
+      acceptance_criteria:
+        - "Command does not panic with invalid GitLab input"
+        - "Meaningful error message returned"
+        - "Non-zero exit code on error"
+    classification:
+      test_type: "Functional"
+      scope: "Single-component"
+      automation_approach: "Ginkgo v2 + Gomega"
+    specific_preconditions: []
+    test_data:
+      resource_definitions: []
+      api_endpoints: []
+    test_steps:
+      setup: []
+      test_execution:
+        - step_id: "TEST-01"
+          action: "Run tkn pac cel -p gitlab with invalid payload"
+          command: "tkn pac cel -p gitlab --body '{invalid}' --headers 'X-Gitlab-Event: invalid'"
+          validation: "No panic; meaningful error message"
+      cleanup: []
+    assertions:
+      - assertion_id: "ASSERT-01"
+        priority: "P1"
+        description: "No panic on invalid input"
+        condition: "Command exits without nil pointer dereference"
+        failure_impact: "CLI crashes on malformed GitLab webhook data"
+
+  - scenario_id: "026"
+    test_id: "TS-SRVKP-9005-026"
+    tier: "Tier 1"
+    priority: "P2"
+    mvp: false
+    requirement_id: "SRVKP-9400"
+    patterns:
+      primary: "cli-error-handling-001"
+      secondary: []
+      helpers_required: []
+      decorators:
+        - "Tier1"
+        - "PAC"
+        - "BugVerification"
+    variables:
+      closure_scope:
+        - name: "ctx"
+          type: "context.Context"
+          initialized_in: "BeforeAll"
+          used_in: ["BeforeAll", "It"]
+          comment: "Test context"
+        - name: "err"
+          type: "error"
+          initialized_in: "It"
+          used_in: ["It"]
+          comment: "Error variable"
+    test_structure:
+      type: "single"
+      describe:
+        wrapper: "SIG"
+        description: "PAC CLI"
+        decorators:
+          - "repositories"
+      context:
+        description: "tkn-pac cel error message clarity"
+        decorators:
+          - "Ordered"
+      it:
+        description: "should clearly indicate missing body/headers"
+        test_id_format: "[test_id:TS-SRVKP-9005-026]"
+    code_structure: |
+      Context("tkn pac cel unclear error messages for missing body/headers", Ordered) {
+        It("[test_id:TS-SRVKP-9005-026]should clearly indicate missing body/headers", func() {
+          // Run tkn pac cel without args
+          // Verify clear error message
+        })
+      }
+    test_objective:
+      title: "Run `tkn pac cel` without arguments or with only headers/body; verify error messages clearly indicate what is missing"
+      what: |
+        Executes tkn pac cel with incomplete arguments.
+        Verifies error messages clearly indicate which parameters are missing.
+      why: |
+        Clear error messages reduce debugging time and improve developer experience.
+      acceptance_criteria:
+        - "Error message specifies missing --body parameter"
+        - "Error message specifies missing --headers parameter"
+    classification:
+      test_type: "Functional"
+      scope: "Single-component"
+      automation_approach: "Ginkgo v2 + Gomega"
+    specific_preconditions: []
+    test_data:
+      resource_definitions: []
+      api_endpoints: []
+    test_steps:
+      setup: []
+      test_execution:
+        - step_id: "TEST-01"
+          action: "Run tkn pac cel without arguments"
+          command: "tkn pac cel"
+          validation: "Error message indicates missing body and headers"
+        - step_id: "TEST-02"
+          action: "Run tkn pac cel with only headers"
+          command: "tkn pac cel --headers 'X-Gitlab-Event: push'"
+          validation: "Error message indicates missing body"
+      cleanup: []
+    assertions:
+      - assertion_id: "ASSERT-01"
+        priority: "P2"
+        description: "Error messages are clear"
+        condition: "Missing parameter errors specify what is needed"
+        failure_impact: "Poor developer experience with unclear errors"
+
+  - scenario_id: "027"
+    test_id: "TS-SRVKP-9005-027"
+    tier: "Tier 1"
+    priority: "P2"
+    mvp: false
+    requirement_id: "SRVKP-9404"
+    patterns:
+      primary: "cli-exit-code-001"
+      secondary: []
+      helpers_required: []
+      decorators:
+        - "Tier1"
+        - "PAC"
+        - "BugVerification"
+    variables:
+      closure_scope:
+        - name: "ctx"
+          type: "context.Context"
+          initialized_in: "BeforeAll"
+          used_in: ["BeforeAll", "It"]
+          comment: "Test context"
+        - name: "err"
+          type: "error"
+          initialized_in: "It"
+          used_in: ["It"]
+          comment: "Error variable"
+    test_structure:
+      type: "single"
+      describe:
+        wrapper: "SIG"
+        description: "PAC CLI"
+        decorators:
+          - "repositories"
+      context:
+        description: "tkn-pac cel CEL syntax error exit code"
+        decorators:
+          - "Ordered"
+      it:
+        description: "should exit with non-zero code on invalid CEL expression"
+        test_id_format: "[test_id:TS-SRVKP-9005-027]"
+    code_structure: |
+      Context("tkn pac cel CEL syntax errors exit with code 0", Ordered) {
+        It("[test_id:TS-SRVKP-9005-027]should exit with non-zero code on invalid CEL expression", func() {
+          // Run with invalid CEL expression
+          // Verify non-zero exit code
+        })
+      }
+    test_objective:
+      title: "Run `tkn pac cel` with an invalid CEL expression; verify the command exits with a non-zero exit code"
+      what: |
+        Executes tkn pac cel with syntactically invalid CEL expression.
+        Verifies the command exits with a non-zero exit code indicating failure.
+      why: |
+        Exiting with code 0 on error misleads CI/CD pipelines and scripts into treating failures as success.
+      acceptance_criteria:
+        - "Command exits with non-zero code on invalid CEL"
+        - "Error message explains the CEL syntax issue"
+    classification:
+      test_type: "Functional"
+      scope: "Single-component"
+      automation_approach: "Ginkgo v2 + Gomega"
+    specific_preconditions: []
+    test_data:
+      resource_definitions: []
+      api_endpoints: []
+    test_steps:
+      setup: []
+      test_execution:
+        - step_id: "TEST-01"
+          action: "Run tkn pac cel with invalid CEL expression"
+          command: "tkn pac cel --expr 'invalid.cel.[[' --body '{}' --headers 'X-Github-Event: push'"
+          validation: "Exit code is non-zero"
+      cleanup: []
+    assertions:
+      - assertion_id: "ASSERT-01"
+        priority: "P2"
+        description: "Non-zero exit code on CEL syntax error"
+        condition: "Exit code != 0 when CEL expression is invalid"
+        failure_impact: "Scripts treat CEL errors as success"
+
+  - scenario_id: "028"
+    test_id: "TS-SRVKP-9005-028"
+    tier: "Tier 1"
+    priority: "P2"
+    mvp: false
+    requirement_id: "SRVKP-9405"
+    patterns:
+      primary: "cli-parsing-001"
+      secondary: []
+      helpers_required: []
+      decorators:
+        - "Tier1"
+        - "PAC"
+        - "BugVerification"
+    variables:
+      closure_scope:
+        - name: "ctx"
+          type: "context.Context"
+          initialized_in: "BeforeAll"
+          used_in: ["BeforeAll", "It"]
+          comment: "Test context"
+        - name: "err"
+          type: "error"
+          initialized_in: "It"
+          used_in: ["It"]
+          comment: "Error variable"
+    test_structure:
+      type: "single"
+      describe:
+        wrapper: "SIG"
+        description: "PAC CLI"
+        decorators:
+          - "repositories"
+      context:
+        description: "tkn-pac cel GitLab gosmee header parsing"
+        decorators:
+          - "Ordered"
+      it:
+        description: "should parse valid GitLab gosmee headers without errors"
+        test_id_format: "[test_id:TS-SRVKP-9005-028]"
+    code_structure: |
+      Context("tkn pac cel fails to parse valid GitLab gosmee headers", Ordered) {
+        It("[test_id:TS-SRVKP-9005-028]should parse valid GitLab gosmee headers without errors", func() {
+          // Run with valid gosmee headers
+          // Verify successful parsing
+        })
+      }
+    test_objective:
+      title: "Run `tkn pac cel` with valid X-Gitlab-Event headers from gosmee save scripts; verify the command parses them correctly without errors"
+      what: |
+        Executes tkn pac cel with valid GitLab event headers from gosmee save scripts.
+        Verifies the command correctly parses these headers without errors.
+      why: |
+        Gosmee is commonly used for local webhook testing; header parsing failures block PAC development.
+      acceptance_criteria:
+        - "Valid GitLab gosmee headers parsed without errors"
+        - "CEL expression evaluates correctly"
+    classification:
+      test_type: "Functional"
+      scope: "Single-component"
+      automation_approach: "Ginkgo v2 + Gomega"
+    specific_preconditions: []
+    test_data:
+      resource_definitions: []
+      api_endpoints: []
+    test_steps:
+      setup: []
+      test_execution:
+        - step_id: "TEST-01"
+          action: "Run tkn pac cel with valid gosmee GitLab headers"
+          command: "tkn pac cel -p gitlab with gosmee-saved headers"
+          validation: "Headers parsed successfully, no errors"
+      cleanup: []
+    assertions:
+      - assertion_id: "ASSERT-01"
+        priority: "P2"
+        description: "Gosmee headers parsed correctly"
+        condition: "Command completes without parsing errors"
+        failure_impact: "PAC development workflow broken with gosmee"
+
+  # ============================================================
+  # UI BUG VERIFICATIONS
+  # ============================================================
+
+  - scenario_id: "029"
+    test_id: "TS-SRVKP-9005-029"
+    tier: "Tier 1"
+    priority: "P3"
+    mvp: false
+    requirement_id: "SRVKP-9435"
+    patterns:
+      primary: "ui-validation-001"
+      secondary: []
+      helpers_required: []
+      decorators:
+        - "Tier1"
+        - "UI"
+        - "BugVerification"
+    variables:
+      closure_scope:
+        - name: "ctx"
+          type: "context.Context"
+          initialized_in: "BeforeAll"
+          used_in: ["BeforeAll", "It"]
+          comment: "Test context"
+        - name: "err"
+          type: "error"
+          initialized_in: "It"
+          used_in: ["It"]
+          comment: "Error variable"
+    test_structure:
+      type: "single"
+      describe:
+        wrapper: "SIG"
+        description: "UI Bug Verification"
+        decorators:
+          - "pipelines"
+      context:
+        description: "ApprovalTask YAML validation warning fix"
+        decorators:
+          - "Ordered"
+      it:
+        description: "should not show spurious validation warnings for ApprovalTask CRD"
+        test_id_format: "[test_id:TS-SRVKP-9005-029]"
+    code_structure: |
+      Context("UI YAML validation warning for ApprovalTask CRD", Ordered) {
+        It("[test_id:TS-SRVKP-9005-029]should not show spurious validation warnings for ApprovalTask CRD", func() {
+          // Edit ApprovalTask in Console UI
+          // Verify no spurious warnings
+        })
+      }
+    test_objective:
+      title: "Edit an existing ApprovalTask from Console UI with Tekton/OpenShift YAML schema enabled; verify no spurious validation warnings are displayed"
+      what: |
+        Edits an ApprovalTask resource through the Console UI.
+        Verifies YAML schema validation does not produce false positive warnings.
+      why: |
+        Spurious warnings confuse users and reduce trust in the UI.
+      acceptance_criteria:
+        - "No spurious validation warnings for valid ApprovalTask YAML"
+    classification:
+      test_type: "Functional"
+      scope: "Single-component"
+      automation_approach: "Ginkgo v2 + Gomega"
+    specific_preconditions: []
+    test_data:
+      resource_definitions: []
+      api_endpoints: []
+    test_steps:
+      setup:
+        - step_id: "SETUP-01"
+          action: "Create ApprovalTask resource"
+          command: "oc apply -f approvaltask.yaml"
+          validation: "ApprovalTask created"
+      test_execution:
+        - step_id: "TEST-01"
+          action: "Edit ApprovalTask from Console UI"
+          command: "Navigate to ApprovalTask in Console and edit"
+          validation: "No spurious validation warnings"
+      cleanup:
+        - step_id: "CLEANUP-01"
+          action: "Delete ApprovalTask"
+          command: "oc delete approvaltask test-task"
+    assertions:
+      - assertion_id: "ASSERT-01"
+        priority: "P3"
+        description: "No spurious YAML validation warnings"
+        condition: "UI shows no warnings for valid ApprovalTask YAML"
+        failure_impact: "Users confused by false validation warnings"
+
+  - scenario_id: "030"
+    test_id: "TS-SRVKP-9005-030"
+    tier: "Tier 1"
+    priority: "P2"
+    mvp: false
+    requirement_id: "SRVKP-9437"
+    patterns:
+      primary: "ui-status-001"
+      secondary: []
+      helpers_required: []
+      decorators:
+        - "Tier1"
+        - "UI"
+        - "BugVerification"
+        - "ManualApproval"
+    variables:
+      closure_scope:
+        - name: "ctx"
+          type: "context.Context"
+          initialized_in: "BeforeAll"
+          used_in: ["BeforeAll", "It"]
+          comment: "Test context"
+        - name: "err"
+          type: "error"
+          initialized_in: "It"
+          used_in: ["It"]
+          comment: "Error variable"
+    test_structure:
+      type: "single"
+      describe:
+        wrapper: "SIG"
+        description: "UI Bug Verification"
+        decorators:
+          - "pipelines"
+      context:
+        description: "Approvals tab status display fix"
+        decorators:
+          - "Ordered"
+      it:
+        description: "should show Pending status instead of Unknown"
+        test_id_format: "[test_id:TS-SRVKP-9005-030]"
+    code_structure: |
+      Context("UI Approvals tab status shown as Unknown for pending tasks", Ordered) {
+        It("[test_id:TS-SRVKP-9005-030]should show Pending status instead of Unknown", func() {
+          // Create manual approval task
+          // Check Approvals tab status
+        })
+      }
+    test_objective:
+      title: "Create a manual approval task for a PipelineRun; verify the Approvals tab correctly shows 'Pending' status (not 'Unknown')"
+      what: |
+        Creates a PipelineRun with a manual approval task.
+        Navigates to the Approvals tab and checks the displayed status.
+        Verifies the status shows "Pending" rather than "Unknown".
+      why: |
+        Incorrect status display misleads users about the state of their approval workflows.
+      acceptance_criteria:
+        - "Approvals tab shows 'Pending' for waiting approval tasks"
+        - "Status is not shown as 'Unknown'"
+    classification:
+      test_type: "Functional"
+      scope: "Single-component"
+      automation_approach: "Ginkgo v2 + Gomega"
+    specific_preconditions: []
+    test_data:
+      resource_definitions: []
+      api_endpoints: []
+    test_steps:
+      setup:
+        - step_id: "SETUP-01"
+          action: "Create PipelineRun with manual approval task"
+          command: "oc apply -f pipelinerun-with-approval.yaml"
+          validation: "PipelineRun waiting for approval"
+      test_execution:
+        - step_id: "TEST-01"
+          action: "Check Approvals tab status"
+          command: "Navigate to Approvals tab in Console"
+          validation: "Status shows 'Pending'"
+      cleanup:
+        - step_id: "CLEANUP-01"
+          action: "Approve and cleanup"
+          command: "Approve task and delete PipelineRun"
+    assertions:
+      - assertion_id: "ASSERT-01"
+        priority: "P2"
+        description: "Correct status displayed"
+        condition: "Approval status shows 'Pending' not 'Unknown'"
+        failure_impact: "Users see incorrect approval workflow status"
+
+  - scenario_id: "031"
+    test_id: "TS-SRVKP-9005-031"
+    tier: "Tier 1"
+    priority: "P2"
+    mvp: false
+    requirement_id: "SRVKP-9438"
+    patterns:
+      primary: "ui-performance-001"
+      secondary: []
+      helpers_required: []
+      decorators:
+        - "Tier1"
+        - "UI"
+        - "BugVerification"
+    variables:
+      closure_scope:
+        - name: "ctx"
+          type: "context.Context"
+          initialized_in: "BeforeAll"
+          used_in: ["BeforeAll", "It"]
+          comment: "Test context"
+        - name: "err"
+          type: "error"
+          initialized_in: "It"
+          used_in: ["It"]
+          comment: "Error variable"
+    test_structure:
+      type: "single"
+      describe:
+        wrapper: "SIG"
+        description: "UI Bug Verification"
+        decorators:
+          - "pipelines"
+      context:
+        description: "Approvals tab load time fix"
+        decorators:
+          - "Ordered"
+      it:
+        description: "should load within 5 seconds for new users"
+        test_id_format: "[test_id:TS-SRVKP-9005-031]"
+    code_structure: |
+      Context("UI Approvals tab takes longer to load", Ordered) {
+        It("[test_id:TS-SRVKP-9005-031]should load within 5 seconds for new users", func() {
+          // Log in as new user
+          // Measure Approvals tab load time
+        })
+      }
+    test_objective:
+      title: "Log in as a new user; navigate to the Approvals tab; verify the tab loads within an acceptable time (under 5 seconds)"
+      what: |
+        Logs in as a new user and navigates to the Approvals tab.
+        Measures the tab loading time.
+        Verifies the tab loads within 5 seconds.
+      why: |
+        Slow UI impacts user productivity and perception of product quality.
+      acceptance_criteria:
+        - "Approvals tab loads in under 5 seconds for new users"
+    classification:
+      test_type: "Performance"
+      scope: "Single-component"
+      automation_approach: "Ginkgo v2 + Gomega"
+    specific_preconditions: []
+    test_data:
+      resource_definitions: []
+      api_endpoints: []
+    test_steps:
+      setup:
+        - step_id: "SETUP-01"
+          action: "Create a new user"
+          command: "Create test user account"
+          validation: "User can log in"
+      test_execution:
+        - step_id: "TEST-01"
+          action: "Navigate to Approvals tab and measure load time"
+          command: "Log in as new user, navigate to Approvals"
+          validation: "Tab loads in under 5 seconds"
+      cleanup: []
+    assertions:
+      - assertion_id: "ASSERT-01"
+        priority: "P2"
+        description: "Approvals tab loads quickly"
+        condition: "Load time < 5 seconds"
+        failure_impact: "Poor user experience for new users"
+
+  - scenario_id: "032"
+    test_id: "TS-SRVKP-9005-032"
+    tier: "Tier 1"
+    priority: "P1"
+    mvp: true
+    requirement_id: "SRVKP-9440"
+    patterns:
+      primary: "ui-navigation-001"
+      secondary: []
+      helpers_required: []
+      decorators:
+        - "Tier1"
+        - "UI"
+        - "BugVerification"
+        - "ManualApproval"
+    variables:
+      closure_scope:
+        - name: "ctx"
+          type: "context.Context"
+          initialized_in: "BeforeAll"
+          used_in: ["BeforeAll", "It"]
+          comment: "Test context"
+        - name: "err"
+          type: "error"
+          initialized_in: "It"
+          used_in: ["It"]
+          comment: "Error variable"
+    test_structure:
+      type: "single"
+      describe:
+        wrapper: "SIG"
+        description: "UI Bug Verification"
+        decorators:
+          - "pipelines"
+      context:
+        description: "Approvals tab presence in Developer Perspective"
+        decorators:
+          - "Ordered"
+      it:
+        description: "should show Approvals tab under Pipelines view"
+        test_id_format: "[test_id:TS-SRVKP-9005-032]"
+    code_structure: |
+      Context("UI Approvals tab missing from Pipelines view in Developer Perspective", Ordered) {
+        It("[test_id:TS-SRVKP-9005-032]should show Approvals tab under Pipelines view", func() {
+          // Navigate to Developer Perspective
+          // Verify Approvals tab exists
+        })
+      }
+    test_objective:
+      title: "Navigate to the Developer Perspective in the OpenShift Console; verify the Approvals tab is present under the Pipelines view"
+      what: |
+        Navigates to the Developer Perspective in the OpenShift Console.
+        Verifies the Approvals tab is present under the Pipelines view.
+      why: |
+        Missing tab blocks manual approval workflows from the Developer Perspective.
+      acceptance_criteria:
+        - "Approvals tab visible in Developer Perspective under Pipelines view"
+    classification:
+      test_type: "Functional"
+      scope: "Single-component"
+      automation_approach: "Ginkgo v2 + Gomega"
+    specific_preconditions: []
+    test_data:
+      resource_definitions: []
+      api_endpoints: []
+    test_steps:
+      setup: []
+      test_execution:
+        - step_id: "TEST-01"
+          action: "Navigate to Developer Perspective Pipelines view"
+          command: "Go to Developer Perspective > Pipelines"
+          validation: "Approvals tab is visible"
+      cleanup: []
+    assertions:
+      - assertion_id: "ASSERT-01"
+        priority: "P1"
+        description: "Approvals tab present"
+        condition: "Tab visible in Developer Perspective Pipelines view"
+        failure_impact: "Manual approval workflow inaccessible from Developer Perspective"
+
+  - scenario_id: "033"
+    test_id: "TS-SRVKP-9005-033"
+    tier: "Tier 1"
+    priority: "P3"
+    mvp: false
+    requirement_id: "SRVKP-9441"
+    patterns:
+      primary: "cli-input-validation-001"
+      secondary: []
+      helpers_required: []
+      decorators:
+        - "Tier1"
+        - "CLI"
+        - "ManualApproval"
+    variables:
+      closure_scope:
+        - name: "ctx"
+          type: "context.Context"
+          initialized_in: "BeforeAll"
+          used_in: ["BeforeAll", "It"]
+          comment: "Test context"
+        - name: "err"
+          type: "error"
+          initialized_in: "It"
+          used_in: ["It"]
+          comment: "Error variable"
+    test_structure:
+      type: "single"
+      describe:
+        wrapper: "SIG"
+        description: "CLI Manual Approval"
+        decorators:
+          - "pipelines"
+      context:
+        description: "Approval task comment character limit"
+        decorators:
+          - "Ordered"
+      it:
+        description: "should enforce character limit on approval task comments"
+        test_id_format: "[test_id:TS-SRVKP-9005-033]"
+    code_structure: |
+      Context("CLI set character limit on Approval Task comments", Ordered) {
+        It("[test_id:TS-SRVKP-9005-033]should enforce character limit on approval task comments", func() {
+          // Run tkn-approvaltask with long comment
+          // Verify character limit enforced
+        })
+      }
+    test_objective:
+      title: "Run `tkn-approvaltask` with an excessively long comment; verify the CLI enforces a character limit or handles gracefully"
+      what: |
+        Executes tkn-approvaltask with an excessively long comment string.
+        Verifies the CLI enforces a character limit or handles the input gracefully.
+      why: |
+        Unbounded input can cause API errors or data truncation.
+      acceptance_criteria:
+        - "CLI enforces character limit or handles gracefully"
+        - "No crash or API error on excessive input"
+    classification:
+      test_type: "Functional"
+      scope: "Single-component"
+      automation_approach: "Ginkgo v2 + Gomega"
+    specific_preconditions: []
+    test_data:
+      resource_definitions: []
+      api_endpoints: []
+    test_steps:
+      setup: []
+      test_execution:
+        - step_id: "TEST-01"
+          action: "Run tkn-approvaltask with excessively long comment"
+          command: "tkn-approvaltask approve --comment '<very long string>'"
+          validation: "Character limit enforced or handled gracefully"
+      cleanup: []
+    assertions:
+      - assertion_id: "ASSERT-01"
+        priority: "P3"
+        description: "Comment length handled"
+        condition: "CLI enforces limit or handles gracefully without errors"
+        failure_impact: "Data truncation or API errors"
+
+  - scenario_id: "034"
+    test_id: "TS-SRVKP-9005-034"
+    tier: "Tier 1"
+    priority: "P2"
+    mvp: false
+    requirement_id: "SRVKP-9443"
+    patterns:
+      primary: "ui-navigation-001"
+      secondary: []
+      helpers_required: []
+      decorators:
+        - "Tier1"
+        - "UI"
+        - "BugVerification"
+    variables:
+      closure_scope:
+        - name: "ctx"
+          type: "context.Context"
+          initialized_in: "BeforeAll"
+          used_in: ["BeforeAll", "It"]
+          comment: "Test context"
+        - name: "err"
+          type: "error"
+          initialized_in: "It"
+          used_in: ["It"]
+          comment: "Error variable"
+    test_structure:
+      type: "single"
+      describe:
+        wrapper: "SIG"
+        description: "UI Bug Verification"
+        decorators:
+          - "pipelines"
+      context:
+        description: "Approvals list navigation fix"
+        decorators:
+          - "Ordered"
+      it:
+        description: "should remain interactive after back navigation"
+        test_id_format: "[test_id:TS-SRVKP-9005-034]"
+    code_structure: |
+      Context("UI navigating back to Approvals list prevents interaction", Ordered) {
+        It("[test_id:TS-SRVKP-9005-034]should remain interactive after back navigation", func() {
+          // Navigate to detail view and back
+          // Verify list is interactive
+        })
+      }
+    test_objective:
+      title: "Modify filters on the Approvals list; navigate to a detail view and back; verify the list remains interactive and filters are preserved"
+      what: |
+        Sets filters on the Approvals list view.
+        Navigates to a detail view and then back to the list.
+        Verifies the list remains interactive and filters are preserved.
+      why: |
+        UI navigation bugs break workflow continuity.
+      acceptance_criteria:
+        - "List remains interactive after back navigation"
+        - "Filters are preserved"
+    classification:
+      test_type: "Functional"
+      scope: "Single-component"
+      automation_approach: "Ginkgo v2 + Gomega"
+    specific_preconditions: []
+    test_data:
+      resource_definitions: []
+      api_endpoints: []
+    test_steps:
+      setup: []
+      test_execution:
+        - step_id: "TEST-01"
+          action: "Set filters and navigate to detail view"
+          command: "Apply filters, click on an approval, navigate back"
+          validation: "List interactive, filters preserved"
+      cleanup: []
+    assertions:
+      - assertion_id: "ASSERT-01"
+        priority: "P2"
+        description: "List remains interactive"
+        condition: "Back navigation preserves interactivity and filters"
+        failure_impact: "Users must reload page to interact with list"
+
+  - scenario_id: "035"
+    test_id: "TS-SRVKP-9005-035"
+    tier: "Tier 1"
+    priority: "P3"
+    mvp: false
+    requirement_id: "SRVKP-9448"
+    patterns:
+      primary: "ui-rendering-001"
+      secondary: []
+      helpers_required: []
+      decorators:
+        - "Tier1"
+        - "UI"
+        - "BugVerification"
+    variables:
+      closure_scope:
+        - name: "ctx"
+          type: "context.Context"
+          initialized_in: "BeforeAll"
+          used_in: ["BeforeAll", "It"]
+          comment: "Test context"
+        - name: "err"
+          type: "error"
+          initialized_in: "It"
+          used_in: ["It"]
+          comment: "Error variable"
+    test_structure:
+      type: "single"
+      describe:
+        wrapper: "SIG"
+        description: "UI Bug Verification"
+        decorators:
+          - "pipelines"
+      context:
+        description: "Approvals list status overlap fix"
+        decorators:
+          - "Ordered"
+      it:
+        description: "should render status column without text overlap"
+        test_id_format: "[test_id:TS-SRVKP-9005-035]"
+    code_structure: |
+      Context("UI current status overlaps in Approvals list view", Ordered) {
+        It("[test_id:TS-SRVKP-9005-035]should render status column without text overlap", func() {
+          // View Approvals with multiple states
+          // Verify no text overlap
+        })
+      }
+    test_objective:
+      title: "View the Approvals tab with multiple approval tasks in various states; verify the Current Status column renders without text overlap"
+      what: |
+        Views the Approvals tab with approval tasks in multiple states.
+        Verifies the Current Status column renders cleanly without text overlap.
+      why: |
+        Text overlap makes status information unreadable.
+      acceptance_criteria:
+        - "Status column renders without text overlap"
+    classification:
+      test_type: "Functional"
+      scope: "Single-component"
+      automation_approach: "Ginkgo v2 + Gomega"
+    specific_preconditions: []
+    test_data:
+      resource_definitions: []
+      api_endpoints: []
+    test_steps:
+      setup:
+        - step_id: "SETUP-01"
+          action: "Create approval tasks in various states"
+          command: "Create tasks with pending, approved, rejected states"
+          validation: "Multiple approval tasks exist"
+      test_execution:
+        - step_id: "TEST-01"
+          action: "Verify status column rendering"
+          command: "View Approvals tab"
+          validation: "No text overlap in status column"
+      cleanup:
+        - step_id: "CLEANUP-01"
+          action: "Delete test approval tasks"
+          command: "Clean up test resources"
+    assertions:
+      - assertion_id: "ASSERT-01"
+        priority: "P3"
+        description: "No text overlap in status"
+        condition: "Status column renders cleanly"
+        failure_impact: "Status information unreadable"
+
+  - scenario_id: "036"
+    test_id: "TS-SRVKP-9005-036"
+    tier: "Tier 1"
+    priority: "P1"
+    mvp: true
+    requirement_id: "SRVKP-9450"
+    patterns:
+      primary: "ui-rbac-001"
+      secondary: []
+      helpers_required: []
+      decorators:
+        - "Tier1"
+        - "UI"
+        - "BugVerification"
+    variables:
+      closure_scope:
+        - name: "ctx"
+          type: "context.Context"
+          initialized_in: "BeforeAll"
+          used_in: ["BeforeAll", "It"]
+          comment: "Test context"
+        - name: "err"
+          type: "error"
+          initialized_in: "It"
+          used_in: ["It"]
+          comment: "Error variable"
+    test_structure:
+      type: "single"
+      describe:
+        wrapper: "SIG"
+        description: "UI Bug Verification"
+        decorators:
+          - "pipelines"
+      context:
+        description: "Non-admin PipelineRuns display fix"
+        decorators:
+          - "Ordered"
+      it:
+        description: "should display PipelineRuns for non-admin users"
+        test_id_format: "[test_id:TS-SRVKP-9005-036]"
+    code_structure: |
+      Context("UI PipelineRuns not showing up as non-admin users", Ordered) {
+        It("[test_id:TS-SRVKP-9005-036]should display PipelineRuns for non-admin users", func() {
+          // Log in as non-admin
+          // Navigate to PipelineRuns
+          // Verify list loads
+        })
+      }
+    test_objective:
+      title: "Log in as a non-admin user; navigate to PipelineRuns; verify the list loads and displays runs without hanging on a loading spinner"
+      what: |
+        Logs in as a non-admin user.
+        Navigates to PipelineRuns view.
+        Verifies the list loads and displays runs without hanging.
+      why: |
+        Non-admin users are the primary consumers of the Pipelines UI; broken display blocks their work.
+      acceptance_criteria:
+        - "PipelineRuns list loads for non-admin users"
+        - "No infinite loading spinner"
+    classification:
+      test_type: "Functional"
+      scope: "Single-component"
+      automation_approach: "Ginkgo v2 + Gomega"
+    specific_preconditions: []
+    test_data:
+      resource_definitions: []
+      api_endpoints: []
+    test_steps:
+      setup:
+        - step_id: "SETUP-01"
+          action: "Create non-admin user with pipeline permissions"
+          command: "Create user with edit role in namespace"
+          validation: "User can log in"
+      test_execution:
+        - step_id: "TEST-01"
+          action: "Log in as non-admin and view PipelineRuns"
+          command: "Navigate to PipelineRuns view"
+          validation: "List loads and displays runs"
+      cleanup: []
+    assertions:
+      - assertion_id: "ASSERT-01"
+        priority: "P1"
+        description: "Non-admin PipelineRuns display works"
+        condition: "PipelineRuns list loads without hanging"
+        failure_impact: "Non-admin users cannot view their pipeline runs"
+
+  - scenario_id: "037"
+    test_id: "TS-SRVKP-9005-037"
+    tier: "Tier 1"
+    priority: "P3"
+    mvp: false
+    requirement_id: "SRVKP-9451"
+    patterns:
+      primary: "ui-data-display-001"
+      secondary: []
+      helpers_required: []
+      decorators:
+        - "Tier1"
+        - "UI"
+        - "BugVerification"
+    variables:
+      closure_scope:
+        - name: "ctx"
+          type: "context.Context"
+          initialized_in: "BeforeAll"
+          used_in: ["BeforeAll", "It"]
+          comment: "Test context"
+        - name: "err"
+          type: "error"
+          initialized_in: "It"
+          used_in: ["It"]
+          comment: "Error variable"
+    test_structure:
+      type: "single"
+      describe:
+        wrapper: "SIG"
+        description: "UI Bug Verification"
+        decorators:
+          - "pipelines"
+      context:
+        description: "Approvals PipelineRun name display fix"
+        decorators:
+          - "Ordered"
+      it:
+        description: "should display correct PipelineRun names in Approvals list"
+        test_id_format: "[test_id:TS-SRVKP-9005-037]"
+    code_structure: |
+      Context("UI PipelineRun names missing in Approvals list view", Ordered) {
+        It("[test_id:TS-SRVKP-9005-037]should display correct PipelineRun names in Approvals list", func() {
+          // View Approvals tab
+          // Verify PipelineRun names displayed
+        })
+      }
+    test_objective:
+      title: "View the Approvals tab; verify the PipelineRun name column displays the correct pipeline run name for all entries"
+      what: |
+        Views the Approvals tab and checks the PipelineRun name column.
+        Verifies all entries display the correct pipeline run name.
+      why: |
+        Missing names make it impossible to identify which pipeline run requires approval.
+      acceptance_criteria:
+        - "PipelineRun name column shows correct names for all entries"
+    classification:
+      test_type: "Functional"
+      scope: "Single-component"
+      automation_approach: "Ginkgo v2 + Gomega"
+    specific_preconditions: []
+    test_data:
+      resource_definitions: []
+      api_endpoints: []
+    test_steps:
+      setup: []
+      test_execution:
+        - step_id: "TEST-01"
+          action: "View Approvals tab and check PipelineRun names"
+          command: "Navigate to Approvals tab"
+          validation: "PipelineRun names display correctly"
+      cleanup: []
+    assertions:
+      - assertion_id: "ASSERT-01"
+        priority: "P3"
+        description: "PipelineRun names displayed"
+        condition: "Name column shows correct values"
+        failure_impact: "Users cannot identify pipelines needing approval"
+
+  - scenario_id: "038"
+    test_id: "TS-SRVKP-9005-038"
+    tier: "Tier 1"
+    priority: "P1"
+    mvp: true
+    requirement_id: "SRVKP-9452"
+    patterns:
+      primary: "ui-rbac-001"
+      secondary: []
+      helpers_required: []
+      decorators:
+        - "Tier1"
+        - "UI"
+        - "BugVerification"
+    variables:
+      closure_scope:
+        - name: "ctx"
+          type: "context.Context"
+          initialized_in: "BeforeAll"
+          used_in: ["BeforeAll", "It"]
+          comment: "Test context"
+        - name: "err"
+          type: "error"
+          initialized_in: "It"
+          used_in: ["It"]
+          comment: "Error variable"
+    test_structure:
+      type: "single"
+      describe:
+        wrapper: "SIG"
+        description: "UI Bug Verification"
+        decorators:
+          - "pipelines"
+      context:
+        description: "Non-admin All Projects context switch fix"
+        decorators:
+          - "Ordered"
+      it:
+        description: "should allow non-admin users to switch to All Projects"
+        test_id_format: "[test_id:TS-SRVKP-9005-038]"
+    code_structure: |
+      Context("UI non-admin users unable to switch context to All Projects", Ordered) {
+        It("[test_id:TS-SRVKP-9005-038]should allow non-admin users to switch to All Projects", func() {
+          // Log in as non-admin
+          // Switch to All Projects context
+          // Verify resources visible
+        })
+      }
+    test_objective:
+      title: "Log in as a non-admin user; view PipelineRuns/Approvals under All Projects; switch context and verify resources remain visible"
+      what: |
+        Logs in as a non-admin user.
+        Views PipelineRuns/Approvals under All Projects context.
+        Switches context and verifies resources remain visible.
+      why: |
+        Non-admin users need to view resources across projects; blocked switching is a critical workflow issue.
+      acceptance_criteria:
+        - "Non-admin users can switch to All Projects"
+        - "Resources remain visible after context switch"
+    classification:
+      test_type: "Functional"
+      scope: "Single-component"
+      automation_approach: "Ginkgo v2 + Gomega"
+    specific_preconditions: []
+    test_data:
+      resource_definitions: []
+      api_endpoints: []
+    test_steps:
+      setup:
+        - step_id: "SETUP-01"
+          action: "Create non-admin user"
+          command: "Create user with appropriate roles"
+          validation: "User created"
+      test_execution:
+        - step_id: "TEST-01"
+          action: "Switch to All Projects and verify"
+          command: "Log in as non-admin, switch to All Projects"
+          validation: "Resources visible after switch"
+      cleanup: []
+    assertions:
+      - assertion_id: "ASSERT-01"
+        priority: "P1"
+        description: "All Projects context switch works"
+        condition: "Non-admin user can switch and view resources"
+        failure_impact: "Users restricted to single-project view"
+
+  # ============================================================
+  # MANUAL APPROVAL & PRUNER BUGS
+  # ============================================================
+
+  - scenario_id: "039"
+    test_id: "TS-SRVKP-9005-039"
+    tier: "Tier 1"
+    priority: "P1"
+    mvp: true
+    requirement_id: "SRVKP-9453"
+    patterns:
+      primary: "approval-task-001"
+      secondary:
+        - "tektonconfig-001"
+      helpers_required:
+        - name: "clients"
+          functions: ["Get", "Create", "Update"]
+          purpose: "ApprovalTask API operations"
+      decorators:
+        - "Tier1"
+        - "ManualApproval"
+        - "BugVerification"
+    variables:
+      closure_scope:
+        - name: "ctx"
+          type: "context.Context"
+          initialized_in: "BeforeAll"
+          used_in: ["BeforeAll", "It"]
+          comment: "Test context"
+        - name: "err"
+          type: "error"
+          initialized_in: "It"
+          used_in: ["It"]
+          comment: "Error variable"
+    test_structure:
+      type: "single"
+      describe:
+        wrapper: "SIG"
+        description: "Manual Approval"
+        decorators:
+          - "pipelines"
+      context:
+        description: "Approval task custom timeout configuration"
+        decorators:
+          - "Ordered"
+      it:
+        description: "should respect custom timeout parameter"
+        test_id_format: "[test_id:TS-SRVKP-9005-039]"
+    code_structure: |
+      Context("Manual approval task timeout not configurable via pipeline", Ordered) {
+        It("[test_id:TS-SRVKP-9005-039]should respect custom timeout parameter", func() {
+          // Configure ApprovalTask with custom timeout
+          // Verify controller respects timeout
+        })
+      }
+    test_objective:
+      title: "Configure an ApprovalTask with a custom timeout parameter; verify the controller respects the configured timeout value"
+      what: |
+        Configures an ApprovalTask with a custom timeout parameter.
+        Verifies the manual approval controller respects the configured timeout.
+      why: |
+        Non-configurable timeouts block workflows that need longer approval windows.
+      acceptance_criteria:
+        - "Custom timeout parameter accepted by ApprovalTask"
+        - "Controller respects configured timeout value"
+    classification:
+      test_type: "Functional"
+      scope: "Single-component"
+      automation_approach: "Ginkgo v2 + Gomega"
+    specific_preconditions: []
+    test_data:
+      resource_definitions: []
+      api_endpoints:
+        - operation: "Create ApprovalTask with timeout"
+          method: "POST"
+          path: "/apis/openshift-pipelines.org/v1alpha1/namespaces/{ns}/approvaltasks"
+          expected_status: 201
+    test_steps:
+      setup:
+        - step_id: "SETUP-01"
+          action: "Create ApprovalTask with custom timeout"
+          command: "oc apply -f approvaltask-with-timeout.yaml"
+          validation: "ApprovalTask created with timeout spec"
+      test_execution:
+        - step_id: "TEST-01"
+          action: "Verify controller respects timeout"
+          command: "Wait for timeout to elapse; check task status"
+          validation: "Task times out at configured value"
+      cleanup:
+        - step_id: "CLEANUP-01"
+          action: "Delete ApprovalTask"
+          command: "oc delete approvaltask test-timeout"
+    assertions:
+      - assertion_id: "ASSERT-01"
+        priority: "P1"
+        description: "Custom timeout respected"
+        condition: "ApprovalTask times out at configured value"
+        failure_impact: "Approval timeouts not configurable"
+
+  - scenario_id: "040"
+    test_id: "TS-SRVKP-9005-040"
+    tier: "Tier 1"
+    priority: "P3"
+    mvp: false
+    requirement_id: "SRVKP-9460"
+    patterns:
+      primary: "cli-help-001"
+      secondary: []
+      helpers_required: []
+      decorators:
+        - "Tier1"
+        - "CLI"
+        - "BugVerification"
+    variables:
+      closure_scope:
+        - name: "ctx"
+          type: "context.Context"
+          initialized_in: "BeforeAll"
+          used_in: ["BeforeAll", "It"]
+          comment: "Test context"
+        - name: "err"
+          type: "error"
+          initialized_in: "It"
+          used_in: ["It"]
+          comment: "Error variable"
+    test_structure:
+      type: "single"
+      describe:
+        wrapper: "SIG"
+        description: "CLI"
+        decorators:
+          - "pipelines"
+      context:
+        description: "opc assist help examples"
+        decorators:
+          - "Ordered"
+      it:
+        description: "should include Examples section in help output"
+        test_id_format: "[test_id:TS-SRVKP-9005-040]"
+    code_structure: |
+      Context("tkn-assist show example in opc CLI usage", Ordered) {
+        It("[test_id:TS-SRVKP-9005-040]should include Examples section in help output", func() {
+          // Run opc assist --help
+          // Verify Examples section exists
+        })
+      }
+    test_objective:
+      title: "Run `opc assist --help`; verify the help output includes an Examples section with usage examples"
+      what: |
+        Runs opc assist --help and examines the output.
+        Verifies an Examples section with usage examples is present.
+      why: |
+        Help examples are the primary way users learn CLI usage patterns.
+      acceptance_criteria:
+        - "Help output includes an Examples section"
+        - "Examples show valid usage patterns"
+    classification:
+      test_type: "Functional"
+      scope: "Single-component"
+      automation_approach: "Ginkgo v2 + Gomega"
+    specific_preconditions: []
+    test_data:
+      resource_definitions: []
+      api_endpoints: []
+    test_steps:
+      setup: []
+      test_execution:
+        - step_id: "TEST-01"
+          action: "Run opc assist --help"
+          command: "opc assist --help"
+          validation: "Output includes 'Examples' section"
+      cleanup: []
+    assertions:
+      - assertion_id: "ASSERT-01"
+        priority: "P3"
+        description: "Help includes examples"
+        condition: "Examples section present in help output"
+        failure_impact: "Users lack usage guidance"
+
+  - scenario_id: "041"
+    test_id: "TS-SRVKP-9005-041"
+    tier: "Tier 1"
+    priority: "P1"
+    mvp: true
+    requirement_id: "SRVKP-9968"
+    patterns:
+      primary: "pruner-config-001"
+      secondary:
+        - "tektonconfig-001"
+      helpers_required:
+        - name: "clients"
+          functions: ["Get", "Update"]
+          purpose: "TektonPruner API operations"
+      decorators:
+        - "Tier1"
+        - "Pruner"
+        - "BugVerification"
+    variables:
+      closure_scope:
+        - name: "ctx"
+          type: "context.Context"
+          initialized_in: "BeforeAll"
+          used_in: ["BeforeAll", "It"]
+          comment: "Test context"
+        - name: "err"
+          type: "error"
+          initialized_in: "It"
+          used_in: ["It"]
+          comment: "Error variable"
+    test_structure:
+      type: "single"
+      describe:
+        wrapper: "SIG"
+        description: "Pruner"
+        decorators:
+          - "pipelines"
+      context:
+        description: "Pruner namespace-level config field placement"
+        decorators:
+          - "Ordered"
+      it:
+        description: "should place namespace-level fields at correct YAML level"
+        test_id_format: "[test_id:TS-SRVKP-9005-041]"
+    code_structure: |
+      Context("Pruner namespace-level config field placement", Ordered) {
+        It("[test_id:TS-SRVKP-9005-041]should place namespace-level fields at correct YAML level", func() {
+          // Configure TektonPruner with namespace settings
+          // Verify field placement
+        })
+      }
+    test_objective:
+      title: "Configure TektonPruner with namespace-level settings for PipelineRuns, TaskRuns, and enforcedConfigLevel; verify fields are placed at the correct level (not inside the namespaces block)"
+      what: |
+        Configures TektonPruner with namespace-level settings.
+        Verifies PipelineRuns, TaskRuns, and enforcedConfigLevel fields are at the correct YAML level.
+      why: |
+        Incorrect field placement causes pruner to ignore settings, leading to unbounded resource growth.
+      acceptance_criteria:
+        - "Namespace-level fields placed outside namespaces block"
+        - "Pruner correctly applies namespace-level settings"
+    classification:
+      test_type: "Functional"
+      scope: "Single-component"
+      automation_approach: "Ginkgo v2 + Gomega"
+    specific_preconditions: []
+    test_data:
+      resource_definitions: []
+      api_endpoints: []
+    test_steps:
+      setup:
+        - step_id: "SETUP-01"
+          action: "Configure TektonPruner with namespace-level settings"
+          command: "oc apply -f tektonpruner-namespace-config.yaml"
+          validation: "Configuration applied"
+      test_execution:
+        - step_id: "TEST-01"
+          action: "Verify field placement in resulting config"
+          command: "oc get tektonpruner -o yaml"
+          validation: "Fields at correct YAML level"
+        - step_id: "TEST-02"
+          action: "Verify pruner applies settings correctly"
+          command: "Create resources and verify pruning"
+          validation: "Resources pruned per namespace-level config"
+      cleanup:
+        - step_id: "CLEANUP-01"
+          action: "Restore default pruner config"
+          command: "Reset TektonPruner settings"
+    assertions:
+      - assertion_id: "ASSERT-01"
+        priority: "P1"
+        description: "Field placement correct"
+        condition: "Namespace-level fields at correct YAML level"
+        failure_impact: "Pruner ignores namespace settings"
+
+  - scenario_id: "042"
+    test_id: "TS-SRVKP-9005-042"
+    tier: "Tier 1"
+    priority: "P1"
+    mvp: true
+    requirement_id: "SRVKP-10028"
+    patterns:
+      primary: "pruner-config-001"
+      secondary: []
+      helpers_required:
+        - name: "clients"
+          functions: ["Get", "Create", "List"]
+          purpose: "PipelineRun operations"
+      decorators:
+        - "Tier1"
+        - "Pruner"
+        - "BugVerification"
+    variables:
+      closure_scope:
+        - name: "ctx"
+          type: "context.Context"
+          initialized_in: "BeforeAll"
+          used_in: ["BeforeAll", "It"]
+          comment: "Test context"
+        - name: "err"
+          type: "error"
+          initialized_in: "It"
+          used_in: ["It"]
+          comment: "Error variable"
+    test_structure:
+      type: "single"
+      describe:
+        wrapper: "SIG"
+        description: "Pruner"
+        decorators:
+          - "pipelines"
+      context:
+        description: "Resource-group based PipelineRun pruning"
+        decorators:
+          - "Ordered"
+      it:
+        description: "should prune PipelineRuns matching resource-group criteria"
+        test_id_format: "[test_id:TS-SRVKP-9005-042]"
+    code_structure: |
+      Context("Resource-groups based PipelineRuns not pruned per configmap", Ordered) {
+        It("[test_id:TS-SRVKP-9005-042]should prune PipelineRuns matching resource-group criteria", func() {
+          // Configure resource-group pruning
+          // Create matching PipelineRuns
+          // Verify pruning
+        })
+      }
+    test_objective:
+      title: "Configure resource-group (label and annotation) based pruning in the configmap; verify PipelineRuns matching the resource-group criteria are pruned according to the specified configuration"
+      what: |
+        Configures resource-group based pruning using labels and annotations.
+        Creates PipelineRuns matching the resource-group criteria.
+        Verifies matching PipelineRuns are pruned per configuration.
+      why: |
+        Resource-group pruning enables fine-grained retention policies; broken pruning causes resource leaks.
+      acceptance_criteria:
+        - "Resource-group pruning configuration accepted"
+        - "Matching PipelineRuns are pruned"
+        - "Non-matching PipelineRuns are preserved"
+    classification:
+      test_type: "Functional"
+      scope: "Single-component"
+      automation_approach: "Ginkgo v2 + Gomega"
+    specific_preconditions: []
+    test_data:
+      resource_definitions: []
+      api_endpoints: []
+    test_steps:
+      setup:
+        - step_id: "SETUP-01"
+          action: "Configure resource-group based pruning"
+          command: "Update pruner configmap with resource-group rules"
+          validation: "Configuration applied"
+        - step_id: "SETUP-02"
+          action: "Create PipelineRuns with matching labels/annotations"
+          command: "oc create pipelineruns with labels"
+          validation: "PipelineRuns created"
+      test_execution:
+        - step_id: "TEST-01"
+          action: "Wait for pruner cycle and verify"
+          command: "Wait for pruner cycle; list PipelineRuns"
+          validation: "Matching PipelineRuns pruned; non-matching preserved"
+      cleanup:
+        - step_id: "CLEANUP-01"
+          action: "Restore default pruner config"
+          command: "Reset pruner configmap"
+    assertions:
+      - assertion_id: "ASSERT-01"
+        priority: "P1"
+        description: "Resource-group pruning works"
+        condition: "Matching PipelineRuns pruned, non-matching preserved"
+        failure_impact: "Resource leaks from failed pruning"
+
+  # ============================================================
+  # RESOLVER CACHE BUGS
+  # ============================================================
+
+  - scenario_id: "043"
+    test_id: "TS-SRVKP-9005-043"
+    tier: "Tier 1"
+    priority: "P1"
+    mvp: true
+    requirement_id: "SRVKP-10234"
+    patterns:
+      primary: "resolver-cache-001"
+      secondary:
+        - "tektonconfig-001"
+      helpers_required:
+        - name: "clients"
+          functions: ["Get", "Create", "Update"]
+          purpose: "TektonConfig and PipelineRun operations"
+      decorators:
+        - "Tier1"
+        - "Resolver"
+        - "BugVerification"
+    variables:
+      closure_scope:
+        - name: "ctx"
+          type: "context.Context"
+          initialized_in: "BeforeAll"
+          used_in: ["BeforeAll", "It"]
+          comment: "Test context"
+        - name: "err"
+          type: "error"
+          initialized_in: "It"
+          used_in: ["It"]
+          comment: "Error variable"
+    test_structure:
+      type: "single"
+      describe:
+        wrapper: "SIG"
+        description: "Resolver Cache"
+        decorators:
+          - "pipelines"
+      context:
+        description: "Individual resolver TTL precedence over global"
+        decorators:
+          - "Ordered"
+      it:
+        description: "should use individual resolver TTL over global setting"
+        test_id_format: "[test_id:TS-SRVKP-9005-043]"
+    code_structure: |
+      Context("Global resolver-cache-config TTL overrides individual resolver TTL", Ordered) {
+        It("[test_id:TS-SRVKP-9005-043]should use individual resolver TTL over global setting", func() {
+          // Configure global and individual TTL
+          // Verify individual takes precedence
+        })
+      }
+    test_objective:
+      title: "Configure a global cache TTL and an individual resolver TTL; verify the individual resolver TTL takes precedence over the global setting"
+      what: |
+        Configures both a global cache TTL and an individual resolver TTL.
+        Verifies the individual resolver TTL takes precedence.
+      why: |
+        Incorrect TTL precedence causes stale cache entries or excessive cache invalidation.
+      acceptance_criteria:
+        - "Individual resolver TTL takes precedence over global"
+        - "Cache behavior matches individual setting"
+    classification:
+      test_type: "Functional"
+      scope: "Single-component"
+      automation_approach: "Ginkgo v2 + Gomega"
+    specific_preconditions: []
+    test_data:
+      resource_definitions: []
+      api_endpoints: []
+    test_steps:
+      setup:
+        - step_id: "SETUP-01"
+          action: "Configure global and individual resolver TTL"
+          command: "Update resolver-cache-config configmap"
+          validation: "Both TTL values configured"
+      test_execution:
+        - step_id: "TEST-01"
+          action: "Verify individual TTL takes precedence"
+          command: "Run PipelineRun using resolver; check cache behavior"
+          validation: "Cache uses individual resolver TTL"
+      cleanup:
+        - step_id: "CLEANUP-01"
+          action: "Restore default cache config"
+          command: "Reset resolver-cache-config"
+    assertions:
+      - assertion_id: "ASSERT-01"
+        priority: "P1"
+        description: "Individual TTL takes precedence"
+        condition: "Cache respects individual resolver TTL over global"
+        failure_impact: "Stale cache entries or excessive invalidation"
+
+  - scenario_id: "044"
+    test_id: "TS-SRVKP-9005-044"
+    tier: "Tier 1"
+    priority: "P1"
+    mvp: true
+    requirement_id: "SRVKP-10235"
+    patterns:
+      primary: "resolver-cache-001"
+      secondary: []
+      helpers_required:
+        - name: "clients"
+          functions: ["Get", "Create"]
+          purpose: "PipelineRun operations"
+      decorators:
+        - "Tier1"
+        - "Resolver"
+        - "BugVerification"
+    variables:
+      closure_scope:
+        - name: "ctx"
+          type: "context.Context"
+          initialized_in: "BeforeAll"
+          used_in: ["BeforeAll", "It"]
+          comment: "Test context"
+        - name: "err"
+          type: "error"
+          initialized_in: "It"
+          used_in: ["It"]
+          comment: "Error variable"
+    test_structure:
+      type: "single"
+      describe:
+        wrapper: "SIG"
+        description: "Resolver Cache"
+        decorators:
+          - "pipelines"
+      context:
+        description: "PipelineRun cache parameter 'never'"
+        decorators:
+          - "Ordered"
+      it:
+        description: "should bypass cache when parameter set to never"
+        test_id_format: "[test_id:TS-SRVKP-9005-044]"
+    code_structure: |
+      Context("PipelineRun cache parameter ignored when set to never", Ordered) {
+        It("[test_id:TS-SRVKP-9005-044]should bypass cache when parameter set to never", func() {
+          // Create PipelineRun with cache=never
+          // Verify fresh fetch
+        })
+      }
+    test_objective:
+      title: "Create a PipelineRun with cache parameter set to 'never'; verify the resolver bypasses the cache and fetches the task/pipeline definition fresh"
+      what: |
+        Creates a PipelineRun with cache parameter set to "never".
+        Verifies the resolver bypasses the cache and fetches fresh definitions.
+      why: |
+        Users need ability to bypass cache for debugging and testing updated definitions.
+      acceptance_criteria:
+        - "Cache bypassed when parameter is 'never'"
+        - "Fresh task/pipeline definition fetched"
+    classification:
+      test_type: "Functional"
+      scope: "Single-component"
+      automation_approach: "Ginkgo v2 + Gomega"
+    specific_preconditions: []
+    test_data:
+      resource_definitions: []
+      api_endpoints: []
+    test_steps:
+      setup:
+        - step_id: "SETUP-01"
+          action: "Ensure resolver cache is populated"
+          command: "Run PipelineRun to populate cache"
+          validation: "Cache populated"
+      test_execution:
+        - step_id: "TEST-01"
+          action: "Create PipelineRun with cache=never"
+          command: "oc create -f pipelinerun-cache-never.yaml"
+          validation: "Definition fetched fresh (not from cache)"
+      cleanup: []
+    assertions:
+      - assertion_id: "ASSERT-01"
+        priority: "P1"
+        description: "Cache bypassed"
+        condition: "Resolver fetches fresh definition when cache=never"
+        failure_impact: "Users cannot bypass stale cache"
+
+  - scenario_id: "045"
+    test_id: "TS-SRVKP-9005-045"
+    tier: "Tier 1"
+    priority: "P3"
+    mvp: false
+    requirement_id: "SRVKP-10488"
+    patterns:
+      primary: "cli-version-001"
+      secondary: []
+      helpers_required: []
+      decorators:
+        - "Tier1"
+        - "CLI"
+        - "BugVerification"
+    variables:
+      closure_scope:
+        - name: "ctx"
+          type: "context.Context"
+          initialized_in: "BeforeAll"
+          used_in: ["BeforeAll", "It"]
+          comment: "Test context"
+        - name: "err"
+          type: "error"
+          initialized_in: "It"
+          used_in: ["It"]
+          comment: "Error variable"
+    test_structure:
+      type: "single"
+      describe:
+        wrapper: "SIG"
+        description: "CLI"
+        decorators:
+          - "pipelines"
+      context:
+        description: "opc version accuracy"
+        decorators:
+          - "Ordered"
+      it:
+        description: "should report correct component versions"
+        test_id_format: "[test_id:TS-SRVKP-9005-045]"
+    code_structure: |
+      Context("CLI version mismatch in opc", Ordered) {
+        It("[test_id:TS-SRVKP-9005-045]should report correct component versions", func() {
+          // Run opc version
+          // Compare against server versions
+        })
+      }
+    test_objective:
+      title: "Run `opc version`; verify the reported versions for Pipelines as Code and Tekton Results match the actual server component versions"
+      what: |
+        Runs opc version and examines reported component versions.
+        Compares reported versions against actual deployed server component versions.
+      why: |
+        Version mismatch misleads debugging and compatibility assessment.
+      acceptance_criteria:
+        - "opc version reports correct PAC version"
+        - "opc version reports correct Tekton Results version"
+    classification:
+      test_type: "Functional"
+      scope: "Single-component"
+      automation_approach: "Ginkgo v2 + Gomega"
+    specific_preconditions: []
+    test_data:
+      resource_definitions: []
+      api_endpoints: []
+    test_steps:
+      setup: []
+      test_execution:
+        - step_id: "TEST-01"
+          action: "Run opc version and compare"
+          command: "opc version; oc get csv -n openshift-pipelines -o jsonpath='{.items[0].spec.version}'"
+          validation: "Reported versions match server versions"
+      cleanup: []
+    assertions:
+      - assertion_id: "ASSERT-01"
+        priority: "P3"
+        description: "Version reporting accurate"
+        condition: "CLI versions match server component versions"
+        failure_impact: "Misleading version information"
+---

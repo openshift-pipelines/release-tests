@@ -1,0 +1,188 @@
+# Tier2 Python/pytest Pattern Detection Rules
+# Simplified rules - full patterns in docs/tier2_pattern_library.yaml
+
+version: "1.0.0"
+tier: "tier2"
+language: "python"
+framework: "pytest"
+# Patterns come from fresh LSP analysis per-ticket (outputs/python-tests/{JIRA_ID}/{JIRA_ID}_lsp_patterns_tier2.yaml)
+
+# Template selection rules (priority-based)
+template_selection:
+  - name: "localnet_cudn"
+    priority: 1
+    conditions:
+      - pattern: "keywords"
+        match_any: ["localnet", "localnet network", "localnet NAD", "localnet VLAN"]
+    template: "templates/localnet_cudn_test.py.template"
+    conftest_template: "templates/localnet_conftest.py.template"
+    description: "Localnet tests using CUDN (NOT network_nad)"
+    critical_note: "MUST use CUDN approach, network_nad() does NOT support localnet type"
+
+  - name: "network_connectivity_parametrized"
+    priority: 2
+    conditions:
+      - pattern: "keywords"
+        match_any: ["IPv4 and IPv6", "dual stack", "both IP families"]
+      - pattern: "keywords"
+        match_any: ["connectivity", "ping", "NAD"]
+    template: "templates/network_parametrized_test.py.template"
+    description: "Parametrized network tests for dual stack"
+
+  - name: "migration"
+    priority: 3
+    conditions:
+      - pattern: "keywords"
+        match_any: ["migration", "migrate", "live migration"]
+    template: "templates/migration_test.py.template"
+    description: "VM migration tests"
+
+  - name: "storage"
+    priority: 4
+    conditions:
+      - pattern: "keywords"
+        match_any: ["DataVolume", "DV", "PVC", "snapshot", "resize", "expand"]
+    template: "templates/storage_test.py.template"
+    description: "Storage operation tests"
+
+  - name: "vm_lifecycle"
+    priority: 5
+    conditions:
+      - pattern: "keywords"
+        match_any: ["restart", "stop", "start", "VM lifecycle"]
+    template: "templates/vm_lifecycle_test.py.template"
+    description: "VM lifecycle tests"
+
+  - name: "network_connectivity"
+    priority: 6
+    conditions:
+      - pattern: "keywords"
+        match_any: ["NAD", "connectivity", "ping"]
+    template: "templates/network_connectivity_test.py.template"
+    conftest_template: "templates/network_conftest.py.template"
+    description: "Basic network connectivity tests"
+
+  - name: "basic_vm"
+    priority: 7
+    conditions: []  # Default fallback
+    template: "templates/basic_vm_test.py.template"
+    description: "Basic VM test (fallback)"
+
+# Critical pattern detection flags
+critical_patterns:
+  localnet_detection:
+    keywords: ["localnet"]
+    action: "USE_CUDN_APPROACH"
+    error_if_network_nad_used: "network_nad() does NOT support nad_type='localnet' - will raise KeyError"
+    correct_approach:
+      - "Create NNCP fixture (module scope) for bridge mappings"
+      - "Create CUDN fixture (class scope) using localnet_cudn() helper"
+      - "Create VM using localnet_vm() helper (NOT VirtualMachineForTests)"
+      - "Extract IP using lookup_iface_status_ip() (NOT get_vmi_ip_v4_by_name)"
+
+# Fixture naming conventions (from LSP analysis)
+fixture_naming:
+  pattern: "{resource}_scope_{function|class|module|session}"
+  examples:
+    - "localnet_nad_scope_class"
+    - "vm_for_migration_scope_function"
+    - "storage_class_matrix_scope_module"
+  note: "Optional but recommended for clarity"
+
+# Module-level markers (from LSP analysis §6.2)
+module_markers:
+  required: true
+  pattern: |
+    pytestmark = pytest.mark.usefixtures("namespace")
+  examples:
+    - 'pytestmark = pytest.mark.usefixtures("namespace")'
+    - 'pytestmark = [pytest.mark.usefixtures("namespace"), pytest.mark.tier2]'
+
+# Class docstring format (from LSP analysis - MANDATORY)
+class_docstring:
+  required: true
+  sections:
+    - name: "description"
+      required: true
+      example: "Tests for feature X functionality."
+    - name: "Markers"
+      required: true
+      note: "MANDATORY section - never skip"
+      example: |
+        Markers:
+            - tier1
+            - p0
+            - s390x
+    - name: "Preconditions"
+      required: true
+      example: |
+        Preconditions:
+            - Running VM
+            - NAD created
+
+# Test function docstring format
+test_docstring:
+  sections:
+    - name: "description"
+      required: true
+    - name: "Markers"
+      required: false
+      note: "Only if test has additional markers beyond class level"
+    - name: "Steps"
+      required: true
+      format_simple: "Single line for single-action tests"
+      format_complex: "Numbered list for multi-step tests (3+ actions)"
+      example_simple: "Steps:\n    Execute ping from VM-A to VM-B"
+      example_complex: "Steps:\n    1. Capture pod UID\n    2. Execute reset\n    3. Verify pod UID unchanged"
+    - name: "Expected"
+      required: true
+      example: "Expected:\n    - Ping succeeds with 0% packet loss"
+
+# Import patterns (from LSP analysis §5.1)
+import_patterns:
+  standard:
+    - "import logging"
+    - "import pytest"
+
+  utilities_network:
+    - "from utilities.network import assert_ping_successful, get_vmi_ip_v4_by_name"
+    - "from utilities.network import network_nad"
+
+  utilities_virt:
+    - "from utilities.virt import VirtualMachineForTests, fedora_vm_body, running_vm"
+    - "from utilities.virt import migrate_vm_and_verify"
+
+  utilities_storage:
+    - "from utilities.storage import create_dv, wait_for_succeeded_dv"
+
+  utilities_constants:
+    - "from utilities.constants import TIMEOUT_5MIN, BRIDGE, SRIOV"
+
+  localnet_specific:
+    - "from tests.network.localnet.liblocalnet import localnet_cudn, localnet_vm"
+    - "from tests.network.libs import nodenetworkconfigurationpolicy as libnncp"
+    - "from libs.net.vmspec import lookup_iface_status_ip"
+    - "from tests.network.libs import cloudinit"
+
+# Validation rules
+validation_rules:
+  - rule: "Context managers for all resources"
+    pattern: "with VirtualMachineForTests\\(.*\\) as vm:"
+    error_message: "Must use context manager (with statement) for VirtualMachineForTests"
+
+  - rule: "running_vm() must be called after VM creation"
+    pattern: "running_vm\\(vm=vm"
+    error_message: "Must call running_vm(vm=vm) after creating VirtualMachineForTests"
+
+  - rule: "Class docstrings MUST include Markers section"
+    pattern: "Markers:"
+    error_message: "Class docstring missing mandatory Markers section"
+
+  - rule: "No global fixture redefinition in local conftest"
+    forbidden_fixtures_in_local_conftest:
+      - "admin_client"
+      - "unprivileged_client"
+      - "nodes"
+      - "workers"
+      - "hco_namespace"
+    error_message: "Do not redefine global fixtures from tests/conftest.py"
