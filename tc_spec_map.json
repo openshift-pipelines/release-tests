@@ -35,5 +35,6 @@
     "PIPELINES-34": "specs/operator/roles.spec",
     "PIPELINES-35": "specs/pac/pac-github.spec",
     "PIPELINES-36": "specs/operator/tekton-pruner.spec",
-    "PIPELINES-37": "specs/manualapprovalgate/manual-approval-gate-group-users.spec"
+    "PIPELINES-37": "specs/manualapprovalgate/manual-approval-gate-group-users.spec",
+    "PIPELINES-38": "specs/operator/networkpolicy.spec"
 }
