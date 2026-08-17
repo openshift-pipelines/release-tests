@@ -1,0 +1,33 @@
+# PII Sanitization Exceptions for SRVKP
+# Customer names are NOT allowed — use <customer> placeholder
+
+allowed_product_names:
+  - "Red Hat"
+  - "OpenShift"
+  - "OpenShift Pipelines"
+  - "RHEL"
+
+allowed_project_names:
+  - "Tekton"
+  - "Kubernetes"
+  - "Sigstore"
+  - "Rekor"
+  - "Cosign"
+  - "Ginkgo"
+  - "Gomega"
+  - "Gauge"
+  - "Prow"
+
+allowed_technical_standards:
+  - "SBOM"
+  - "OCI"
+  - "SLSA"
+  - "x509"
+  - "OIDC"
+  - "OAuth2"
+
+vendor_replacements:
+  customer: "<customer>"
+  git_provider: "Git Provider"
+  container_registry: "Container Registry"
+  cloud_provider: "Cloud Provider"

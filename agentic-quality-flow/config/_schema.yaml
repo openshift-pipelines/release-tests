@@ -1,0 +1,83 @@
+# QualityFlow Project Configuration Schema
+# Defines validation rules and documentation for project config files
+version: "1.0"
+
+# Each project directory MUST contain these files
+required_files:
+  - project.yaml        # Core identity + feature toggles
+  - repositories.yaml   # Repository configuration
+  - components.yaml     # Component-to-package mappings
+  - jira.yaml           # Jira instance configuration
+  - environment.yaml    # Platform requirements
+  - pii_exceptions.yaml # PII allowlist
+
+# These files are OPTIONAL (presence controlled by feature toggles)
+optional_files:
+  - tier1.yaml           # Required if feature_toggles.tier1_tests = true
+  - tier2.yaml           # Required if feature_toggles.tier2_tests = true
+  - review_rules.yaml    # Project-specific review rules (optional override; auto-extracted from config files by review-rules-extractor when absent)
+
+# Optional directories
+optional_directories:
+  - patterns/            # Project-specific pattern rules
+  - reference/           # Project-specific reference test files
+  - templates/           # Project-specific code/document templates
+
+# Validation rules
+validation:
+  project_yaml:
+    required_fields:
+      - project_id
+      - display_name
+    optional_fields:
+      - description
+      - feature_toggles
+      - versioning
+      - stp_document
+      - sig_mappings
+      - decorator_mappings
+      - scope_boundaries
+
+  repositories_yaml:
+    required_fields:
+      - primary_repo
+      - primary_repo.name
+      - primary_repo.org
+
+  components_yaml:
+    required_fields:
+      - component_package_map
+
+  jira_yaml:
+    required_fields:
+      - instance
+      - prefixes
+
+  tier1_yaml:
+    required_fields:
+      - enabled
+      - language
+      - framework
+
+  tier2_yaml:
+    required_fields:
+      - enabled
+      - language
+      - framework
+
+  review_rules_yaml:
+    required_fields:
+      - project_id
+    optional_sections:
+      - stp_rules
+      - std_rules
+
+# Feature toggle consistency rules
+toggle_consistency:
+  - toggle: tier1_tests
+    requires_file: tier1.yaml
+    error: "tier1_tests is true but tier1.yaml not found"
+
+  - toggle: tier2_tests
+    requires_file: tier2.yaml
+    error: "tier2_tests is true but tier2.yaml not found"

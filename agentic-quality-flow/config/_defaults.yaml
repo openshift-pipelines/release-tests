@@ -1,0 +1,36 @@
+# QualityFlow Shared Defaults
+# Inherited by all projects; override in project.yaml
+version: "1.0"
+
+feature_toggles:
+  polarion: false
+  unit_tests: false
+  tier1_tests: true
+  tier2_tests: true
+  stp_generation: true
+  std_generation: true
+  stp_review: true
+  std_review: true
+  lsp_analysis: true
+  pii_sanitization: true
+
+output_structure:
+  stp: "outputs/stp/{JIRA_ID}/{JIRA_ID}_test_plan.md"
+  std: "outputs/std/{JIRA_ID}/{JIRA_ID}_test_description.yaml"
+  go_stubs: "outputs/std/{JIRA_ID}/go-tests/{feature}_stubs_test.go"
+  python_stubs: "outputs/std/{JIRA_ID}/python-tests/test_{feature}_stubs.py"
+  go_tests: "outputs/go-tests/{JIRA_ID}/{feature}_test.go"
+  python_tests: "outputs/python-tests/{JIRA_ID}/test_{feature}.py"
+  stp_review: "outputs/reviews/{JIRA_ID}/{JIRA_ID}_stp_review.md"
+  std_review: "outputs/reviews/{JIRA_ID}/{JIRA_ID}_std_review.md"
+
+test_id_format: "TS-{JIRA_ID}-{NUM:03d}"
+
+pii_rules:
+  customer_names: "<customer>"
+  ip_addresses: "192.0.2.0/24"
+  hostnames: "worker-node-{N}"
+  domains: "example.com"
+
+stp_defaults:
+  feature_title_suffix: "Quality Engineering Plan"
