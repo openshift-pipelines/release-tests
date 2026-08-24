@@ -48,11 +48,6 @@ const (
 	// Name of the chains deployment
 	ChainsControllerName = "tekton-chains-controller"
 
-	// Name of the hub deployment
-	HubApiName = "tekton-hub-api"
-	HubDbName  = "tekton-hub-db"
-	HubUiName  = "tekton-hub-ui"
-
 	// Name of the manual approval gate deployment
 	MAGController = "manual-approval-gate-controller"
 	MAGWebHook    = "manual-approval-gate-webhook"
@@ -93,7 +88,6 @@ var TektonInstallersetNamePrefixes [34]string = [34]string{
 	"chain",
 	"chain-config",
 	"chain-secret",
-	"console-link-hub",
 	"manualapprovalgate-main-deployment",
 	"manualapprovalgate-main-static",
 	"openshiftpipelinesascode-main-deployment",
@@ -108,10 +102,6 @@ var TektonInstallersetNamePrefixes [34]string = [34]string{
 	"result-pre",
 	"rhosp-rbac",
 	"tekton-config-console-plugin-manifests",
-	"tekton-hub-api",
-	"tekton-hub-db",
-	"tekton-hub-db-migration",
-	"tekton-hub-ui",
 	"tektoncd-pruner",
 	"trigger-main-deployment",
 	"trigger-main-static",
