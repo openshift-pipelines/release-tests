@@ -156,10 +156,6 @@ func (c *Clients) TektonChains() operatorv1alpha1.TektonChainInterface {
 	return c.Operator.TektonChains()
 }
 
-func (c *Clients) TektonHub() operatorv1alpha1.TektonHubInterface {
-	return c.Operator.TektonHubs()
-}
-
 func (c *Clients) TektonDashboard() operatorv1alpha1.TektonDashboardInterface {
 	return c.Operator.TektonDashboards()
 }
