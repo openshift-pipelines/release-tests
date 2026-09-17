@@ -1,8 +1,0 @@
-apiVersion: operator.tekton.dev/v1alpha1
-kind: TektonHub
-metadata:
-  name: hub
-spec:
-  targetNamespace: openshift-pipelines
-  api:
-    catalogRefreshInterval: 10m

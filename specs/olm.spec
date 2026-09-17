@@ -15,10 +15,6 @@ Steps:
   * Wait for TektonConfig CR availability  
   * Define the artifact-hub-api variable
   * Verify namespace "openshift-pipelines" exists
-  * Apply
-    | S.NO | resource_dir                   |
-    |------|--------------------------------|
-    | 1    | testdata/hub/tektonhub.yaml    |
   * Configure GitHub token for git resolver in TektonConfig
   * Configure the bundles resolver
   * Enable console plugin
@@ -26,7 +22,6 @@ Steps:
   * Validate triggers deployment
   * Validate PAC deployment
   * Enable generateSigningSecret for Tekton Chains in TektonConfig
-  * Validate hub deployment
   * Enable statefulset for "chains" in tektonconfig
   * Enable statefulset for "results" in tektonconfig
   * Validate "tekton-pipelines-controller" statefulset deployment
