@@ -552,6 +552,30 @@ func MAGGroupName(namespace, alias string) string {
 	return fmt.Sprintf("mag-%s-%s", namespace, safeAlias)
 }
 
+var magTestUsers = []string{"user1", "user2", "user3", "user4", "user5"}
+
+// EnsureMAGUserNamespaceAccess grants namespace edit to MAG test users so they can
+// patch approvaltasks. Required after manual-approval-gate stopped binding
+// system:authenticated to controller cluster RBAC; approver permissions are now
+// aggregated into the edit ClusterRole via manual-approval-gate-approver.
+func EnsureMAGUserNamespaceAccess(namespace string) {
+	namespace = strings.TrimSpace(namespace)
+	if namespace == "" {
+		testsuit.T.Fail(fmt.Errorf("namespace is empty"))
+	}
+
+	for _, user := range magTestUsers {
+		user = strings.TrimSpace(user)
+		if user == "" {
+			continue
+		}
+		res := cmd.Run("oc", "adm", "policy", "add-role-to-user", "edit", user, "-n", namespace)
+		if res.ExitCode != 0 {
+			testsuit.T.Fail(fmt.Errorf("failed to grant edit to %s in namespace %s: %s", user, namespace, res.Stderr()))
+		}
+	}
+}
+
 func ensureMAGAPIServer() string {
 	magAPIServerOnce.Do(func() {
 		api := strings.TrimSpace(cmd.MustSucceed("oc", "whoami", "--show-server").Stdout())
