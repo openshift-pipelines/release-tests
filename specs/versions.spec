@@ -13,7 +13,6 @@ Steps:
   * Check version of component "operator"
   * Check version of component "chains"
   * Check version of component "pac"
-  * Check version of component "hub"
   * Check version of component "results"
   * Check version of component "manual-approval-gate"
   * Check version of OSP

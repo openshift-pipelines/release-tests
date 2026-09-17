@@ -80,14 +80,6 @@ func ValidateChainsDeployments(cs *clients.Clients, rnames utils.ResourceNames) 
 		config.ChainsControllerName)
 }
 
-func ValidateHubDeployments(cs *clients.Clients, rnames utils.ResourceNames) {
-	if _, err := EnsureTektonHubsExists(cs.TektonHub(), rnames); err != nil {
-		testsuit.T.Fail(fmt.Errorf("TektonHub doesn't exists\n %v", err))
-	}
-	k8s.ValidateDeployments(cs, rnames.TargetNamespace,
-		config.HubApiName, config.HubDbName, config.HubUiName)
-}
-
 func ValidateManualApprovalGateDeployments(cs *clients.Clients, rnames utils.ResourceNames) {
 	if _, err := approvalgate.EnsureManualApprovalGateExists(cs.ManualApprovalGate(), rnames); err != nil {
 		testsuit.T.Fail(fmt.Errorf("manual approval gate doesn't exists\n %v", err))
@@ -112,7 +104,6 @@ func DeleteTektonConfigCR(cs *clients.Clients, rnames utils.ResourceNames) {
 
 // Uninstall helps you to delete operator and it's traces if any from cluster
 func Uninstall(cs *clients.Clients, rnames utils.ResourceNames) {
-	log.Printf("output: %s\n", cmd.MustSucceed("oc", "delete", "--ignore-not-found", "TektonHub", "hub").Stdout())
 	log.Printf("output: %s\n", cmd.MustSucceed("oc", "delete", "--ignore-not-found", "tektonresults", "result").Stdout())
 	log.Printf("output: %s\n", cmd.MustSucceed("oc", "delete", "--ignore-not-found", "manualapprovalgate", "manual-approval-gate").Stdout())
 	DeleteTektonConfigCR(cs, rnames)

@@ -66,10 +66,6 @@ var _ = gauge.Step("Validate chains deployment", func() {
 	operator.ValidateChainsDeployments(store.Clients(), store.GetCRNames())
 })
 
-var _ = gauge.Step("Validate hub deployment", func() {
-	operator.ValidateHubDeployments(store.Clients(), store.GetCRNames())
-})
-
 var _ = gauge.Step("Validate manual approval gate deployment", func() {
 	onceMAG.Do(func() {
 		operator.ValidateManualApprovalGateDeployments(store.Clients(), store.GetCRNames())
