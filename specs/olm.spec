@@ -13,14 +13,14 @@ Installs `openshift-pipelines` operator using olm
 Steps:
   * Subscribe to operator
   * Wait for TektonConfig CR availability  
-  * Define the artifact-hub-api variable
   * Verify namespace "openshift-pipelines" exists
+  * Validate triggers deployment
+  * Validate PAC deployment
+  * Define the artifact-hub-api variable
   * Configure GitHub token for git resolver in TektonConfig
   * Configure the bundles resolver
   * Enable console plugin
   * Enable statefulset in tektonconfig
-  * Validate triggers deployment
-  * Validate PAC deployment
   * Enable generateSigningSecret for Tekton Chains in TektonConfig
   * Enable statefulset for "chains" in tektonconfig
   * Enable statefulset for "results" in tektonconfig
