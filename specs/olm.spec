@@ -13,8 +13,10 @@ Installs `openshift-pipelines` operator using olm
 Steps:
   * Subscribe to operator
   * Wait for TektonConfig CR availability  
-  * Define the artifact-hub-api variable
   * Verify namespace "openshift-pipelines" exists
+  * Validate triggers deployment
+  * Validate PAC deployment
+  * Define the artifact-hub-api variable
   * Apply
     | S.NO | resource_dir                   |
     |------|--------------------------------|
@@ -23,8 +25,6 @@ Steps:
   * Configure the bundles resolver
   * Enable console plugin
   * Enable statefulset in tektonconfig
-  * Validate triggers deployment
-  * Validate PAC deployment
   * Enable generateSigningSecret for Tekton Chains in TektonConfig
   * Validate hub deployment
   * Enable statefulset for "chains" in tektonconfig
