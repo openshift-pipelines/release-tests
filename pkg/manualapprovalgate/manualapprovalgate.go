@@ -552,6 +552,46 @@ func MAGGroupName(namespace, alias string) string {
 	return fmt.Sprintf("mag-%s-%s", namespace, safeAlias)
 }
 
+const magApproverClusterRole = "manual-approval-gate-approver"
+
+var magTestUsers = []string{"user1", "user2", "user3", "user4", "user5"}
+
+// EnsureMAGUserNamespaceAccess grants namespace-scoped manual-approval-gate-approver
+// access to MAG test users so they can patch approvaltasks. Required after MAG stopped
+// binding system:authenticated to controller cluster RBAC.
+func EnsureMAGUserNamespaceAccess(namespace string) {
+	namespace = strings.TrimSpace(namespace)
+	if namespace == "" {
+		testsuit.T.Fail(fmt.Errorf("namespace is empty"))
+	}
+
+	if cmd.Run("oc", "get", "clusterrole", magApproverClusterRole).ExitCode != 0 {
+		testsuit.T.Fail(fmt.Errorf("clusterrole %q not found; install manual-approval-gate with approver RBAC", magApproverClusterRole))
+	}
+
+	for _, user := range magTestUsers {
+		user = strings.TrimSpace(user)
+		if user == "" {
+			continue
+		}
+
+		rbName := fmt.Sprintf("%s-mag-approver", user)
+		if cmd.Run("oc", "get", "rolebinding", rbName, "-n", namespace).ExitCode == 0 {
+			continue
+		}
+
+		res := cmd.Run(
+			"oc", "create", "rolebinding", rbName,
+			"--clusterrole="+magApproverClusterRole,
+			"--user="+user,
+			"-n", namespace,
+		)
+		if res.ExitCode != 0 {
+			testsuit.T.Fail(fmt.Errorf("failed to grant %s to %s in namespace %s: %s", magApproverClusterRole, user, namespace, res.Stderr()))
+		}
+	}
+}
+
 func ensureMAGAPIServer() string {
 	magAPIServerOnce.Do(func() {
 		api := strings.TrimSpace(cmd.MustSucceed("oc", "whoami", "--show-server").Stdout())
