@@ -108,6 +108,11 @@ func VerifyResultsLogs(resourceType string) {
 		testsuit.T.Fail(fmt.Errorf("annotation results.tekton.dev/record is not set"))
 	}
 
+	// Wait for Loki to scrape logs from the pod before it gets deleted
+	// This gives Loki time to ingest the logs after TaskRun/PipelineRun completes
+	log.Printf("Waiting 30 seconds for Loki to scrape logs before fetching from Results API...")
+	time.Sleep(30 * time.Second)
+
 	var resultsJsonData = cmd.MustSucceed("opc", "results", "logs", "get", "--insecure", "--addr", results_api, record_uuid).Stdout()
 	if strings.Contains(resultsJsonData, "record not found") {
 		testsuit.T.Errorf("Results log not found")
