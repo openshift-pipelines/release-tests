@@ -13,6 +13,7 @@ import (
 	"github.com/getgauge-contrib/gauge-go/testsuit"
 	"github.com/openshift-pipelines/release-tests/pkg/config"
 	"github.com/openshift-pipelines/release-tests/pkg/k8s"
+	approvalgate "github.com/openshift-pipelines/release-tests/pkg/manualapprovalgate"
 	"github.com/openshift-pipelines/release-tests/pkg/oc"
 	"github.com/openshift-pipelines/release-tests/pkg/store"
 	operatorapi "github.com/tektoncd/operator/pkg/apis/operator/v1alpha1"
@@ -42,6 +43,10 @@ var _ = gauge.BeforeScenario(func(exInfo *gauge_messages.ExecutionInfo) {
 		if sa == nil {
 			testsuit.T.Fail(fmt.Errorf("service account 'pipeline' not available in namespace %s", namespace))
 		}
+	}
+
+	if slices.Contains(exInfo.CurrentScenario.Tags, "approvalgate-users") {
+		approvalgate.EnsureMAGUserNamespaceAccess(namespace)
 	}
 }, []string{}, testsuit.AND)
 
