@@ -108,29 +108,44 @@ func VerifyResultsLogs(resourceType string) {
 		testsuit.T.Fail(fmt.Errorf("annotation results.tekton.dev/record is not set"))
 	}
 
-	var resultsJsonData = cmd.MustSucceed("opc", "results", "logs", "get", "--insecure", "--addr", results_api, record_uuid).Stdout()
-	if strings.Contains(resultsJsonData, "record not found") {
-		testsuit.T.Errorf("Results log not found")
-	} else {
-		type ResultLogs struct {
-			Name string `json:"name"`
-			Data string `json:"data"`
+	type ResultLogs struct {
+		Name string `json:"name"`
+		Data string `json:"data"`
+	}
+
+	// Logs are forwarded into Loki asynchronously by the results watcher, so right
+	// after a resource completes (or after an operator upgrade rolls the results
+	// pods) `opc results logs get` can transiently return "record not found" /
+	// empty output, or succeed while the logs are not yet fully forwarded (the
+	// expected markers are missing). Poll until the complete log content is present.
+	var lastErr string
+	err := wait.PollUntilContextTimeout(context.Background(), config.APIRetry, 2*time.Minute, true, func(ctx context.Context) (bool, error) {
+		res := cmd.Run("opc", "results", "logs", "get", "--insecure", "--addr", results_api, record_uuid)
+		out := res.Stdout()
+		if res.ExitCode != 0 || strings.Contains(out, "record not found") || strings.TrimSpace(out) == "" {
+			lastErr = fmt.Sprintf("results logs not available yet (exit %d): %s", res.ExitCode, strings.TrimSpace(res.Stderr()))
+			return false, nil
 		}
 		var resultLogs ResultLogs
-		err := json.Unmarshal([]byte(resultsJsonData), &resultLogs)
-		if err != nil {
-			testsuit.T.Errorf("Error parsing JSON")
+		if jsonErr := json.Unmarshal([]byte(out), &resultLogs); jsonErr != nil {
+			lastErr = fmt.Sprintf("error parsing results logs JSON: %v", jsonErr)
+			return false, nil
 		}
-		decodedResultsLogs, err := base64.StdEncoding.Strict().DecodeString(resultLogs.Data)
-		if err != nil {
-			testsuit.T.Errorf("Error decoding base64 data")
+		decodedResultsLogs, decodeErr := base64.StdEncoding.Strict().DecodeString(resultLogs.Data)
+		if decodeErr != nil {
+			lastErr = fmt.Sprintf("error decoding base64 results logs: %v", decodeErr)
+			return false, nil
 		}
 		if !strings.Contains(string(decodedResultsLogs), "Hello, Results!") || !strings.Contains(string(decodedResultsLogs), "Goodbye, Results!") {
-			testsuit.T.Errorf("Logs are incorrect")
+			lastErr = "results logs incomplete: expected markers not yet forwarded"
+			return false, nil
 		}
+		return true, nil
+	})
+	if err != nil {
+		testsuit.T.Errorf("Results logs verification failed after retry: %s", lastErr)
 	}
 }
-
 func VerifyResultsRecords(resourceType string) {
 	var record_uuid string
 	var results_api string
