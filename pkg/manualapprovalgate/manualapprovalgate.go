@@ -38,6 +38,8 @@ import (
 	mag "github.com/tektoncd/operator/pkg/client/clientset/versioned/typed/operator/v1alpha1"
 	"github.com/tektoncd/operator/test/utils"
 	apierrs "k8s.io/apimachinery/pkg/api/errors"
+	"k8s.io/client-go/tools/clientcmd"
+	clientcmdapi "k8s.io/client-go/tools/clientcmd/api"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/util/wait"
 )
@@ -169,12 +171,14 @@ func popUserAuthDirty(user string) bool {
 	return dirty
 }
 
+// userPassword returns the password for a user, used on non-HyperShift clusters
+// where password-based oc login is available. On HyperShift, impersonation is
+// used instead (see useImpersonation / ensureImpersonationKubeconfig).
 func userPassword(user string) string {
 	envVar := strings.ToUpper(user) + "_PASS"
 	if v := strings.TrimSpace(os.Getenv(envVar)); v != "" {
 		return v
 	}
-	// default: password == username
 	return user
 }
 
@@ -642,6 +646,106 @@ func ensureUserKubeconfig(user string) string {
 	return kcPath
 }
 
+// useImpersonation returns true when running on a HyperShift cluster where
+// HTPasswd IDP cannot be configured. In that case we create per-user
+// kubeconfigs with the Impersonate field set for impersonation.
+func useImpersonation() bool {
+	return os.Getenv("MAG_USE_IMPERSONATION") == "true"
+}
+
+// ensureImpersonationKubeconfig creates a kubeconfig for the given user by
+// copying the admin kubeconfig and setting Impersonate + ImpersonateGroups fields.
+// The Impersonate field is read by any client-go based tool (including opc).
+// ImpersonateGroups must include the user's OpenShift Group memberships because
+// the opc CLI resolves groups via SelfSubjectReview, which only returns
+// groups from the impersonation headers, not from OpenShift Group CRDs.
+func ensureImpersonationKubeconfig(user string) string {
+	magUserKubeconfigsMu.Lock()
+	if v, ok := magUserKubeconfigs[user]; ok && strings.TrimSpace(v) != "" {
+		magUserKubeconfigsMu.Unlock()
+		if popUserAuthDirty(user) {
+			writeImpersonationKubeconfig(v, user)
+		}
+		return v
+	}
+	magUserKubeconfigsMu.Unlock()
+
+	adminKC := os.Getenv("KUBECONFIG")
+	if adminKC == "" {
+		home, _ := os.UserHomeDir()
+		adminKC = home + "/.kube/config"
+	}
+
+	src, err := os.ReadFile(adminKC)
+	if err != nil {
+		testsuit.T.Fail(fmt.Errorf("failed to read admin kubeconfig %s: %v", adminKC, err))
+	}
+
+	tmp, err := os.CreateTemp("", fmt.Sprintf("mag-kubeconfig-%s-", user))
+	if err != nil {
+		testsuit.T.Fail(fmt.Errorf("failed to create temp kubeconfig for %s: %v", user, err))
+	}
+	if _, err := tmp.Write(src); err != nil {
+		testsuit.T.Fail(fmt.Errorf("failed to write temp kubeconfig for %s: %v", user, err))
+	}
+	_ = tmp.Close()
+	kcPath := tmp.Name()
+
+	writeImpersonationKubeconfig(kcPath, user)
+
+	magUserKubeconfigsMu.Lock()
+	magUserKubeconfigs[user] = kcPath
+	magUserKubeconfigsMu.Unlock()
+	_ = popUserAuthDirty(user)
+	return kcPath
+}
+
+// writeImpersonationKubeconfig sets Impersonate and ImpersonateGroups on the kubeconfig.
+func writeImpersonationKubeconfig(kcPath, user string) {
+	cfg, err := clientcmd.LoadFromFile(kcPath)
+	if err != nil {
+		testsuit.T.Fail(fmt.Errorf("failed to load kubeconfig %s: %v", kcPath, err))
+	}
+
+	// Find the AuthInfo for the current context
+	ctx, ok := cfg.Contexts[cfg.CurrentContext]
+	if !ok {
+		testsuit.T.Fail(fmt.Errorf("current context %s not found in kubeconfig", cfg.CurrentContext))
+	}
+	authInfo, ok := cfg.AuthInfos[ctx.AuthInfo]
+	if !ok {
+		authInfo = clientcmdapi.NewAuthInfo()
+		cfg.AuthInfos[ctx.AuthInfo] = authInfo
+	}
+
+	authInfo.Impersonate = user
+
+	// Look up which OpenShift Groups this user belongs to.
+	groupsOut := strings.TrimSpace(cmd.Run(
+		"bash", "-c",
+		fmt.Sprintf(`oc get groups -o go-template='{{range .items}}{{$name := .metadata.name}}{{range .users}}{{if eq . "%s"}}{{$name}} {{end}}{{end}}{{end}}'`, user)).Stdout())
+
+	if groupsOut != "" {
+		authInfo.ImpersonateGroups = strings.Fields(groupsOut)
+	} else {
+		authInfo.ImpersonateGroups = nil
+	}
+
+	if err := clientcmd.WriteToFile(*cfg, kcPath); err != nil {
+		testsuit.T.Fail(fmt.Errorf("failed to write kubeconfig %s: %v", kcPath, err))
+	}
+}
+
+// runAsUser returns a KUBECONFIG env override for the given user.
+// On HyperShift (impersonation mode), it creates a kubeconfig with Impersonate set.
+// On regular clusters, it uses password-based oc login.
+func runAsUser(user string) []string {
+	if useImpersonation() {
+		return []string{"KUBECONFIG=" + ensureImpersonationKubeconfig(user)}
+	}
+	return []string{"KUBECONFIG=" + ensureUserKubeconfig(user)}
+}
+
 // CleanupUserKubeconfigs removes any temp kubeconfig files created for per-user logins.
 // It is safe to ignore errors during cleanup.
 func CleanupUserKubeconfigs() {
@@ -661,42 +765,42 @@ func CleanupUserKubeconfigs() {
 }
 
 func ApproveApprovalTaskAsUser(user, task, namespace, message string) {
-	kc := ensureUserKubeconfig(user)
+	env := runAsUser(user)
 	args := []string{"opc", "approvaltask", "approve", task, "-n", namespace}
 	if strings.TrimSpace(message) != "" {
 		args = append(args, "-m", message)
 	}
-	cmd.MustSucceedWithEnv([]string{"KUBECONFIG=" + kc}, args...)
+	cmd.MustSucceedWithEnv(env, args...)
 }
 
 func RejectApprovalTaskAsUser(user, task, namespace, message string) {
-	kc := ensureUserKubeconfig(user)
+	env := runAsUser(user)
 	args := []string{"opc", "approvaltask", "reject", task, "-n", namespace}
 	if strings.TrimSpace(message) != "" {
 		args = append(args, "-m", message)
 	}
-	cmd.MustSucceedWithEnv([]string{"KUBECONFIG=" + kc}, args...)
+	cmd.MustSucceedWithEnv(env, args...)
 }
 
 func ApproveApprovalTaskExpectFailAsUser(user, task, namespace, message string) {
-	kc := ensureUserKubeconfig(user)
+	env := runAsUser(user)
 	args := []string{"opc", "approvaltask", "approve", task, "-n", namespace}
 	if strings.TrimSpace(message) != "" {
 		args = append(args, "-m", message)
 	}
-	res := cmd.RunWithEnv([]string{"KUBECONFIG=" + kc}, args...)
+	res := cmd.RunWithEnv(env, args...)
 	if res.ExitCode == 0 {
 		testsuit.T.Fail(fmt.Errorf("expected approval by %s on %s to fail, but it succeeded", user, task))
 	}
 }
 
 func ApproveApprovalTaskAllowFinalStateAsUser(user, task, namespace, message string) {
-	kc := ensureUserKubeconfig(user)
+	env := runAsUser(user)
 	args := []string{"opc", "approvaltask", "approve", task, "-n", namespace}
 	if strings.TrimSpace(message) != "" {
 		args = append(args, "-m", message)
 	}
-	res := cmd.RunWithEnv([]string{"KUBECONFIG=" + kc}, args...)
+	res := cmd.RunWithEnv(env, args...)
 	if res.ExitCode == 0 {
 		return
 	}
