@@ -1,0 +1,99 @@
+package network
+
+import (
+	. "github.com/onsi/ginkgo/v2"
+	. "github.com/onsi/gomega"
+
+	"context"
+
+	k8sv1 "k8s.io/api/core/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+
+	v1 "kubevirt.io/api/core/v1"
+
+	networkv1 "github.com/k8snetworkplumbingwg/network-attachment-definition-client/pkg/apis/k8s.cni.cncf.io/v1"
+
+	"kubevirt.io/kubevirt/tests/decorators"
+	"kubevirt.io/kubevirt/tests/framework/kubevirt"
+	"kubevirt.io/kubevirt/tests/testsuite"
+	"kubevirt.io/kubevirt/pkg/libvmi"
+
+	"kubevirt.io/kubevirt/tests/libvmifact"
+	"kubevirt.io/kubevirt/tests/libnet"
+	"kubevirt.io/kubevirt/tests/libwait"
+	"kubevirt.io/kubevirt/tests/libpod"
+	"kubevirt.io/kubevirt/tests/console"
+	"kubevirt.io/kubevirt/tests/exec"
+)
+
+var _ = Describe("[test_id:{{SCENARIO_ID}}]{{TEST_DESCRIPTION}}", decorators.SigNetwork, func() {
+	var ctx context.Context
+	var namespace string
+	var nad *networkv1.NetworkAttachmentDefinition
+	var vmi *v1.VirtualMachineInstance
+	var testPod *k8sv1.Pod
+
+	BeforeEach(func() {
+		ctx = context.Background()
+		namespace = testsuite.GetTestNamespace(nil)
+	})
+
+	Context("Network connectivity", Ordered, decorators.OncePerOrderedCleanup, func() {
+		BeforeAll(func() {
+			By("Creating {{NAD_TYPE}} NetworkAttachmentDefinition")
+			nad = {{NAD_CREATOR_FUNC}}("test-nad")
+			nad, err := libnet.CreateNetAttachDef(ctx, namespace, nad)
+			ExpectWithOffset(1, err).ToNot(HaveOccurred())
+
+			By("Creating {{OS_TYPE}} VMI with {{NAD_TYPE}} interface")
+			iface := v1.Interface{
+				Name: "net1",
+				InterfaceBindingMethod: v1.InterfaceBindingMethod{
+					Bridge: &v1.InterfaceBridge{},
+				},
+			}
+			network := v1.Network{
+				Name: "net1",
+				NetworkSource: v1.NetworkSource{
+					Multus: &v1.MultusNetwork{
+						NetworkName: "test-nad",
+					},
+				},
+			}
+
+			vmi = {{VMI_CREATOR_FUNC}}(
+				libvmi.WithInterface(iface),
+				libvmi.WithNetwork(&network),
+			)
+			vmi, err = kubevirt.Client().VirtualMachineInstance(namespace).Create(ctx, vmi, metav1.CreateOptions{})
+			ExpectWithOffset(1, err).ToNot(HaveOccurred())
+
+			By("Waiting for VMI to be ready")
+			vmi = libwait.WaitUntilVMIReady(vmi, {{LOGIN_FUNCTION}})
+
+			By("Creating test pod on same node")
+			nodeName := vmi.Status.NodeName
+			testPod = libpod.RenderPod("test-pod", nil, nil)
+			testPod.Spec.NodeSelector = map[string]string{"kubernetes.io/hostname": nodeName}
+			testPod.Spec.Containers[0].Image = "quay.io/kubevirt/network-tools"
+			testPod, err = kubevirt.Client().CoreV1().Pods(namespace).Create(ctx, testPod, metav1.CreateOptions{})
+			ExpectWithOffset(1, err).ToNot(HaveOccurred())
+		})
+
+		It("should allow connectivity", func() {
+			By("Getting VMI IP address")
+			vmiIP := libnet.GetVmiPrimaryIPByFamily(vmi, k8sv1.IPv4Protocol)
+			ExpectWithOffset(1, vmiIP).ToNot(BeEmpty())
+
+			By("Testing connectivity")
+			{{CONNECTIVITY_TESTS}}
+		})
+
+		AfterAll(func() {
+			By("Cleanup resources")
+			kubevirt.Client().CoreV1().Pods(namespace).Delete(ctx, testPod.Name, metav1.DeleteOptions{})
+			kubevirt.Client().VirtualMachineInstance(namespace).Delete(ctx, vmi.Name, metav1.DeleteOptions{})
+			kubevirt.Client().NetworkClient().K8sCniCncfIoV1().NetworkAttachmentDefinitions(namespace).Delete(ctx, nad.Name, metav1.DeleteOptions{})
+		})
+	})
+})

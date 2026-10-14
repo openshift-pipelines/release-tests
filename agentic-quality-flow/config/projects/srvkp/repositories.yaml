@@ -1,0 +1,56 @@
+primary_repo:
+  name: "pipeline"
+  org: "tektoncd"
+  full_name: "tektoncd/pipeline"
+  url: "https://github.com/tektoncd/pipeline"
+  local_path_env: "TEKTON_PIPELINE_REPO_PATH"
+  default_branch: "main"
+  language: "go"
+  build_system: "ko"
+  build_command: "go test ./..."
+
+additional_repos:
+  - name: "triggers"
+    org: "tektoncd"
+    full_name: "tektoncd/triggers"
+    url: "https://github.com/tektoncd/triggers"
+    language: "go"
+
+  - name: "chains"
+    org: "tektoncd"
+    full_name: "tektoncd/chains"
+    url: "https://github.com/tektoncd/chains"
+    language: "go"
+
+  - name: "operator"
+    org: "tektoncd"
+    full_name: "tektoncd/operator"
+    url: "https://github.com/tektoncd/operator"
+    language: "go"
+
+  - name: "pipelines-as-code"
+    org: "openshift-pipelines"
+    full_name: "openshift-pipelines/pipelines-as-code"
+    url: "https://github.com/openshift-pipelines/pipelines-as-code"
+    language: "go"
+
+  - name: "results"
+    org: "tektoncd"
+    full_name: "tektoncd/results"
+    url: "https://github.com/tektoncd/results"
+    language: "go"
+
+  - name: "hub"
+    org: "tektoncd"
+    full_name: "tektoncd/hub"
+    url: "https://github.com/tektoncd/hub"
+    language: "go"
+
+  - name: "dashboard"
+    org: "tektoncd"
+    full_name: "tektoncd/dashboard"
+    url: "https://github.com/tektoncd/dashboard"
+    language: "go"
+
+pr_url_patterns:
+  - "https://github.com/{org}/{repo}/pull/{number}"

@@ -1,0 +1,77 @@
+project_id: "srvkp"
+display_name: "OpenShift Pipelines (SRVKP)"
+description: "Tekton-based CI/CD pipeline engine for OpenShift. Tier 1 tests use Go/Ginkgo. E2E tests use Go/Gauge (managed outside QualityFlow)."
+
+feature_toggles:
+  polarion: false
+  tier1_tests: true
+  tier2_tests: false  # Project uses Go/Gauge for e2e, not Python/pytest — disable tier2 generation
+
+versioning:
+  product_name: "OpenShift Pipelines"
+  platform_name: "OCP"
+  current_version: "1.21"
+
+stp_document:
+  header: "OpenShift Pipelines Test Plan"
+
+# SRVKP uses component names as labels, not SIG labels
+sig_mappings:
+  pipeline: "pipelines"
+  chains: "chains"
+  triggers: "triggers"
+  pac: "repositories"
+
+decorator_mappings: {}
+
+scope_boundaries:
+  validation_gate: "Would removing Tekton/OpenShift Pipelines make this test meaningless?"
+  in_scope_resources:
+    - "Pipeline"
+    - "PipelineRun"
+    - "Task"
+    - "TaskRun"
+    - "ClusterTask"
+    - "TriggerBinding"
+    - "TriggerTemplate"
+    - "EventListener"
+    - "ClusterTriggerBinding"
+    - "Repository"
+    - "TektonConfig"
+    - "TektonPipeline"
+    - "TektonTrigger"
+    - "TektonChain"
+    - "TektonResult"
+  out_of_scope_if_only:
+    - "Pod"
+    - "Deployment"
+    - "Service"
+    - "ConfigMap"
+    - "Secret"
+    - "PersistentVolumeClaim"
+    - "ServiceAccount"
+    - "Role"
+    - "RoleBinding"
+    - "ClusterRole"
+    - "ClusterRoleBinding"
+  cli_tools:
+    - "tkn"
+    - "oc"
+    - "kubectl"
+  domain_vocabulary:
+    - "Tekton"
+    - "PAC"
+    - "PipelineRun"
+    - "TaskRun"
+    - "EventListener"
+    - "Pipelines as Code"
+    - "ClusterTask"
+    - "TriggerBinding"
+    - "TriggerTemplate"
+    - "Supply Chain Security"
+    - "SBOM"
+    - "Sigstore"
+    - "Rekor"
+    - "Cosign"
+    - "SLSA"
+    - "OCI"

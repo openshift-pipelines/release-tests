@@ -1,0 +1,181 @@
+"""
+{{FEATURE_NAME}} Localnet Connectivity Tests
+
+Tests for {{FEATURE_DESCRIPTION}} using CUDN (ClusterUserDefinedNetwork).
+
+STP Reference: {{STP_REFERENCE}}
+Jira: {{JIRA_ID}}
+PR: {{PR_URL}}
+"""
+
+import logging
+from collections.abc import Generator
+
+import pytest
+
+from libs.net.vmspec import IP_ADDRESS, lookup_iface_status
+from libs.vm.spec import Network, Multus, Interface
+from libs.vm.vm import BaseVirtualMachine
+from tests.network.libs import cloudinit
+from tests.network.libs import cluster_user_defined_network as libcudn
+from tests.network.libs import nodenetworkconfigurationpolicy as libnncp
+from tests.network.libs.ip import random_ipv4_address
+from tests.network.localnet.liblocalnet import localnet_cudn, localnet_vm, run_vms
+from utilities.network import assert_ping_successful
+from utilities.constants import WORKER_NODE_LABEL_KEY
+
+LOGGER = logging.getLogger(__name__)
+
+pytestmark = [
+    pytest.mark.{{TIER}},
+    pytest.mark.{{PRIORITY}},
+]
+
+LOCALNET_INTERFACE_NAME = "{{feature}}-localnet"
+PRIMARY_INTERFACE_NAME = "eth0"
+
+
+@pytest.fixture(scope="class")
+def ipv4_address_pool() -> Generator[str]:
+    """Generate IPv4 addresses from a test subnet."""
+    return (f"{random_ipv4_address(net_seed=0, host_address=host_value)}/24" for host_value in range(1, 254))
+
+
+@pytest.fixture(scope="module")
+def nncp_localnet_{{feature}}(nmstate_dependent_placeholder, admin_client):
+    """
+    NNCP for {{FEATURE_NAME}} localnet bridge mappings.
+
+    Yields:
+        NodeNetworkConfigurationPolicy: NNCP resource
+    """
+    desired_state = libnncp.DesiredState(
+        ovn=libnncp.OVN([
+            libnncp.BridgeMappings(
+                localnet="{{PHYSICAL_NETWORK_NAME}}",
+                bridge=libnncp.DEFAULT_OVN_EXTERNAL_BRIDGE,
+                state=libnncp.BridgeMappings.State.PRESENT.value,
+            )
+        ])
+    )
+
+    with libnncp.NodeNetworkConfigurationPolicy(
+        client=admin_client,
+        name="{{feature}}-localnet-nncp",
+        desired_state=desired_state,
+        node_selector={WORKER_NODE_LABEL_KEY: ""},
+    ) as nncp:
+        nncp.wait_for_status_success()
+        LOGGER.info(f"NNCP {nncp.name} configured successfully")
+        yield nncp
+
+
+@pytest.fixture(scope="class")
+def localnet_cudn_{{feature}}(admin_client, nncp_localnet_{{feature}}, namespace):
+    """
+    Localnet CUDN for {{FEATURE_NAME}}.
+
+    Requires nncp_localnet_{{feature}} fixture to set up bridge mappings first.
+
+    Yields:
+        ClusterUserDefinedNetwork: Localnet CUDN resource
+    """
+    # Add required label to namespace for CUDN namespace selector
+    from ocp_resources.namespace import Namespace
+    from ocp_resources.resource import ResourceEditor
+    admin_ns = Namespace(client=admin_client, name=namespace.name, ensure_exists=True)
+    ResourceEditor({admin_ns: {"metadata": {"labels": {"{{feature}}": "test"}}}}).update()
+
+    with localnet_cudn(
+        name=LOCALNET_INTERFACE_NAME,
+        match_labels={"{{feature}}": "test"},
+        physical_network_name="{{PHYSICAL_NETWORK_NAME}}",
+        vlan_id={{VLAN_ID}},
+        client=admin_client,
+    ) as cudn:
+        cudn.wait_for_status_success()
+        LOGGER.info(f"Localnet CUDN {cudn.name} created")
+        yield cudn
+
+
+@pytest.fixture(scope="class")
+def vm_{{feature}}_a(unprivileged_client, namespace, localnet_cudn_{{feature}}, ipv4_address_pool):
+    """
+    First VM for {{FEATURE_NAME}} testing.
+
+    Yields:
+        BaseVirtualMachine: Running VM with localnet interface
+    """
+    with localnet_vm(
+        namespace=namespace.name,
+        name="vm-{{feature}}-a",
+        client=unprivileged_client,
+        networks=[Network(name=LOCALNET_INTERFACE_NAME, multus=Multus(networkName=localnet_cudn_{{feature}}.name))],
+        interfaces=[Interface(name=LOCALNET_INTERFACE_NAME, bridge={})],
+        network_data=cloudinit.NetworkData(
+            ethernets={PRIMARY_INTERFACE_NAME: cloudinit.EthernetDevice(addresses=[next(ipv4_address_pool)])}
+        ),
+    ) as vm:
+        yield vm
+
+
+@pytest.fixture(scope="class")
+def vm_{{feature}}_b(unprivileged_client, namespace, localnet_cudn_{{feature}}, ipv4_address_pool):
+    """
+    Second VM for {{FEATURE_NAME}} testing.
+
+    Yields:
+        BaseVirtualMachine: Running VM with localnet interface
+    """
+    with localnet_vm(
+        namespace=namespace.name,
+        name="vm-{{feature}}-b",
+        client=unprivileged_client,
+        networks=[Network(name=LOCALNET_INTERFACE_NAME, multus=Multus(networkName=localnet_cudn_{{feature}}.name))],
+        interfaces=[Interface(name=LOCALNET_INTERFACE_NAME, bridge={})],
+        network_data=cloudinit.NetworkData(
+            ethernets={PRIMARY_INTERFACE_NAME: cloudinit.EthernetDevice(addresses=[next(ipv4_address_pool)])}
+        ),
+    ) as vm:
+        yield vm
+
+
+@pytest.fixture(scope="class")
+def running_{{feature}}_vms(vm_{{feature}}_a, vm_{{feature}}_b):
+    """Start both VMs and wait for them to be ready."""
+    vm_a, vm_b = run_vms(vms=(vm_{{feature}}_a, vm_{{feature}}_b))
+    return vm_a, vm_b
+
+
+@pytest.mark.polarion("{{POLARION_ID}}")
+class Test{{FeatureClassName}}Connectivity:
+    """
+    Tests for {{FEATURE_NAME}} localnet connectivity.
+
+    Markers:
+        - {{TIER}}
+        - {{PRIORITY}}
+        {{ADDITIONAL_MARKERS}}
+
+    Preconditions:
+        - NNCP for localnet bridge mappings configured
+        - Localnet CUDN created
+        - VMs running with localnet interfaces and static IPs
+    """
+
+    def test_{{feature}}_ipv4_connectivity(self, running_{{feature}}_vms):
+        """
+        Test that IPv4 connectivity works on localnet.
+
+        Steps:
+            Execute ping from VM-A to VM-B using IPv4
+
+        Expected:
+            - Ping succeeds with 0% packet loss
+        """
+        vm_a, vm_b = running_{{feature}}_vms
+        vm_b_ip = lookup_iface_status(vm=vm_b, iface_name=LOCALNET_INTERFACE_NAME)[IP_ADDRESS]
+        LOGGER.info(f"Testing IPv4 connectivity from {vm_a.name} to {vm_b.name} ({vm_b_ip})")
+        assert_ping_successful(src_vm=vm_a, dst_ip=vm_b_ip)
+
+    {{ADDITIONAL_TESTS}}
